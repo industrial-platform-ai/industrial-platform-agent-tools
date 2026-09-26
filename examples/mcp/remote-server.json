@@ -1,7 +1,0 @@
-{
-  "mcpServers": {
-    "industrial-platform-research": {
-      "url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent"
-    }
-  }
-}
