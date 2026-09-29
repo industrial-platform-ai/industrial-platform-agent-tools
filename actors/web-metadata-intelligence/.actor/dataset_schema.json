@@ -1,0 +1,53 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "status": { "type": "string" },
+      "url": { "type": "string" },
+      "final_url": { "type": "string" },
+      "fetched_at": { "type": "string" },
+      "http_status": { "type": "integer" },
+      "content_type": { "type": "string" },
+      "response_bytes": { "type": "integer" },
+      "latency_ms": { "type": "integer" },
+      "title": { "type": "string" },
+      "description": { "type": "string" },
+      "canonical": { "type": "string" },
+      "robots": { "type": "string" },
+      "author": { "type": "string" },
+      "generator": { "type": "string" },
+      "language": { "type": "string" },
+      "charset": { "type": "string" },
+      "favicon_urls": { "type": "array", "items": { "type": "string" } },
+      "headings": { "type": "object" },
+      "open_graph": { "type": "object" },
+      "twitter": { "type": "object" },
+      "json_ld": { "type": "array" },
+      "error": { "type": "string" }
+    },
+    "required": ["status", "url", "fetched_at"]
+  },
+  "views": {
+    "overview": {
+      "title": "Metadata",
+      "transformation": {
+        "fields": ["url","status","title","description","canonical","http_status","latency_ms","fetched_at"]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "url": { "label": "URL", "format": "link" },
+          "status": { "label": "Status", "format": "text" },
+          "title": { "label": "Title", "format": "text" },
+          "description": { "label": "Description", "format": "text" },
+          "canonical": { "label": "Canonical", "format": "link" },
+          "http_status": { "label": "HTTP", "format": "number" },
+          "latency_ms": { "label": "Latency ms", "format": "number" },
+          "fetched_at": { "label": "Fetched", "format": "date" }
+        }
+      }
+    }
+  }
+}
