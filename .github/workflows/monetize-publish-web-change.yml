@@ -1,0 +1,119 @@
+name: Monetize and Publish Web Change Actor
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/monetize-publish-web-change.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  monetize-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure pay-per-event pricing
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          cat > pricing.json <<'JSON'
+          {
+            "pricingInfos": [
+              {
+                "pricingModel": "PAY_PER_EVENT",
+                "pricingPerEvent": {
+                  "actorChargeEvents": {
+                    "page-comparison": {
+                      "eventTitle": "Page comparison",
+                      "eventDescription": "One successful baseline capture or deterministic web content comparison.",
+                      "eventPriceUsd": 0.01,
+                      "isPrimaryEvent": true,
+                      "isOneTimeEvent": true
+                    }
+                  }
+                }
+              }
+            ]
+          }
+          JSON
+
+          status=$(curl --silent --show-error \
+            --output pricing-response.json \
+            --write-out "%{http_code}" \
+            --request PUT \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data @pricing.json \
+            "https://api.apify.com/v2/actors/industrial_platform~web-change-intelligence")
+
+          cat pricing-response.json
+          echo
+          echo "HTTP_STATUS=$status"
+
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            exit 1
+          fi
+
+      - name: Publish Actor
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          cat > publish.json <<'JSON'
+          {
+            "isPublic": true,
+            "title": "Web Change Intelligence",
+            "categories": ["AI"]
+          }
+          JSON
+
+          status=$(curl --silent --show-error \
+            --output publish-response.json \
+            --write-out "%{http_code}" \
+            --request PUT \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data @publish.json \
+            "https://api.apify.com/v2/actors/industrial_platform~web-change-intelligence")
+
+          cat publish-response.json
+          echo
+          echo "HTTP_STATUS=$status"
+
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            exit 1
+          fi
+
+      - name: Verify public PPE configuration
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            "https://api.apify.com/v2/actors/industrial_platform~web-change-intelligence" \
+            > actor.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const actor = JSON.parse(fs.readFileSync('actor.json', 'utf8')).data;
+          const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
+          const event = current?.pricingPerEvent?.actorChargeEvents?.['page-comparison'];
+          const out = {
+            isPublic: actor.isPublic,
+            categories: actor.categories,
+            permissionLevel: actor.defaultRunOptions?.forcePermissionLevel,
+            memoryMbytes: actor.defaultRunOptions?.memoryMbytes,
+            standbyEnabled: actor.actorStandby?.isEnabled ?? false,
+            pricingModel: current?.pricingModel,
+            eventPriceUsd: event?.eventPriceUsd,
+            primaryEvent: event?.isPrimaryEvent
+          };
+          console.log(JSON.stringify(out, null, 2));
+
+          if (!actor.isPublic) throw new Error('Actor is not public.');
+          if (current?.pricingModel !== 'PAY_PER_EVENT') throw new Error('Actor is not PPE.');
+          if (!event?.isPrimaryEvent) throw new Error('page-comparison is not the primary event.');
+          if (actor.defaultRunOptions?.forcePermissionLevel !== 'LIMITED_PERMISSIONS') throw new Error('Actor is not limited-permissions.');
+          if (actor.actorStandby?.isEnabled) throw new Error('Standby must be disabled.');
+          NODE
