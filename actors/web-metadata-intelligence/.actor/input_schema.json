@@ -16,6 +16,7 @@
     "timeout_seconds": {
       "title": "Per-URL timeout",
       "type": "integer",
+      "description": "Maximum time allowed for each individual page fetch.",
       "default": 30,
       "minimum": 5,
       "maximum": 60,
@@ -24,6 +25,7 @@
     "concurrency": {
       "title": "Concurrency",
       "type": "integer",
+      "description": "Maximum number of URLs fetched concurrently during this run.",
       "default": 10,
       "minimum": 1,
       "maximum": 20
