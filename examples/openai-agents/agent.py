@@ -92,6 +92,7 @@ async def main() -> None:
             "env": child_env,
         },
         cache_tools_list=True,
+        client_session_timeout_seconds=60,
         require_approval="never",
         use_structured_content=True,
     ) as server:
