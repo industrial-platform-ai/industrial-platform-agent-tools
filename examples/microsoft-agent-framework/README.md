@@ -27,7 +27,7 @@ The final response is printed after the MCP research result is returned to the p
 The MCP server is installed on demand from npm:
 
 ```text
-industrial-platform-research-mcp@0.1.1
+industrial-platform-research-mcp@0.1.2
 ```
 
 ## Install
