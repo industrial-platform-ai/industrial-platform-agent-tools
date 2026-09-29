@@ -1,0 +1,48 @@
+name: Web Change Intelligence
+
+on:
+  pull_request:
+    paths:
+      - 'actors/web-change-intelligence/**'
+      - 'packages/change-mcp/**'
+      - 'examples/web-change/**'
+      - '.github/workflows/web-change-intelligence.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'actors/web-change-intelligence/**'
+      - 'packages/change-mcp/**'
+      - 'examples/web-change/**'
+      - '.github/workflows/web-change-intelligence.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  actor:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: actors/web-change-intelligence
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: npm run check
+      - run: npm test
+
+  change-mcp:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/change-mcp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: npm run check
