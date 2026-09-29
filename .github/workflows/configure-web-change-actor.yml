@@ -1,0 +1,63 @@
+name: Configure Web Change Actor
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/configure-web-change-actor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply Actor runtime and discovery metadata
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          cat > payload.json <<'JSON'
+          {
+            "title": "Web Change Intelligence",
+            "description": "Deterministic web change detection for AI agents and automated workflows. Capture a baseline, compare a prior SHA-256 fingerprint or normalized text snapshot, and detect changes in pricing, availability, documentation, policies, and competitor pages without per-run LLM cost.",
+            "categories": ["AI"],
+            "defaultRunOptions": {
+              "build": "latest",
+              "timeoutSecs": 120,
+              "memoryMbytes": 512,
+              "restartOnError": false,
+              "forcePermissionLevel": "LIMITED_PERMISSIONS"
+            },
+            "actorStandby": {
+              "isEnabled": false
+            },
+            "exampleRunInput": {
+              "body": "{\"url\":\"https://example.com/\",\"include_current_text\":true}",
+              "contentType": "application/json; charset=utf-8"
+            }
+          }
+          JSON
+
+          curl --fail-with-body --silent --show-error \
+            --request PUT \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data @payload.json \
+            "https://api.apify.com/v2/actors/industrial_platform~web-change-intelligence" \
+            > actor-updated.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const actor = JSON.parse(fs.readFileSync('actor-updated.json', 'utf8')).data;
+          console.log(JSON.stringify({
+            title: actor.title,
+            description: actor.description,
+            categories: actor.categories,
+            isPublic: actor.isPublic,
+            defaultRunOptions: actor.defaultRunOptions,
+            actorStandby: actor.actorStandby,
+            pricingInfos: actor.pricingInfos
+          }, null, 2));
+          NODE
