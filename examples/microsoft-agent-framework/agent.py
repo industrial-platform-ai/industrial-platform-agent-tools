@@ -87,7 +87,7 @@ async def main() -> None:
     async with MCPStdioTool(
         name="Industrial Platform Research",
         command=npx,
-        args=["-y", "industrial-platform-research-mcp@0.1.1"],
+        args=["-y", "industrial-platform-research-mcp@0.1.2"],
         env=child_env,
         approval_mode="never_require",
     ) as research_mcp:
