@@ -1,0 +1,44 @@
+{
+  "name": "industrial-platform-change-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for deterministic web change detection through Industrial Platform.",
+  "type": "module",
+  "bin": {
+    "industrial-platform-change-mcp": "src/index.js"
+  },
+  "scripts": {
+    "start": "node ./src/index.js",
+    "check": "node --check ./src/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai-agents",
+    "web-change-detection",
+    "monitoring",
+    "apify",
+    "agent-tools",
+    "industrial-platform"
+  ],
+  "author": "Industrial Platform",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/industrial-platform-ai/industrial-platform-agent-tools.git",
+    "directory": "packages/change-mcp"
+  },
+  "homepage": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools#readme",
+  "bugs": {
+    "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": ["src", "README.md"],
+  "publishConfig": { "access": "public" },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.2.0",
+    "zod": "^4.6.5"
+  },
+  "mcpName": "io.github.industrial-platform-ai/change-mcp"
+}
