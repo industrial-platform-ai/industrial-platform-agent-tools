@@ -1,0 +1,29 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.industrial-platform-ai/change-mcp",
+  "title": "Industrial Platform Web Change Intelligence",
+  "description": "Deterministic web change detection for AI agents and autonomous workflows.",
+  "repository": {
+    "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "websiteUrl": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools/tree/main/packages/change-mcp",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "industrial-platform-change-mcp",
+      "version": "0.1.0",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        {
+          "name": "APIFY_TOKEN",
+          "description": "Apify API token used to invoke the Industrial Platform Web Change Intelligence Actor.",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}
