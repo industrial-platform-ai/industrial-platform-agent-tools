@@ -1,20 +1,24 @@
 name: Verify Web Change Store Eligibility
 
 on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 * * * *'
   push:
     branches: [main]
     paths:
       - '.github/workflows/verify-web-change-store.yml'
-  workflow_dispatch:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
       - name: Check Store visibility and agentic eligibility
+        id: store
         run: |
           curl --fail-with-body --silent --show-error \
             "https://api.apify.com/v2/store?search=web-change-intelligence&username=industrial_platform&responseFormat=full&includeUnrunnableActors=true" \
@@ -35,11 +39,12 @@ jobs:
           const runnable = read('store-runnable.json');
           const agentic = read('store-agentic.json');
 
-          const actor = all.find((x) => x.username === 'industrial_platform' && x.name === 'web-change-intelligence');
-          const runnableActor = runnable.find((x) => x.username === 'industrial_platform' && x.name === 'web-change-intelligence');
-          const agenticActor = agentic.find((x) => x.username === 'industrial_platform' && x.name === 'web-change-intelligence');
+          const match = (x) => x.username === 'industrial_platform' && x.name === 'web-change-intelligence';
+          const actor = all.find(match);
+          const runnableActor = runnable.find(match);
+          const agenticActor = agentic.find(match);
 
-          console.log(JSON.stringify({
+          const result = {
             found_in_store: Boolean(actor),
             found_in_runnable_store: Boolean(runnableActor),
             found_with_allowsAgenticUsers_true: Boolean(agenticActor),
@@ -52,8 +57,41 @@ jobs:
               currentPricingInfo: actor.currentPricingInfo,
               isWhiteListedForAgenticPayments: actor.isWhiteListedForAgenticPayments,
               stats: actor.stats
-            } : null
-          }, null, 2));
+            } : null,
+            checked_at: new Date().toISOString()
+          };
 
-          if (!actor) process.exitCode = 2;
+          console.log(JSON.stringify(result, null, 2));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, [
+            `found_in_store=${result.found_in_store}`,
+            `found_in_runnable_store=${result.found_in_runnable_store}`,
+            `found_agentic=${result.found_with_allowsAgenticUsers_true}`
+          ].join('\n') + '\n');
           NODE
+
+      - name: Create agentic eligibility milestone issue
+        if: steps.store.outputs.found_agentic == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Distribution milestone: Web Change Intelligence is agentic-payment eligible';
+            const existing = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              per_page: 100
+            });
+            if (existing.some((issue) => issue.title === title)) return;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body: [
+                'Apify Store discovery now returns **industrial_platform/web-change-intelligence** when queried with `allowsAgenticUsers=true`.',
+                '',
+                'The Actor is now technically available for agentic discovery/payment under Apify\'s current Store API.',
+                '',
+                'Next objective: first external paid `page-comparison` event.'
+              ].join('\n')
+            });
