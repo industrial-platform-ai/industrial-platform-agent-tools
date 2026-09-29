@@ -1,10 +1,10 @@
 {
   "name": "industrial-platform-research-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server for delegating current, source-backed web research to Industrial Platform.",
   "type": "module",
   "bin": {
-    "industrial-platform-research-mcp": "./src/index.js"
+    "industrial-platform-research-mcp": "src/index.js"
   },
   "scripts": {
     "start": "node ./src/index.js",
@@ -44,5 +44,6 @@
   "dependencies": {
     "@modelcontextprotocol/server": "^2.2.0",
     "zod": "^4.6.5"
-  }
+  },
+  "mcpName": "io.github.industrial-platform-ai/research-mcp"
 }
