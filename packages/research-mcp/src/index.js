@@ -5,7 +5,7 @@ import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import * as z from "zod/v4";
 
 const SERVER_NAME = "industrial-platform-research-mcp";
-const SERVER_VERSION = "0.1.0";
+const SERVER_VERSION = "0.1.1";
 
 const APIFY_API_URL =
   "https://api.apify.com/v2/actors/" +
