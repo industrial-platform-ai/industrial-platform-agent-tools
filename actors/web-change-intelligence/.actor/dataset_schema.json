@@ -1,0 +1,90 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "status": { "type": "string" },
+      "url": { "type": "string" },
+      "final_url": { "type": "string" },
+      "checked_at": { "type": "string" },
+      "http_status": { "type": "integer" },
+      "content_type": { "type": "string" },
+      "title": { "type": "string" },
+      "selector": { "type": "string" },
+      "ignore_selectors": { "type": "array", "items": { "type": "string" } },
+      "comparison_mode": { "type": "string", "enum": ["baseline", "text", "hash"] },
+      "comparison_status": { "type": "string", "enum": ["baseline", "unchanged", "changed"] },
+      "changed": { "type": "boolean" },
+      "previous_hash": { "type": "string" },
+      "current_hash": { "type": "string" },
+      "text_length": { "type": "integer" },
+      "original_text_length": { "type": "integer" },
+      "text_truncated": { "type": "boolean" },
+      "current_text": { "type": "string" },
+      "diff": {
+        "type": "object",
+        "properties": {
+          "added_chars": { "type": "integer" },
+          "removed_chars": { "type": "integer" },
+          "added_blocks": { "type": "integer" },
+          "removed_blocks": { "type": "integer" },
+          "change_ratio": { "type": "number" },
+          "added_excerpt": { "type": "string" },
+          "removed_excerpt": { "type": "string" }
+        }
+      },
+      "fetch": {
+        "type": "object",
+        "properties": {
+          "bytes_received": { "type": "integer" },
+          "duration_ms": { "type": "integer" }
+        }
+      }
+    },
+    "required": [
+      "status",
+      "url",
+      "final_url",
+      "checked_at",
+      "http_status",
+      "comparison_mode",
+      "comparison_status",
+      "current_hash",
+      "text_length",
+      "original_text_length",
+      "text_truncated",
+      "fetch"
+    ]
+  },
+  "views": {
+    "overview": {
+      "title": "Change checks",
+      "transformation": {
+        "fields": [
+          "url",
+          "comparison_status",
+          "changed",
+          "title",
+          "current_hash",
+          "checked_at",
+          "text_length",
+          "text_truncated"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "url": { "label": "URL", "format": "link" },
+          "comparison_status": { "label": "Status", "format": "text" },
+          "changed": { "label": "Changed", "format": "boolean" },
+          "title": { "label": "Title", "format": "text" },
+          "current_hash": { "label": "Current hash", "format": "text" },
+          "checked_at": { "label": "Checked at", "format": "date" },
+          "text_length": { "label": "Text length", "format": "number" },
+          "text_truncated": { "label": "Truncated", "format": "boolean" }
+        }
+      }
+    }
+  }
+}
