@@ -5,14 +5,21 @@ import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import * as z from "zod/v4";
 
 const SERVER_NAME = "industrial-platform-research-mcp";
-const SERVER_VERSION = "0.1.1";
+const SERVER_VERSION = "0.1.2";
 
-const APIFY_API_URL =
-  "https://api.apify.com/v2/actors/" +
-  "industrial_platform~research-brief-agent/" +
-  "run-sync-get-dataset-items?clean=true&format=json";
+const ACTOR_ID = "industrial_platform~research-brief-agent";
+const APIFY_API_BASE = "https://api.apify.com/v2";
+const START_RUN_URL = `${APIFY_API_BASE}/actors/${ACTOR_ID}/runs`;
 
-const REQUEST_TIMEOUT_MS = 330000;
+const HTTP_TIMEOUT_MS = 75000;
+const MAX_RUN_WAIT_MS = 15 * 60 * 1000;
+
+const TERMINAL_STATUSES = new Set([
+  "SUCCEEDED",
+  "FAILED",
+  "TIMED-OUT",
+  "ABORTED"
+]);
 
 const ResearchResultSchema = z
   .object({
@@ -75,6 +82,131 @@ function truncate(value, maxLength = 3000) {
   return `${value.slice(0, maxLength)}\n...[truncated]`;
 }
 
+function errorResult(message) {
+  return {
+    isError: true,
+    content: [
+      {
+        type: "text",
+        text: message
+      }
+    ]
+  };
+}
+
+async function requestApify(url, { token, method = "GET", body, timeoutMs = HTTP_TIMEOUT_MS }) {
+  let response;
+
+  try {
+    response = await fetch(url, {
+      method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        ...(body !== undefined ? { "Content-Type": "application/json" } : {})
+      },
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+      signal: AbortSignal.timeout(timeoutMs)
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Apify request failed before completion: ${message}`);
+  }
+
+  const responseText = await response.text();
+
+  if (!response.ok) {
+    throw new Error(
+      `Apify returned HTTP ${response.status}.` +
+        (responseText ? `\n\n${truncate(responseText)}` : "")
+    );
+  }
+
+  if (!responseText) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(responseText);
+  } catch {
+    throw new Error(
+      "Apify returned a successful HTTP response, but the response was not valid JSON."
+    );
+  }
+}
+
+async function runResearch(payload, token) {
+  const started = await requestApify(START_RUN_URL, {
+    token,
+    method: "POST",
+    body: payload,
+    timeoutMs: 30000
+  });
+
+  let run = started?.data;
+
+  if (!run?.id) {
+    throw new Error("Apify accepted the request but did not return an Actor run ID.");
+  }
+
+  const runId = run.id;
+  const waitStartedAt = Date.now();
+
+  while (!TERMINAL_STATUSES.has(run.status)) {
+    if (Date.now() - waitStartedAt > MAX_RUN_WAIT_MS) {
+      throw new Error(
+        `Industrial Platform run ${runId} is still running after 15 minutes. ` +
+          "The run was started successfully, but this MCP request stopped waiting."
+      );
+    }
+
+    const polled = await requestApify(
+      `${APIFY_API_BASE}/actor-runs/${encodeURIComponent(runId)}?waitForFinish=60`,
+      {
+        token,
+        timeoutMs: 75000
+      }
+    );
+
+    run = polled?.data;
+
+    if (!run?.id) {
+      throw new Error(
+        `Apify returned an invalid status response for Actor run ${runId}.`
+      );
+    }
+  }
+
+  if (run.status !== "SUCCEEDED") {
+    const detail =
+      typeof run.statusMessage === "string" && run.statusMessage.trim()
+        ? ` ${run.statusMessage.trim()}`
+        : "";
+
+    throw new Error(
+      `Industrial Platform Actor run ${runId} ended with status ${run.status}.${detail}`
+    );
+  }
+
+  const datasetId = run.defaultDatasetId;
+
+  if (!datasetId) {
+    throw new Error(
+      `Industrial Platform Actor run ${runId} succeeded but returned no default dataset ID.`
+    );
+  }
+
+  const data = await requestApify(
+    `${APIFY_API_BASE}/datasets/${encodeURIComponent(datasetId)}/items?clean=true&format=json`,
+    {
+      token,
+      timeoutMs: 30000
+    }
+  );
+
+  return Array.isArray(data) ? data[0] : data;
+}
+
 function createServer() {
   const server = new McpServer({
     name: SERVER_NAME,
@@ -125,17 +257,10 @@ function createServer() {
       const token = process.env.APIFY_TOKEN?.trim();
 
       if (!token) {
-        return {
-          isError: true,
-          content: [
-            {
-              type: "text",
-              text:
-                "APIFY_TOKEN is not set. Set a valid Apify API token in the " +
-                "environment before starting this MCP server."
-            }
-          ]
-        };
+        return errorResult(
+          "APIFY_TOKEN is not set. Set a valid Apify API token in the " +
+            "environment before starting this MCP server."
+        );
       }
 
       const payload = {
@@ -153,84 +278,19 @@ function createServer() {
         payload.requirements = cleanRequirements;
       }
 
-      let response;
+      let result;
 
       try {
-        response = await fetch(APIFY_API_URL, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            Accept: "application/json"
-          },
-          body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
-        });
+        result = await runResearch(payload, token);
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : String(error);
-
-        return {
-          isError: true,
-          content: [
-            {
-              type: "text",
-              text: `Industrial Platform request failed before completion: ${message}`
-            }
-          ]
-        };
+        const message = error instanceof Error ? error.message : String(error);
+        return errorResult(`Industrial Platform request failed: ${message}`);
       }
-
-      const responseText = await response.text();
-
-      if (!response.ok) {
-        return {
-          isError: true,
-          content: [
-            {
-              type: "text",
-              text:
-                `Industrial Platform returned HTTP ${response.status}.` +
-                (responseText
-                  ? `\n\n${truncate(responseText)}`
-                  : "")
-            }
-          ]
-        };
-      }
-
-      let data;
-
-      try {
-        data = JSON.parse(responseText);
-      } catch {
-        return {
-          isError: true,
-          content: [
-            {
-              type: "text",
-              text:
-                "Industrial Platform returned a successful HTTP response, " +
-                "but the response was not valid JSON."
-            }
-          ]
-        };
-      }
-
-      const result = Array.isArray(data) ? data[0] : data;
 
       if (!result || typeof result !== "object") {
-        return {
-          isError: true,
-          content: [
-            {
-              type: "text",
-              text:
-                "Industrial Platform completed the request but returned no " +
-                "research result."
-            }
-          ]
-        };
+        return errorResult(
+          "Industrial Platform completed the request but returned no research result."
+        );
       }
 
       const status =
