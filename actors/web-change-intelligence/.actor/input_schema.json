@@ -1,0 +1,81 @@
+{
+  "title": "Web Change Intelligence input",
+  "description": "Fetch a public URL, normalize its content, and compare it against a previous normalized text snapshot or SHA-256 hash.",
+  "type": "object",
+  "schemaVersion": 1,
+  "additionalProperties": false,
+  "properties": {
+    "url": {
+      "title": "URL",
+      "type": "string",
+      "description": "Public http:// or https:// URL to inspect.",
+      "editor": "textfield",
+      "maxLength": 2048
+    },
+    "previous_text": {
+      "title": "Previous normalized text",
+      "type": "string",
+      "description": "Optional current_text returned by a previous run. When provided, the Actor returns deterministic added/removed excerpts and change metrics.",
+      "editor": "textarea",
+      "maxLength": 250000
+    },
+    "previous_hash": {
+      "title": "Previous SHA-256 hash",
+      "type": "string",
+      "description": "Optional current_hash from a previous run. Use this for compact changed/unchanged checks when a detailed diff is not required.",
+      "editor": "textfield",
+      "pattern": "^[A-Fa-f0-9]{64}$"
+    },
+    "selector": {
+      "title": "CSS selector",
+      "type": "string",
+      "description": "Optional CSS selector that restricts monitoring to a specific part of an HTML page, such as main, #pricing, or .inventory.",
+      "editor": "textfield",
+      "maxLength": 500
+    },
+    "ignore_selectors": {
+      "title": "Ignore CSS selectors",
+      "type": "array",
+      "description": "Optional HTML selectors to remove before comparison, useful for clocks, rotating banners, ads, or other volatile regions.",
+      "editor": "stringList",
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      },
+      "maxItems": 20,
+      "default": []
+    },
+    "include_current_text": {
+      "title": "Include normalized current text",
+      "type": "boolean",
+      "description": "Return current_text so a later run can perform a detailed text comparison.",
+      "default": true
+    },
+    "max_text_chars": {
+      "title": "Maximum normalized text characters",
+      "type": "integer",
+      "description": "Maximum characters retained before hashing and comparison. Keep this value consistent across repeated checks.",
+      "default": 100000,
+      "minimum": 1000,
+      "maximum": 250000
+    },
+    "max_diff_chars": {
+      "title": "Maximum characters per diff excerpt",
+      "type": "integer",
+      "description": "Maximum length returned for each added/removed excerpt.",
+      "default": 12000,
+      "minimum": 1000,
+      "maximum": 50000
+    },
+    "timeout_seconds": {
+      "title": "Fetch timeout",
+      "type": "integer",
+      "description": "Maximum time allowed for the target request.",
+      "default": 30,
+      "minimum": 5,
+      "maximum": 60,
+      "unit": "seconds"
+    }
+  },
+  "required": ["url"]
+}
