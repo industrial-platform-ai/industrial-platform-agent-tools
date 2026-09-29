@@ -1,0 +1,13 @@
+{
+  "actorSpecification": 1,
+  "name": "web-change-intelligence",
+  "title": "Web Change Intelligence",
+  "description": "Detect deterministic changes in public web pages and machine-readable endpoints for AI agents and automated workflows.",
+  "version": "0.1",
+  "buildTag": "latest",
+  "input": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
+}
