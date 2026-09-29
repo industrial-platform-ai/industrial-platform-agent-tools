@@ -1,0 +1,48 @@
+{
+  "name": "industrial-platform-research-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for delegating current, source-backed web research to Industrial Platform.",
+  "type": "module",
+  "bin": {
+    "industrial-platform-research-mcp": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node ./src/index.js",
+    "check": "node --check ./src/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai-agents",
+    "web-research",
+    "research-api",
+    "apify",
+    "agent-tools",
+    "industrial-platform"
+  ],
+  "author": "Industrial Platform",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/industrial-platform-ai/industrial-platform-agent-tools.git",
+    "directory": "packages/research-mcp"
+  },
+  "homepage": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools#readme",
+  "bugs": {
+    "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.2.0",
+    "zod": "^4.6.5"
+  }
+}
