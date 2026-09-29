@@ -101,6 +101,30 @@ for the current MCP integration guide.
 
 ---
 
+## Framework examples
+
+Industrial Platform includes runnable examples showing a parent agent deciding autonomously when current research should be delegated to `research_web`.
+
+### OpenAI Agents SDK
+
+```text
+examples/openai-agents/
+```
+
+This example uses the published npm MCP package over stdio and validates whether the agent actually selected `research_web` without forcing tool use.
+
+### Microsoft Agent Framework
+
+```text
+examples/microsoft-agent-framework/
+```
+
+This example uses Microsoft Agent Framework's local MCP support and the OpenAI Responses client, again leaving tool choice to the agent.
+
+Both examples require local credentials supplied through environment variables. No API keys are committed to this repository.
+
+---
+
 ## Machine contract
 
 The current research service accepts one required field and two optional fields.
