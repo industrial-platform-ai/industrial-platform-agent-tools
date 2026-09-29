@@ -2,44 +2,12 @@ name: Configure Web Metadata Intelligence
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/configure-web-metadata-intelligence.yml'
 
 permissions:
   contents: read
 
 jobs:
-  configure:
+  disabled-helper:
     runs-on: ubuntu-latest
     steps:
-      - name: Apply Actor runtime and discovery metadata
-        env:
-          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
-        run: |
-          cat > payload.json <<'JSON'
-          {
-            "title": "Web Metadata Intelligence",
-            "description": "Extract machine-readable metadata from public web pages for AI agents and automated workflows. Returns title, description, canonical URL, robots directives, Open Graph, Twitter Cards, JSON-LD, headings, language, charset, response size, and latency without per-run LLM cost.",
-            "categories": ["AI"],
-            "defaultRunOptions": {
-              "build": "latest",
-              "timeoutSecs": 180,
-              "memoryMbytes": 512,
-              "restartOnError": false,
-              "forcePermissionLevel": "LIMITED_PERMISSIONS"
-            },
-            "actorStandby": { "isEnabled": false },
-            "exampleRunInput": {
-              "body": "{\"urls\":[\"https://example.com/\"]}",
-              "contentType": "application/json; charset=utf-8"
-            }
-          }
-          JSON
-          curl --fail-with-body --silent --show-error \
-            --request PUT \
-            --header "Authorization: Bearer $APIFY_TOKEN" \
-            --header "Content-Type: application/json" \
-            --data @payload.json \
-            "https://api.apify.com/v2/actors/industrial_platform~web-metadata-intelligence"
+      - run: echo "Production configuration is now handled atomically by Deploy Web Metadata Intelligence."
