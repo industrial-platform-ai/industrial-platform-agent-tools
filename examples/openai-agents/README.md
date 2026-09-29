@@ -27,7 +27,7 @@ The run then prints the final agent response produced after Industrial Platform 
 The MCP server itself is installed on demand from npm:
 
 ```text
-industrial-platform-research-mcp@0.1.1
+industrial-platform-research-mcp@0.1.2
 ```
 
 No API keys are stored in this repository.
