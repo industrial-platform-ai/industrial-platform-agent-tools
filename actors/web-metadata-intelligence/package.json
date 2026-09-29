@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "node ./src/main.js",
-    "check": "node --check ./src/main.js && node --check ./src/lib.js",
+    "check": "node --check ./src/main.js && node --check ./src/fetch.js && node --check ./src/parser.js",
     "test": "node --test"
   },
   "engines": { "node": ">=20" },
