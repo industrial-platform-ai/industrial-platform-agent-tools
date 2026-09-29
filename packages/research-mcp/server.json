@@ -7,13 +7,13 @@
     "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
     "source": "github"
   },
-  "version": "0.1.1",
+  "version": "0.1.2",
   "websiteUrl": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools/tree/main/packages/research-mcp",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "industrial-platform-research-mcp",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "transport": {
         "type": "stdio"
       },
