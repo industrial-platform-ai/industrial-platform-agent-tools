@@ -1,0 +1,19 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "Web Change Intelligence output",
+  "description": "Machine-readable comparison result for the requested URL.",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "Comparison result",
+      "description": "The default dataset containing the comparison result.",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    },
+    "result": {
+      "type": "string",
+      "title": "Output record",
+      "description": "The same result stored as OUTPUT in the default key-value store.",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
+    }
+  }
+}
