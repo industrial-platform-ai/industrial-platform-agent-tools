@@ -88,7 +88,7 @@ async def main() -> None:
         name="Industrial Platform Research",
         params={
             "command": npx,
-            "args": ["-y", "industrial-platform-research-mcp@0.1.1"],
+            "args": ["-y", "industrial-platform-research-mcp@0.1.2"],
             "env": child_env,
         },
         cache_tools_list=True,
