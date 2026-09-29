@@ -1,0 +1,99 @@
+name: Web Change Revenue Milestones
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Measure external paid events
+        id: metrics
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: node ./scripts/apify/web-change-metrics.mjs
+      - name: Record metrics
+        env:
+          METRICS_JSON: ${{ steps.metrics.outputs.metrics_json }}
+        run: |
+          {
+            echo "## Web Change Intelligence revenue telemetry"
+            echo ""
+            echo "\`\`\`json"
+            echo "$METRICS_JSON"
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Create reached milestone issues
+        uses: actions/github-script@v7
+        env:
+          PAID_EVENTS: ${{ steps.metrics.outputs.external_paid_events }}
+          PAID_RUNS: ${{ steps.metrics.outputs.external_paid_runs }}
+          UNIQUE_USERS: ${{ steps.metrics.outputs.unique_external_users }}
+          GROSS_REVENUE: ${{ steps.metrics.outputs.gross_external_event_revenue_usd }}
+        with:
+          script: |
+            const paidEvents = Number(process.env.PAID_EVENTS || 0);
+            const paidRuns = Number(process.env.PAID_RUNS || 0);
+            const uniqueUsers = Number(process.env.UNIQUE_USERS || 0);
+            const grossRevenue = Number(process.env.GROSS_REVENUE || 0);
+
+            const milestones = [
+              {
+                threshold: 1,
+                title: 'Revenue milestone: Web Change Intelligence — first external paid event',
+                action: 'Verify the external invocation path, execution economics, origin, and repeat-use signal. Preserve the successful path and investigate adjacent demand.'
+              },
+              {
+                threshold: 10,
+                title: 'Revenue milestone: Web Change Intelligence — 10 external paid events',
+                action: 'Analyze unique users, repeat use, invocation origin, and the strongest use pattern. Improve discovery metadata around demonstrated demand and consider one adjacent specialized Actor.'
+              },
+              {
+                threshold: 100,
+                title: 'Revenue milestone: Web Change Intelligence — 100 external paid events',
+                action: 'Analyze retention and concentration, optimize pricing and compute efficiency, and use the winning demand pattern to guide Product #3 or a specialized variant.'
+              }
+            ];
+
+            const existing = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              per_page: 100
+            });
+            const existingTitles = new Set(existing.map((issue) => issue.title));
+
+            for (const milestone of milestones) {
+              if (paidEvents < milestone.threshold || existingTitles.has(milestone.title)) continue;
+
+              const body = [
+                'Automated milestone reached for **industrial_platform/web-change-intelligence**.',
+                '',
+                `- External paid events: **${paidEvents}**`,
+                `- External paid runs: **${paidRuns}**`,
+                `- Unique external users: **${uniqueUsers}**`,
+                `- Gross event revenue observed from run pricing metadata: **$${grossRevenue.toFixed(6)}**`,
+                '',
+                '### Next action',
+                milestone.action,
+                '',
+                '_Created automatically by the Industrial Platform Autonomous Revenue Initiative._'
+              ].join('\n');
+
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: milestone.title,
+                body
+              });
+            }
