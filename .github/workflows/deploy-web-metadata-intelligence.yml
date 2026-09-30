@@ -8,6 +8,10 @@ on:
       - 'actors/web-metadata-intelligence/**'
       - '.github/workflows/deploy-web-metadata-intelligence.yml'
 
+concurrency:
+  group: industrial-platform-apify-build-lane-2
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
