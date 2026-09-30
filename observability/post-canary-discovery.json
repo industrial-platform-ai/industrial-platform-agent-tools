@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-30T19:35:18.258Z",
+  "generatedAt": "2026-09-30T20:43:48.137Z",
   "origin": "https://x402-gateway-production-1f21.up.railway.app",
   "agent402Index": {
     "status": 200,
@@ -11,8 +11,8 @@
       "content-encoding": "br",
       "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 19:35:18 GMT",
-      "etag": "W/\"2d97-RlbekWlpWS0DsVgHfCr958a2YkY\"",
+      "date": "Wed, 30 Sep 2026 20:43:48 GMT",
+      "etag": "W/\"2d92-5j9L0J6+nKI8zpuFy/Vnxy4VBI8\"",
       "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
       "referrer-policy": "strict-origin-when-cross-origin",
       "server": "railway-hikari",
@@ -21,18 +21,18 @@
       "vary": "Accept-Encoding",
       "x-content-type-options": "nosniff",
       "x-frame-options": "SAMEORIGIN",
-      "x-hikari-trace": "iad1.fp5t",
+      "x-hikari-trace": "iad1.trg5",
       "x-permitted-cross-domain-policies": "none",
       "x-railway-edge": "iad1",
-      "x-railway-request-id": "GL-TKxKHQs-Hz8pPxtoGcA",
-      "x-request-id": "142d6591-2b58-454a-b4ef-f0f28368d7be"
+      "x-railway-request-id": "2hVKFk0YSI21DnFAWUN5dQ",
+      "x-request-id": "e45cf8eb-9934-4d2f-8b7c-a374a60eaf93"
     },
     "body": {
       "origin": "https://x402-gateway-production-1f21.up.railway.app",
-      "displayName": "Industrial Platform Fast Web Tools",
+      "displayName": "Industrial Platform Web Tools",
       "homepage": "https://x402-gateway-production-1f21.up.railway.app",
       "toolCount": 2,
-      "fetchedAt": 1790795898746,
+      "fetchedAt": 1790799496445,
       "error": null,
       "health": 1,
       "routable": true,
@@ -93,7 +93,7 @@
             "eip155:8453"
           ],
           "declared": true,
-          "lastVerifiedAt": "2026-09-30T19:18:18.614Z"
+          "lastVerifiedAt": "2026-09-30T20:18:16.248Z"
         },
         {
           "method": "POST",
@@ -124,7 +124,7 @@
             "eip155:8453"
           ],
           "declared": true,
-          "lastVerifiedAt": "2026-09-30T19:18:18.746Z"
+          "lastVerifiedAt": "2026-09-30T20:18:16.445Z"
         }
       ],
       "paymentNetworksKnown": true,
@@ -193,7 +193,7 @@
         "content-encoding": "br",
         "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
         "content-type": "application/json; charset=utf-8",
-        "date": "Wed, 30 Sep 2026 19:35:19 GMT",
+        "date": "Wed, 30 Sep 2026 20:43:48 GMT",
         "etag": "W/\"1d02-XVPjbGqVhOGynZVudPOu82LBStw\"",
         "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
         "referrer-policy": "strict-origin-when-cross-origin",
@@ -204,11 +204,11 @@
         "x-cache": "miss",
         "x-content-type-options": "nosniff",
         "x-frame-options": "SAMEORIGIN",
-        "x-hikari-trace": "iad1.fp5t",
+        "x-hikari-trace": "iad1.trg5",
         "x-permitted-cross-domain-policies": "none",
         "x-railway-edge": "iad1",
-        "x-railway-request-id": "nqf97LmHSGmbBzyWpHNmDw",
-        "x-request-id": "c8809b91-7dce-4c29-885d-50b20a62d686"
+        "x-railway-request-id": "aKXIdNg2SA2wvWIELPU1MQ",
+        "x-request-id": "c66f9343-a744-44c8-a086-c49fcb2bff7b"
       },
       "body": {
         "query": "web metadata extractor",
@@ -486,65 +486,672 @@
       }
     },
     "website change detector": {
-      "status": 503,
+      "status": 200,
       "headers": {
         "access-control-allow-origin": "*",
         "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
-        "cache-control": "no-store",
         "connection": "keep-alive",
-        "content-length": "128",
+        "content-encoding": "br",
         "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
         "content-type": "application/json; charset=utf-8",
-        "date": "Wed, 30 Sep 2026 19:35:19 GMT",
-        "etag": "W/\"80-dv95CGDAW4GHn9C72JYr8qI1F3Y\"",
+        "date": "Wed, 30 Sep 2026 20:43:48 GMT",
+        "etag": "W/\"1f49-cQ+BgUzqfvU2vpStyEkSYMfO4QA\"",
         "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
         "referrer-policy": "strict-origin-when-cross-origin",
-        "retry-after": "2",
         "server": "railway-hikari",
         "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+        "transfer-encoding": "chunked",
         "vary": "Accept-Encoding",
-        "x-content-type-options": "nosniff",
-        "x-frame-options": "SAMEORIGIN",
-        "x-hikari-trace": "iad1.fp5t",
-        "x-permitted-cross-domain-policies": "none",
-        "x-railway-edge": "iad1",
-        "x-railway-request-id": "xZzSTVrhSueWDKvCY53eZw",
-        "x-request-id": "091995d8-2e39-49bb-ba43-328b4ade644e"
-      },
-      "body": {
-        "error": "The server is busy; free and discovery requests are paused briefly so paid calls keep flowing.",
-        "retryAfterSeconds": 2
-      }
-    },
-    "Industrial Platform Fast Web Tools": {
-      "status": 503,
-      "headers": {
-        "access-control-allow-origin": "*",
-        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
-        "cache-control": "no-store",
-        "connection": "keep-alive",
-        "content-length": "128",
-        "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
-        "content-type": "application/json; charset=utf-8",
-        "date": "Wed, 30 Sep 2026 19:35:19 GMT",
-        "etag": "W/\"80-dv95CGDAW4GHn9C72JYr8qI1F3Y\"",
-        "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
-        "referrer-policy": "strict-origin-when-cross-origin",
-        "retry-after": "2",
-        "server": "railway-hikari",
-        "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
-        "vary": "Accept-Encoding",
+        "x-cache": "miss",
         "x-content-type-options": "nosniff",
         "x-frame-options": "SAMEORIGIN",
         "x-hikari-trace": "iad1.trg5",
         "x-permitted-cross-domain-policies": "none",
         "x-railway-edge": "iad1",
-        "x-railway-request-id": "RHShaEjDRyu9T-k0jq4OvQ",
-        "x-request-id": "b39db69d-482c-4642-b033-62b0633ecf2a"
+        "x-railway-request-id": "pbmBCp4lQPCxFfVTnpoFkQ",
+        "x-request-id": "2c4a0e65-390c-41da-af8f-68f1f91e8da5"
       },
       "body": {
-        "error": "The server is busy; free and discovery requests are paused briefly so paid calls keep flowing.",
-        "retryAfterSeconds": 2
+        "query": "website change detector",
+        "count": 5,
+        "topMax": 25,
+        "returned": 5,
+        "matched": 72,
+        "complete": false,
+        "truncated": true,
+        "results": [
+          {
+            "slug": "http-check",
+            "name": "HTTP check",
+            "route": "POST /api/http-check",
+            "price": "$0.001",
+            "priceUsd": 0.001,
+            "callExample": {
+              "method": "POST",
+              "path": "/api/http-check",
+              "body": {
+                "url": "https://example.com"
+              }
+            },
+            "example": {
+              "url": "https://example.com"
+            },
+            "required": [
+              "url"
+            ],
+            "inputSchema": {
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "description": "Public http(s) URL"
+                },
+                "method": {
+                  "type": "string",
+                  "description": "GET (default) or HEAD"
+                }
+              },
+              "required": [
+                "url"
+              ]
+            },
+            "category": "network",
+            "description": "Check any public URL: status code, latency, final URL after redirects, and response headers. The uptime primitive for agent monitors.",
+            "score": 17.309753777557916,
+            "computePayable": false,
+            "docs": "https://agent402.tools/tools/http-check"
+          },
+          {
+            "slug": "exchanges",
+            "name": "Crypto exchanges",
+            "route": "GET /api/exchanges",
+            "price": "$0.005",
+            "priceUsd": 0.005,
+            "callExample": {
+              "method": "GET",
+              "path": "/api/exchanges",
+              "query": {
+                "limit": 10
+              }
+            },
+            "example": {
+              "limit": 10
+            },
+            "required": [],
+            "inputSchema": {
+              "properties": {
+                "limit": {
+                  "type": "number",
+                  "description": "List mode: 1-100 exchanges (default 25)."
+                },
+                "page": {
+                  "type": "number",
+                  "description": "List mode: page number (default 1)."
+                },
+                "exchange": {
+                  "type": "string",
+                  "description": "Profile mode: one exchange id (binance, gdax, kraken, okex, bybit_spot, ...)."
+                }
+              }
+            },
+            "category": "crypto",
+            "description": "Crypto exchanges ranked by trust score: id, name, country, year established, trust score (1-10) and rank, 24h volume in BTC (and normalized), centralized flag and URL; limit 1-100 (default 25). Pass `exchange` (an id such as binance, gdax, kraken) for ONE exchange's profile instead: the same fields plus description, trade volume incl. and excl. wash-trade normalization, ticker count and social links. Cached in-process for 5 minutes. Use exchange-tickers for an exchange's markets.",
+            "score": 10.936861404466038,
+            "computePayable": false,
+            "docs": "https://agent402.tools/tools/exchanges"
+          },
+          {
+            "slug": "exchange-rates",
+            "name": "BTC exchange rates",
+            "route": "GET /api/exchange-rates",
+            "price": "$0.005",
+            "priceUsd": 0.005,
+            "callExample": {
+              "method": "GET",
+              "path": "/api/exchange-rates",
+              "query": {
+                "currencies": "usd,eur,eth,xau"
+              }
+            },
+            "example": {
+              "currencies": "usd,eur,eth,xau"
+            },
+            "required": [],
+            "inputSchema": {
+              "properties": {
+                "currencies": {
+                  "type": "string",
+                  "description": "Optional comma-separated unit codes to keep (usd, eur, eth, xau, ...). Default: all."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Optional filter: crypto, fiat or commodity."
+                }
+              }
+            },
+            "category": "crypto",
+            "description": "BTC-denominated exchange rates for ~60 units: crypto (ETH, LTC, BNB, SOL, ...), fiat (USD, EUR, JPY, ...) and commodities (gold, silver ounces), each as units per 1 BTC with name and type. Optional `currencies` filter (comma-separated unit codes) and `type` filter (crypto, fiat, commodity). One call gives a consistent cross-rate table: BTC in gold ounces, ETH/BTC, USD/JPY via BTC. Cached in-process for 60 seconds.",
+            "score": 10.936861404466038,
+            "computePayable": false,
+            "docs": "https://agent402.tools/tools/exchange-rates"
+          },
+          {
+            "slug": "exchange-tickers",
+            "name": "Exchange tickers",
+            "route": "GET /api/exchange-tickers",
+            "price": "$0.008",
+            "priceUsd": 0.008,
+            "callExample": {
+              "method": "GET",
+              "path": "/api/exchange-tickers",
+              "query": {
+                "exchange": "binance",
+                "coins": "ethereum",
+                "limit": 5
+              }
+            },
+            "example": {
+              "exchange": "binance",
+              "coins": "ethereum",
+              "limit": 5
+            },
+            "required": [
+              "exchange"
+            ],
+            "inputSchema": {
+              "properties": {
+                "exchange": {
+                  "type": "string",
+                  "description": "Exchange id (binance, gdax, kraken, ...). See the exchanges tool."
+                },
+                "coins": {
+                  "type": "string",
+                  "description": "Optional comma-separated coin ids to filter (max 10), e.g. \"bitcoin,ethereum\"."
+                },
+                "page": {
+                  "type": "number",
+                  "description": "Page of 100 tickers upstream (default 1)."
+                },
+                "limit": {
+                  "type": "number",
+                  "description": "Max tickers returned from that page, 1-100 (default 50)."
+                }
+              },
+              "required": [
+                "exchange"
+              ]
+            },
+            "category": "crypto",
+            "description": "Markets (tickers) listed on one exchange: base/target pair, last price, 24h volume, USD- and BTC-converted last price and volume, bid-ask spread %, trust score (green/yellow/red), anomaly and stale flags, trade URL and last trade time. Filter by `coins` (coin ids, max 10); pages of up to 100 tickers (`page`), trimmed to `limit` (default 50). Where is a coin actually trading, at what spread, and is the volume trusted. Cached in-process for 60 seconds.",
+            "score": 10.936861404466038,
+            "computePayable": false,
+            "docs": "https://agent402.tools/tools/exchange-tickers"
+          },
+          {
+            "slug": "fx-rate",
+            "name": "Currency exchange rate",
+            "route": "GET /api/fx-rate",
+            "price": "$0.002",
+            "priceUsd": 0.002,
+            "callExample": {
+              "method": "GET",
+              "path": "/api/fx-rate",
+              "query": {
+                "from": "USD",
+                "to": "EUR",
+                "amount": 100
+              }
+            },
+            "example": {
+              "from": "USD",
+              "to": "EUR",
+              "amount": 100
+            },
+            "required": [
+              "from",
+              "to"
+            ],
+            "inputSchema": {
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "description": "3-letter currency code, e.g. USD"
+                },
+                "to": {
+                  "type": "string",
+                  "description": "3-letter currency code, e.g. EUR"
+                },
+                "amount": {
+                  "type": "number",
+                  "description": "amount to convert (default 1)"
+                }
+              },
+              "required": [
+                "from",
+                "to"
+              ]
+            },
+            "category": "data",
+            "description": "Live currency conversion using European Central Bank reference rates (via Frankfurter). Converts an amount between two currencies and returns the rate and date. ?from=USD&to=EUR&amount=100",
+            "score": 6.5621168426796235,
+            "computePayable": false,
+            "docs": "https://agent402.tools/tools/fx-rate"
+          }
+        ],
+        "packs": [
+          {
+            "slug": "regulatory-watch",
+            "title": "SEC regulatory monitoring",
+            "tagline": "The 'who just filed / who just bought / what just IPO'd / what does the full-text search say' monitoring loop. Five EDGAR tools composed: full-text search for a keyword, surface recent filings on the matched companies, pull insider Form 4 transactions, pull 13F institutional holdings changes, and check the IPO calendar. Different from sec-filings-deep-dive (which goes deep on one company's earnings) - this is the wide-and-recent radar.",
+            "toolSlugs": [
+              "edgar-search",
+              "edgar-filings",
+              "edgar-insider-trades",
+              "edgar-13f-holdings",
+              "edgar-recent-ipos"
+            ],
+            "score": 4,
+            "url": "https://agent402.tools/skills/regulatory-watch",
+            "promptName": "regulatory-watch",
+            "method": "POST",
+            "route": "/api/skill/regulatory-watch",
+            "callUrl": "https://agent402.tools/api/skill/regulatory-watch",
+            "price": "$0.023",
+            "aLaCarteUsd": 0.025,
+            "oneCall": "POST https://agent402.tools/api/skill/regulatory-watch runs all 5 steps for one $0.023 payment (partial success per step). The same 5 tools bought individually total $0.025 — the bundle is also the cheaper path."
+          },
+          {
+            "slug": "schema-evolution",
+            "title": "API contract drift check",
+            "tagline": "The 'did this API contract change in a way that breaks our integration?' workflow. Diff two OpenAPI snapshots structurally, lint the new one for agent-readiness regressions, extract the endpoint surface for inventory comparison, validate a known-good payload against the new contract, and summarize security-relevant changes. Six tools, one go/no-go answer on whether the upstream API broke us.",
+            "toolSlugs": [
+              "openapi-diff",
+              "openapi-lint",
+              "openapi-extract",
+              "openapi-required-params",
+              "openapi-validate-payload",
+              "openapi-security-summary"
+            ],
+            "score": 4,
+            "url": "https://agent402.tools/skills/schema-evolution",
+            "promptName": "schema-evolution",
+            "method": "POST",
+            "route": "/api/skill/schema-evolution",
+            "callUrl": "https://agent402.tools/api/skill/schema-evolution",
+            "price": "$0.008",
+            "aLaCarteUsd": 0.008,
+            "oneCall": "POST https://agent402.tools/api/skill/schema-evolution runs all 6 steps for one $0.008 payment (partial success per step). The same 6 tools bought individually total $0.008 — the bundle is also the cheaper path."
+          }
+        ],
+        "rarestTerm": "detector",
+        "rarestTermCovered": false,
+        "coverageShare": 0.33,
+        "multiStep": {
+          "tool": "decide",
+          "route": "POST /api/decide",
+          "mcp": "decide.plan",
+          "note": "need a multi-step plan across this catalog and outside x402 sellers, with fallbacks and validated params? call decide"
+        },
+        "hint": "no catalog tool matched, but an indexed seller serves this - see routeAcross",
+        "routeAcross": "https://agent402.tools/api/route?q=website%20change%20detector&include=external"
+      }
+    },
+    "Industrial Platform Fast Web Tools": {
+      "status": 200,
+      "headers": {
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
+        "connection": "keep-alive",
+        "content-encoding": "br",
+        "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Wed, 30 Sep 2026 20:43:48 GMT",
+        "etag": "W/\"2cf1-YKIclsEFWS/Lp+SKiCbW/9hN7IE\"",
+        "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "server": "railway-hikari",
+        "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+        "transfer-encoding": "chunked",
+        "vary": "Accept-Encoding",
+        "x-cache": "miss",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "x-hikari-trace": "iad1.trg5",
+        "x-permitted-cross-domain-policies": "none",
+        "x-railway-edge": "iad1",
+        "x-railway-request-id": "V-U_CezWSGqjPPcKlt7tkg",
+        "x-request-id": "fe02af5a-c7d4-42bf-a9c9-854b8fda9340"
+      },
+      "body": {
+        "query": "Industrial Platform Fast Web Tools",
+        "count": 5,
+        "topMax": 25,
+        "returned": 5,
+        "matched": 201,
+        "complete": false,
+        "truncated": true,
+        "results": [
+          {
+            "slug": "v1-images-fast",
+            "name": "Fast image generation (OpenAI-compatible, budget)",
+            "route": "POST /v1/images/fast",
+            "price": "$0.020",
+            "priceUsd": 0.02,
+            "callExample": {
+              "method": "POST",
+              "path": "/v1/images/fast",
+              "body": {
+                "prompt": "A minimalist line drawing of a lighthouse at dawn"
+              }
+            },
+            "example": {
+              "prompt": "A minimalist line drawing of a lighthouse at dawn"
+            },
+            "required": [
+              "prompt"
+            ],
+            "inputSchema": {
+              "properties": {
+                "prompt": {
+                  "type": "string",
+                  "description": "Text description of the image to generate (up to 4,000 chars)"
+                }
+              },
+              "required": [
+                "prompt"
+              ]
+            },
+            "category": "llm",
+            "description": "Budget text-to-image over x402 - OpenAI images wire (prompt in, inline base64 out) at $0.02 per picture, a quarter of the flagship /v1/images/generations price. Served by FLUX.2 Klein 4B (about 2 seconds per image, 1024x1024 JPEG) with GPT-5 Image Mini as the failover. n locked to 1, text-to-image only, size and quality fixed. Point any OpenAI SDK's images.generate() at base_url https://agent402.tools/v1 and call /images/fast.",
+            "score": 50.9310308842602,
+            "computePayable": false,
+            "docs": "https://agent402.tools/tools/v1-images-fast"
+          },
+          {
+            "slug": "gas-snapshot",
+            "name": "Gas snapshot (slow / standard / fast)",
+            "route": "POST /api/gas-snapshot",
+            "price": "$0.005",
+            "priceUsd": 0.005,
+            "callExample": {
+              "method": "POST",
+              "path": "/api/gas-snapshot",
+              "body": {
+                "network": "base"
+              }
+            },
+            "example": {
+              "network": "base"
+            },
+            "required": [],
+            "inputSchema": {
+              "properties": {
+                "network": {
+                  "type": "string",
+                  "description": "ethereum / base / polygon / arbitrum / optimism (default base)."
+                }
+              }
+            },
+            "category": "crypto",
+            "description": "Live gas price snapshot for a chain - slow / standard / fast tiers in gwei, plus the latest base fee. Sampled from eth_feeHistory (last 4 blocks, 25th/50th/90th percentile priority fees). Use to estimate before broadcasting a transaction from another tool.",
+            "score": 12.312884679225807,
+            "computePayable": false,
+            "docs": "https://agent402.tools/tools/gas-snapshot"
+          },
+          {
+            "slug": "exa-search",
+            "name": "Exa neural web search",
+            "route": "POST /api/exa-search",
+            "price": "$0.012",
+            "priceUsd": 0.012,
+            "callExample": {
+              "method": "POST",
+              "path": "/api/exa-search",
+              "body": {
+                "query": "how agent-to-agent micropayment protocols settle onchain",
+                "numResults": 5
+              }
+            },
+            "example": {
+              "query": "how agent-to-agent micropayment protocols settle onchain",
+              "numResults": 5
+            },
+            "required": [
+              "query"
+            ],
+            "inputSchema": {
+              "properties": {
+                "query": {
+                  "type": "string",
+                  "description": "What to search for, in natural language (max 1000 chars)."
+                },
+                "numResults": {
+                  "type": "number",
+                  "description": "Results to return, 1 to 10 (default 10)."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "auto (default), neural, keyword, fast, or instant (lowest latency, some depth traded for speed)."
+                },
+                "category": {
+                  "type": "string",
+                  "description": "Optional Exa category filter: company, publication, news, personal site, financial report, people (\"research paper\" is accepted as an alias of \"publication\"; Exa retired pdf, github and tweet on 2026-07-23 and they are refused with this list)."
+                },
+                "includeDomains": {
+                  "type": "array",
+                  "description": "Only return results from these domains."
+                },
+                "excludeDomains": {
+                  "type": "array",
+                  "description": "Never return results from these domains."
+                },
+                "startPublishedDate": {
+                  "type": "string",
+                  "description": "ISO date; only pages published on or after it."
+                },
+                "endPublishedDate": {
+                  "type": "string",
+                  "description": "ISO date; only pages published on or before it."
+                }
+              },
+              "required": [
+                "query"
+              ]
+            },
+            "category": "web",
+            "description": "Neural (embedding-based) web search over Exa's curated index, which finds pages by meaning rather than keyword overlap. Use it when a keyword engine returns the wrong thing: conceptual questions, 'pages like this one', or niche technical writing. Returns up to 10 results with title, URL, published date and author. Complements the Brave-backed web search rather than replacing it.",
+            "score": 11.181511222795864,
+            "computePayable": false,
+            "docs": "https://agent402.tools/tools/exa-search"
+          },
+          {
+            "slug": "skill-webhook-intake",
+            "name": "Skill: Webhook secure intake",
+            "route": "POST /api/skill/webhook-intake",
+            "price": "$0.006",
+            "priceUsd": 0.006,
+            "callExample": {
+              "method": "POST",
+              "path": "/api/skill/webhook-intake",
+              "body": {
+                "rawBody": "{\"ref\":\"refs/heads/main\",\"before\":\"6113728f27ae82c7b1a177c8d03f9e96e0adf246\",\"after\":\"d6fde92930d4715a2b49857d24b940956b26d2d3\",\"repository\":{\"full_name\":\"acme/checkout-service\"},\"pusher\":{\"name\":\"alice\",\"email\":\"alice@example.com\"},\"head_commit\":{\"id\":\"d6fde92930d4715a2b49857d24b940956b26d2d3\",\"message\":\"fix: retry payment capture on 5xx\",\"timestamp\":\"2026-07-01T15:04:05Z\"}}",
+                "provider": "github",
+                "secret": "gh_hook_secret_demo_only",
+                "signature": "sha256=45f74caa8f537323fd4fa022357ebc620cbcfb28a6dcd65b0f1da3646edf5c4a"
+              }
+            },
+            "example": {
+              "rawBody": "{\"ref\":\"refs/heads/main\",\"before\":\"6113728f27ae82c7b1a177c8d03f9e96e0adf246\",\"after\":\"d6fde92930d4715a2b49857d24b940956b26d2d3\",\"repository\":{\"full_name\":\"acme/checkout-service\"},\"pusher\":{\"name\":\"alice\",\"email\":\"alice@example.com\"},\"head_commit\":{\"id\":\"d6fde92930d4715a2b49857d24b940956b26d2d3\",\"message\":\"fix: retry payment capture on 5xx\",\"timestamp\":\"2026-07-01T15:04:05Z\"}}",
+              "provider": "github",
+              "secret": "gh_hook_secret_demo_only",
+              "signature": "sha256=45f74caa8f537323fd4fa022357ebc620cbcfb28a6dcd65b0f1da3646edf5c4a"
+            },
+            "required": [
+              "rawBody",
+              "provider",
+              "secret",
+              "signature"
+            ],
+            "inputSchema": {
+              "properties": {
+                "rawBody": {
+                  "type": "string",
+                  "description": "the raw webhook body exactly as received on the wire (signatures are over the raw bytes)"
+                },
+                "provider": {
+                  "type": "string",
+                  "description": "which provider signed the webhook: github | stripe | shopify | slack"
+                },
+                "secret": {
+                  "type": "string",
+                  "description": "the webhook signing secret from the provider dashboard (never echoed back)"
+                },
+                "signature": {
+                  "type": "string",
+                  "description": "the signature header value, with or without its scheme prefix (sha256= / v0= / t=...,v1=...)"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "description": "the provider timestamp header - required for stripe/slack replay protection (stripe's may ride in the signature's t= element)"
+                }
+              },
+              "required": [
+                "rawBody",
+                "provider",
+                "secret",
+                "signature"
+              ]
+            },
+            "category": "skill-pack",
+            "description": "The production ingest path for every incoming webhook: verify the provider signature (GitHub / Stripe / Shopify / Slack, constant-time, replay-window enforced), schema-validate the now-trusted body against the provider envelope, fingerprint the raw bytes for redelivery dedup, normalize the event timestamp to UTC + epoch, and redact PII before anything hits a log. Five pure-CPU tools - the accept-or-reject gate, run on every event. Webhook secure intake skill pack: one x402 payment runs 5 underlying tools (webhook-verify, json-validate, hash, time-convert, redact); partial-success per step.",
+            "score": 10.997418186353528,
+            "computePayable": true,
+            "docs": "https://agent402.tools/tools/skill-webhook-intake"
+          },
+          {
+            "slug": "webhook-verify",
+            "name": "Webhook signature verify",
+            "route": "POST /api/webhook-verify",
+            "price": "$0.001",
+            "priceUsd": 0.001,
+            "callExample": {
+              "method": "POST",
+              "path": "/api/webhook-verify",
+              "body": {
+                "provider": "github",
+                "payload": "{\"hello\":\"world\"}",
+                "secret": "it's a secret",
+                "signature": "sha256=8d4063f0a81aa1531d9891a028a68cf2bb537ecdf0e82557674d71e168d570f9"
+              }
+            },
+            "example": {
+              "provider": "github",
+              "payload": "{\"hello\":\"world\"}",
+              "secret": "it's a secret",
+              "signature": "sha256=8d4063f0a81aa1531d9891a028a68cf2bb537ecdf0e82557674d71e168d570f9"
+            },
+            "required": [
+              "provider",
+              "payload",
+              "secret",
+              "signature"
+            ],
+            "inputSchema": {
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "description": "github | stripe | shopify | slack"
+                },
+                "payload": {
+                  "type": "string",
+                  "description": "the RAW request body string, byte-for-byte as received (never a re-serialized object)"
+                },
+                "secret": {
+                  "type": "string",
+                  "description": "the provider signing secret (never echoed back)"
+                },
+                "signature": {
+                  "type": "string",
+                  "description": "the signature header value, with or without its scheme prefix (sha256= / v0= / t=...,v1=...)"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "description": "provider timestamp, required for stripe + slack (stripe may be parsed from a t= element in the signature)"
+                },
+                "toleranceSeconds": {
+                  "type": "number",
+                  "description": "max timestamp age for stripe/slack replay protection (default 300; 0 skips the age check)"
+                }
+              },
+              "required": [
+                "provider",
+                "payload",
+                "secret",
+                "signature"
+              ]
+            },
+            "category": "validation",
+            "description": "Verify a webhook's HMAC signature against the correct per-provider scheme: GitHub (X-Hub-Signature-256, sha256=hex), Stripe (Stripe-Signature t/v1 over \"<t>.<body>\" with replay tolerance), Shopify (X-Shopify-Hmac-Sha256, base64), Slack (X-Slack-Signature, v0:<ts>:<body> with replay tolerance). Constant-time comparison; the secret is never echoed. Pass the RAW request body string - signatures are over the raw bytes. Deterministic.",
+            "score": 9.317926018996554,
+            "computePayable": true,
+            "docs": "https://agent402.tools/tools/webhook-verify"
+          }
+        ],
+        "packs": [
+          {
+            "slug": "webhook-intake",
+            "title": "Webhook secure intake",
+            "tagline": "The production ingest path for every incoming webhook: verify the provider signature (GitHub / Stripe / Shopify / Slack, constant-time, replay-window enforced), schema-validate the now-trusted body against the provider envelope, fingerprint the raw bytes for redelivery dedup, normalize the event timestamp to UTC + epoch, and redact PII before anything hits a log. Five pure-CPU tools - the accept-or-reject gate, run on every event.",
+            "toolSlugs": [
+              "webhook-verify",
+              "json-validate",
+              "hash",
+              "time-convert",
+              "redact"
+            ],
+            "score": 14,
+            "url": "https://agent402.tools/skills/webhook-intake",
+            "promptName": "webhook-intake",
+            "method": "POST",
+            "route": "/api/skill/webhook-intake",
+            "callUrl": "https://agent402.tools/api/skill/webhook-intake",
+            "price": "$0.006",
+            "aLaCarteUsd": 0.006,
+            "oneCall": "POST https://agent402.tools/api/skill/webhook-intake runs all 5 steps for one $0.006 payment (partial success per step). The same 5 tools bought individually total $0.006 — the bundle is also the cheaper path."
+          },
+          {
+            "slug": "media-pipeline",
+            "title": "Uploaded-media normalize",
+            "tagline": "The 'user uploaded a thing, normalize it before storing' workflow. Probe the file (image or audio/video) with media-info, decode any embedded barcodes/QRs, resize and thumbnail the image, convert it to a web-friendly format, and normalize audio loudness to broadcast standard. Six tools, one canonical normalize-on-upload pipeline that turns arbitrary user uploads into predictable storage artifacts.",
+            "toolSlugs": [
+              "media-info",
+              "barcode-decode",
+              "image-resize",
+              "image-thumbnail",
+              "image-convert",
+              "audio-normalize"
+            ],
+            "score": 6,
+            "url": "https://agent402.tools/skills/media-pipeline",
+            "promptName": "media-pipeline",
+            "method": "POST",
+            "route": "/api/skill/media-pipeline",
+            "callUrl": "https://agent402.tools/api/skill/media-pipeline",
+            "price": "$0.03",
+            "aLaCarteUsd": 0.033,
+            "oneCall": "POST https://agent402.tools/api/skill/media-pipeline runs all 6 steps for one $0.03 payment (partial success per step). The same 6 tools bought individually total $0.033 — the bundle is also the cheaper path."
+          }
+        ],
+        "rarestTerm": "industrial",
+        "rarestTermCovered": false,
+        "coverageShare": 0.31,
+        "multiStep": {
+          "tool": "decide",
+          "route": "POST /api/decide",
+          "mcp": "decide.plan",
+          "note": "need a multi-step plan across this catalog and outside x402 sellers, with fallbacks and validated params? call decide"
+        },
+        "hint": "no catalog tool matched, but an indexed seller serves this - see routeAcross",
+        "routeAcross": "https://agent402.tools/api/route?q=Industrial%20Platform%20Fast%20Web%20Tools&include=external"
       }
     },
     "x402-gateway-production-1f21.up.railway.app": {
@@ -557,7 +1164,7 @@
         "content-length": "128",
         "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
         "content-type": "application/json; charset=utf-8",
-        "date": "Wed, 30 Sep 2026 19:35:19 GMT",
+        "date": "Wed, 30 Sep 2026 20:43:49 GMT",
         "etag": "W/\"80-dv95CGDAW4GHn9C72JYr8qI1F3Y\"",
         "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
         "referrer-policy": "strict-origin-when-cross-origin",
@@ -567,11 +1174,11 @@
         "vary": "Accept-Encoding",
         "x-content-type-options": "nosniff",
         "x-frame-options": "SAMEORIGIN",
-        "x-hikari-trace": "iad1.fp5t",
+        "x-hikari-trace": "iad1.trg5",
         "x-permitted-cross-domain-policies": "none",
         "x-railway-edge": "iad1",
-        "x-railway-request-id": "0vZhVb4QTOSu71fUlt7tkg",
-        "x-request-id": "795c9374-32a8-4631-bfe3-6ccdda127259"
+        "x-railway-request-id": "Qvp5a1EdTiu-ykdQ2h0iww",
+        "x-request-id": "81325f4a-7eed-4ddf-a655-bdefc21fb30c"
       },
       "body": {
         "error": "The server is busy; free and discovery requests are paused briefly so paid calls keep flowing.",
@@ -734,11 +1341,11 @@
   "coinbaseValidate": {
     "https://x402-gateway-production-1f21.up.railway.app/metadata": {
       "isError": false,
-      "text": "{\"active\":false,\"hasBazaarExtension\":true,\"indexed\":false,\"preflight\":[{\"check\":\"url_valid\",\"detail\":\"URL is well-formed\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"https\",\"check\":\"url_https\",\"detail\":\"Resource URL uses HTTPS\",\"expected\":\"https\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"endpoint_reachable\",\"detail\":\"Endpoint responded with status 402\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"402\",\"check\":\"returns_402\",\"detail\":\"Endpoint correctly returns HTTP 402 Payment Required\",\"expected\":\"402\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"valid_json\",\"detail\":\"Response body parsed as JSON\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"2\",\"check\":\"x402_version\",\"detail\":\"x402 version is 2\",\"expected\":\"2\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"PAYMENT-REQUIRED header\",\"check\":\"payment_required_header\",\"detail\":\"PaymentRequired delivered via the PAYMENT-REQUIRED response header\",\"expected\":\"PaymentRequired delivered via PAYMENT-REQUIRED response header\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_accepts\",\"detail\":\"Found 1 payment method(s) in accepts array\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"exact\",\"check\":\"accepts[0].scheme\",\"detail\":\"Scheme is exact\",\"expected\":\"exact or upto\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"eip155:8453\",\"check\":\"accepts[0].network\",\"detail\":\"Network eip155:8453 is supported\",\"expected\":\"a facilitator-supported network (Base, Solana, Polygon, Arbitrum, World)\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"check\":\"accepts[0].asset\",\"detail\":\"Asset is USDC\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"10000\",\"check\":\"accepts[0].amount\",\"detail\":\"Amount 10000 meets $0.001 USDC minimum\",\"expected\":\"\\u003e= 1000\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x23d931f95831cee50b5f5edf4d0e88270f6c8411\",\"check\":\"accepts[0].payTo\",\"detail\":\"payTo address present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"accepts[0].maxTimeoutSeconds\",\"detail\":\"maxTimeoutSeconds is set\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_resource\",\"detail\":\"Resource URL: https://x402-gateway-production-1f21.up.railway.app/metadata\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_bazaar_extension\",\"detail\":\"Bazaar extension found\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info\",\"detail\":\"Bazaar info block present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.input\",\"detail\":\"Input metadata present in bazaar info\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"http\",\"check\":\"bazaar.info.input.type\",\"detail\":\"Input type is \\\"http\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method\",\"detail\":\"HTTP method is \\\"POST\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method.matches_request\",\"detail\":\"Declared method POST matches the probed method\",\"expected\":\"POST\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.output\",\"detail\":\"Output metadata present in bazaar info\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.info.output.example\",\"detail\":\"Output example provided\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.schema\",\"detail\":\"Bazaar schema present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"parse\",\"detail\":\"Bazaar discovery extension parsed successfully\",\"passed\":true,\"severity\":\"required\"}],\"reachable\":true,\"returns402\":true,\"simulate\":{\"outcome\":\"accepted\"},\"statusCode\":402,\"valid\":true,\"x402Version\":2}"
+      "text": "{\"active\":false,\"hasBazaarExtension\":true,\"indexed\":false,\"preflight\":[{\"check\":\"url_valid\",\"detail\":\"URL is well-formed\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"https\",\"check\":\"url_https\",\"detail\":\"Resource URL uses HTTPS\",\"expected\":\"https\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"endpoint_reachable\",\"detail\":\"Endpoint responded with status 402\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"402\",\"check\":\"returns_402\",\"detail\":\"Endpoint correctly returns HTTP 402 Payment Required\",\"expected\":\"402\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"valid_json\",\"detail\":\"Response body parsed as JSON\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"2\",\"check\":\"x402_version\",\"detail\":\"x402 version is 2\",\"expected\":\"2\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"PAYMENT-REQUIRED header\",\"check\":\"payment_required_header\",\"detail\":\"PaymentRequired delivered via the PAYMENT-REQUIRED response header\",\"expected\":\"PaymentRequired delivered via PAYMENT-REQUIRED response header\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_accepts\",\"detail\":\"Found 1 payment method(s) in accepts array\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"exact\",\"check\":\"accepts[0].scheme\",\"detail\":\"Scheme is exact\",\"expected\":\"exact or upto\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"eip155:8453\",\"check\":\"accepts[0].network\",\"detail\":\"Network eip155:8453 is supported\",\"expected\":\"a facilitator-supported network (Base, Solana, Polygon, Arbitrum, World)\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"check\":\"accepts[0].asset\",\"detail\":\"Asset is USDC\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"1000\",\"check\":\"accepts[0].amount\",\"detail\":\"Amount 1000 meets $0.001 USDC minimum\",\"expected\":\"\\u003e= 1000\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x0e66A3F909D3473E2517709e713B7afc0D767C42\",\"check\":\"accepts[0].payTo\",\"detail\":\"payTo address present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"accepts[0].maxTimeoutSeconds\",\"detail\":\"maxTimeoutSeconds is set\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_resource\",\"detail\":\"Resource URL: https://x402-gateway-production-1f21.up.railway.app/metadata\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_bazaar_extension\",\"detail\":\"Bazaar extension found\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info\",\"detail\":\"Bazaar info block present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.input\",\"detail\":\"Input metadata present in bazaar info\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"http\",\"check\":\"bazaar.info.input.type\",\"detail\":\"Input type is \\\"http\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method\",\"detail\":\"HTTP method is \\\"POST\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method.matches_request\",\"detail\":\"Declared method POST matches the probed method\",\"expected\":\"POST\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.output\",\"detail\":\"Output metadata present in bazaar info\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.info.output.example\",\"detail\":\"Output example provided\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.schema\",\"detail\":\"Bazaar schema present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"parse\",\"detail\":\"Bazaar discovery extension parsed successfully\",\"passed\":true,\"severity\":\"required\"}],\"reachable\":true,\"returns402\":true,\"simulate\":{\"outcome\":\"accepted\"},\"statusCode\":402,\"valid\":true,\"x402Version\":2}"
     },
     "https://x402-gateway-production-1f21.up.railway.app/change": {
       "isError": false,
-      "text": "{\"active\":false,\"hasBazaarExtension\":true,\"indexed\":false,\"preflight\":[{\"check\":\"url_valid\",\"detail\":\"URL is well-formed\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"https\",\"check\":\"url_https\",\"detail\":\"Resource URL uses HTTPS\",\"expected\":\"https\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"endpoint_reachable\",\"detail\":\"Endpoint responded with status 402\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"402\",\"check\":\"returns_402\",\"detail\":\"Endpoint correctly returns HTTP 402 Payment Required\",\"expected\":\"402\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"valid_json\",\"detail\":\"Response body parsed as JSON\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"2\",\"check\":\"x402_version\",\"detail\":\"x402 version is 2\",\"expected\":\"2\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"PAYMENT-REQUIRED header\",\"check\":\"payment_required_header\",\"detail\":\"PaymentRequired delivered via the PAYMENT-REQUIRED response header\",\"expected\":\"PaymentRequired delivered via PAYMENT-REQUIRED response header\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_accepts\",\"detail\":\"Found 1 payment method(s) in accepts array\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"exact\",\"check\":\"accepts[0].scheme\",\"detail\":\"Scheme is exact\",\"expected\":\"exact or upto\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"eip155:8453\",\"check\":\"accepts[0].network\",\"detail\":\"Network eip155:8453 is supported\",\"expected\":\"a facilitator-supported network (Base, Solana, Polygon, Arbitrum, World)\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"check\":\"accepts[0].asset\",\"detail\":\"Asset is USDC\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"10000\",\"check\":\"accepts[0].amount\",\"detail\":\"Amount 10000 meets $0.001 USDC minimum\",\"expected\":\"\\u003e= 1000\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x23d931f95831cee50b5f5edf4d0e88270f6c8411\",\"check\":\"accepts[0].payTo\",\"detail\":\"payTo address present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"accepts[0].maxTimeoutSeconds\",\"detail\":\"maxTimeoutSeconds is set\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_resource\",\"detail\":\"Resource URL: https://x402-gateway-production-1f21.up.railway.app/change\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_bazaar_extension\",\"detail\":\"Bazaar extension found\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info\",\"detail\":\"Bazaar info block present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.input\",\"detail\":\"Input metadata present in bazaar info\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"http\",\"check\":\"bazaar.info.input.type\",\"detail\":\"Input type is \\\"http\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method\",\"detail\":\"HTTP method is \\\"POST\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method.matches_request\",\"detail\":\"Declared method POST matches the probed method\",\"expected\":\"POST\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.output\",\"detail\":\"Output metadata present in bazaar info\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.info.output.example\",\"detail\":\"Output example provided\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.schema\",\"detail\":\"Bazaar schema present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"parse\",\"detail\":\"Bazaar discovery extension parsed successfully\",\"passed\":true,\"severity\":\"required\"}],\"reachable\":true,\"returns402\":true,\"simulate\":{\"outcome\":\"accepted\"},\"statusCode\":402,\"valid\":true,\"x402Version\":2}"
+      "text": "{\"active\":false,\"hasBazaarExtension\":true,\"indexed\":false,\"preflight\":[{\"check\":\"url_valid\",\"detail\":\"URL is well-formed\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"https\",\"check\":\"url_https\",\"detail\":\"Resource URL uses HTTPS\",\"expected\":\"https\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"endpoint_reachable\",\"detail\":\"Endpoint responded with status 402\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"402\",\"check\":\"returns_402\",\"detail\":\"Endpoint correctly returns HTTP 402 Payment Required\",\"expected\":\"402\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"valid_json\",\"detail\":\"Response body parsed as JSON\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"2\",\"check\":\"x402_version\",\"detail\":\"x402 version is 2\",\"expected\":\"2\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"PAYMENT-REQUIRED header\",\"check\":\"payment_required_header\",\"detail\":\"PaymentRequired delivered via the PAYMENT-REQUIRED response header\",\"expected\":\"PaymentRequired delivered via PAYMENT-REQUIRED response header\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_accepts\",\"detail\":\"Found 1 payment method(s) in accepts array\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"exact\",\"check\":\"accepts[0].scheme\",\"detail\":\"Scheme is exact\",\"expected\":\"exact or upto\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"eip155:8453\",\"check\":\"accepts[0].network\",\"detail\":\"Network eip155:8453 is supported\",\"expected\":\"a facilitator-supported network (Base, Solana, Polygon, Arbitrum, World)\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"check\":\"accepts[0].asset\",\"detail\":\"Asset is USDC\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"1000\",\"check\":\"accepts[0].amount\",\"detail\":\"Amount 1000 meets $0.001 USDC minimum\",\"expected\":\"\\u003e= 1000\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x0e66A3F909D3473E2517709e713B7afc0D767C42\",\"check\":\"accepts[0].payTo\",\"detail\":\"payTo address present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"accepts[0].maxTimeoutSeconds\",\"detail\":\"maxTimeoutSeconds is set\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_resource\",\"detail\":\"Resource URL: https://x402-gateway-production-1f21.up.railway.app/change\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_bazaar_extension\",\"detail\":\"Bazaar extension found\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info\",\"detail\":\"Bazaar info block present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.input\",\"detail\":\"Input metadata present in bazaar info\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"http\",\"check\":\"bazaar.info.input.type\",\"detail\":\"Input type is \\\"http\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method\",\"detail\":\"HTTP method is \\\"POST\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method.matches_request\",\"detail\":\"Declared method POST matches the probed method\",\"expected\":\"POST\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.output\",\"detail\":\"Output metadata present in bazaar info\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.info.output.example\",\"detail\":\"Output example provided\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.schema\",\"detail\":\"Bazaar schema present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"parse\",\"detail\":\"Bazaar discovery extension parsed successfully\",\"passed\":true,\"severity\":\"required\"}],\"reachable\":true,\"returns402\":true,\"simulate\":{\"outcome\":\"accepted\"},\"statusCode\":402,\"valid\":true,\"x402Version\":2}"
     }
   }
 }
