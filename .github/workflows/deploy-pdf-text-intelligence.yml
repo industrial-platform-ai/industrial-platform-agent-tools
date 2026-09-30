@@ -41,42 +41,61 @@ jobs:
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
         run: |
-          cat > payload.json <<'JSON'
-          {
-            "title": "PDF Text Intelligence",
-            "description": "Extract full text, per-page text, and PDF metadata from public PDFs for AI agents, RAG pipelines, research workflows, and automation without per-run LLM cost.",
-            "categories": ["AI"],
-            "isPublic": true,
-            "defaultRunOptions": {
-              "build": "latest",
-              "timeoutSecs": 240,
-              "memoryMbytes": 1024,
-              "restartOnError": false,
-              "forcePermissionLevel": "LIMITED_PERMISSIONS"
+          curl --fail-with-body --silent --show-error \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            "https://api.apify.com/v2/actors/industrial_platform~pdf-text-intelligence" \
+            > current-actor.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const actor = JSON.parse(fs.readFileSync('current-actor.json','utf8')).data;
+          const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
+          const currentEvent = current?.pricingPerEvent?.actorChargeEvents?.['pdf-extraction'];
+
+          const payload = {
+            title: 'PDF Text Intelligence',
+            description: 'Extract full text, per-page text, and PDF metadata from public PDFs for AI agents, RAG pipelines, research workflows, and automation without per-run LLM cost.',
+            categories: ['AI'],
+            isPublic: true,
+            defaultRunOptions: {
+              build: 'latest',
+              timeoutSecs: 240,
+              memoryMbytes: 1024,
+              restartOnError: false,
+              forcePermissionLevel: 'LIMITED_PERMISSIONS'
             },
-            "actorStandby": { "isEnabled": false },
-            "exampleRunInput": {
-              "body": "{\"urls\":[\"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf\"]}",
-              "contentType": "application/json; charset=utf-8"
-            },
-            "pricingInfos": [
-              {
-                "pricingModel": "PAY_PER_EVENT",
-                "pricingPerEvent": {
-                  "actorChargeEvents": {
-                    "pdf-extraction": {
-                      "eventTitle": "PDF extraction",
-                      "eventDescription": "One successful PDF text and metadata extraction.",
-                      "eventPriceUsd": 0.0015,
-                      "isPrimaryEvent": true,
-                      "isOneTimeEvent": false
-                    }
+            actorStandby: { isEnabled: false },
+            exampleRunInput: {
+              body: JSON.stringify({ urls: ['https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'] }),
+              contentType: 'application/json; charset=utf-8'
+            }
+          };
+
+          const pricingCorrect =
+            current?.pricingModel === 'PAY_PER_EVENT' &&
+            currentEvent?.eventPriceUsd === 0.0015 &&
+            currentEvent?.isPrimaryEvent === true;
+
+          if (!pricingCorrect) {
+            payload.pricingInfos = [{
+              pricingModel: 'PAY_PER_EVENT',
+              pricingPerEvent: {
+                actorChargeEvents: {
+                  'pdf-extraction': {
+                    eventTitle: 'PDF extraction',
+                    eventDescription: 'One successful PDF text and metadata extraction.',
+                    eventPriceUsd: 0.0015,
+                    isPrimaryEvent: true,
+                    isOneTimeEvent: false
                   }
                 }
               }
-            ]
+            }];
           }
-          JSON
+
+          fs.writeFileSync('payload.json', JSON.stringify(payload));
+          console.log(JSON.stringify({ pricingCorrect, pricingUpdateNeeded: !pricingCorrect }, null, 2));
+          NODE
 
           curl --fail-with-body --silent --show-error \
             --request PUT \
