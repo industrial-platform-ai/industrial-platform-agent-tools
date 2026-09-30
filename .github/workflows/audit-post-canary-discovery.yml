@@ -158,3 +158,5 @@ jobs:
 # recheck after direct Coinbase settlement migration
 
 # recheck after successful Coinbase settlement
+
+# recheck after successful change settlement
