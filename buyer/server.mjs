@@ -15,7 +15,7 @@ const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
 const agent402IndexTarget = 'https://agent402.tools/api/index/register';
 const agent402FindTarget = 'https://agent402.tools/api/find';
-const agent402WishesTarget = 'https://agent402.tools/api/wishes';
+const agent402WishesTarget = 'https://agent402.tools/api/wishes?limit=50&qualifiedOnly=true&sort=count';
 const marketQueries = [
   'cryptographic hash sha256 sha512 text',
   'hmac signature',
