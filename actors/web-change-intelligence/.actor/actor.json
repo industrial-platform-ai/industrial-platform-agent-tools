@@ -2,7 +2,7 @@
   "actorSpecification": 1,
   "name": "web-change-intelligence",
   "title": "Website Change Detector & Diff API",
-  "description": "Use to baseline a URL or compare prior text/hash for changed/unchanged status and deterministic diffs. Input: url. $0.01 per successful comparison; failed fetches are not billed.",
+  "description": "Use to baseline a URL or compare prior text/hash for changed/unchanged status and deterministic diffs. Input: url. $0.001 per successful comparison; failed fetches are not billed.",
   "version": "0.1",
   "buildTag": "latest",
   "input": "./input_schema.json",
