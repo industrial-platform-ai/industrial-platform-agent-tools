@@ -1,0 +1,39 @@
+name: Probe Native Apify x402 Endpoint
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/probe-native-apify-x402.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe unauthenticated Article Content endpoint
+        run: |
+          set -euo pipefail
+          URL='https://api.apify.com/v2/actors/industrial_platform~article-content-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.01'
+          BODY='{"urls":["https://example.com"]}'
+
+          STATUS=$(curl --silent --show-error             --request POST             --header 'Content-Type: application/json'             --data "$BODY"             --dump-header headers.txt             --output body.txt             --write-out '%{http_code}'             "$URL")
+
+          echo "status=$STATUS"
+          echo '--- headers ---'
+          cat headers.txt
+          echo '--- body ---'
+          cat body.txt
+
+          if [ "$STATUS" != "402" ]; then
+            echo "Expected HTTP 402 from native Apify agentic-payment endpoint." >&2
+            exit 1
+          fi
+
+          if ! grep -Eiq 'payment-required|payment_required|x402|payment-signature' headers.txt body.txt; then
+            echo "HTTP 402 did not expose recognizable x402 payment metadata." >&2
+            exit 1
+          fi
