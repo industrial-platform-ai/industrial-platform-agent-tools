@@ -8,7 +8,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 const PORT = Number(process.env.PORT || 3000);
 const TARGET = process.env.X402_TARGET || 'https://x402-gateway-production-1f21.up.railway.app/metadata';
 const key = process.env.EVM_PRIVATE_KEY;
-const runPayment = false; // Disabled after external-payer validation; re-enable only for an explicit test.
+const runPayment = process.env.RUN_PAYMENT === '1';
 const runRegistry = process.env.RUN_X402SCAN_REGISTRATION === '1';
 const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan.com/api/x402/registry/register-origin';
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
