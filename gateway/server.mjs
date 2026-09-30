@@ -7,12 +7,14 @@ import { createCdpFacilitatorClient } from '@coinbase/cdp-sdk/x402';
 import { runMetadata } from './metadata.mjs';
 import { runChange } from './change.mjs';
 import { utilityTools } from './utilities.mjs';
+import { marketTools } from './market.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
 const PAY_TO = process.env.X402_PAY_TO || '0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744';
 const PRICE = '$0.001';
 const NETWORK = 'eip155:8453';
+const dynamicTools = [...utilityTools, ...marketTools];
 
 const metadataInputSchema = {
   type:'object',
@@ -104,7 +106,7 @@ const manifest = {
       description:'Fetch a public HTTP or HTTPS URL and return normalized readable text from HTML, JSON, XML, CSV, JavaScript or plain-text responses for RAG, summarization and research.',
       inputSchema:changeInputSchema
     },
-    ...utilityTools.map(t=>({
+    ...dynamicTools.map(t=>({
       name:t.name,
       method:'POST',
       route:t.route,
@@ -189,7 +191,7 @@ const openapi = {
   }
 };
 
-for (const tool of utilityTools) {
+for (const tool of dynamicTools) {
   openapi.paths[tool.route] = {
     post:{
       operationId:tool.name.replace(/[^a-zA-Z0-9]+(.)/g,(_,ch)=>ch.toUpperCase()),
@@ -356,7 +358,7 @@ const routes = {
   }
 };
 
-for (const tool of utilityTools) {
+for (const tool of dynamicTools) {
   routes[`POST ${tool.route}`] = {
     accepts:[{
       scheme:'exact',
@@ -439,7 +441,7 @@ app.get('/read', (_req,res)=>res.json({
   example:{url:'https://example.com/',include_current_text:true}
 }));
 
-for (const tool of utilityTools) {
+for (const tool of dynamicTools) {
   app.get(tool.route, (_req,res)=>res.json({
     method:'POST',
     priceUsd:tool.priceUsd,
@@ -496,7 +498,7 @@ app.post('/read', async (req,res)=>{
   }
 });
 
-for (const tool of utilityTools) {
+for (const tool of dynamicTools) {
   app.post(tool.route, async (req,res)=>{
     try {
       res.json(await tool.run(req.body));
