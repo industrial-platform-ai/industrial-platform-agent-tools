@@ -1,0 +1,39 @@
+name: Verify Native GitHub Skill Search
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-github-skill-search.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Search GitHub Agent Skills
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set +e
+          gh --version
+          for q in             'industrial platform'             'web metadata extractor'             'website change detector'
+          do
+            echo "::group::$q"
+            gh skill search "$q" --limit 20 --json skillName,repo,description
+            echo "exit=$?"
+            echo "::endgroup::"
+          done
+          exit 0
+
+      - name: Verify direct install resolution
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh skill install industrial-platform-ai/industrial-platform-agent-tools             industrial-platform-paid-web-tools             --agent codex             --scope project
