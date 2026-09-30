@@ -1,19 +1,19 @@
 {
-  "generatedAt": "2026-09-30T17:46:00.960Z",
+  "generatedAt": "2026-09-30T17:49:49.118Z",
   "origin": "https://x402-gateway-production-1f21.up.railway.app",
   "health": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 290,
+    "elapsedMs": 118,
     "headers": {
       "connection": "keep-alive",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:46:01 GMT",
+      "date": "Wed, 30 Sep 2026 17:49:49 GMT",
       "server": "railway-hikari",
       "transfer-encoding": "chunked",
-      "x-hikari-trace": "iad1.dh1s",
-      "x-railway-edge": "iad1",
-      "x-railway-request-id": "_372HYTmRC6YIH5JLPU1MQ"
+      "x-hikari-trace": "lax1.e74w",
+      "x-railway-edge": "lax1",
+      "x-railway-request-id": "fnk3LirRSYy7nejp2prcFg"
     },
     "body": {
       "ok": true
@@ -22,16 +22,16 @@
   "manifest": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 228,
+    "elapsedMs": 50,
     "headers": {
       "connection": "keep-alive",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:46:01 GMT",
+      "date": "Wed, 30 Sep 2026 17:49:49 GMT",
       "server": "railway-hikari",
       "transfer-encoding": "chunked",
-      "x-hikari-trace": "iad1.fp5t",
-      "x-railway-edge": "iad1",
-      "x-railway-request-id": "_f5zAHxISeWiD1Ef2prcFg"
+      "x-hikari-trace": "lax1.e74w",
+      "x-railway-edge": "lax1",
+      "x-railway-request-id": "FdlHGF54Th2BSMDNLPU1MQ"
     },
     "body": {
       "name": "Industrial Platform Fast Web Tools",
@@ -41,7 +41,12 @@
           "name": "web-metadata-intelligence",
           "route": "/metadata",
           "method": "POST",
-          "price": "Bridge price returned live by StableApify; Actor event is $0.001 per successful URL",
+          "price": 0.01,
+          "example": {
+            "urls": [
+              "https://example.com/"
+            ]
+          },
           "description": "Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.",
           "inputSchema": {
             "type": "object",
@@ -64,7 +69,11 @@
           "name": "web-change-intelligence",
           "route": "/change",
           "method": "POST",
-          "price": "Bridge price returned live by StableApify; Actor event is $0.001 per successful comparison",
+          "price": 0.01,
+          "example": {
+            "url": "https://example.com/",
+            "include_current_text": false
+          },
           "description": "Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.",
           "inputSchema": {
             "type": "object",
@@ -93,16 +102,16 @@
   "openapi": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 126,
+    "elapsedMs": 55,
     "headers": {
       "connection": "keep-alive",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:46:01 GMT",
+      "date": "Wed, 30 Sep 2026 17:49:49 GMT",
       "server": "railway-hikari",
       "transfer-encoding": "chunked",
-      "x-hikari-trace": "iad1.dh1s",
-      "x-railway-edge": "iad1",
-      "x-railway-request-id": "dcIf2mnqSkuPAXZ0nPRhug"
+      "x-hikari-trace": "lax1.e74w",
+      "x-railway-edge": "lax1",
+      "x-railway-request-id": "1XaoGTqFQaG0pl3jCYBc-A"
     },
     "body": {
       "openapi": "3.1.0",
@@ -197,50 +206,50 @@
   "metadata": {
     "status": 402,
     "ok": false,
-    "elapsedMs": 429,
+    "elapsedMs": 304,
     "headers": {
       "connection": "keep-alive",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 17:46:02 GMT",
-      "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9zdGFibGVhcGlmeS5kZXYvYXBpL2FjdG9ycy9jYWxsIiwibWV0aG9kIjoiUE9TVCIsImRlc2NyaXB0aW9uIjoiU3RhcnQgYW4gQXBpZnkgQWN0b3IgcnVuIGFzeW5jaHJvbm91c2x5IGZvciBhbnkgU3RvcmUgYWN0b3IuIFJldHVybnMgYSBzaWduZWQgdG9rZW4gZm9yIHBvbGxpbmcgL2FwaS9hY3RvcnMvc3RhdHVzIChmcmVlIFNJV1gpIGFuZCBmZXRjaGluZyAvYXBpL2FjdG9ycy9yZXN1bHRzIChwYWlkIG9uIGZpcnN0IGNhbGwgcGVyIHdhbGxldCwgdGhlbiBmcmVlIHdpdGggU0lXWCByZXBsYXkpLiIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiIsInRhZ3MiOlsiQWN0b3JzIl0sInNlcnZpY2VOYW1lIjoiQXBpZnkgQVBJIn0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4ODMzNTg5ZkNENmVEYjZFMDhmNGM3QzMyRDRmNzFiNTRiZEEwMjkxMyIsInBheVRvIjoiMHgyM2Q5MzFmOTU4MzFjZWU1MGI1ZjVlZGY0ZDBlODgyNzBmNmM4NDExIiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnsibmFtZSI6IlVTRCBDb2luIiwidmVyc2lvbiI6IjIifX1dLCJleHRlbnNpb25zIjp7ImJhemFhciI6eyJpbmZvIjp7ImlucHV0Ijp7InR5cGUiOiJodHRwIiwibWV0aG9kIjoiUE9TVCIsImJvZHlUeXBlIjoianNvbiIsImJvZHkiOnt9fX0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJpbnB1dCI6eyJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJ0eXBlIjp7InR5cGUiOiJzdHJpbmciLCJjb25zdCI6Imh0dHAifSwibWV0aG9kIjp7InR5cGUiOiJzdHJpbmciLCJlbnVtIjpbIlBPU1QiLCJQVVQiLCJQQVRDSCJdfSwiYm9keVR5cGUiOnsidHlwZSI6InN0cmluZyIsImVudW0iOlsianNvbiIsImZvcm0tZGF0YSIsInRleHQiXX0sImJvZHkiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsiaW5wdXQiOnsiZGVzY3JpcHRpb24iOiJKU09OLXNlcmlhbGl6YWJsZSBBY3RvciBpbnB1dC4ifSwib3B0aW9ucyI6eyJkZXNjcmlwdGlvbiI6Ik9wdGlvbmFsIEFwaWZ5IHJ1biBvcHRpb25zLiIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7ImJ1aWxkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjEsIm1heExlbmd0aCI6MTAwfSwibWVtb3J5Ijp7InR5cGUiOiJpbnRlZ2VyIiwibWluaW11bSI6MTI4LCJtYXhpbXVtIjozMjc2OH0sIm1heEl0ZW1zIjp7InR5cGUiOiJpbnRlZ2VyIiwibWluaW11bSI6MSwibWF4aW11bSI6MTAwMDAwfX0sImFkZGl0aW9uYWxQcm9wZXJ0aWVzIjpmYWxzZX0sImFjdG9ySWQiOnsidHlwZSI6InN0cmluZyIsIm1pbkxlbmd0aCI6MSwibWF4TGVuZ3RoIjoyMDAsInBhdHRlcm4iOiJeW0EtWmEtejAtOV1bQS1aYS16MC05Xy1dKihcXC9bQS1aYS16MC05XVtBLVphLXowLTlfLV0qKT8kIiwiZGVzY3JpcHRpb24iOiJBY3RvciBJRCBvciB1c2VybmFtZS9uYW1lLCBlLmcuIFwiYXBpZnkvd2ViLXNjcmFwZXJcIi4ifX0sInJlcXVpcmVkIjpbImFjdG9ySWQiXSwiYWRkaXRpb25hbFByb3BlcnRpZXMiOmZhbHNlfX0sInJlcXVpcmVkIjpbInR5cGUiLCJtZXRob2QiLCJib2R5VHlwZSIsImJvZHkiXSwiYWRkaXRpb25hbFByb3BlcnRpZXMiOmZhbHNlfX0sInJlcXVpcmVkIjpbImlucHV0Il19fX19",
+      "date": "Wed, 30 Sep 2026 17:49:49 GMT",
+      "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly94NDAyLWdhdGV3YXktcHJvZHVjdGlvbi0xZjIxLnVwLnJhaWx3YXkuYXBwL21ldGFkYXRhIiwibWV0aG9kIjoiUE9TVCIsImRlc2NyaXB0aW9uIjoiRXh0cmFjdCB0aXRsZSwgZGVzY3JpcHRpb24sIE9wZW4gR3JhcGgsIFR3aXR0ZXIgY2FyZHMsIGNhbm9uaWNhbCBVUkwsIHJvYm90cyBkaXJlY3RpdmVzLCBoZWFkaW5ncywgSlNPTi1MRCBhbmQgb3RoZXIgcGFnZSBtZXRhZGF0YS4iLCJtaW1lVHlwZSI6ImFwcGxpY2F0aW9uL2pzb24iLCJ0YWdzIjpbIkluZHVzdHJpYWwgUGxhdGZvcm0iLCJ3ZWItbWV0YWRhdGEtaW50ZWxsaWdlbmNlIl0sInNlcnZpY2VOYW1lIjoiSW5kdXN0cmlhbCBQbGF0Zm9ybSBGYXN0IFdlYiBUb29scyJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MyIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDgzMzU4OWZDRDZlRGI2RTA4ZjRjN0MzMkQ0ZjcxYjU0YmRBMDI5MTMiLCJwYXlUbyI6IjB4MjNkOTMxZjk1ODMxY2VlNTBiNWY1ZWRmNGQwZTg4MjcwZjZjODQxMSIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0QgQ29pbiIsInZlcnNpb24iOiIyIn19XSwiZXh0ZW5zaW9ucyI6eyJiYXphYXIiOnsiaW5mbyI6eyJpbnB1dCI6eyJ0eXBlIjoiaHR0cCIsIm1ldGhvZCI6IlBPU1QiLCJib2R5VHlwZSI6Impzb24iLCJib2R5Ijp7InVybHMiOlsiaHR0cHM6Ly9leGFtcGxlLmNvbS8iXX19fSwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InVybHMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyJ9LCJtaW5JdGVtcyI6MSwibWF4SXRlbXMiOjEwMH19LCJyZXF1aXJlZCI6WyJ1cmxzIl19fX19",
       "server": "railway-hikari",
       "transfer-encoding": "chunked",
-      "x-hikari-trace": "iad1.fp5t",
-      "x-railway-edge": "iad1",
-      "x-railway-request-id": "gIviDrjEQFqxHXW7n6XIxQ"
+      "x-hikari-trace": "lax1.e74w",
+      "x-railway-edge": "lax1",
+      "x-railway-request-id": "pbmJNYknSpyp_hSljq4OvQ"
     },
     "body": ""
   },
   "change": {
     "status": 402,
     "ok": false,
-    "elapsedMs": 209,
+    "elapsedMs": 156,
     "headers": {
       "connection": "keep-alive",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 17:46:02 GMT",
-      "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9zdGFibGVhcGlmeS5kZXYvYXBpL2FjdG9ycy9jYWxsIiwibWV0aG9kIjoiUE9TVCIsImRlc2NyaXB0aW9uIjoiU3RhcnQgYW4gQXBpZnkgQWN0b3IgcnVuIGFzeW5jaHJvbm91c2x5IGZvciBhbnkgU3RvcmUgYWN0b3IuIFJldHVybnMgYSBzaWduZWQgdG9rZW4gZm9yIHBvbGxpbmcgL2FwaS9hY3RvcnMvc3RhdHVzIChmcmVlIFNJV1gpIGFuZCBmZXRjaGluZyAvYXBpL2FjdG9ycy9yZXN1bHRzIChwYWlkIG9uIGZpcnN0IGNhbGwgcGVyIHdhbGxldCwgdGhlbiBmcmVlIHdpdGggU0lXWCByZXBsYXkpLiIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiIsInRhZ3MiOlsiQWN0b3JzIl0sInNlcnZpY2VOYW1lIjoiQXBpZnkgQVBJIn0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4ODMzNTg5ZkNENmVEYjZFMDhmNGM3QzMyRDRmNzFiNTRiZEEwMjkxMyIsInBheVRvIjoiMHgyM2Q5MzFmOTU4MzFjZWU1MGI1ZjVlZGY0ZDBlODgyNzBmNmM4NDExIiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnsibmFtZSI6IlVTRCBDb2luIiwidmVyc2lvbiI6IjIifX1dLCJleHRlbnNpb25zIjp7ImJhemFhciI6eyJpbmZvIjp7ImlucHV0Ijp7InR5cGUiOiJodHRwIiwibWV0aG9kIjoiUE9TVCIsImJvZHlUeXBlIjoianNvbiIsImJvZHkiOnt9fX0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJpbnB1dCI6eyJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJ0eXBlIjp7InR5cGUiOiJzdHJpbmciLCJjb25zdCI6Imh0dHAifSwibWV0aG9kIjp7InR5cGUiOiJzdHJpbmciLCJlbnVtIjpbIlBPU1QiLCJQVVQiLCJQQVRDSCJdfSwiYm9keVR5cGUiOnsidHlwZSI6InN0cmluZyIsImVudW0iOlsianNvbiIsImZvcm0tZGF0YSIsInRleHQiXX0sImJvZHkiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsiaW5wdXQiOnsiZGVzY3JpcHRpb24iOiJKU09OLXNlcmlhbGl6YWJsZSBBY3RvciBpbnB1dC4ifSwib3B0aW9ucyI6eyJkZXNjcmlwdGlvbiI6Ik9wdGlvbmFsIEFwaWZ5IHJ1biBvcHRpb25zLiIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7ImJ1aWxkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjEsIm1heExlbmd0aCI6MTAwfSwibWVtb3J5Ijp7InR5cGUiOiJpbnRlZ2VyIiwibWluaW11bSI6MTI4LCJtYXhpbXVtIjozMjc2OH0sIm1heEl0ZW1zIjp7InR5cGUiOiJpbnRlZ2VyIiwibWluaW11bSI6MSwibWF4aW11bSI6MTAwMDAwfX0sImFkZGl0aW9uYWxQcm9wZXJ0aWVzIjpmYWxzZX0sImFjdG9ySWQiOnsidHlwZSI6InN0cmluZyIsIm1pbkxlbmd0aCI6MSwibWF4TGVuZ3RoIjoyMDAsInBhdHRlcm4iOiJeW0EtWmEtejAtOV1bQS1aYS16MC05Xy1dKihcXC9bQS1aYS16MC05XVtBLVphLXowLTlfLV0qKT8kIiwiZGVzY3JpcHRpb24iOiJBY3RvciBJRCBvciB1c2VybmFtZS9uYW1lLCBlLmcuIFwiYXBpZnkvd2ViLXNjcmFwZXJcIi4ifX0sInJlcXVpcmVkIjpbImFjdG9ySWQiXSwiYWRkaXRpb25hbFByb3BlcnRpZXMiOmZhbHNlfX0sInJlcXVpcmVkIjpbInR5cGUiLCJtZXRob2QiLCJib2R5VHlwZSIsImJvZHkiXSwiYWRkaXRpb25hbFByb3BlcnRpZXMiOmZhbHNlfX0sInJlcXVpcmVkIjpbImlucHV0Il19fX19",
+      "date": "Wed, 30 Sep 2026 17:49:49 GMT",
+      "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly94NDAyLWdhdGV3YXktcHJvZHVjdGlvbi0xZjIxLnVwLnJhaWx3YXkuYXBwL2NoYW5nZSIsIm1ldGhvZCI6IlBPU1QiLCJkZXNjcmlwdGlvbiI6IkRldGVjdCBtZWFuaW5nZnVsIHdlYnBhZ2UgY2hhbmdlcyB3aXRoIGRldGVybWluaXN0aWMgaGFzaGVzIGFuZCBkaWZmcyBmb3IgbW9uaXRvcmluZyBwcmljZXMsIGRvY3MsIHBvbGljaWVzLCBhdmFpbGFiaWxpdHkgYW5kIGNvbXBldGl0b3JzLiIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiIsInRhZ3MiOlsiSW5kdXN0cmlhbCBQbGF0Zm9ybSIsIndlYi1jaGFuZ2UtaW50ZWxsaWdlbmNlIl0sInNlcnZpY2VOYW1lIjoiSW5kdXN0cmlhbCBQbGF0Zm9ybSBGYXN0IFdlYiBUb29scyJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MyIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDgzMzU4OWZDRDZlRGI2RTA4ZjRjN0MzMkQ0ZjcxYjU0YmRBMDI5MTMiLCJwYXlUbyI6IjB4MjNkOTMxZjk1ODMxY2VlNTBiNWY1ZWRmNGQwZTg4MjcwZjZjODQxMSIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0QgQ29pbiIsInZlcnNpb24iOiIyIn19XSwiZXh0ZW5zaW9ucyI6eyJiYXphYXIiOnsiaW5mbyI6eyJpbnB1dCI6eyJ0eXBlIjoiaHR0cCIsIm1ldGhvZCI6IlBPU1QiLCJib2R5VHlwZSI6Impzb24iLCJib2R5Ijp7InVybCI6Imh0dHBzOi8vZXhhbXBsZS5jb20vIiwiaW5jbHVkZV9jdXJyZW50X3RleHQiOmZhbHNlfX19LCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidXJsIjp7InR5cGUiOiJzdHJpbmcifSwicHJldmlvdXNfaGFzaCI6eyJ0eXBlIjoic3RyaW5nIn0sInByZXZpb3VzX3RleHQiOnsidHlwZSI6InN0cmluZyJ9LCJpbmNsdWRlX2N1cnJlbnRfdGV4dCI6eyJ0eXBlIjoiYm9vbGVhbiJ9fSwicmVxdWlyZWQiOlsidXJsIl19fX19",
       "server": "railway-hikari",
       "transfer-encoding": "chunked",
-      "x-hikari-trace": "iad1.dh1s",
-      "x-railway-edge": "iad1",
-      "x-railway-request-id": "aTHmRR84QeKzLg3S9I3ezw"
+      "x-hikari-trace": "lax1.e74w",
+      "x-railway-edge": "lax1",
+      "x-railway-request-id": "yJvkfpE0R2qgb7U-pHNmDw"
     },
     "body": ""
   },
   "agent402Register": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 461,
+    "elapsedMs": 769,
     "headers": {
       "access-control-allow-origin": "*",
       "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
       "connection": "keep-alive",
-      "content-length": "195",
+      "content-length": "593",
       "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:46:02 GMT",
-      "etag": "W/\"c3-MonYyWrSAZ0c8H6Myy8HM95+u3o\"",
+      "date": "Wed, 30 Sep 2026 17:49:50 GMT",
+      "etag": "W/\"251-ifwa/PCsFJKO3oSJVcTX/ZZP8e8\"",
       "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
       "referrer-policy": "strict-origin-when-cross-origin",
       "server": "railway-hikari",
@@ -248,11 +257,11 @@
       "vary": "Accept-Encoding",
       "x-content-type-options": "nosniff",
       "x-frame-options": "SAMEORIGIN",
-      "x-hikari-trace": "iad1.dh1s",
+      "x-hikari-trace": "lax1.sx7j",
       "x-permitted-cross-domain-policies": "none",
-      "x-railway-edge": "iad1",
-      "x-railway-request-id": "c0mRJyakRs-UFwYGlt7tkg",
-      "x-request-id": "d4efca6d-d002-480a-a2d5-fe9d66a8be2d"
+      "x-railway-edge": "lax1",
+      "x-railway-request-id": "3U1iAE4hRYOzKqAIljLL4A",
+      "x-request-id": "328e0176-deb5-400a-bb06-40b704dea96b"
     },
     "body": {
       "listed": true,
@@ -260,16 +269,30 @@
       "seller": {
         "displayName": "Industrial Platform Fast Web Tools",
         "toolCount": 2,
-        "networks": [],
+        "networks": [
+          "eip155:8453"
+        ],
         "routable": true,
         "health": 1
+      },
+      "reverify": {
+        "documentsReread": true,
+        "routesRechecked": true,
+        "routesProbed": 2,
+        "rereadCooldownSeconds": 900,
+        "recheckCooldownSeconds": 600,
+        "nextRereadInSeconds": 0,
+        "nextRecheckInSeconds": 0,
+        "recheckAllowancePerHour": 240,
+        "recheckAllowanceLeft": 238,
+        "note": "documents re-read now; 2 route(s) re-checked against their live 402 now. The crawler also re-reads every listed origin on its own cycle."
       }
     }
   },
   "agent402Index": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 321,
+    "elapsedMs": 100,
     "headers": {
       "access-control-allow-origin": "*",
       "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
@@ -278,8 +301,8 @@
       "content-encoding": "br",
       "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:46:03 GMT",
-      "etag": "W/\"2c53-8bDIBaH1Itg9JX+iKcUAPWXTxrw\"",
+      "date": "Wed, 30 Sep 2026 17:49:50 GMT",
+      "etag": "W/\"2d91-KTMWWD8oSN2mZysjYg1dnJ24Hcs\"",
       "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
       "referrer-policy": "strict-origin-when-cross-origin",
       "server": "railway-hikari",
@@ -288,30 +311,44 @@
       "vary": "Accept-Encoding",
       "x-content-type-options": "nosniff",
       "x-frame-options": "SAMEORIGIN",
-      "x-hikari-trace": "iad1.trg5",
+      "x-hikari-trace": "lax1.ez9k",
       "x-permitted-cross-domain-policies": "none",
-      "x-railway-edge": "iad1",
-      "x-railway-request-id": "jOo-OQWGRp62T4TdnPRhug",
-      "x-request-id": "c5b7abb1-ee44-463d-a360-2fdf8cb27b27"
+      "x-railway-edge": "lax1",
+      "x-railway-request-id": "x4UKOcGLS26FKmzB0_TJvA",
+      "x-request-id": "df9f3b0c-e520-46fd-9b89-9f83302bfe54"
     },
     "body": {
       "origin": "https://x402-gateway-production-1f21.up.railway.app",
       "displayName": "Industrial Platform Fast Web Tools",
       "homepage": "https://x402-gateway-production-1f21.up.railway.app",
       "toolCount": 2,
-      "fetchedAt": 1790790362643,
+      "fetchedAt": 1790790590315,
       "error": null,
       "health": 1,
       "routable": true,
-      "networks": [],
+      "networks": [
+        "eip155:8453"
+      ],
       "paywall": null,
       "mpp": null,
       "originResponded": true,
       "discoveryPath": "/.well-known/x402",
-      "payToByNetwork": {},
-      "payTosByNetwork": {},
-      "evmDomainByNetwork": {},
+      "payToByNetwork": {
+        "eip155:8453": "0x23d931f95831cee50b5f5edf4d0e88270f6c8411"
+      },
+      "payTosByNetwork": {
+        "eip155:8453": [
+          "0x23d931f95831cee50b5f5edf4d0e88270f6c8411"
+        ]
+      },
+      "evmDomainByNetwork": {
+        "eip155:8453": {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "name": "USD Coin"
+        }
+      },
       "history": [
+        1,
         1
       ],
       "healthWindow": 5,
@@ -327,8 +364,8 @@
           "slug": "webMetadataIntelligence",
           "name": "Extract webpage metadata",
           "description": "Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.",
-          "price": "$Bridge price returned live by StableApify; Actor event is $0.001 per successful URL",
-          "priceKnown": false,
+          "price": "$0.01",
+          "priceKnown": true,
           "requestContract": {
             "state": "declared",
             "source": "seller_openapi",
@@ -339,7 +376,11 @@
             },
             "runtimeVerified": false
           },
-          "declared": true
+          "networks": [
+            "eip155:8453"
+          ],
+          "declared": true,
+          "lastVerifiedAt": "2026-09-30T17:49:50.422Z"
         },
         {
           "method": "POST",
@@ -347,8 +388,8 @@
           "slug": "webChangeIntelligence",
           "name": "Detect webpage changes",
           "description": "Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.",
-          "price": "$Bridge price returned live by StableApify; Actor event is $0.001 per successful comparison",
-          "priceKnown": false,
+          "price": "$0.01",
+          "priceKnown": true,
           "requestContract": {
             "state": "declared",
             "source": "seller_openapi",
@@ -366,12 +407,23 @@
             },
             "runtimeVerified": false
           },
-          "declared": true
+          "networks": [
+            "eip155:8453"
+          ],
+          "declared": true,
+          "lastVerifiedAt": "2026-09-30T17:49:50.553Z"
         }
       ],
-      "paymentNetworksKnown": false,
+      "paymentNetworksKnown": true,
       "routerDispatchEligible": false,
-      "routerDispatchReason": "network_unknown",
+      "routerDispatchReason": "settlement_required",
+      "routerDispatchByChain": {
+        "base": {
+          "eligible": false,
+          "reason": "settlement_required",
+          "detail": "below the settlement floor"
+        }
+      },
       "legend": {
         "routerSpendChains": [
           "base",
@@ -421,7 +473,7 @@
   "agent402FindMetadata": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 131,
+    "elapsedMs": 512,
     "headers": {
       "access-control-allow-origin": "*",
       "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
@@ -429,7 +481,7 @@
       "content-encoding": "br",
       "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:46:03 GMT",
+      "date": "Wed, 30 Sep 2026 17:49:51 GMT",
       "etag": "W/\"1e94-4aQzwhMPCF6W89wpcmiPgph8v/4\"",
       "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
       "referrer-policy": "strict-origin-when-cross-origin",
@@ -440,11 +492,11 @@
       "x-cache": "miss",
       "x-content-type-options": "nosniff",
       "x-frame-options": "SAMEORIGIN",
-      "x-hikari-trace": "iad1.dh1s",
+      "x-hikari-trace": "lax1.sx7j",
       "x-permitted-cross-domain-policies": "none",
-      "x-railway-edge": "iad1",
-      "x-railway-request-id": "RfKiqlCeS_qGNnGpCYBc-A",
-      "x-request-id": "943534c7-614a-4501-9227-0968c5840f2a"
+      "x-railway-edge": "lax1",
+      "x-railway-request-id": "XI9cfO8gRCW1iSlJ2prcFg",
+      "x-request-id": "9df65833-16e5-4585-87e0-323b4bf71941"
     },
     "body": {
       "query": "web metadata extractor Open Graph JSON-LD canonical robots",
@@ -744,375 +796,36 @@
     }
   },
   "agent402FindChange": {
-    "status": 200,
-    "ok": true,
-    "elapsedMs": 330,
+    "status": 503,
+    "ok": false,
+    "elapsedMs": 34,
     "headers": {
       "access-control-allow-origin": "*",
       "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
+      "cache-control": "no-store",
       "connection": "keep-alive",
-      "content-encoding": "br",
+      "content-length": "128",
       "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:46:03 GMT",
-      "etag": "W/\"1a85-U30UwQGbglIFFGL/0ldMSOV+Is0\"",
+      "date": "Wed, 30 Sep 2026 17:49:51 GMT",
+      "etag": "W/\"80-dv95CGDAW4GHn9C72JYr8qI1F3Y\"",
       "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
       "referrer-policy": "strict-origin-when-cross-origin",
+      "retry-after": "2",
       "server": "railway-hikari",
       "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
-      "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
-      "x-cache": "miss",
       "x-content-type-options": "nosniff",
       "x-frame-options": "SAMEORIGIN",
-      "x-hikari-trace": "iad1.dh1s",
+      "x-hikari-trace": "lax1.sx7j",
       "x-permitted-cross-domain-policies": "none",
-      "x-railway-edge": "iad1",
-      "x-railway-request-id": "nIX6IvX9RKyULbD2lt7tkg",
-      "x-request-id": "f6d315cd-950c-4d4b-80a6-094c52cddacd"
+      "x-railway-edge": "lax1",
+      "x-railway-request-id": "Grzcj7f5TMOiCr5dlt7tkg",
+      "x-request-id": "7334258c-9684-46e7-ba1d-6101e23138bc"
     },
     "body": {
-      "query": "website change detector deterministic diff monitor",
-      "count": 5,
-      "topMax": 25,
-      "returned": 5,
-      "matched": 143,
-      "complete": false,
-      "truncated": true,
-      "results": [
-        {
-          "slug": "openapi-diff",
-          "name": "OpenAPI / Swagger diff",
-          "route": "POST /api/openapi-diff",
-          "price": "$0.001",
-          "priceUsd": 0.001,
-          "callExample": {
-            "method": "POST",
-            "path": "/api/openapi-diff",
-            "body": {
-              "before": {
-                "openapi": "3.0.0",
-                "paths": {
-                  "/users": {
-                    "get": {
-                      "responses": {
-                        "200": {}
-                      }
-                    }
-                  },
-                  "/legacy": {
-                    "get": {
-                      "responses": {
-                        "200": {}
-                      }
-                    }
-                  }
-                }
-              },
-              "after": {
-                "openapi": "3.0.0",
-                "paths": {
-                  "/users": {
-                    "get": {
-                      "responses": {
-                        "200": {}
-                      }
-                    }
-                  },
-                  "/admin": {
-                    "post": {
-                      "responses": {
-                        "201": {}
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "example": {
-            "before": {
-              "openapi": "3.0.0",
-              "paths": {
-                "/users": {
-                  "get": {
-                    "responses": {
-                      "200": {}
-                    }
-                  }
-                },
-                "/legacy": {
-                  "get": {
-                    "responses": {
-                      "200": {}
-                    }
-                  }
-                }
-              }
-            },
-            "after": {
-              "openapi": "3.0.0",
-              "paths": {
-                "/users": {
-                  "get": {
-                    "responses": {
-                      "200": {}
-                    }
-                  }
-                },
-                "/admin": {
-                  "post": {
-                    "responses": {
-                      "201": {}
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "required": [
-            "before",
-            "after"
-          ],
-          "inputSchema": {
-            "properties": {
-              "before": {
-                "description": "OpenAPI/Swagger document (object or JSON string) for the previous version"
-              },
-              "after": {
-                "description": "OpenAPI/Swagger document (object or JSON string) for the new version"
-              }
-            },
-            "required": [
-              "before",
-              "after"
-            ]
-          },
-          "category": "conversion",
-          "description": "Compare two OpenAPI 3.x or Swagger 2.x documents and return a structured diff: added / removed / changed endpoints, with a conservative \"is any change breaking?\" flag. Breaking = an endpoint or required-2xx status was removed, a required parameter was added, an optional param became required, a param type changed, or a JSON body field became required. Pure CPU - deterministic, no network, no $ref dereferencing (resolve refs upstream if needed).",
-          "score": 44.34125139165995,
-          "computePayable": true,
-          "docs": "https://agent402.tools/tools/openapi-diff"
-        },
-        {
-          "slug": "json-diff",
-          "name": "JSON diff",
-          "route": "POST /api/json-diff",
-          "price": "$0.001",
-          "priceUsd": 0.001,
-          "callExample": {
-            "method": "POST",
-            "path": "/api/json-diff",
-            "body": {
-              "a": {
-                "x": 1,
-                "y": 2
-              },
-              "b": {
-                "x": 1,
-                "y": 3,
-                "z": 4
-              }
-            }
-          },
-          "example": {
-            "a": {
-              "x": 1,
-              "y": 2
-            },
-            "b": {
-              "x": 1,
-              "y": 3,
-              "z": 4
-            }
-          },
-          "required": [
-            "a",
-            "b"
-          ],
-          "inputSchema": {
-            "properties": {
-              "a": {
-                "description": "First JSON value"
-              },
-              "b": {
-                "description": "Second JSON value"
-              }
-            },
-            "required": [
-              "a",
-              "b"
-            ]
-          },
-          "category": "conversion",
-          "description": "Deep-compare two JSON values. Returns a list of changed/added/removed paths (capped at 1000 differences).",
-          "score": 41.97742267342519,
-          "computePayable": true,
-          "docs": "https://agent402.tools/tools/json-diff"
-        },
-        {
-          "slug": "text-diff",
-          "name": "Text diff",
-          "route": "POST /api/text-diff",
-          "price": "$0.001",
-          "priceUsd": 0.001,
-          "callExample": {
-            "method": "POST",
-            "path": "/api/text-diff",
-            "body": {
-              "a": "line1\nline2",
-              "b": "line1\nline2 changed"
-            }
-          },
-          "example": {
-            "a": "line1\nline2",
-            "b": "line1\nline2 changed"
-          },
-          "required": [
-            "a",
-            "b"
-          ],
-          "inputSchema": {
-            "properties": {
-              "a": {
-                "type": "string",
-                "description": "Original text"
-              },
-              "b": {
-                "type": "string",
-                "description": "New text"
-              }
-            },
-            "required": [
-              "a",
-              "b"
-            ]
-          },
-          "category": "text",
-          "description": "Line-by-line diff of two texts (LCS). Returns unified-style ops and change counts. Up to 2000 lines per side.",
-          "score": 41.97742267342519,
-          "computePayable": true,
-          "docs": "https://agent402.tools/tools/text-diff"
-        },
-        {
-          "slug": "date-diff",
-          "name": "Date difference",
-          "route": "POST /api/date-diff",
-          "price": "$0.001",
-          "priceUsd": 0.001,
-          "callExample": {
-            "method": "POST",
-            "path": "/api/date-diff",
-            "body": {
-              "from": "2026-01-01",
-              "to": "2026-06-11T10:00:00Z"
-            }
-          },
-          "example": {
-            "from": "2026-01-01",
-            "to": "2026-06-11T10:00:00Z"
-          },
-          "required": [
-            "from"
-          ],
-          "inputSchema": {
-            "properties": {
-              "from": {
-                "description": "Start (epoch/ISO)"
-              },
-              "to": {
-                "description": "End (epoch/ISO, default now)"
-              }
-            },
-            "required": [
-              "from"
-            ]
-          },
-          "category": "time",
-          "description": "Difference between two dates/times in ms, seconds, minutes, hours, days, and a human summary.",
-          "score": 39.79005039253198,
-          "computePayable": true,
-          "docs": "https://agent402.tools/tools/date-diff"
-        },
-        {
-          "slug": "skill-fx-monitor",
-          "name": "Skill: FX monitor",
-          "route": "POST /api/skill/fx-monitor",
-          "price": "$0.009",
-          "priceUsd": 0.009,
-          "callExample": {
-            "method": "POST",
-            "path": "/api/skill/fx-monitor",
-            "body": {}
-          },
-          "example": {},
-          "required": [],
-          "inputSchema": {
-            "properties": {},
-            "required": []
-          },
-          "category": "skill-pack",
-          "description": "Major currency snapshot: EUR/USD, GBP/USD, JPY/USD rates plus the full FX dashboard in one call. FX monitor skill pack: one x402 payment runs 3 underlying tools (fx-rate, fx-dashboard, fx-historical); partial-success per step.",
-          "score": 36.93865403767742,
-          "computePayable": false,
-          "docs": "https://agent402.tools/tools/skill-fx-monitor"
-        }
-      ],
-      "packs": [
-        {
-          "slug": "regulatory-watch",
-          "title": "SEC regulatory monitoring",
-          "tagline": "The 'who just filed / who just bought / what just IPO'd / what does the full-text search say' monitoring loop. Five EDGAR tools composed: full-text search for a keyword, surface recent filings on the matched companies, pull insider Form 4 transactions, pull 13F institutional holdings changes, and check the IPO calendar. Different from sec-filings-deep-dive (which goes deep on one company's earnings) - this is the wide-and-recent radar.",
-          "toolSlugs": [
-            "edgar-search",
-            "edgar-filings",
-            "edgar-insider-trades",
-            "edgar-13f-holdings",
-            "edgar-recent-ipos"
-          ],
-          "score": 14,
-          "url": "https://agent402.tools/skills/regulatory-watch",
-          "promptName": "regulatory-watch",
-          "method": "POST",
-          "route": "/api/skill/regulatory-watch",
-          "callUrl": "https://agent402.tools/api/skill/regulatory-watch",
-          "price": "$0.023",
-          "aLaCarteUsd": 0.025,
-          "oneCall": "POST https://agent402.tools/api/skill/regulatory-watch runs all 5 steps for one $0.023 payment (partial success per step). The same 5 tools bought individually total $0.025 — the bundle is also the cheaper path."
-        },
-        {
-          "slug": "price-monitor",
-          "title": "Cross-asset price monitor",
-          "tagline": "Side-by-side snapshot of a stock and a crypto asset: the equity's latest close against a live crypto quote, a trailing-year series for each, and a date-stamped comparison.",
-          "toolSlugs": [
-            "stock-quote",
-            "stock-history",
-            "crypto-price",
-            "crypto-history",
-            "date-format"
-          ],
-          "score": 9,
-          "url": "https://agent402.tools/skills/price-monitor",
-          "promptName": "price-monitor",
-          "method": "POST",
-          "route": "/api/skill/price-monitor",
-          "callUrl": "https://agent402.tools/api/skill/price-monitor",
-          "price": "$0.021",
-          "aLaCarteUsd": 0.023,
-          "oneCall": "POST https://agent402.tools/api/skill/price-monitor runs all 5 steps for one $0.021 payment (partial success per step). The same 5 tools bought individually total $0.023 — the bundle is also the cheaper path."
-        }
-      ],
-      "rarestTerm": "detector",
-      "rarestTermCovered": false,
-      "coverageShare": 0.35,
-      "multiStep": {
-        "tool": "decide",
-        "route": "POST /api/decide",
-        "mcp": "decide.plan",
-        "note": "need a multi-step plan across this catalog and outside x402 sellers, with fallbacks and validated params? call decide"
-      },
-      "hint": "no catalog tool matched, but an indexed seller serves this - see routeAcross",
-      "routeAcross": "https://agent402.tools/api/route?q=website%20change%20detector%20deterministic%20diff%20monitor&include=external"
+      "error": "The server is busy; free and discovery requests are paused briefly so paid calls keep flowing.",
+      "retryAfterSeconds": 2
     }
   }
 }
