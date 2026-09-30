@@ -185,7 +185,18 @@ No buyer API key or account is required. Read the HTTP 402 payment requirements,
 const facilitator = createCdpFacilitatorClient();
 const resourceServer = new x402ResourceServer(facilitator)
   .register(NETWORK, new ExactEvmScheme())
-  .registerExtension(bazaarResourceServerExtension);
+  .registerExtension(bazaarResourceServerExtension)
+  .onAfterSettle(async (context) => {
+    console.log('X402_SETTLED', JSON.stringify({
+      payer: context.result?.payer ?? null,
+      transaction: context.result?.transaction ?? null,
+      amount: context.requirements?.amount ?? null,
+      network: context.requirements?.network ?? null,
+      payTo: context.requirements?.payTo ?? null,
+      phase: context.phase ?? null,
+      settledAt: new Date().toISOString()
+    }));
+  });
 
 const routes = {
   'POST /metadata': {
