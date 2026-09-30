@@ -1,0 +1,30 @@
+name: Inspect StableApify Top100 Discovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-stableapify-top100.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect public discovery surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://apify-api-git-apify-top100-routes-merit-systems.vercel.app'
+
+          for path in '/' '/.well-known/x402' '/openapi.json' '/llms.txt'; do
+            echo "::group::$path"
+            code=$(curl --silent --show-error -L -o body.txt -w '%{http_code}' "$BASE$path")
+            echo "HTTP $code"
+            head -c 12000 body.txt || true
+            echo
+            echo "::endgroup::"
+          done
