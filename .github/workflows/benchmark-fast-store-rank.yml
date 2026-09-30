@@ -1,0 +1,22 @@
+name: Benchmark Fast Tool Store Rank
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/benchmark-fast-store-rank.yml'
+      - 'scripts/apify/store-rank-benchmark.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/apify/store-rank-benchmark.mjs
