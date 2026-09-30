@@ -24,7 +24,8 @@ jobs:
 
       - name: Install MCP publisher
         run: |
-          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz"             | tar xz mcp-publisher
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" \
+            | tar xz mcp-publisher
           chmod +x ./mcp-publisher
 
       - name: Validate individual server definitions
@@ -37,9 +38,48 @@ jobs:
       - name: Authenticate with GitHub OIDC
         run: ./mcp-publisher login github-oidc --registry=https://registry.modelcontextprotocol.io
 
-      - name: Publish individual service listings
+      - name: Publish missing individual service versions
         run: |
+          set -euo pipefail
+
           for FILE in registry/*/server.json; do
+            NAME=$(node -e "const x=require('./${FILE}'); process.stdout.write(x.name)")
+            VERSION=$(node -e "const x=require('./${FILE}'); process.stdout.write(x.version)")
+
+            echo "Checking $NAME@$VERSION"
+
+            BODY=$(curl --fail-with-body --silent --show-error --get \
+              --data-urlencode "search=$NAME" \
+              --data-urlencode "version=latest" \
+              "https://registry.modelcontextprotocol.io/v0.1/servers")
+
+            FOUND=$(BODY="$BODY" NAME="$NAME" VERSION="$VERSION" node <<'NODE'
+            const body = JSON.parse(process.env.BODY);
+            const found = (body.servers ?? []).some((entry) => {
+              const server = entry.server ?? entry;
+              return server.name === process.env.NAME && server.version === process.env.VERSION;
+            });
+            process.stdout.write(found ? 'true' : 'false');
+            NODE
+            )
+
+            if [ "$FOUND" = "true" ]; then
+              echo "Already published: $NAME@$VERSION"
+              continue
+            fi
+
             echo "Publishing $FILE"
-            ./mcp-publisher publish "$FILE"
+            set +e
+            OUTPUT=$(./mcp-publisher publish "$FILE" 2>&1)
+            STATUS=$?
+            set -e
+            echo "$OUTPUT"
+
+            if [ "$STATUS" -ne 0 ]; then
+              if echo "$OUTPUT" | grep -q "cannot publish duplicate version"; then
+                echo "Registry reports duplicate version; treating as already published: $NAME@$VERSION"
+              else
+                exit "$STATUS"
+              fi
+            fi
           done
