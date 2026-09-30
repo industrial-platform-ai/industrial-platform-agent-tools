@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.industrial-platform-ai/pdf-text",
   "title": "PDF Text Extractor for AI Agents",
-  "description": "Extract text, page text, and metadata from public PDFs for AI agents and RAG.",
-  "version": "1.0.1",
+  "description": "x402-paid PDF text extraction for AI agents and RAG. $0.0015 per successful digital PDF. Returns embedded text, per-page text, page count, and document metadata; no OCR for image-only scans.",
+  "version": "1.0.2",
   "websiteUrl": "https://apify.com/industrial_platform/pdf-text-intelligence",
   "repository": {
     "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
