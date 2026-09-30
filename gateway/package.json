@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check metadata.mjs && node --check change.mjs"
+    "check": "node --check server.mjs && node --check metadata.mjs && node --check change.mjs && node --check utilities.mjs && node --check market.mjs && node --check article.mjs && node --check network.mjs && node --check bundles.mjs"
   },
   "engines": {
     "node": ">=20"
