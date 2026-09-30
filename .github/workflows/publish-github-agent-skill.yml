@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 jobs:
-  validate:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,3 +22,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh skill publish --dry-run
+
+      - name: Publish Agent Skill v1.0.0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh skill publish --tag v1.0.0
