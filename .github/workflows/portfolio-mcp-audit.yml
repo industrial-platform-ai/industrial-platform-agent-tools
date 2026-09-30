@@ -1,0 +1,32 @@
+name: Portfolio MCP Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'catalog.json'
+      - 'manifests/mcp-bundle.json'
+      - 'examples/mcp/remote-server.json'
+      - 'scripts/mcp/audit-portfolio.mjs'
+      - '.github/workflows/portfolio-mcp-audit.yml'
+  schedule:
+    - cron: '19 */6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install MCP client SDK
+        run: npm install --no-save @modelcontextprotocol/sdk
+      - name: Audit tools/list visible to agents
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: node ./scripts/mcp/audit-portfolio.mjs
