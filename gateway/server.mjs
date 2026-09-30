@@ -180,6 +180,23 @@ const agentCard = {
   skill:ORIGIN+'/skill.md'
 };
 
+const agentInstallManifest = {
+  schemaVersion:'1.0',
+  name:manifest.name,
+  description:manifest.description,
+  homepage:ORIGIN,
+  openapi:ORIGIN+'/openapi.json',
+  x402:ORIGIN+'/.well-known/x402',
+  tools:manifest.tools.map(t=>({
+    name:t.name,
+    description:t.description,
+    endpoint:ORIGIN+t.route,
+    method:t.method,
+    priceUsd:t.priceUsd,
+    payment:{protocol:'x402',network:NETWORK,asset:'USDC'}
+  }))
+};
+
 const skillMd = `---
 name: industrial-platform-web-tools
 description: Low-cost x402 metadata extraction and deterministic page-change detection for autonomous agents.
@@ -315,6 +332,80 @@ app.get('/robots.txt', (_req,res)=>res.type('text/plain').send('User-agent: *\nA
 app.get('/.well-known/x402', (_req,res)=>res.json(manifest));
 app.get('/openapi.json', (_req,res)=>res.json(openapi));
 app.get('/.well-known/agent-card.json', (_req,res)=>res.json(agentCard));
+app.get('/.well-known/agent.json', (_req,res)=>res.json(agentInstallManifest));
+app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
+  '# '+manifest.name,
+  manifest.description,
+  '',
+  'Machine-readable discovery:',
+  '- '+ORIGIN+'/.well-known/x402',
+  '- '+ORIGIN+'/openapi.json',
+  '- '+ORIGIN+'/.well-known/agent.json',
+  '- '+ORIGIN+'/.well-known/agent-card.json',
+  '',
+  'All paid routes use x402 on Base USDC. Utility routes are $0.0005; web metadata and change detection are $0.001.',
+  '',
+  ...manifest.tools.map(t=>'- '+t.method+' '+ORIGIN+t.route+' — 
+
+app.get('/metadata', (_req,res)=>res.json({
+  method:'POST',priceUsd:0.001,network:NETWORK,description:manifest.tools[0].description,
+  example:{urls:['https://example.com/']}
+}));
+app.get('/change', (_req,res)=>res.json({
+  method:'POST',priceUsd:0.001,network:NETWORK,description:manifest.tools[1].description,
+  example:{url:'https://example.com/',include_current_text:false}
+}));
+
+for (const tool of utilityTools) {
+  app.get(tool.route, (_req,res)=>res.json({
+    method:'POST',
+    priceUsd:tool.priceUsd,
+    network:NETWORK,
+    description:tool.description,
+    example:tool.example
+  }));
+}
+
+app.use(paymentMiddleware(routes, resourceServer));
+
+app.post('/metadata', async (req,res)=>{
+  try {
+    const result = await runMetadata(req.body);
+    res.json(result);
+  } catch (error) {
+    const code = Number(error?.statusCode)||502;
+    res.status(code).json(error?.payload||{error:String(error?.message||error)});
+  }
+});
+
+app.post('/change', async (req,res)=>{
+  try {
+    const result = await runChange(req.body);
+    res.json(result);
+  } catch (error) {
+    const code = Number(error?.statusCode)||502;
+    res.status(code).json({error:String(error?.message||error)});
+  }
+});
+
+for (const tool of utilityTools) {
+  app.post(tool.route, async (req,res)=>{
+    try {
+      res.json(await tool.run(req.body));
+    } catch (error) {
+      const code=Number(error?.statusCode)||400;
+      res.status(code).json({error:String(error?.message||error)});
+    }
+  });
+}
+
+app.use((_req,res)=>res.status(404).json({error:'not found'}));
+
+app.listen(PORT,'0.0.0.0',()=>{
+  console.log('Industrial Platform Coinbase x402 gateway listening on',PORT);
+});
++t.priceUsd+' — '+t.description)
+].join('\n')));
 app.get(['/skill.md','/SKILL.md'], (_req,res)=>res.type('text/markdown').send(skillMd));
 
 app.get('/metadata', (_req,res)=>res.json({
