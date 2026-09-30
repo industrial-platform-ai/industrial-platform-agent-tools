@@ -1,0 +1,104 @@
+name: Inspect Native Fast x402 Discovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-native-fast-x402.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Probe native Apify task-specific x402 endpoints
+        shell: bash
+        run: |
+          mkdir -p observability
+          node <<'NODE'
+          import fs from 'node:fs/promises';
+
+          const targets = [
+            {
+              key: 'metadata',
+              url: 'https://api.apify.com/v2/actors/industrial_platform~web-metadata-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.01',
+              input: { urls: ['https://example.com/'] }
+            },
+            {
+              key: 'change',
+              url: 'https://api.apify.com/v2/actors/industrial_platform~web-change-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.01',
+              input: { url: 'https://example.com/', include_current_text: false }
+            }
+          ];
+
+          function decodeMaybeBase64(value) {
+            if (!value) return null;
+            const candidates = [value];
+            try { candidates.push(Buffer.from(value, 'base64').toString('utf8')); } catch {}
+            for (const c of candidates) {
+              try { return JSON.parse(c); } catch {}
+            }
+            return value;
+          }
+
+          const out = { generatedAt: new Date().toISOString(), targets: {} };
+
+          for (const t of targets) {
+            const started = Date.now();
+            const r = await fetch(t.url, {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json',
+                'user-agent': 'industrial-platform-agent-tools/1.0'
+              },
+              body: JSON.stringify(t.input)
+            });
+            const body = await r.text();
+            const headers = Object.fromEntries(r.headers.entries());
+            const paymentRequired =
+              headers['payment-required'] ??
+              headers['x-payment-required'] ??
+              null;
+
+            out.targets[t.key] = {
+              url: t.url,
+              status: r.status,
+              elapsedMs: Date.now() - started,
+              paymentRequiredRaw: paymentRequired,
+              paymentRequiredDecoded: decodeMaybeBase64(paymentRequired),
+              selectedHeaders: Object.fromEntries(
+                Object.entries(headers).filter(([k]) =>
+                  /payment|x402|content-type|www-authenticate/i.test(k)
+                )
+              ),
+              body: body.slice(0, 8000)
+            };
+          }
+
+          await fs.writeFile(
+            'observability/native-fast-x402.json',
+            JSON.stringify(out, null, 2) + '\n'
+          );
+          NODE
+
+      - name: Commit inspection
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "industrial-platform-bot"
+          git config user.email "art@naturalist.gallery"
+          git add observability/native-fast-x402.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Inspect native fast x402 discovery metadata"
+          git pull --rebase origin main
+          git push
