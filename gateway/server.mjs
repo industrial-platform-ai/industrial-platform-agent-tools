@@ -1,51 +1,90 @@
-import http from 'node:http';
+import express from 'express';
+import { paymentMiddleware } from '@x402/express';
+import { x402ResourceServer } from '@x402/core/server';
+import { ExactEvmScheme } from '@x402/evm/exact/server';
+import { declareDiscoveryExtension } from '@x402/extensions/bazaar';
+import { createCdpFacilitatorClient } from '@coinbase/cdp-sdk/x402';
+import { runMetadata } from './metadata.mjs';
+import { runChange } from './change.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
-const STABLE_APIFY = 'https://stableapify.dev/api/actors/call';
-const META_ACTOR = 'industrial_platform/web-metadata-intelligence';
-const CHANGE_ACTOR = 'industrial_platform/web-change-intelligence';
-const MAX_BODY_BYTES = 256 * 1024;
-const UPSTREAM_TIMEOUT_MS = 75_000;
+const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
+const PAY_TO = '0x0e66A3F909D3473E2517709e713B7afc0D767C42';
+const PRICE = '$0.001';
+const NETWORK = 'eip155:8453';
 
-const json = (res, code, body, headers={}) => {
-  res.writeHead(code, {'content-type':'application/json; charset=utf-8', ...headers});
-  res.end(JSON.stringify(body));
+const metadataInputSchema = {
+  type:'object',
+  properties:{
+    urls:{type:'array',items:{type:'string',format:'uri'},minItems:1,maxItems:100},
+    timeout_seconds:{type:'integer',minimum:5,maximum:60},
+    concurrency:{type:'integer',minimum:1,maximum:20}
+  },
+  required:['urls'],
+  additionalProperties:false
 };
 
+const changeInputSchema = {
+  type:'object',
+  properties:{
+    url:{type:'string',format:'uri'},
+    previous_hash:{type:'string'},
+    previous_text:{type:'string'},
+    selector:{type:'string'},
+    ignore_selectors:{type:'array',items:{type:'string'}},
+    include_current_text:{type:'boolean'},
+    max_text_chars:{type:'integer',minimum:1000,maximum:250000},
+    max_diff_chars:{type:'integer',minimum:1000,maximum:50000},
+    timeout_seconds:{type:'integer',minimum:5,maximum:60}
+  },
+  required:['url'],
+  additionalProperties:false
+};
+
+const metadataDiscovery = declareDiscoveryExtension({
+  input:{urls:['https://example.com/']},
+  inputSchema:metadataInputSchema,
+  output:{
+    example:{
+      summary:{status:'ready',requested:1,succeeded:1,failed:0},
+      results:[{status:'ready',url:'https://example.com/',title:'Example Domain'}]
+    }
+  }
+});
+
+const changeDiscovery = declareDiscoveryExtension({
+  input:{url:'https://example.com/',include_current_text:false},
+  inputSchema:changeInputSchema,
+  output:{
+    example:{
+      status:'ready',
+      url:'https://example.com/',
+      comparison_status:'baseline',
+      current_hash:'example'
+    }
+  }
+});
+
 const manifest = {
-  name: 'Industrial Platform Web Tools',
-  description: 'Low-cost web metadata extraction and deterministic website change detection for autonomous agents.',
-  tools: [
+  name:'Industrial Platform Web Tools',
+  description:'Low-cost metadata extraction and deterministic webpage change detection for autonomous agents.',
+  payment:{protocol:'x402',network:NETWORK,asset:'USDC',priceUsd:0.001,payTo:PAY_TO},
+  tools:[
     {
-      name: 'web-metadata-intelligence',
-      route: '/metadata',
-      method: 'POST',
-      price: 0.01,
-      example: { urls: ['https://example.com/'] },
-      description: 'Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.',
-      inputSchema: {
-        type:'object',
-        properties:{ urls:{type:'array',items:{type:'string'},minItems:1,maxItems:100} },
-        required:['urls']
-      }
+      name:'web-metadata-intelligence',
+      method:'POST',
+      route:'/metadata',
+      priceUsd:0.001,
+      description:'Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.',
+      inputSchema:metadataInputSchema
     },
     {
-      name: 'web-change-intelligence',
-      route: '/change',
-      method: 'POST',
-      price: 0.01,
-      example: { url: 'https://example.com/', include_current_text: false },
-      description: 'Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.',
-      inputSchema: {
-        type:'object',
-        properties:{
-          url:{type:'string'},
-          previous_hash:{type:'string'},
-          previous_text:{type:'string'},
-          include_current_text:{type:'boolean'}
-        },
-        required:['url']
-      }
+      name:'web-change-intelligence',
+      method:'POST',
+      route:'/change',
+      priceUsd:0.001,
+      description:'Detect meaningful webpage changes with deterministic hashes and diffs for prices, docs, policies, availability and competitor monitoring.',
+      inputSchema:changeInputSchema
     }
   ]
 };
@@ -54,23 +93,28 @@ const openapi = {
   openapi:'3.1.0',
   info:{
     title:'Industrial Platform Web Tools',
-    version:'1.0.1',
-    description:'Machine-payable web metadata extraction and deterministic webpage change detection for autonomous agents.',
+    version:'2.0.0',
+    description:'Machine-payable metadata extraction and deterministic webpage change detection for autonomous agents.',
     contact:{
       name:'Industrial Platform',
       email:'art@naturalist.gallery',
       url:'https://github.com/industrial-platform-ai/industrial-platform-agent-tools'
     }
   },
-  servers:[{url:'https://x402-gateway-production-1f21.up.railway.app'}],
+  servers:[{url:ORIGIN}],
   paths:{
     '/metadata':{
       post:{
         operationId:'webMetadataIntelligence',
         summary:'Extract webpage metadata',
         description:manifest.tools[0].description,
-        requestBody:{required:true,content:{'application/json':{schema:manifest.tools[0].inputSchema}}},
-        responses:{'200':{description:'Metadata result'},'402':{description:'x402 payment required'}}
+        requestBody:{required:true,content:{'application/json':{schema:metadataInputSchema}}},
+        responses:{
+          '200':{description:'Metadata result'},
+          '400':{description:'Invalid input'},
+          '402':{description:'x402 payment required'},
+          '502':{description:'Target fetch failed'}
+        }
       }
     },
     '/change':{
@@ -78,248 +122,174 @@ const openapi = {
         operationId:'webChangeIntelligence',
         summary:'Detect webpage changes',
         description:manifest.tools[1].description,
-        requestBody:{required:true,content:{'application/json':{schema:manifest.tools[1].inputSchema}}},
-        responses:{'200':{description:'Change comparison result'},'402':{description:'x402 payment required'}}
+        requestBody:{required:true,content:{'application/json':{schema:changeInputSchema}}},
+        responses:{
+          '200':{description:'Change comparison result'},
+          '400':{description:'Invalid input'},
+          '402':{description:'x402 payment required'},
+          '502':{description:'Target fetch failed'}
+        }
       }
     }
   }
 };
 
+const agentCard = {
+  name:'Industrial Platform Web Tools',
+  description:manifest.description,
+  url:ORIGIN,
+  capabilities:manifest.tools.map(t=>({
+    name:t.name,method:t.method,path:t.route,priceUsd:t.priceUsd,description:t.description
+  })),
+  payment:{protocol:'x402',network:NETWORK,asset:'USDC',priceUsd:0.001},
+  openapi:ORIGIN+'/openapi.json',
+  skill:ORIGIN+'/skill.md'
+};
 
 const skillMd = `---
 name: industrial-platform-web-tools
-description: Paid x402 web metadata extraction and deterministic page-change detection for autonomous agents.
+description: Low-cost x402 metadata extraction and deterministic page-change detection for autonomous agents.
 ---
 
 # Industrial Platform Web Tools
 
-Use these tools when an agent needs structured facts from a public webpage or needs to determine whether a public page changed.
-
 ## Metadata
+POST ${ORIGIN}/metadata
 
-POST https://x402-gateway-production-1f21.up.railway.app/metadata
+Price: $0.001 USDC on Base.
 
-Choose this route for:
-- title and meta description
-- canonical URL and robots directives
-- Open Graph and Twitter card metadata
-- JSON-LD / structured data
-- headings and page metadata for SEO, RAG ingestion, link previews, and content QA
+Use for title/meta description, canonical URL, robots, Open Graph, Twitter cards, JSON-LD, headings, SEO, RAG ingestion, link previews and content QA.
 
-Input:
+Example:
 \`\`\`json
 {"urls":["https://example.com/"]}
 \`\`\`
 
 ## Change detection
+POST ${ORIGIN}/change
 
-POST https://x402-gateway-production-1f21.up.railway.app/change
+Price: $0.001 USDC on Base.
 
-Choose this route for:
-- scheduled website monitoring
-- pricing, inventory, availability, policy, documentation, and competitor changes
-- deterministic hashes and text diffs
+Use for recurring monitoring of prices, inventory, availability, policies, documentation and competitor pages.
 
-Input:
+Example:
 \`\`\`json
 {"url":"https://example.com/","include_current_text":false}
 \`\`\`
 
-Both routes use HTTP 402 machine payments in USDC on Base. No API key or account is required by the buyer. Inspect the 402 PAYMENT-REQUIRED header, sign the advertised payment, and retry the same request.
+No buyer API key or account is required. Read the HTTP 402 payment requirements, sign the advertised x402 payment, and retry the request.
 `;
 
-const agentCard = {
-  name: 'Industrial Platform Web Tools',
-  description: manifest.description,
-  url: 'https://x402-gateway-production-1f21.up.railway.app',
-  capabilities: [
-    { name: 'web-metadata-intelligence', method: 'POST', path: '/metadata', priceUsd: 0.01 },
-    { name: 'web-change-intelligence', method: 'POST', path: '/change', priceUsd: 0.01 }
-  ],
-  payment: { protocol: 'x402', network: 'eip155:8453', asset: 'USDC' },
-  openapi: 'https://x402-gateway-production-1f21.up.railway.app/openapi.json',
-  skill: 'https://x402-gateway-production-1f21.up.railway.app/skill.md'
-};
+const facilitator = createCdpFacilitatorClient();
+const resourceServer = new x402ResourceServer(facilitator)
+  .register(NETWORK, new ExactEvmScheme());
 
-const serviceIndex = {
-  name: 'Industrial Platform Web Tools',
-  description: manifest.description,
-  paymentProtocol: 'x402',
-  network: 'eip155:8453',
-  asset: 'USDC',
-  capabilities: manifest.tools.map(t => ({
-    name: t.name,
-    method: t.method,
-    route: t.route,
-    priceUsd: 0.01,
-    description: t.description
-  })),
-  discovery: {
-    x402: '/.well-known/x402',
-    openapi: '/openapi.json',
-    agentCard: '/.well-known/agent-card.json',
-    skill: '/skill.md'
+const routes = {
+  'POST /metadata': {
+    accepts:[{
+      scheme:'exact',
+      price:PRICE,
+      network:NETWORK,
+      payTo:PAY_TO,
+      maxTimeoutSeconds:90
+    }],
+    resource:{
+      url:ORIGIN+'/metadata',
+      description:manifest.tools[0].description,
+      mimeType:'application/json',
+      serviceName:'Industrial Platform Web Tools',
+      tags:['metadata','seo','structured-data','web','agents']
+    },
+    extensions:{...metadataDiscovery}
+  },
+  'POST /change': {
+    accepts:[{
+      scheme:'exact',
+      price:PRICE,
+      network:NETWORK,
+      payTo:PAY_TO,
+      maxTimeoutSeconds:90
+    }],
+    resource:{
+      url:ORIGIN+'/change',
+      description:manifest.tools[1].description,
+      mimeType:'application/json',
+      serviceName:'Industrial Platform Web Tools',
+      tags:['monitoring','web-change','diff','web','agents']
+    },
+    extensions:{...changeDiscovery}
   }
 };
 
-async function bodyBuffer(req) {
-  const chunks=[];
-  let total=0;
-  for await (const chunk of req) {
-    total += chunk.length;
-    if (total > MAX_BODY_BYTES) throw Object.assign(new Error('request body too large'), { statusCode: 413 });
-    chunks.push(chunk);
-  }
-  return Buffer.concat(chunks);
-}
+const app = express();
+app.disable('x-powered-by');
+app.use(express.json({limit:'256kb'}));
 
-function rewritePaymentRequired(encoded, req, tool) {
-  if (!encoded) return encoded;
+app.get('/', (_req,res)=>res.json({
+  name:manifest.name,
+  description:manifest.description,
+  payment:manifest.payment,
+  capabilities:manifest.tools,
+  discovery:{
+    x402:'/.well-known/x402',
+    openapi:'/openapi.json',
+    agentCard:'/.well-known/agent-card.json',
+    skill:'/skill.md'
+  }
+}));
+
+app.get('/health', (_req,res)=>res.json({ok:true,version:'2.0.0',payment:'coinbase-cdp'}));
+app.get('/facilitator-health', async (_req,res)=>{
   try {
-    const envelope = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8'));
-    const origin = 'https://' + req.headers.host;
-    envelope.resource = {
-      ...(envelope.resource || {}),
-      url: origin + tool.route,
-      method: 'POST',
-      description: tool.description,
-      mimeType: 'application/json',
-      tags: ['Industrial Platform', tool.name],
-      serviceName: 'Industrial Platform Web Tools',
-      tags: tool.route === '/metadata'
-        ? ['metadata','seo','structured-data','web','agents']
-        : ['monitoring','web-change','diff','web','agents']
-    };
-    envelope.extensions = envelope.extensions || {};
-    const outputExample = tool.route === '/metadata'
-      ? { results: [{ url: 'https://example.com/', title: 'Example Domain' }] }
-      : { url: 'https://example.com/', changed: false, current_hash: 'example' };
-
-    envelope.extensions.bazaar = {
-      info: {
-        input: {
-          type: 'http',
-          method: 'POST',
-          bodyType: 'json',
-          body: tool.example || {}
-        },
-        output: {
-          type: 'json',
-          example: outputExample
-        }
-      },
-      schema: {
-        type: 'object',
-        required: ['input'],
-        properties: {
-          input: {
-            type: 'object',
-            required: ['type', 'method', 'bodyType', 'body'],
-            additionalProperties: false,
-            properties: {
-              type: { const: 'http', type: 'string' },
-              method: { enum: ['POST'], type: 'string' },
-              bodyType: { enum: ['json'], type: 'string' },
-              body: tool.inputSchema
-            }
-          },
-          output: {
-            type: 'object',
-            required: ['type', 'example'],
-            additionalProperties: false,
-            properties: {
-              type: { const: 'json', type: 'string' },
-              example: { type: 'object' }
-            }
-          }
-        }
-      }
-    };
-    return Buffer.from(JSON.stringify(envelope)).toString('base64');
-  } catch {
-    return encoded;
-  }
-}
-
-async function proxy(req,res,actorId,tool,inputOverride=null) {
-  let input;
-  if (inputOverride !== null) {
-    input = inputOverride;
-  } else {
-    const raw = await bodyBuffer(req);
-    try {
-      input = JSON.parse(raw.toString('utf8') || '{}');
-    } catch {
-      return json(res,400,{error:'invalid_json'});
-    }
-  }
-
-  const headers = {'content-type': 'application/json'};
-  for (const h of ['payment-signature','x-payment','skyfire-pay-id']) {
-    if (req.headers[h]) headers[h]=req.headers[h];
-  }
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
-  let upstream;
-  try {
-    upstream = await fetch(STABLE_APIFY,{
-      method:'POST',
-      headers,
-      body:JSON.stringify({actorId,input}),
-      redirect:'manual',
-      signal:controller.signal
+    const supported = await facilitator.getSupported();
+    res.json({
+      ok:true,
+      extensions:supported.extensions,
+      kinds:supported.kinds.map(k=>({x402Version:k.x402Version,scheme:k.scheme,network:k.network}))
     });
-  } finally {
-    clearTimeout(timer);
-  }
-  const passthrough={};
-  for (const [k,v] of upstream.headers) {
-    if (/^(payment-required|x-payment-response|content-type|www-authenticate)$/i.test(k)) {
-      passthrough[k] = k.toLowerCase() === 'payment-required'
-        ? rewritePaymentRequired(v, req, tool)
-        : v;
-    }
-  }
-  res.writeHead(upstream.status,passthrough);
-  if (upstream.body) {
-    for await (const chunk of upstream.body) res.write(chunk);
-  }
-  res.end();
-}
-
-const server = http.createServer(async (req,res)=>{
-  try {
-    const u = new URL(req.url,'http://localhost');
-    if (req.method==='GET' && u.pathname==='/') return json(res,200,serviceIndex);
-    if (req.method==='GET' && u.pathname==='/robots.txt') {
-      res.writeHead(200, {'content-type':'text/plain; charset=utf-8'});
-      return res.end('User-agent: *\nAllow: /\n');
-    }
-    if (req.method==='OPTIONS' && (u.pathname==='/metadata' || u.pathname==='/change')) {
-      res.writeHead(204, {
-        'allow':'GET, HEAD, POST, OPTIONS',
-        'access-control-allow-methods':'GET, HEAD, POST, OPTIONS',
-        'access-control-allow-headers':'content-type,payment-signature,x-payment,skyfire-pay-id'
-      });
-      return res.end();
-    }
-    if (req.method==='GET' && u.pathname==='/health') return json(res,200,{ok:true});
-    if (req.method==='GET' && u.pathname==='/.well-known/x402') return json(res,200,manifest);
-    if (req.method==='GET' && u.pathname==='/openapi.json') return json(res,200,openapi);
-    if (req.method==='GET' && (u.pathname==='/skill.md' || u.pathname==='/SKILL.md')) {
-      res.writeHead(200, {'content-type':'text/markdown; charset=utf-8'});
-      return res.end(skillMd);
-    }
-    if (req.method==='GET' && u.pathname==='/.well-known/agent-card.json') return json(res,200,agentCard);
-    if (req.method==='GET' && u.pathname==='/metadata') return await proxy(req,res,META_ACTOR,manifest.tools[0],manifest.tools[0].example);
-    if (req.method==='GET' && u.pathname==='/change') return await proxy(req,res,CHANGE_ACTOR,manifest.tools[1],manifest.tools[1].example);
-    if (req.method==='POST' && u.pathname==='/metadata') return await proxy(req,res,META_ACTOR,manifest.tools[0]);
-    if (req.method==='POST' && u.pathname==='/change') return await proxy(req,res,CHANGE_ACTOR,manifest.tools[1]);
-    return json(res,404,{error:'not found'});
-  } catch (e) {
-    const status = Number(e?.statusCode) || (e?.name === 'AbortError' ? 504 : 502);
-    return json(res,status,{error:'gateway_error',message:String(e?.message||e)});
+  } catch (error) {
+    res.status(502).json({ok:false,error:String(error?.message||error)});
   }
 });
-server.listen(PORT,'0.0.0.0',()=>console.log('Industrial Platform x402 gateway listening on',PORT));
+app.get('/robots.txt', (_req,res)=>res.type('text/plain').send('User-agent: *\nAllow: /\n'));
+app.get('/.well-known/x402', (_req,res)=>res.json(manifest));
+app.get('/openapi.json', (_req,res)=>res.json(openapi));
+app.get('/.well-known/agent-card.json', (_req,res)=>res.json(agentCard));
+app.get(['/skill.md','/SKILL.md'], (_req,res)=>res.type('text/markdown').send(skillMd));
+
+app.get('/metadata', (_req,res)=>res.json({
+  method:'POST',priceUsd:0.001,network:NETWORK,description:manifest.tools[0].description,
+  example:{urls:['https://example.com/']}
+}));
+app.get('/change', (_req,res)=>res.json({
+  method:'POST',priceUsd:0.001,network:NETWORK,description:manifest.tools[1].description,
+  example:{url:'https://example.com/',include_current_text:false}
+}));
+
+app.use(paymentMiddleware(routes, resourceServer));
+
+app.post('/metadata', async (req,res)=>{
+  try {
+    const result = await runMetadata(req.body);
+    res.json(result);
+  } catch (error) {
+    const code = Number(error?.statusCode)||502;
+    res.status(code).json(error?.payload||{error:String(error?.message||error)});
+  }
+});
+
+app.post('/change', async (req,res)=>{
+  try {
+    const result = await runChange(req.body);
+    res.json(result);
+  } catch (error) {
+    const code = Number(error?.statusCode)||502;
+    res.status(code).json({error:String(error?.message||error)});
+  }
+});
+
+app.use((_req,res)=>res.status(404).json({error:'not found'}));
+
+app.listen(PORT,'0.0.0.0',()=>{
+  console.log('Industrial Platform Coinbase x402 gateway listening on',PORT);
+});
