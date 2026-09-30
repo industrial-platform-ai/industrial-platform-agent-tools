@@ -22,6 +22,7 @@ const basedAgentsTasksTarget = 'https://api.basedagents.ai/v1/tasks?status=open&
 const agentExchangeTasksTarget = 'https://exchange.agentexchange.work/tasks';
 const agentExchangeRegisterTarget = 'https://exchange.agentexchange.work/agents/register';
 const x402ArenaRegisterTarget = 'https://core.x402arena.gg/register';
+const taskBountyOpenTasksTarget = 'https://www.task-bounty.com/api/v1/tasks?state=open&limit=50';
 const externalRouteQueries = [
   'URL to clean agent-ready Markdown web reading RAG content extraction',
   'SEC EDGAR recent filings ticker CIK 10-K 10-Q 8-K',
@@ -335,6 +336,7 @@ async function runExternalEarningDiagnostics() {
   }
   await fetchNoSpendOpportunity('basedagents-open-tasks', basedAgentsTasksTarget);
   await fetchNoSpendOpportunity('agentexchange-open-tasks', agentExchangeTasksTarget);
+  await fetchNoSpendOpportunity('taskbounty-open-tasks', taskBountyOpenTasksTarget);
 }
 
 async function fetchAgent402Wishes() {
