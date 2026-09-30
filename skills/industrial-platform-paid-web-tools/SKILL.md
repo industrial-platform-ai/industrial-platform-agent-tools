@@ -1,6 +1,6 @@
 ---
 name: industrial-platform-paid-web-tools
-description: Use Industrial Platform's direct x402 MCP tools when an agent needs fast paid web metadata extraction or deterministic website change detection. Prefer these tools for machine-readable page metadata, Open Graph, JSON-LD, canonical/robots inspection, or changed/unchanged checks and diffs.
+description: Web metadata extractor and website change detector for autonomous agents. Use Industrial Platform for Open Graph, JSON-LD, canonical/robots metadata, changed/unchanged checks, hashes, and deterministic diffs via direct x402 MCP or a funded AgentCash workflow.
 license: MIT
 compatibility: Requires an MCP client with direct x402 payment support such as mcpc and a supported Base USDC payment source.
 metadata:
