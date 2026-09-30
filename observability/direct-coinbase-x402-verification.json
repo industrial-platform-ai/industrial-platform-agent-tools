@@ -149,21 +149,17 @@
     "x402Version": 2,
     "error": "Payment required",
     "resource": {
-      "url": {
-        "url": "https://x402-gateway-production-1f21.up.railway.app/metadata",
-        "description": "Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.",
-        "mimeType": "application/json",
-        "serviceName": "Industrial Platform Web Tools",
-        "tags": [
-          "metadata",
-          "seo",
-          "structured-data",
-          "web",
-          "agents"
-        ]
-      },
-      "description": "",
-      "mimeType": ""
+      "url": "https://x402-gateway-production-1f21.up.railway.app/metadata",
+      "description": "Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.",
+      "mimeType": "application/json",
+      "serviceName": "Industrial Platform Web Tools",
+      "tags": [
+        "metadata",
+        "seo",
+        "structured-data",
+        "web",
+        "agents"
+      ]
     },
     "accepts": [
       {
@@ -184,7 +180,8 @@
         "info": {
           "input": {
             "type": "http",
-            "queryParams": {
+            "bodyType": "json",
+            "body": {
               "urls": [
                 "https://example.com/"
               ]
@@ -227,7 +224,15 @@
                     "POST"
                   ]
                 },
-                "queryParams": {
+                "bodyType": {
+                  "type": "string",
+                  "enum": [
+                    "json",
+                    "form-data",
+                    "text"
+                  ]
+                },
+                "body": {
                   "type": "object",
                   "properties": {
                     "urls": {
@@ -258,7 +263,9 @@
               },
               "required": [
                 "type",
-                "method"
+                "method",
+                "bodyType",
+                "body"
               ],
               "additionalProperties": false
             },
