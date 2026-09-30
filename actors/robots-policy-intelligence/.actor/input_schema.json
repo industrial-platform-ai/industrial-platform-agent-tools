@@ -9,19 +9,31 @@
       "type": "array",
       "description": "Public domains or HTTP/HTTPS URLs. Up to 100 unique sites per run.",
       "editor": "stringList",
-      "items": { "type": "string", "maxLength": 2048 },
+      "items": {
+        "type": "string",
+        "maxLength": 2048
+      },
       "minItems": 1,
       "maxItems": 100,
-      "prefill": ["https://example.com/"],
-      "example": ["https://example.com/"]
+      "prefill": [
+        "https://example.com/"
+      ],
+      "example": [
+        "https://example.com/"
+      ]
     },
     "user_agents": {
       "title": "User agents",
       "type": "array",
       "description": "Crawler user-agent tokens to evaluate.",
       "editor": "stringList",
-      "items": { "type": "string", "maxLength": 200 },
-      "default": ["*"],
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "default": [
+        "*"
+      ],
       "maxItems": 25
     },
     "test_paths": {
@@ -29,8 +41,13 @@
       "type": "array",
       "description": "URL paths or full URLs to test against the parsed rules.",
       "editor": "stringList",
-      "items": { "type": "string", "maxLength": 2048 },
-      "default": ["/"],
+      "items": {
+        "type": "string",
+        "maxLength": 2048
+      },
+      "default": [
+        "/"
+      ],
       "maxItems": 100
     },
     "timeout_seconds": {
@@ -39,15 +56,19 @@
       "default": 20,
       "minimum": 5,
       "maximum": 60,
-      "unit": "seconds"
+      "unit": "seconds",
+      "description": "Maximum time allowed for each individual robots.txt fetch."
     },
     "concurrency": {
       "title": "Concurrency",
       "type": "integer",
       "default": 10,
       "minimum": 1,
-      "maximum": 20
+      "maximum": 20,
+      "description": "Maximum number of sites processed concurrently during this run."
     }
   },
-  "required": ["sites"]
+  "required": [
+    "sites"
+  ]
 }
