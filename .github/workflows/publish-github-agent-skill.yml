@@ -23,7 +23,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh skill publish --dry-run
 
-      - name: Publish Agent Skill v1.0.1
+      - name: Publish Agent Skill v1.0.2
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh skill publish --tag v1.0.1
+        run: gh skill publish --tag v1.0.2
