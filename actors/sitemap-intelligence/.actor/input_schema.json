@@ -9,9 +9,18 @@
       "type": "array",
       "description": "Domains, website URLs, or direct sitemap URLs. Domains use robots.txt discovery plus /sitemap.xml fallback.",
       "editor": "stringList",
-      "items": { "type": "string", "maxLength": 2048 },
+      "items": {
+        "type": "string",
+        "maxLength": 2048
+      },
       "minItems": 1,
-      "maxItems": 20
+      "maxItems": 20,
+      "prefill": [
+        "https://www.google.com/gmail/sitemap.xml"
+      ],
+      "example": [
+        "https://www.google.com/gmail/sitemap.xml"
+      ]
     },
     "timeout_seconds": {
       "title": "Fetch timeout",
@@ -39,5 +48,7 @@
       "maximum": 100000
     }
   },
-  "required": ["start_urls"]
+  "required": [
+    "start_urls"
+  ]
 }
