@@ -1,0 +1,30 @@
+name: Sitemap Intelligence
+
+on:
+  pull_request:
+    paths:
+      - 'actors/sitemap-intelligence/**'
+      - '.github/workflows/sitemap-intelligence.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'actors/sitemap-intelligence/**'
+      - '.github/workflows/sitemap-intelligence.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  actor:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: actors/sitemap-intelligence
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      - run: npm run check
+      - run: npm test
