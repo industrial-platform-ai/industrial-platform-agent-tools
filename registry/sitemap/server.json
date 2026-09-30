@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.industrial-platform-ai/sitemap",
   "title": "Sitemap URL Extractor for AI Agents",
-  "description": "Discover sitemaps and emit deduplicated crawl URLs with sitemap metadata.",
-  "version": "1.0.1",
+  "description": "x402-paid sitemap discovery and URL extraction for AI agents. $0.0001 per emitted URL. Expands robots.txt, XML/gzip indexes, RSS, Atom, and text lists into deduplicated crawl URLs with sitemap metadata.",
+  "version": "1.0.2",
   "websiteUrl": "https://apify.com/industrial_platform/sitemap-intelligence",
   "repository": {
     "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
