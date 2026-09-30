@@ -1,0 +1,47 @@
+name: Submit Fast Tools to x402scan
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/submit-x402scan.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Register Industrial Platform paid endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          register() {
+            local label="$1"
+            local url="$2"
+            echo "::group::$label"
+
+            body=$(jq -nc --arg url "$url" '{"0":{"json":{"url":$url}}}')
+
+            response=$(curl -sS               -w $'\nHTTP_STATUS:%{http_code}'               -X POST               'https://www.x402scan.com/api/trpc/public.resources.register?batch=1'               -H 'content-type: application/json'               -H 'x-trpc-source: nextjs-react'               --data "$body")
+
+            status=$(printf '%s\n' "$response" | sed -n 's/^HTTP_STATUS://p')
+            payload=$(printf '%s\n' "$response" | sed '/^HTTP_STATUS:/d')
+
+            echo "HTTP $status"
+            echo "$payload" | jq . || echo "$payload"
+
+            if [[ "$status" -lt 200 || "$status" -ge 300 ]]; then
+              echo "::error::$label registration returned HTTP $status"
+              return 1
+            fi
+
+            echo "::endgroup::"
+          }
+
+          register             'Web Metadata Intelligence'             'https://api.apify.com/v2/acts/industrial_platform~web-metadata-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
+
+          register             'Web Change Intelligence'             'https://api.apify.com/v2/acts/industrial_platform~web-change-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
