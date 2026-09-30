@@ -1,0 +1,82 @@
+name: Summarize Router Discovery Snapshot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'observability/router-discovery-snapshot.json'
+      - '.github/workflows/summarize-router-discovery.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print acquisition-critical router summary
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const s = JSON.parse(fs.readFileSync('observability/router-discovery-snapshot.json','utf8'));
+
+          const parseMaybe = (v) => {
+            if (v == null) return null;
+            if (typeof v === 'object') return v;
+            try { return JSON.parse(v); } catch { return v; }
+          };
+
+          const agentIndex = parseMaybe(s.agent402?.indexApify?.body);
+          const stableTrust = parseMaybe(s.agent402?.sellerTrustStableApify?.body);
+          const apifyTrust = parseMaybe(s.agent402?.sellerTrustApify?.body);
+
+          const summarizeValidation = {};
+          for (const [url, row] of Object.entries(s.coinbaseBazaar?.validation || {})) {
+            const parsed = parseMaybe(row?.text);
+            summarizeValidation[url] = typeof parsed === 'object' && parsed
+              ? {
+                  active: parsed.active,
+                  valid: parsed.valid,
+                  indexed: parsed.indexed,
+                  statusCode: parsed.statusCode,
+                  returns402: parsed.returns402,
+                  hasBazaarExtension: parsed.hasBazaarExtension,
+                  simulate: parsed.simulate
+                }
+              : row;
+          }
+
+          const searchHits = {};
+          for (const [q,row] of Object.entries(s.coinbaseBazaar?.search || {})) {
+            const text = String(row?.text || '');
+            searchHits[q] = {
+              industrialPlatform: /industrial[_ -]?platform|industrial-platform-ai/i.test(text),
+              stableApify: /stableapify/i.test(text)
+            };
+          }
+
+          const result = {
+            generatedAt: s.generatedAt,
+            agent402: {
+              apifyIndexStatus: s.agent402?.indexApify?.status,
+              apifyIndex: agentIndex,
+              apifyTrust: apifyTrust,
+              stableApifyTrust: stableTrust
+            },
+            stableApify: {
+              typedMetadataStatus: s.stableApify?.calls?.typedMetadata?.status,
+              typedChangeStatus: s.stableApify?.calls?.typedChange?.status,
+              genericMetadataStatus: s.stableApify?.calls?.genericMetadata?.status,
+              genericChangeStatus: s.stableApify?.calls?.genericChange?.status
+            },
+            coinbaseBazaar: {
+              validation: summarizeValidation,
+              searchHits
+            }
+          };
+
+          console.log(JSON.stringify(result, null, 2));
+          NODE
