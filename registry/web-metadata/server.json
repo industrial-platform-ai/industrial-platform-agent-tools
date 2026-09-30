@@ -3,7 +3,7 @@
   "name": "io.github.industrial-platform-ai/web-metadata",
   "title": "Web Metadata Extractor for AI Agents",
   "description": "Extract page metadata, Open Graph, JSON-LD, canonical, robots, and headings.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "websiteUrl": "https://apify.com/industrial_platform/web-metadata-intelligence",
   "repository": {
     "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
@@ -12,14 +12,17 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence"
+      "url": "https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence&payment=x402"
     }
   ],
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
       "provider": "Industrial Platform",
       "paymentModel": "Apify pay-per-event and supported agentic payments",
-      "actor": "industrial_platform/web-metadata-intelligence"
+      "actor": "industrial_platform/web-metadata-intelligence",
+      "paymentMode": "direct-x402",
+      "paymentNetwork": "Base",
+      "paymentAsset": "USDC"
     }
   }
 }
