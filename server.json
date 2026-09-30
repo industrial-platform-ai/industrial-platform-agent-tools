@@ -1,0 +1,26 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.industrial-platform-ai/industrial-platform",
+  "title": "Industrial Platform",
+  "description": "Paid machine-callable research, web monitoring, metadata, article, PDF, and sitemap utilities for autonomous AI agents and MCP workflows.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+  "repository": {
+    "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence"
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "category": "agent-tools",
+      "provider": "Industrial Platform",
+      "portfolioSize": 6,
+      "paymentModel": "Apify pay-per-event and supported agentic payments"
+    }
+  }
+}
