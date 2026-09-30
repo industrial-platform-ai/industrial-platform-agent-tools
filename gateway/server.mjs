@@ -52,7 +52,17 @@ const manifest = {
 
 const openapi = {
   openapi:'3.1.0',
-  info:{title:'Industrial Platform Web Tools',version:'1.0.0'},
+  info:{
+    title:'Industrial Platform Web Tools',
+    version:'1.0.1',
+    description:'Machine-payable web metadata extraction and deterministic webpage change detection for autonomous agents.',
+    contact:{
+      name:'Industrial Platform',
+      email:'art@naturalist.gallery',
+      url:'https://github.com/industrial-platform-ai/industrial-platform-agent-tools'
+    }
+  },
+  servers:[{url:'https://x402-gateway-production-1f21.up.railway.app'}],
   paths:{
     '/metadata':{
       post:{
