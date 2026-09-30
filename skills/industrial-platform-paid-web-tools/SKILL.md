@@ -1,6 +1,6 @@
 ---
 name: industrial-platform-paid-web-tools
-description: Web metadata extractor and website change detector for autonomous agents. Use Industrial Platform for Open Graph, JSON-LD, canonical/robots metadata, changed/unchanged checks, hashes, and deterministic diffs via direct x402 MCP or a funded AgentCash workflow.
+description: Web metadata extractor and website change detector for autonomous agents. Use Industrial Platform for Open Graph, JSON-LD, canonical/robots metadata, changed/unchanged checks, hashes, and deterministic diffs via direct x402 MCP, Coinbase Agentic Wallet, or a funded AgentCash workflow.
 license: MIT
 compatibility: Requires an MCP client with direct x402 payment support such as mcpc and a supported Base USDC payment source.
 metadata:
@@ -103,6 +103,60 @@ Change against a previous hash:
   "include_current_text": false
 }
 ```
+
+## Production x402 HTTP routes
+
+When the agent already has a generic x402-capable wallet, use the task-specific production routes directly. These routes were validated against Coinbase Bazaar's x402 v2 preflight and accept Base USDC.
+
+Metadata:
+
+```text
+POST https://x402-gateway-production-1f21.up.railway.app/metadata
+```
+
+Body:
+
+```json
+{"urls":["https://example.com/"]}
+```
+
+Change detection:
+
+```text
+POST https://x402-gateway-production-1f21.up.railway.app/change
+```
+
+Body:
+
+```json
+{"url":"https://example.com/","include_current_text":false}
+```
+
+The current live bridge challenge is $0.01 USDC on Base. Do not approve a higher charge unless the parent agent explicitly allows it.
+
+### Coinbase Agentic Wallet
+
+For an already-authenticated Coinbase Agentic Wallet with sufficient USDC, execute without provider search:
+
+```bash
+npx awal@latest x402 pay https://x402-gateway-production-1f21.up.railway.app/metadata \
+  -X POST \
+  -d '{"urls":["https://example.com/"]}' \
+  --max-amount 10000 \
+  --json
+```
+
+For change detection:
+
+```bash
+npx awal@latest x402 pay https://x402-gateway-production-1f21.up.railway.app/change \
+  -X POST \
+  -d '{"url":"https://example.com/","include_current_text":false}' \
+  --max-amount 10000 \
+  --json
+```
+
+`10000` is $0.01 in USDC atomic units. If either route returns a payment requirement above that cap, stop rather than silently increasing the limit.
 
 ## AgentCash execution path
 
