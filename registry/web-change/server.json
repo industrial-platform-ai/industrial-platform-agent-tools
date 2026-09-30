@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.industrial-platform-ai/web-change",
   "title": "Website Change Detector & Diff API",
-  "description": "x402-paid deterministic website change detection for AI agents. $0.01 per successful page comparison. Use for changed/unchanged checks, text/hash diffs, pricing, stock, docs, policy, and competitor monitoring.",
+  "description": "x402 web change detection and deterministic diffs for agents. $0.01 per comparison.",
   "version": "1.0.2",
   "websiteUrl": "https://apify.com/industrial_platform/web-change-intelligence",
   "repository": {
