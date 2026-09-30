@@ -16,6 +16,17 @@ const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-producti
 const agent402IndexTarget = 'https://agent402.tools/api/index/register';
 const agent402FindTarget = 'https://agent402.tools/api/find';
 const agent402WishesTarget = 'https://agent402.tools/api/wishes?limit=50&qualifiedOnly=true&sort=count';
+const agent402SellerIndexTarget = 'https://agent402.tools/api/index?seller=' + encodeURIComponent(new URL(sellerOrigin || 'https://x402-gateway-production-1f21.up.railway.app').host);
+const basedAgentsTasksTarget = 'https://api.basedagents.ai/v1/tasks?status=open&limit=100';
+const agentExchangeTasksTarget = 'https://exchange.agentexchange.work/tasks';
+const externalRouteQueries = [
+  'SEC EDGAR recent filings ticker CIK 10-K 10-Q 8-K',
+  'SEC XBRL company financial facts revenue assets liabilities',
+  'Coinbase crypto market snapshot bid ask OHLCV recent trades',
+  'public webpage dossier metadata article security headers robots RAG chunks',
+  'extract clean article text from a public webpage',
+  'webpage metadata Open Graph JSON-LD canonical URL'
+];
 const marketQueries = [
   'cryptographic hash sha256 sha512 text',
   'hmac signature',
@@ -198,6 +209,40 @@ async function registerTrue402Free() {
   }
 }
 
+async function fetchNoSpendOpportunity(label, url) {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        accept: 'application/json, text/plain;q=0.9, */*;q=0.1',
+        'user-agent': 'IndustrialPlatform-EarningScout/1.0'
+      },
+      signal: AbortSignal.timeout(20000)
+    });
+    const body = await response.text();
+    console.log('External earning diagnostic:', JSON.stringify({
+      label,
+      url,
+      httpStatus: response.status,
+      ok: response.ok,
+      body: body.slice(0, 30000),
+      completedAt: new Date().toISOString()
+    }));
+  } catch (error) {
+    console.error('External earning diagnostic failed:', label, String(error?.message || error));
+  }
+}
+
+async function runExternalEarningDiagnostics() {
+  await fetchNoSpendOpportunity('agent402-seller-index', agent402SellerIndexTarget);
+  for (const q of externalRouteQueries) {
+    const url = 'https://agent402.tools/api/route?include=external&q=' + encodeURIComponent(q);
+    await fetchNoSpendOpportunity('agent402-external-route:' + q, url);
+    await new Promise(resolve => setTimeout(resolve, 800));
+  }
+  await fetchNoSpendOpportunity('basedagents-open-tasks', basedAgentsTasksTarget);
+  await fetchNoSpendOpportunity('agentexchange-open-tasks', agentExchangeTasksTarget);
+}
+
 async function fetchAgent402Wishes() {
   try {
     const response = await fetch(agent402WishesTarget, { headers: { accept: 'application/json' } });
@@ -332,6 +377,7 @@ async function registerX402scanOnce() {
 
 registerTrue402Free();
 fetchAgent402Wishes();
+runExternalEarningDiagnostics();
 registerX402scanFree();
 registerAgent402OriginOnce().catch((error) => {
   console.error('Agent402 index registration failed:', String(error?.stack || error));
