@@ -1,0 +1,11 @@
+{
+  "actorSpecification": 1,
+  "name": "robots-policy-intelligence",
+  "title": "Robots.txt Policy Analyzer for AI Agents",
+  "description": "Parse robots.txt and test crawler access rules for user agents and paths.",
+  "version": "0.1",
+  "buildTag": "latest",
+  "input": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": { "dataset": "./dataset_schema.json" }
+}

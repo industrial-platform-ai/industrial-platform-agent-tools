@@ -1,0 +1,42 @@
+name: Deploy Robots Policy Intelligence
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'actors/robots-policy-intelligence/**'
+      - '.github/workflows/deploy-robots-policy-intelligence.yml'
+
+concurrency:
+  group: industrial-platform-apify-build-lane-6
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        working-directory: actors/robots-policy-intelligence
+        run: npm install
+      - name: Run checks
+        working-directory: actors/robots-policy-intelligence
+        run: |
+          npm run check
+          npm test
+      - name: Push and build Actor on Apify
+        uses: apify/push-actor-action@v1
+        with:
+          token: ${{ secrets.APIFY_TOKEN }}
+          working-directory: ${{ github.workspace }}/actors/robots-policy-intelligence
+      - name: Publication ownership
+        run: |
+          echo "Build deployment completed."
+          echo "Public/PPE publication is handled by the quota-aware publication queue."

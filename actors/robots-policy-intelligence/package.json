@@ -1,0 +1,17 @@
+{
+  "name": "industrial-platform-robots-policy-intelligence",
+  "version": "0.1.0",
+  "description": "Deterministic robots.txt parsing and crawler policy evaluation for AI agents.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node ./src/main.js",
+    "check": "node --check ./src/main.js && node --check ./src/fetch.js && node --check ./src/robots.js",
+    "test": "node --test"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "apify": "^3.7.2",
+    "ipaddr.js": "^2.5.0"
+  }
+}
