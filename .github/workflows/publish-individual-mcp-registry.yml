@@ -48,20 +48,12 @@ jobs:
 
             echo "Checking $NAME@$VERSION"
 
-            BODY=$(curl --fail-with-body --silent --show-error --get \
+            curl --fail-with-body --silent --show-error --get \
               --data-urlencode "search=$NAME" \
               --data-urlencode "version=latest" \
-              "https://registry.modelcontextprotocol.io/v0.1/servers")
+              "https://registry.modelcontextprotocol.io/v0.1/servers" > registry-response.json
 
-            FOUND=$(BODY="$BODY" NAME="$NAME" VERSION="$VERSION" node <<'NODE'
-            const body = JSON.parse(process.env.BODY);
-            const found = (body.servers ?? []).some((entry) => {
-              const server = entry.server ?? entry;
-              return server.name === process.env.NAME && server.version === process.env.VERSION;
-            });
-            process.stdout.write(found ? 'true' : 'false');
-            NODE
-            )
+            FOUND=$(NAME="$NAME" VERSION="$VERSION" node -e "const fs=require('fs'); const body=JSON.parse(fs.readFileSync('registry-response.json','utf8')); const found=(body.servers||[]).some((entry)=>{const server=entry.server||entry; return server.name===process.env.NAME && server.version===process.env.VERSION;}); process.stdout.write(found?'true':'false');")
 
             if [ "$FOUND" = "true" ]; then
               echo "Already published: $NAME@$VERSION"
