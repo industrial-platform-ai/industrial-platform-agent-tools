@@ -20,116 +20,141 @@ jobs:
   reconcile:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect current Actor state
-        id: inspect
+      - name: Reconcile Actor publication state with adaptive backoff
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
         run: |
-          curl --retry 4 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error \
-            --header "Authorization: Bearer $APIFY_TOKEN" \
-            "https://api.apify.com/v2/actors/industrial_platform~link-intelligence" \
-            > actor-before.json
-
           node <<'NODE'
-          const fs = require('fs');
-          const actor = JSON.parse(fs.readFileSync('actor-before.json','utf8')).data;
-          const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
-          const event = current?.pricingPerEvent?.actorChargeEvents?.['link-extraction'];
-          const configured =
-            actor.isPublic === true &&
-            actor.defaultRunOptions?.forcePermissionLevel === 'LIMITED_PERMISSIONS' &&
-            actor.actorStandby?.isEnabled !== true &&
-            current?.pricingModel === 'PAY_PER_EVENT' &&
-            event?.eventPriceUsd === 0.0005 &&
-            event?.isPrimaryEvent === true;
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, 'configured=' + configured + '\n');
-          console.log(JSON.stringify({
-            configured,
-            isPublic: actor.isPublic,
-            permission: actor.defaultRunOptions?.forcePermissionLevel,
-            standby: actor.actorStandby?.isEnabled,
-            pricingModel: current?.pricingModel,
-            eventPriceUsd: event?.eventPriceUsd,
-            primary: event?.isPrimaryEvent
-          }, null, 2));
-          NODE
+          const actorId = 'industrial_platform~link-intelligence';
+          const url = 'https://api.apify.com/v2/actors/' + actorId;
+          const token = process.env.APIFY_TOKEN;
+          if (!token) throw new Error('APIFY_TOKEN is required.');
 
-      - name: Reconcile runtime, pricing, and publication
-        if: steps.inspect.outputs.configured != 'true'
-        env:
-          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
-        run: |
-          cat > payload.json <<'JSON'
-          {
-            "title": "Link Extractor for AI Agents",
-            "description": "Extract links, anchors, rel flags and link class. Price: $0.0005 per successful page.",
-            "categories": ["AI", "DEVELOPER_TOOLS", "SEO_TOOLS"],
-            "isPublic": true,
-            "defaultRunOptions": {
-              "build": "latest",
-              "timeoutSecs": 180,
-              "memoryMbytes": 512,
-              "restartOnError": false,
-              "forcePermissionLevel": "LIMITED_PERMISSIONS"
+          const desired = {
+            title: 'Link Extractor for AI Agents',
+            description: 'Extract links, anchors, rel flags and link class. Price: $0.0005 per successful page.',
+            categories: ['AI', 'DEVELOPER_TOOLS', 'SEO_TOOLS'],
+            isPublic: true,
+            defaultRunOptions: {
+              build: 'latest',
+              timeoutSecs: 180,
+              memoryMbytes: 512,
+              restartOnError: false,
+              forcePermissionLevel: 'LIMITED_PERMISSIONS'
             },
-            "actorStandby": { "isEnabled": false },
-            "exampleRunInput": {
-              "body": "{\"urls\":[\"https://example.com/\"]}",
-              "contentType": "application/json; charset=utf-8"
+            actorStandby: { isEnabled: false },
+            exampleRunInput: {
+              body: JSON.stringify({ urls: ['https://example.com/'] }),
+              contentType: 'application/json; charset=utf-8'
             },
-            "pricingInfos": [{
-              "pricingModel": "PAY_PER_EVENT",
-              "pricingPerEvent": {
-                "actorChargeEvents": {
-                  "link-extraction": {
-                    "eventTitle": "Link extraction",
-                    "eventDescription": "One successfully processed source page.",
-                    "eventPriceUsd": 0.0005,
-                    "isPrimaryEvent": true,
-                    "isOneTimeEvent": false
+            pricingInfos: [{
+              pricingModel: 'PAY_PER_EVENT',
+              pricingPerEvent: {
+                actorChargeEvents: {
+                  'link-extraction': {
+                    eventTitle: 'Link extraction',
+                    eventDescription: 'One successfully processed source page.',
+                    eventPriceUsd: 0.0005,
+                    isPrimaryEvent: true,
+                    isOneTimeEvent: false
                   }
                 }
               }
             }]
+          };
+
+          const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+          async function readActor() {
+            const response = await fetch(url, {
+              headers: {
+                Authorization: 'Bearer ' + token,
+                Accept: 'application/json'
+              }
+            });
+            const text = await response.text();
+            if (!response.ok) throw new Error('GET Actor HTTP ' + response.status + ': ' + text.slice(0, 1500));
+            return JSON.parse(text).data;
           }
-          JSON
 
-          curl --retry 10 --retry-delay 12 --retry-all-errors --fail-with-body --silent --show-error \
-            --request PUT \
-            --header "Authorization: Bearer $APIFY_TOKEN" \
-            --header "Content-Type: application/json" \
-            --data @payload.json \
-            "https://api.apify.com/v2/actors/industrial_platform~link-intelligence" \
-            > actor-reconciled.json
-
-      - name: Verify desired state
-        env:
-          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
-        run: |
-          curl --retry 6 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error \
-            --header "Authorization: Bearer $APIFY_TOKEN" \
-            "https://api.apify.com/v2/actors/industrial_platform~link-intelligence" \
-            > actor-after.json
-
-          node <<'NODE'
-          const fs = require('fs');
-          const actor = JSON.parse(fs.readFileSync('actor-after.json','utf8')).data;
-          const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
-          const event = current?.pricingPerEvent?.actorChargeEvents?.['link-extraction'];
-          const configured =
-            actor.isPublic === true &&
-            actor.defaultRunOptions?.forcePermissionLevel === 'LIMITED_PERMISSIONS' &&
-            actor.actorStandby?.isEnabled !== true &&
-            current?.pricingModel === 'PAY_PER_EVENT' &&
-            event?.eventPriceUsd === 0.0005 &&
-            event?.isPrimaryEvent === true;
-          if (!configured) {
-            console.log(JSON.stringify(actor, null, 2));
-            throw new Error('Link Intelligence has not converged to the desired publication state.');
+          function state(actor) {
+            const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
+            const event = current?.pricingPerEvent?.actorChargeEvents?.['link-extraction'];
+            return {
+              configured:
+                actor.isPublic === true &&
+                actor.defaultRunOptions?.forcePermissionLevel === 'LIMITED_PERMISSIONS' &&
+                actor.actorStandby?.isEnabled !== true &&
+                current?.pricingModel === 'PAY_PER_EVENT' &&
+                event?.eventPriceUsd === 0.0005 &&
+                event?.isPrimaryEvent === true,
+              isPublic: actor.isPublic,
+              permission: actor.defaultRunOptions?.forcePermissionLevel ?? null,
+              standby: actor.actorStandby?.isEnabled ?? null,
+              pricingModel: current?.pricingModel ?? null,
+              eventPriceUsd: event?.eventPriceUsd ?? null,
+              primary: event?.isPrimaryEvent ?? null
+            };
           }
-          console.log(JSON.stringify({
-            configured: true,
-            pricingModel: current.pricingModel,
-            eventPriceUsd: event.eventPriceUsd
-          }, null, 2));
+
+          let actor = await readActor();
+          let currentState = state(actor);
+          console.log('before=' + JSON.stringify(currentState));
+          if (currentState.configured) {
+            console.log('Link Intelligence is already reconciled.');
+            process.exit(0);
+          }
+
+          let delayMs = 1000;
+          let lastFailure = null;
+
+          for (let attempt = 1; attempt <= 9; attempt += 1) {
+            const response = await fetch(url, {
+              method: 'PUT',
+              headers: {
+                Authorization: 'Bearer ' + token,
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+              },
+              body: JSON.stringify(desired)
+            });
+
+            const text = await response.text();
+            const diagnostics = {
+              attempt,
+              status: response.status,
+              rateLimitLimit: response.headers.get('x-ratelimit-limit'),
+              rateLimitRemaining: response.headers.get('x-ratelimit-remaining'),
+              rateLimitReset: response.headers.get('x-ratelimit-reset'),
+              retryAfter: response.headers.get('retry-after'),
+              body: text.slice(0, 2000)
+            };
+
+            if (response.ok) {
+              console.log('update=' + JSON.stringify(diagnostics));
+              actor = JSON.parse(text).data;
+              break;
+            }
+
+            lastFailure = diagnostics;
+            console.log('update_failure=' + JSON.stringify(diagnostics));
+
+            if (response.status !== 429 || attempt === 9) {
+              throw new Error('Actor reconciliation failed: ' + JSON.stringify(diagnostics));
+            }
+
+            const retryAfter = Number(response.headers.get('retry-after'));
+            const headerDelay = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 0;
+            const waitMs = Math.max(delayMs, headerDelay);
+            console.log('backoff_ms=' + waitMs);
+            await sleep(waitMs);
+            delayMs = Math.min(delayMs * 2, 120000);
+          }
+
+          actor = await readActor();
+          currentState = state(actor);
+          console.log('after=' + JSON.stringify(currentState));
+          if (!currentState.configured) {
+            throw new Error('Link Intelligence did not converge. Last failure: ' + JSON.stringify(lastFailure));
+          }
           NODE
