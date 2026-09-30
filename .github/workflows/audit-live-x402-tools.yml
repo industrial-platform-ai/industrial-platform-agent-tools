@@ -1,0 +1,73 @@
+name: Audit Live x402 Tool Selection Surface
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-live-x402-tools.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install MCP client
+        run: npm install --no-save @modelcontextprotocol/sdk
+
+      - name: Audit live x402 tools/list
+        run: |
+          node <<'NODE'
+          const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
+          const { StreamableHTTPClientTransport } = await import('@modelcontextprotocol/sdk/client/streamableHttp.js');
+
+          const actors = [
+            'industrial_platform/research-brief-agent',
+            'industrial_platform/web-metadata-intelligence',
+            'industrial_platform/web-change-intelligence'
+          ];
+
+          const endpoint = new URL('https://mcp.apify.com/');
+          endpoint.searchParams.set('tools', actors.join(','));
+          endpoint.searchParams.set('payment', 'x402');
+
+          const client = new Client({ name: 'industrial-platform-live-x402-audit', version: '1.0.0' }, {});
+          const transport = new StreamableHTTPClientTransport(endpoint);
+
+          try {
+            await client.connect(transport);
+            const { tools } = await client.listTools();
+            const rows = tools.map((tool) => ({
+              name: tool.name,
+              title: tool.title ?? null,
+              description: tool.description ?? null,
+              required: Array.isArray(tool.inputSchema?.required) ? tool.inputSchema.required : [],
+              properties: Object.fromEntries(
+                Object.entries(tool.inputSchema?.properties ?? {}).map(([key, value]) => [
+                  key,
+                  {
+                    type: value?.type ?? null,
+                    description: value?.description ?? null,
+                    default: value?.default ?? null,
+                    examples: value?.examples ?? value?.example ?? null
+                  }
+                ])
+              )
+            }));
+            console.log(JSON.stringify({
+              endpoint: endpoint.toString(),
+              tool_count: rows.length,
+              tools: rows,
+              audited_at: new Date().toISOString()
+            }, null, 2));
+            if (rows.length < 3) throw new Error('Expected at least 3 tools.');
+          } finally {
+            await client.close().catch(() => {});
+          }
+          NODE
