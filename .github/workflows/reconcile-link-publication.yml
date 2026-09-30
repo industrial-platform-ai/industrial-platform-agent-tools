@@ -7,7 +7,7 @@ on:
     paths:
       - '.github/workflows/reconcile-link-publication.yml'
   schedule:
-    - cron: '37 * * * *'
+    - cron: '47 3 * * *'
 
 permissions:
   contents: read
@@ -20,11 +20,13 @@ jobs:
   reconcile:
     runs-on: ubuntu-latest
     steps:
-      - name: Reconcile Actor publication state with adaptive backoff
+      - name: Reconcile Actor publication state
+        id: reconcile
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
         run: |
           node <<'NODE'
+          const fs = require('fs');
           const actorId = 'industrial_platform~link-intelligence';
           const url = 'https://api.apify.com/v2/actors/' + actorId;
           const token = process.env.APIFY_TOKEN;
@@ -64,13 +66,11 @@ jobs:
           };
 
           const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+          const output = (key, value) => fs.appendFileSync(process.env.GITHUB_OUTPUT, key + '=' + value + '\n');
 
           async function readActor() {
             const response = await fetch(url, {
-              headers: {
-                Authorization: 'Bearer ' + token,
-                Accept: 'application/json'
-              }
+              headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }
             });
             const text = await response.text();
             if (!response.ok) throw new Error('GET Actor HTTP ' + response.status + ': ' + text.slice(0, 1500));
@@ -100,7 +100,11 @@ jobs:
           let actor = await readActor();
           let currentState = state(actor);
           console.log('before=' + JSON.stringify(currentState));
+
           if (currentState.configured) {
+            output('ready', 'true');
+            output('changed', 'false');
+            output('deferred', 'false');
             console.log('Link Intelligence is already reconciled.');
             process.exit(0);
           }
@@ -108,7 +112,7 @@ jobs:
           let delayMs = 1000;
           let lastFailure = null;
 
-          for (let attempt = 1; attempt <= 9; attempt += 1) {
+          for (let attempt = 1; attempt <= 8; attempt += 1) {
             const response = await fetch(url, {
               method: 'PUT',
               headers: {
@@ -120,33 +124,41 @@ jobs:
             });
 
             const text = await response.text();
+            let parsed = null;
+            try { parsed = JSON.parse(text); } catch {}
+
             const diagnostics = {
               attempt,
               status: response.status,
               rateLimitLimit: response.headers.get('x-ratelimit-limit'),
-              rateLimitRemaining: response.headers.get('x-ratelimit-remaining'),
-              rateLimitReset: response.headers.get('x-ratelimit-reset'),
               retryAfter: response.headers.get('retry-after'),
-              body: text.slice(0, 2000)
+              errorType: parsed?.error?.type ?? null,
+              message: parsed?.error?.message ?? text.slice(0, 1000)
             };
 
             if (response.ok) {
               console.log('update=' + JSON.stringify(diagnostics));
-              actor = JSON.parse(text).data;
               break;
             }
 
             lastFailure = diagnostics;
             console.log('update_failure=' + JSON.stringify(diagnostics));
 
-            if (response.status !== 429 || attempt === 9) {
+            if (diagnostics.errorType === 'daily-publication-limit-exceeded') {
+              output('ready', 'false');
+              output('changed', 'false');
+              output('deferred', 'true');
+              console.log('Publication deferred by Apify daily publication quota. The daily schedule will retry automatically.');
+              process.exit(0);
+            }
+
+            if (response.status !== 429 || attempt === 8) {
               throw new Error('Actor reconciliation failed: ' + JSON.stringify(diagnostics));
             }
 
             const retryAfter = Number(response.headers.get('retry-after'));
             const headerDelay = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 0;
             const waitMs = Math.max(delayMs, headerDelay);
-            console.log('backoff_ms=' + waitMs);
             await sleep(waitMs);
             delayMs = Math.min(delayMs * 2, 120000);
           }
@@ -157,4 +169,34 @@ jobs:
           if (!currentState.configured) {
             throw new Error('Link Intelligence did not converge. Last failure: ' + JSON.stringify(lastFailure));
           }
+
+          output('ready', 'true');
+          output('changed', 'true');
+          output('deferred', 'false');
+          NODE
+
+      - name: Smoke test newly published Actor
+        if: steps.reconcile.outputs.changed == 'true'
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          curl --retry 3 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data '{"urls":["https://example.com/"],"max_links_per_page":25}' \
+            "https://api.apify.com/v2/actors/industrial_platform~link-intelligence/run-sync-get-dataset-items?clean=true&format=json&timeout=90" \
+            > result.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const rows = JSON.parse(fs.readFileSync('result.json', 'utf8'));
+          if (!Array.isArray(rows) || rows.length < 1) throw new Error('Expected at least one dataset row.');
+          const row = rows[0];
+          if (row.status !== 'ready') throw new Error('Smoke test row is not ready: ' + JSON.stringify(row));
+          if (!Array.isArray(row.links) || row.links.length < 1) throw new Error('Smoke test returned no links.');
+          console.log(JSON.stringify({
+            returned_links: row.returned_links,
+            sample: row.links[0]
+          }, null, 2));
           NODE
