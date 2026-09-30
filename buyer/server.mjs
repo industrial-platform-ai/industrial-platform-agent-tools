@@ -1,28 +1,38 @@
 import http from 'node:http';
 import { x402Client, wrapFetchWithPayment } from '@x402/fetch';
 import { registerExactEvmScheme } from '@x402/evm/exact/client';
+import { createSIWxClientExtension } from '@x402/extensions/sign-in-with-x';
 import { privateKeyToAccount } from 'viem/accounts';
 
 const PORT = Number(process.env.PORT || 3000);
 const TARGET = process.env.X402_TARGET || 'https://x402-gateway-production-1f21.up.railway.app/metadata';
 const key = process.env.EVM_PRIVATE_KEY;
 const runPayment = process.env.RUN_PAYMENT === '1';
+const runRegistry = process.env.RUN_X402SCAN_REGISTRATION === '1';
+const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan.com/api/x402/registry/register-origin';
+const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
 
 let state = {
   startedAt: new Date().toISOString(),
-  enabled: runPayment,
+  enabled: runPayment || runRegistry,
+  mode: runRegistry ? 'x402scan-registration' : (runPayment ? 'payment' : 'idle'),
   target: TARGET,
   status: runPayment ? 'pending' : 'armed',
   result: null,
   error: null,
 };
 
-async function payOnce() {
+function makeClient() {
   if (!key) throw new Error('EVM_PRIVATE_KEY missing');
   const signer = privateKeyToAccount(key);
   const client = new x402Client();
   registerExactEvmScheme(client, { signer });
-  const paidFetch = wrapFetchWithPayment(globalThis.fetch, client);
+  client.registerExtension(createSIWxClientExtension({ signers: [signer] }));
+  return { signer, fetch: wrapFetchWithPayment(globalThis.fetch, client) };
+}
+
+async function payOnce() {
+  const { fetch: paidFetch } = makeClient();
 
   state.status = 'paying';
   const response = await paidFetch(TARGET, {
@@ -46,7 +56,38 @@ async function payOnce() {
   if (!response.ok) throw new Error('Paid request returned HTTP ' + response.status);
 }
 
-if (runPayment) {
+
+async function registerX402scanOnce() {
+  const { signer, fetch: authFetch } = makeClient();
+  state.status = 'registering';
+  const response = await authFetch(registryTarget, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ origin: sellerOrigin }),
+  });
+  const text = await response.text();
+  let parsed = null;
+  try { parsed = JSON.parse(text); } catch {}
+  state.result = {
+    httpStatus: response.status,
+    ok: response.ok,
+    wallet: signer.address,
+    registryTarget,
+    sellerOrigin,
+    body: parsed ?? text.slice(0, 20000),
+    completedAt: new Date().toISOString(),
+  };
+  state.status = response.ok ? 'registered' : 'failed';
+  if (!response.ok) throw new Error('x402scan registration returned HTTP ' + response.status + ': ' + text.slice(0, 4000));
+}
+
+if (runRegistry) {
+  registerX402scanOnce().catch((error) => {
+    state.status = 'failed';
+    state.error = String(error?.stack || error);
+    console.error(state.error);
+  });
+} else if (runPayment) {
   payOnce().catch((error) => {
     state.status = 'failed';
     state.error = String(error?.stack || error);
