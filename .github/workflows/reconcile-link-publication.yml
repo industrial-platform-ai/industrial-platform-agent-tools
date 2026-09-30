@@ -1,0 +1,135 @@
+name: Reconcile Link Intelligence Publication
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/reconcile-link-publication.yml'
+  schedule:
+    - cron: '37 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: industrial-platform-link-publication-reconcile
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect current Actor state
+        id: inspect
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          curl --retry 4 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            "https://api.apify.com/v2/actors/industrial_platform~link-intelligence" \
+            > actor-before.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const actor = JSON.parse(fs.readFileSync('actor-before.json','utf8')).data;
+          const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
+          const event = current?.pricingPerEvent?.actorChargeEvents?.['link-extraction'];
+          const configured =
+            actor.isPublic === true &&
+            actor.defaultRunOptions?.forcePermissionLevel === 'LIMITED_PERMISSIONS' &&
+            actor.actorStandby?.isEnabled !== true &&
+            current?.pricingModel === 'PAY_PER_EVENT' &&
+            event?.eventPriceUsd === 0.0005 &&
+            event?.isPrimaryEvent === true;
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, 'configured=' + configured + '\n');
+          console.log(JSON.stringify({
+            configured,
+            isPublic: actor.isPublic,
+            permission: actor.defaultRunOptions?.forcePermissionLevel,
+            standby: actor.actorStandby?.isEnabled,
+            pricingModel: current?.pricingModel,
+            eventPriceUsd: event?.eventPriceUsd,
+            primary: event?.isPrimaryEvent
+          }, null, 2));
+          NODE
+
+      - name: Reconcile runtime, pricing, and publication
+        if: steps.inspect.outputs.configured != 'true'
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          cat > payload.json <<'JSON'
+          {
+            "title": "Link Extractor for AI Agents",
+            "description": "Extract links, anchors, rel flags and link class. Price: $0.0005 per successful page.",
+            "categories": ["AI", "DEVELOPER_TOOLS", "SEO_TOOLS"],
+            "isPublic": true,
+            "defaultRunOptions": {
+              "build": "latest",
+              "timeoutSecs": 180,
+              "memoryMbytes": 512,
+              "restartOnError": false,
+              "forcePermissionLevel": "LIMITED_PERMISSIONS"
+            },
+            "actorStandby": { "isEnabled": false },
+            "exampleRunInput": {
+              "body": "{\"urls\":[\"https://example.com/\"]}",
+              "contentType": "application/json; charset=utf-8"
+            },
+            "pricingInfos": [{
+              "pricingModel": "PAY_PER_EVENT",
+              "pricingPerEvent": {
+                "actorChargeEvents": {
+                  "link-extraction": {
+                    "eventTitle": "Link extraction",
+                    "eventDescription": "One successfully processed source page.",
+                    "eventPriceUsd": 0.0005,
+                    "isPrimaryEvent": true,
+                    "isOneTimeEvent": false
+                  }
+                }
+              }
+            }]
+          }
+          JSON
+
+          curl --retry 10 --retry-delay 12 --retry-all-errors --fail-with-body --silent --show-error \
+            --request PUT \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data @payload.json \
+            "https://api.apify.com/v2/actors/industrial_platform~link-intelligence" \
+            > actor-reconciled.json
+
+      - name: Verify desired state
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          curl --retry 6 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            "https://api.apify.com/v2/actors/industrial_platform~link-intelligence" \
+            > actor-after.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const actor = JSON.parse(fs.readFileSync('actor-after.json','utf8')).data;
+          const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
+          const event = current?.pricingPerEvent?.actorChargeEvents?.['link-extraction'];
+          const configured =
+            actor.isPublic === true &&
+            actor.defaultRunOptions?.forcePermissionLevel === 'LIMITED_PERMISSIONS' &&
+            actor.actorStandby?.isEnabled !== true &&
+            current?.pricingModel === 'PAY_PER_EVENT' &&
+            event?.eventPriceUsd === 0.0005 &&
+            event?.isPrimaryEvent === true;
+          if (!configured) {
+            console.log(JSON.stringify(actor, null, 2));
+            throw new Error('Link Intelligence has not converged to the desired publication state.');
+          }
+          console.log(JSON.stringify({
+            configured: true,
+            pricingModel: current.pricingModel,
+            eventPriceUsd: event.eventPriceUsd
+          }, null, 2));
+          NODE
