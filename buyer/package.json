@@ -1,0 +1,17 @@
+{
+  "name": "industrial-platform-x402-seed-buyer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@x402/evm": "latest",
+    "@x402/fetch": "latest",
+    "viem": "latest"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
