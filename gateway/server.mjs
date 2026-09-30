@@ -6,6 +6,7 @@ import { declareDiscoveryExtension, bazaarResourceServerExtension } from '@x402/
 import { createCdpFacilitatorClient } from '@coinbase/cdp-sdk/x402';
 import { runMetadata } from './metadata.mjs';
 import { runChange } from './change.mjs';
+import { utilityTools } from './utilities.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
@@ -53,6 +54,13 @@ const metadataDiscovery = declareDiscoveryExtension({
   }
 });
 
+const utilityDiscovery = (tool) => declareDiscoveryExtension({
+  input:tool.example,
+  inputSchema:tool.inputSchema,
+  bodyType:'json',
+  output:{example:{status:'ready'}}
+});
+
 const changeDiscovery = declareDiscoveryExtension({
   input:{url:'https://example.com/',include_current_text:false},
   inputSchema:changeInputSchema,
@@ -68,8 +76,8 @@ const changeDiscovery = declareDiscoveryExtension({
 });
 
 const manifest = {
-  name:'Industrial Platform Web Tools',
-  description:'Low-cost metadata extraction and deterministic webpage change detection for autonomous agents.',
+  name:'Industrial Platform Agent Utility Market',
+  description:'Low-cost machine utilities, web metadata extraction and deterministic webpage change detection for autonomous agents.',
   payment:{protocol:'x402',network:NETWORK,asset:'USDC',priceUsd:0.001,payTo:PAY_TO},
   tools:[
     {
@@ -87,7 +95,15 @@ const manifest = {
       priceUsd:0.001,
       description:'Detect meaningful webpage changes with deterministic hashes and diffs for prices, docs, policies, availability and competitor monitoring.',
       inputSchema:changeInputSchema
-    }
+    },
+    ...utilityTools.map(t=>({
+      name:t.name,
+      method:'POST',
+      route:t.route,
+      priceUsd:t.priceUsd,
+      description:t.description,
+      inputSchema:t.inputSchema
+    }))
   ]
 };
 
@@ -135,6 +151,22 @@ const openapi = {
     }
   }
 };
+
+for (const tool of utilityTools) {
+  openapi.paths[tool.route] = {
+    post:{
+      operationId:tool.name.replace(/[^a-zA-Z0-9]+(.)/g,(_,ch)=>ch.toUpperCase()),
+      summary:tool.description,
+      description:tool.description,
+      requestBody:{required:true,content:{'application/json':{schema:tool.inputSchema}}},
+      responses:{
+        '200':{description:'Utility result'},
+        '400':{description:'Invalid input'},
+        '402':{description:'x402 payment required'}
+      }
+    }
+  };
+}
 
 const agentCard = {
   name:'Industrial Platform Web Tools',
@@ -231,6 +263,24 @@ const routes = {
   }
 };
 
+for (const tool of utilityTools) {
+  routes[`POST ${tool.route}`] = {
+    accepts:[{
+      scheme:'exact',
+      price:tool.price,
+      network:NETWORK,
+      payTo:PAY_TO,
+      maxTimeoutSeconds:90
+    }],
+    resource:ORIGIN+tool.route,
+    description:tool.description,
+    mimeType:'application/json',
+    serviceName:'Industrial Platform Agent Utility Market',
+    tags:tool.tags,
+    extensions:{...utilityDiscovery(tool)}
+  };
+}
+
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json({limit:'256kb'}));
@@ -276,6 +326,16 @@ app.get('/change', (_req,res)=>res.json({
   example:{url:'https://example.com/',include_current_text:false}
 }));
 
+for (const tool of utilityTools) {
+  app.get(tool.route, (_req,res)=>res.json({
+    method:'POST',
+    priceUsd:tool.priceUsd,
+    network:NETWORK,
+    description:tool.description,
+    example:tool.example
+  }));
+}
+
 app.use(paymentMiddleware(routes, resourceServer));
 
 app.post('/metadata', async (req,res)=>{
@@ -297,6 +357,17 @@ app.post('/change', async (req,res)=>{
     res.status(code).json({error:String(error?.message||error)});
   }
 });
+
+for (const tool of utilityTools) {
+  app.post(tool.route, async (req,res)=>{
+    try {
+      res.json(await tool.run(req.body));
+    } catch (error) {
+      const code=Number(error?.statusCode)||400;
+      res.status(code).json({error:String(error?.message||error)});
+    }
+  });
+}
 
 app.use((_req,res)=>res.status(404).json({error:'not found'}));
 
