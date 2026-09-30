@@ -37,6 +37,21 @@ Registry version: `1.0.0` — status: `active`.
 
 The Registry listing points to the same hosted six-service Apify MCP bundle used by this repository.
 
+## Individual MCP Registry entries
+
+For search-oriented discovery, each paid service also has its own active MCP Registry entry:
+
+| Service | MCP Registry name |
+| --- | --- |
+| Research Brief | `io.github.industrial-platform-ai/research-brief` |
+| Web Change | `io.github.industrial-platform-ai/web-change` |
+| Web Metadata | `io.github.industrial-platform-ai/web-metadata` |
+| Article Extractor | `io.github.industrial-platform-ai/article-extractor` |
+| PDF Text | `io.github.industrial-platform-ai/pdf-text` |
+| Sitemap | `io.github.industrial-platform-ai/sitemap` |
+
+These individual entries point to the same Apify-hosted Actor tools as the portfolio bundle and improve discovery for capability-specific MCP searches.
+
 ## Machine-readable discovery
 
 The repository publishes:
