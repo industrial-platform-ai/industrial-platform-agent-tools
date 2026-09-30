@@ -1,0 +1,57 @@
+name: Measure StableApify Top100 Threshold
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/measure-top100-threshold.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Measure popularity cutoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error             'https://api.apify.com/v2/store?sortBy=popularity&limit=100&responseFormat=full&includeUnrunnableActors=true'             > top100.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const items = JSON.parse(fs.readFileSync('top100.json','utf8')).data?.items ?? [];
+          const pick = (i) => {
+            const a = items[i];
+            return a ? {
+              rank: i + 1,
+              actor: a.username + '/' + a.name,
+              title: a.title,
+              totalUsers30Days: a.stats?.totalUsers30Days ?? null,
+              totalUsers7Days: a.stats?.totalUsers7Days ?? null,
+              totalUsers: a.stats?.totalUsers ?? null,
+              totalRuns: a.stats?.totalRuns ?? null
+            } : null;
+          };
+          const ours = items
+            .map((a,i)=>({a,i}))
+            .filter(({a})=>a.username==='industrial_platform')
+            .map(({a,i})=>({
+              rank:i+1,
+              actor:a.username+'/'+a.name,
+              totalUsers30Days:a.stats?.totalUsers30Days ?? null,
+              totalUsers:a.stats?.totalUsers ?? null
+            }));
+
+          console.log(JSON.stringify({
+            measuredAt: new Date().toISOString(),
+            count: items.length,
+            top1: pick(0),
+            rank90: pick(89),
+            rank95: pick(94),
+            rank100: pick(99),
+            industrialPlatformInTop100: ours
+          }, null, 2));
+          NODE
