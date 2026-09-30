@@ -1,0 +1,64 @@
+name: Verify Agent Tools Directory Discovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-agent-tools-directory.yml'
+  schedule:
+    - cron: '13 */6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify MCP directory listings
+        run: |
+          set -euo pipefail
+
+          curl --fail-with-body --silent --show-error --get             --data-urlencode "q=Industrial Platform"             --data-urlencode "limit=20"             "https://agent-tools.cloud/api/v1/mcp/search" > industrial-platform.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const body = JSON.parse(fs.readFileSync('industrial-platform.json','utf8'));
+          const servers = body.servers ?? [];
+          const expected = [
+            'industrial-platform-paid-agent-web-tools',
+            'industrial-platform-article-content-extractor',
+            'industrial-platform-pdf-text-extractor',
+            'industrial-platform-sitemap-url-extractor',
+            'industrial-platform-web-metadata-extractor'
+          ];
+          const found = servers.map(s => s.slug).filter(Boolean);
+          console.log(JSON.stringify({
+            count: body.count,
+            total_matched: body.total_matched,
+            found,
+            servers: servers.map(s => ({
+              slug: s.slug,
+              name: s.name,
+              endpoint_url: s.endpoint_url,
+              health: s.health,
+              x402_supported: s.x402_supported
+            }))
+          }, null, 2));
+          const missing = expected.filter(x => !found.includes(x));
+          if (missing.length) throw new Error('Missing Agent Tools MCP listings: ' + missing.join(', '));
+          NODE
+
+      - name: Record broker behavior
+        run: |
+          curl --fail-with-body --silent --show-error --get             --data-urlencode "q=extract article text for RAG"             --data-urlencode "max_price_usd=0.01"             --data-urlencode "limit=10"             "https://agent-tools.cloud/api/v1/broker/recommend" > broker.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const body = JSON.parse(fs.readFileSync('broker.json','utf8'));
+          console.log(JSON.stringify({
+            note: 'Agent Tools broker only ranks endpoints it independently verifies as bare-HTTP x402. Apify MCP payment negotiation is tool-invocation based, so MCP directory visibility and broker x402 recognition are separate.',
+            broker: body
+          }, null, 2));
+          NODE
