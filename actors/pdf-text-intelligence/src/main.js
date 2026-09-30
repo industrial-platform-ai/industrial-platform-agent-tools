@@ -49,7 +49,7 @@ await Actor.main(async () => {
       const fetched = await fetchPublicPdf(url, { timeoutSeconds });
       const pdf = await extractPdf(fetched.buffer, { maxPages, maxTextChars });
 
-      if (!pdf.text || pdf.text.length < 20) {
+      if (!pdf.text || pdf.text.length < 5) {
         const result = {
           status: 'error',
           url,
