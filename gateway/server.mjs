@@ -2,7 +2,7 @@ import express from 'express';
 import { paymentMiddleware } from '@x402/express';
 import { x402ResourceServer } from '@x402/core/server';
 import { ExactEvmScheme } from '@x402/evm/exact/server';
-import { declareDiscoveryExtension } from '@x402/extensions/bazaar';
+import { declareDiscoveryExtension, bazaarResourceServerExtension } from '@x402/extensions/bazaar';
 import { createCdpFacilitatorClient } from '@coinbase/cdp-sdk/x402';
 import { runMetadata } from './metadata.mjs';
 import { runChange } from './change.mjs';
@@ -44,6 +44,7 @@ const changeInputSchema = {
 const metadataDiscovery = declareDiscoveryExtension({
   input:{urls:['https://example.com/']},
   inputSchema:metadataInputSchema,
+  bodyType:'json',
   output:{
     example:{
       summary:{status:'ready',requested:1,succeeded:1,failed:0},
@@ -55,6 +56,7 @@ const metadataDiscovery = declareDiscoveryExtension({
 const changeDiscovery = declareDiscoveryExtension({
   input:{url:'https://example.com/',include_current_text:false},
   inputSchema:changeInputSchema,
+  bodyType:'json',
   output:{
     example:{
       status:'ready',
@@ -182,7 +184,8 @@ No buyer API key or account is required. Read the HTTP 402 payment requirements,
 
 const facilitator = createCdpFacilitatorClient();
 const resourceServer = new x402ResourceServer(facilitator)
-  .register(NETWORK, new ExactEvmScheme());
+  .register(NETWORK, new ExactEvmScheme())
+  .registerExtension(bazaarResourceServerExtension);
 
 const routes = {
   'POST /metadata': {
@@ -193,13 +196,11 @@ const routes = {
       payTo:PAY_TO,
       maxTimeoutSeconds:90
     }],
-    resource:{
-      url:ORIGIN+'/metadata',
-      description:manifest.tools[0].description,
-      mimeType:'application/json',
-      serviceName:'Industrial Platform Web Tools',
-      tags:['metadata','seo','structured-data','web','agents']
-    },
+    resource:ORIGIN+'/metadata',
+    description:manifest.tools[0].description,
+    mimeType:'application/json',
+    serviceName:'Industrial Platform Web Tools',
+    tags:['metadata','seo','structured-data','web','agents'],
     extensions:{...metadataDiscovery}
   },
   'POST /change': {
@@ -210,13 +211,11 @@ const routes = {
       payTo:PAY_TO,
       maxTimeoutSeconds:90
     }],
-    resource:{
-      url:ORIGIN+'/change',
-      description:manifest.tools[1].description,
-      mimeType:'application/json',
-      serviceName:'Industrial Platform Web Tools',
-      tags:['monitoring','web-change','diff','web','agents']
-    },
+    resource:ORIGIN+'/change',
+    description:manifest.tools[1].description,
+    mimeType:'application/json',
+    serviceName:'Industrial Platform Web Tools',
+    tags:['monitoring','web-change','diff','web','agents'],
     extensions:{...changeDiscovery}
   }
 };
