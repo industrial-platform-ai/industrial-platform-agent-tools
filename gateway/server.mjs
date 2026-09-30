@@ -1,8 +1,9 @@
 import http from 'node:http';
 
 const PORT = Number(process.env.PORT || 3000);
-const META = 'https://api.apify.com/v2/actors/industrial_platform~web-metadata-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.01';
-const CHANGE = 'https://api.apify.com/v2/actors/industrial_platform~web-change-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.01';
+const STABLE_APIFY = 'https://stableapify.dev/api/actors/call';
+const META_ACTOR = 'industrial_platform/web-metadata-intelligence';
+const CHANGE_ACTOR = 'industrial_platform/web-change-intelligence';
 const MAX_BODY_BYTES = 256 * 1024;
 const UPSTREAM_TIMEOUT_MS = 75_000;
 
@@ -19,7 +20,7 @@ const manifest = {
       name: 'web-metadata-intelligence',
       route: '/metadata',
       method: 'POST',
-      price: '$0.001 Actor event; x402 authorization terms are returned live by Apify',
+      price: 'Bridge price returned live by StableApify; Actor event is $0.001 per successful URL',
       description: 'Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.',
       inputSchema: {
         type:'object',
@@ -31,7 +32,7 @@ const manifest = {
       name: 'web-change-intelligence',
       route: '/change',
       method: 'POST',
-      price: '$0.001 Actor event; x402 authorization terms are returned live by Apify',
+      price: 'Bridge price returned live by StableApify; Actor event is $0.001 per successful comparison',
       description: 'Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.',
       inputSchema: {
         type:'object',
@@ -83,17 +84,31 @@ async function bodyBuffer(req) {
   return Buffer.concat(chunks);
 }
 
-async function proxy(req,res,target) {
-  const body = await bodyBuffer(req);
+async function proxy(req,res,actorId) {
+  const raw = await bodyBuffer(req);
+  let input;
+  try {
+    input = JSON.parse(raw.toString('utf8') || '{}');
+  } catch {
+    return json(res,400,{error:'invalid_json'});
+  }
+
   const headers = {'content-type': 'application/json'};
-  for (const h of ['payment-signature','x-payment','skyfire-pay-id','x-apify-payment-protocol']) {
+  for (const h of ['payment-signature','x-payment','skyfire-pay-id']) {
     if (req.headers[h]) headers[h]=req.headers[h];
   }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
   let upstream;
   try {
-    upstream = await fetch(target,{method:'POST',headers,body,redirect:'manual',signal:controller.signal});
+    upstream = await fetch(STABLE_APIFY,{
+      method:'POST',
+      headers,
+      body:JSON.stringify({actorId,input}),
+      redirect:'manual',
+      signal:controller.signal
+    });
   } finally {
     clearTimeout(timer);
   }
@@ -114,8 +129,8 @@ const server = http.createServer(async (req,res)=>{
     if (req.method==='GET' && u.pathname==='/health') return json(res,200,{ok:true});
     if (req.method==='GET' && u.pathname==='/.well-known/x402') return json(res,200,manifest);
     if (req.method==='GET' && u.pathname==='/openapi.json') return json(res,200,openapi);
-    if (req.method==='POST' && u.pathname==='/metadata') return await proxy(req,res,META);
-    if (req.method==='POST' && u.pathname==='/change') return await proxy(req,res,CHANGE);
+    if (req.method==='POST' && u.pathname==='/metadata') return await proxy(req,res,META_ACTOR);
+    if (req.method==='POST' && u.pathname==='/change') return await proxy(req,res,CHANGE_ACTOR);
     return json(res,404,{error:'not found'});
   } catch (e) {
     const status = Number(e?.statusCode) || (e?.name === 'AbortError' ? 504 : 502);
