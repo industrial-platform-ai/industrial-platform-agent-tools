@@ -96,6 +96,14 @@ const manifest = {
       description:'Detect meaningful webpage changes with deterministic hashes and diffs for prices, docs, policies, availability and competitor monitoring.',
       inputSchema:changeInputSchema
     },
+    {
+      name:'web-reader',
+      method:'POST',
+      route:'/read',
+      priceUsd:0.001,
+      description:'Fetch a public HTTP or HTTPS URL and return normalized readable text from HTML, JSON, XML, CSV, JavaScript or plain-text responses for RAG, summarization and research.',
+      inputSchema:changeInputSchema
+    },
     ...utilityTools.map(t=>({
       name:t.name,
       method:'POST',
@@ -143,6 +151,20 @@ const openapi = {
         requestBody:{required:true,content:{'application/json':{schema:changeInputSchema}}},
         responses:{
           '200':{description:'Change comparison result'},
+          '400':{description:'Invalid input'},
+          '402':{description:'x402 payment required'},
+          '502':{description:'Target fetch failed'}
+        }
+      }
+    },
+    '/read':{
+      post:{
+        operationId:'webReader',
+        summary:'Read a public URL as normalized text',
+        description:manifest.tools[2].description,
+        requestBody:{required:true,content:{'application/json':{schema:changeInputSchema}}},
+        responses:{
+          '200':{description:'Normalized readable content'},
           '400':{description:'Invalid input'},
           '402':{description:'x402 payment required'},
           '502':{description:'Target fetch failed'}
@@ -277,6 +299,21 @@ const routes = {
     serviceName:'Industrial Platform Web Tools',
     tags:['monitoring','web-change','diff','web','agents'],
     extensions:{...changeDiscovery}
+  },
+  'POST /read': {
+    accepts:[{
+      scheme:'exact',
+      price:PRICE,
+      network:NETWORK,
+      payTo:PAY_TO,
+      maxTimeoutSeconds:90
+    }],
+    resource:ORIGIN+'/read',
+    description:manifest.tools[2].description,
+    mimeType:'application/json',
+    serviceName:'Industrial Platform Web Tools',
+    tags:['web-reader','extract','read','rag','research','documents','agents'],
+    extensions:{...changeDiscovery}
   }
 };
 
@@ -357,6 +394,10 @@ app.get('/change', (_req,res)=>res.json({
   method:'POST',priceUsd:0.001,network:NETWORK,description:manifest.tools[1].description,
   example:{url:'https://example.com/',include_current_text:false}
 }));
+app.get('/read', (_req,res)=>res.json({
+  method:'POST',priceUsd:0.001,network:NETWORK,description:manifest.tools[2].description,
+  example:{url:'https://example.com/',include_current_text:true}
+}));
 
 for (const tool of utilityTools) {
   app.get(tool.route, (_req,res)=>res.json({
@@ -384,6 +425,31 @@ app.post('/change', async (req,res)=>{
   try {
     const result = await runChange(req.body);
     res.json(result);
+  } catch (error) {
+    const code = Number(error?.statusCode)||502;
+    res.status(code).json({error:String(error?.message||error)});
+  }
+});
+
+app.post('/read', async (req,res)=>{
+  try {
+    const result = await runChange({...req.body, include_current_text:true});
+    res.json({
+      status:result.status,
+      url:result.url,
+      final_url:result.final_url,
+      fetched_at:result.checked_at,
+      http_status:result.http_status,
+      content_type:result.content_type,
+      title:result.title,
+      selector:result.selector,
+      text:result.current_text,
+      text_length:result.text_length,
+      original_text_length:result.original_text_length,
+      text_truncated:result.text_truncated,
+      content_hash:result.current_hash,
+      fetch:result.fetch
+    });
   } catch (error) {
     const code = Number(error?.statusCode)||502;
     res.status(code).json({error:String(error?.message||error)});
