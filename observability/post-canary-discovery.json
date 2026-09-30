@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-30T20:43:48.137Z",
+  "generatedAt": "2026-09-30T21:04:05.337Z",
   "origin": "https://x402-gateway-production-1f21.up.railway.app",
   "agent402Index": {
     "status": 200,
@@ -11,8 +11,8 @@
       "content-encoding": "br",
       "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 20:43:48 GMT",
-      "etag": "W/\"2d92-5j9L0J6+nKI8zpuFy/Vnxy4VBI8\"",
+      "date": "Wed, 30 Sep 2026 21:04:05 GMT",
+      "etag": "W/\"2e1b-8i99B+m11MdbmidjU68d93EmSL0\"",
       "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
       "referrer-policy": "strict-origin-when-cross-origin",
       "server": "railway-hikari",
@@ -21,18 +21,18 @@
       "vary": "Accept-Encoding",
       "x-content-type-options": "nosniff",
       "x-frame-options": "SAMEORIGIN",
-      "x-hikari-trace": "iad1.trg5",
+      "x-hikari-trace": "lax1.e74w",
       "x-permitted-cross-domain-policies": "none",
-      "x-railway-edge": "iad1",
-      "x-railway-request-id": "2hVKFk0YSI21DnFAWUN5dQ",
-      "x-request-id": "e45cf8eb-9934-4d2f-8b7c-a374a60eaf93"
+      "x-railway-edge": "lax1",
+      "x-railway-request-id": "W2BuFllUTDaLDlP5CYBc-A",
+      "x-request-id": "edb81dee-db0b-40cb-86ae-bfe8de16ba81"
     },
     "body": {
       "origin": "https://x402-gateway-production-1f21.up.railway.app",
       "displayName": "Industrial Platform Web Tools",
       "homepage": "https://x402-gateway-production-1f21.up.railway.app",
       "toolCount": 2,
-      "fetchedAt": 1790799496445,
+      "fetchedAt": 1790801272799,
       "error": null,
       "health": 1,
       "routable": true,
@@ -44,11 +44,11 @@
       "originResponded": true,
       "discoveryPath": "/.well-known/x402",
       "payToByNetwork": {
-        "eip155:8453": "0x23d931f95831cee50b5f5edf4d0e88270f6c8411"
+        "eip155:8453": "0x0e66A3F909D3473E2517709e713B7afc0D767C42"
       },
       "payTosByNetwork": {
         "eip155:8453": [
-          "0x23d931f95831cee50b5f5edf4d0e88270f6c8411"
+          "0x0e66A3F909D3473E2517709e713B7afc0D767C42"
         ]
       },
       "evmDomainByNetwork": {
@@ -77,7 +77,7 @@
           "slug": "webMetadataIntelligence",
           "name": "Extract webpage metadata",
           "description": "Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.",
-          "price": "$0.01",
+          "price": "$0.001",
           "priceKnown": true,
           "requestContract": {
             "state": "declared",
@@ -87,21 +87,27 @@
                 "urls"
               ]
             },
+            "optional": {
+              "body": [
+                "timeout_seconds",
+                "concurrency"
+              ]
+            },
             "runtimeVerified": false
           },
           "networks": [
             "eip155:8453"
           ],
           "declared": true,
-          "lastVerifiedAt": "2026-09-30T20:18:16.248Z"
+          "lastVerifiedAt": "2026-09-30T20:47:52.791Z"
         },
         {
           "method": "POST",
           "route": "/change",
           "slug": "webChangeIntelligence",
           "name": "Detect webpage changes",
-          "description": "Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.",
-          "price": "$0.01",
+          "description": "Detect meaningful webpage changes with deterministic hashes and diffs for prices, docs, policies, availability and competitor monitoring.",
+          "price": "$0.001",
           "priceKnown": true,
           "requestContract": {
             "state": "declared",
@@ -115,7 +121,12 @@
               "body": [
                 "previous_hash",
                 "previous_text",
-                "include_current_text"
+                "selector",
+                "ignore_selectors",
+                "include_current_text",
+                "max_text_chars",
+                "max_diff_chars",
+                "timeout_seconds"
               ]
             },
             "runtimeVerified": false
@@ -124,7 +135,7 @@
             "eip155:8453"
           ],
           "declared": true,
-          "lastVerifiedAt": "2026-09-30T20:18:16.445Z"
+          "lastVerifiedAt": "2026-09-30T20:47:52.799Z"
         }
       ],
       "paymentNetworksKnown": true,
@@ -193,7 +204,7 @@
         "content-encoding": "br",
         "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
         "content-type": "application/json; charset=utf-8",
-        "date": "Wed, 30 Sep 2026 20:43:48 GMT",
+        "date": "Wed, 30 Sep 2026 21:04:05 GMT",
         "etag": "W/\"1d02-XVPjbGqVhOGynZVudPOu82LBStw\"",
         "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
         "referrer-policy": "strict-origin-when-cross-origin",
@@ -204,11 +215,11 @@
         "x-cache": "miss",
         "x-content-type-options": "nosniff",
         "x-frame-options": "SAMEORIGIN",
-        "x-hikari-trace": "iad1.trg5",
+        "x-hikari-trace": "lax1.e74w",
         "x-permitted-cross-domain-policies": "none",
-        "x-railway-edge": "iad1",
-        "x-railway-request-id": "aKXIdNg2SA2wvWIELPU1MQ",
-        "x-request-id": "c66f9343-a744-44c8-a086-c49fcb2bff7b"
+        "x-railway-edge": "lax1",
+        "x-railway-request-id": "UQQ52PI0Q_iGpgM8npoFkQ",
+        "x-request-id": "d1ecaa6b-a109-4e7a-ba07-1c51a7ed113b"
       },
       "body": {
         "query": "web metadata extractor",
@@ -494,7 +505,7 @@
         "content-encoding": "br",
         "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
         "content-type": "application/json; charset=utf-8",
-        "date": "Wed, 30 Sep 2026 20:43:48 GMT",
+        "date": "Wed, 30 Sep 2026 21:04:05 GMT",
         "etag": "W/\"1f49-cQ+BgUzqfvU2vpStyEkSYMfO4QA\"",
         "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
         "referrer-policy": "strict-origin-when-cross-origin",
@@ -505,11 +516,11 @@
         "x-cache": "miss",
         "x-content-type-options": "nosniff",
         "x-frame-options": "SAMEORIGIN",
-        "x-hikari-trace": "iad1.trg5",
+        "x-hikari-trace": "lax1.e74w",
         "x-permitted-cross-domain-policies": "none",
-        "x-railway-edge": "iad1",
-        "x-railway-request-id": "pbmBCp4lQPCxFfVTnpoFkQ",
-        "x-request-id": "2c4a0e65-390c-41da-af8f-68f1f91e8da5"
+        "x-railway-edge": "lax1",
+        "x-railway-request-id": "TmPOv24mQTm7f9F2pHNmDw",
+        "x-request-id": "1e949194-4131-4f6a-a372-c99dbbc83f67"
       },
       "body": {
         "query": "website change detector",
@@ -804,7 +815,7 @@
         "content-encoding": "br",
         "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
         "content-type": "application/json; charset=utf-8",
-        "date": "Wed, 30 Sep 2026 20:43:48 GMT",
+        "date": "Wed, 30 Sep 2026 21:04:06 GMT",
         "etag": "W/\"2cf1-YKIclsEFWS/Lp+SKiCbW/9hN7IE\"",
         "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
         "referrer-policy": "strict-origin-when-cross-origin",
@@ -815,11 +826,11 @@
         "x-cache": "miss",
         "x-content-type-options": "nosniff",
         "x-frame-options": "SAMEORIGIN",
-        "x-hikari-trace": "iad1.trg5",
+        "x-hikari-trace": "lax1.e74w",
         "x-permitted-cross-domain-policies": "none",
-        "x-railway-edge": "iad1",
-        "x-railway-request-id": "V-U_CezWSGqjPPcKlt7tkg",
-        "x-request-id": "fe02af5a-c7d4-42bf-a9c9-854b8fda9340"
+        "x-railway-edge": "lax1",
+        "x-railway-request-id": "3Z_dhLjORvK2cWCpCYBc-A",
+        "x-request-id": "1650b252-4ed4-4d0e-aa7d-c0e6f9cc233a"
       },
       "body": {
         "query": "Industrial Platform Fast Web Tools",
@@ -1164,7 +1175,7 @@
         "content-length": "128",
         "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
         "content-type": "application/json; charset=utf-8",
-        "date": "Wed, 30 Sep 2026 20:43:49 GMT",
+        "date": "Wed, 30 Sep 2026 21:04:06 GMT",
         "etag": "W/\"80-dv95CGDAW4GHn9C72JYr8qI1F3Y\"",
         "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
         "referrer-policy": "strict-origin-when-cross-origin",
@@ -1174,11 +1185,11 @@
         "vary": "Accept-Encoding",
         "x-content-type-options": "nosniff",
         "x-frame-options": "SAMEORIGIN",
-        "x-hikari-trace": "iad1.trg5",
+        "x-hikari-trace": "lax1.e74w",
         "x-permitted-cross-domain-policies": "none",
-        "x-railway-edge": "iad1",
-        "x-railway-request-id": "Qvp5a1EdTiu-ykdQ2h0iww",
-        "x-request-id": "81325f4a-7eed-4ddf-a655-bdefc21fb30c"
+        "x-railway-edge": "lax1",
+        "x-railway-request-id": "8LkUoT0jR0CCx4E4WUN5dQ",
+        "x-request-id": "e588eb8e-f2cc-4a68-a02b-d5935412c98b"
       },
       "body": {
         "error": "The server is busy; free and discovery requests are paused briefly so paid calls keep flowing.",
@@ -1319,15 +1330,15 @@
   "coinbaseSearch": {
     "Industrial Platform Fast Web Tools": {
       "isError": false,
-      "text": "{\"nextStep\":\"IMPORTANT: Do NOT call the returned tools directly. To execute any tool from this list, use proxy_tool_call with the tool's name as the toolName parameter.\",\"partialResults\":false,\"searchMethod\":\"hybrid\",\"x402Version\":2}"
+      "text": "{\"nextStep\":\"IMPORTANT: Do NOT call the returned tools directly. To execute any tool from this list, use proxy_tool_call with the tool's name as the toolName parameter.\",\"partialResults\":false,\"searchMethod\":\"hybrid\",\"tools\":[{\"_meta\":{\"x402/payment-required\":{\"accepts\":[{\"amount\":\"1000\",\"asset\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"extra\":{\"name\":\"USD Coin\",\"version\":\"2\"},\"maxTimeoutSeconds\":90,\"network\":\"eip155:8453\",\"payTo\":\"0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744\",\"scheme\":\"exact\"}],\"extensions\":{\"bazaar\":{\"info\":{\"input\":{\"body\":{\"urls\":[\"https://example.com/\"]},\"bodyType\":\"json\",\"method\":\"POST\",\"type\":\"http\"},\"output\":{\"example\":{\"results\":[{\"status\":\"ready\",\"title\":\"Example Domain\",\"url\":\"https://example.com/\"}],\"summary\":{\"failed\":0,\"requested\":1,\"status\":\"ready\",\"succeeded\":1}},\"type\":\"json\"}},\"schema\":{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"properties\":{\"input\":{\"additionalProperties\":false,\"properties\":{\"body\":{\"additionalProperties\":false,\"properties\":{\"concurrency\":{\"maximum\":20,\"minimum\":1,\"type\":\"integer\"},\"timeout_seconds\":{\"maximum\":60,\"minimum\":5,\"type\":\"integer\"},\"urls\":{\"items\":{\"format\":\"uri\",\"type\":\"string\"},\"maxItems\":100,\"minItems\":1,\"type\":\"array\"}},\"required\":[\"urls\"],\"type\":\"object\"},\"bodyType\":{\"enum\":[\"json\",\"form-data\",\"text\"],\"type\":\"string\"},\"method\":{\"enum\":[\"POST\"],\"type\":\"string\"},\"type\":{\"const\":\"http\",\"type\":\"string\"}},\"required\":[\"type\",\"method\",\"bodyType\",\"body\"],\"type\":\"object\"},\"output\":{\"properties\":{\"example\":{\"type\":\"object\"},\"type\":{\"type\":\"string\"}},\"required\":[\"type\"],\"type\":\"object\"}},\"required\":[\"input\"],\"type\":\"object\"}}},\"x402Version\":2},\"x402/service\":{\"name\":\"Industrial Platform Web Tools\",\"tags\":[\"metadata\",\"seo\",\"structured-data\",\"web\",\"agents\"]}},\"description\":\"Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata. WARNING: This tool is NOT directly callable. You MUST use proxy_tool_call with this tool's name to execute it.\",\"inputSchema\":{\"description\":\"Parameters for proxy_tool_call. This schema is NOT for direct invocation — pass these parameters inside proxy_tool_call.parameters to execute this tool.\",\"properties\":{\"parameters\":{\"description\":\"Tool-specific parameters. Include 'query', 'body', or 'headers' as needed.\",\"properties\":{\"body\":{\"description\":\"JSON body to include on the request.\"}},\"type\":\"object\"}},\"required\":[\"parameters\"],\"type\":\"object\"},\"name\":\"x402_post_https___x402_gateway_production_1f21_up_railway_app_metadata_f7a28ea2de0d3d70_k6zset3v4pewuaa\"}],\"x402Version\":2}"
     },
     "x402-gateway-production-1f21.up.railway.app": {
       "isError": false,
-      "text": "{\"nextStep\":\"IMPORTANT: Do NOT call the returned tools directly. To execute any tool from this list, use proxy_tool_call with the tool's name as the toolName parameter.\",\"partialResults\":false,\"searchMethod\":\"hybrid\",\"x402Version\":2}"
+      "text": "{\"nextStep\":\"IMPORTANT: Do NOT call the returned tools directly. To execute any tool from this list, use proxy_tool_call with the tool's name as the toolName parameter.\",\"partialResults\":false,\"searchMethod\":\"hybrid\",\"tools\":[{\"_meta\":{\"x402/payment-required\":{\"accepts\":[{\"amount\":\"1000\",\"asset\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"extra\":{\"name\":\"USD Coin\",\"version\":\"2\"},\"maxTimeoutSeconds\":90,\"network\":\"eip155:8453\",\"payTo\":\"0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744\",\"scheme\":\"exact\"}],\"extensions\":{\"bazaar\":{\"info\":{\"input\":{\"body\":{\"urls\":[\"https://example.com/\"]},\"bodyType\":\"json\",\"method\":\"POST\",\"type\":\"http\"},\"output\":{\"example\":{\"results\":[{\"status\":\"ready\",\"title\":\"Example Domain\",\"url\":\"https://example.com/\"}],\"summary\":{\"failed\":0,\"requested\":1,\"status\":\"ready\",\"succeeded\":1}},\"type\":\"json\"}},\"schema\":{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"properties\":{\"input\":{\"additionalProperties\":false,\"properties\":{\"body\":{\"additionalProperties\":false,\"properties\":{\"concurrency\":{\"maximum\":20,\"minimum\":1,\"type\":\"integer\"},\"timeout_seconds\":{\"maximum\":60,\"minimum\":5,\"type\":\"integer\"},\"urls\":{\"items\":{\"format\":\"uri\",\"type\":\"string\"},\"maxItems\":100,\"minItems\":1,\"type\":\"array\"}},\"required\":[\"urls\"],\"type\":\"object\"},\"bodyType\":{\"enum\":[\"json\",\"form-data\",\"text\"],\"type\":\"string\"},\"method\":{\"enum\":[\"POST\"],\"type\":\"string\"},\"type\":{\"const\":\"http\",\"type\":\"string\"}},\"required\":[\"type\",\"method\",\"bodyType\",\"body\"],\"type\":\"object\"},\"output\":{\"properties\":{\"example\":{\"type\":\"object\"},\"type\":{\"type\":\"string\"}},\"required\":[\"type\"],\"type\":\"object\"}},\"required\":[\"input\"],\"type\":\"object\"}}},\"x402Version\":2},\"x402/service\":{\"name\":\"Industrial Platform Web Tools\",\"tags\":[\"metadata\",\"seo\",\"structured-data\",\"web\",\"agents\"]}},\"description\":\"Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata. WARNING: This tool is NOT directly callable. You MUST use proxy_tool_call with this tool's name to execute it.\",\"inputSchema\":{\"description\":\"Parameters for proxy_tool_call. This schema is NOT for direct invocation — pass these parameters inside proxy_tool_call.parameters to execute this tool.\",\"properties\":{\"parameters\":{\"description\":\"Tool-specific parameters. Include 'query', 'body', or 'headers' as needed.\",\"properties\":{\"body\":{\"description\":\"JSON body to include on the request.\"}},\"type\":\"object\"}},\"required\":[\"parameters\"],\"type\":\"object\"},\"name\":\"x402_post_https___x402_gateway_production_1f21_up_railway_app_metadata_f7a28ea2de0d3d70_ki7o43fkymoo4aa\"}],\"x402Version\":2}"
     },
     "web metadata extractor Open Graph JSON-LD canonical robots": {
       "isError": false,
-      "text": "{\"nextStep\":\"IMPORTANT: Do NOT call the returned tools directly. To execute any tool from this list, use proxy_tool_call with the tool's name as the toolName parameter.\",\"partialResults\":false,\"searchMethod\":\"hybrid\",\"x402Version\":2}"
+      "text": "{\"nextStep\":\"IMPORTANT: Do NOT call the returned tools directly. To execute any tool from this list, use proxy_tool_call with the tool's name as the toolName parameter.\",\"partialResults\":false,\"searchMethod\":\"hybrid\",\"tools\":[{\"_meta\":{\"x402/payment-required\":{\"accepts\":[{\"amount\":\"1000\",\"asset\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"extra\":{\"name\":\"USD Coin\",\"version\":\"2\"},\"maxTimeoutSeconds\":90,\"network\":\"eip155:8453\",\"payTo\":\"0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744\",\"scheme\":\"exact\"}],\"extensions\":{\"bazaar\":{\"info\":{\"input\":{\"body\":{\"urls\":[\"https://example.com/\"]},\"bodyType\":\"json\",\"method\":\"POST\",\"type\":\"http\"},\"output\":{\"example\":{\"results\":[{\"status\":\"ready\",\"title\":\"Example Domain\",\"url\":\"https://example.com/\"}],\"summary\":{\"failed\":0,\"requested\":1,\"status\":\"ready\",\"succeeded\":1}},\"type\":\"json\"}},\"schema\":{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"properties\":{\"input\":{\"additionalProperties\":false,\"properties\":{\"body\":{\"additionalProperties\":false,\"properties\":{\"concurrency\":{\"maximum\":20,\"minimum\":1,\"type\":\"integer\"},\"timeout_seconds\":{\"maximum\":60,\"minimum\":5,\"type\":\"integer\"},\"urls\":{\"items\":{\"format\":\"uri\",\"type\":\"string\"},\"maxItems\":100,\"minItems\":1,\"type\":\"array\"}},\"required\":[\"urls\"],\"type\":\"object\"},\"bodyType\":{\"enum\":[\"json\",\"form-data\",\"text\"],\"type\":\"string\"},\"method\":{\"enum\":[\"POST\"],\"type\":\"string\"},\"type\":{\"const\":\"http\",\"type\":\"string\"}},\"required\":[\"type\",\"method\",\"bodyType\",\"body\"],\"type\":\"object\"},\"output\":{\"properties\":{\"example\":{\"type\":\"object\"},\"type\":{\"type\":\"string\"}},\"required\":[\"type\"],\"type\":\"object\"}},\"required\":[\"input\"],\"type\":\"object\"}}},\"x402Version\":2},\"x402/service\":{\"name\":\"Industrial Platform Web Tools\",\"tags\":[\"metadata\",\"seo\",\"structured-data\",\"web\",\"agents\"]}},\"description\":\"Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata. WARNING: This tool is NOT directly callable. You MUST use proxy_tool_call with this tool's name to execute it.\",\"inputSchema\":{\"description\":\"Parameters for proxy_tool_call. This schema is NOT for direct invocation — pass these parameters inside proxy_tool_call.parameters to execute this tool.\",\"properties\":{\"parameters\":{\"description\":\"Tool-specific parameters. Include 'query', 'body', or 'headers' as needed.\",\"properties\":{\"body\":{\"description\":\"JSON body to include on the request.\"}},\"type\":\"object\"}},\"required\":[\"parameters\"],\"type\":\"object\"},\"name\":\"x402_post_https___x402_gateway_production_1f21_up_railway_app_metadata_f7a28ea2de0d3d70_4ov5okdpih5muaa\"}],\"x402Version\":2}"
     },
     "website change detector deterministic diff monitor": {
       "isError": false,
@@ -1336,16 +1347,16 @@
   },
   "coinbaseExactUrlSearch": {
     "isError": false,
-    "text": "{\"nextStep\":\"IMPORTANT: Do NOT call the returned tools directly. To execute any tool from this list, use proxy_tool_call with the tool's name as the toolName parameter.\",\"partialResults\":false,\"searchMethod\":\"text\",\"x402Version\":2}"
+    "text": "{\"nextStep\":\"IMPORTANT: Do NOT call the returned tools directly. To execute any tool from this list, use proxy_tool_call with the tool's name as the toolName parameter.\",\"partialResults\":false,\"searchMethod\":\"text\",\"tools\":[{\"_meta\":{\"x402/payment-required\":{\"accepts\":[{\"amount\":\"1000\",\"asset\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"extra\":{\"name\":\"USD Coin\",\"version\":\"2\"},\"maxTimeoutSeconds\":90,\"network\":\"eip155:8453\",\"payTo\":\"0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744\",\"scheme\":\"exact\"}],\"extensions\":{\"bazaar\":{\"info\":{\"input\":{\"body\":{\"urls\":[\"https://example.com/\"]},\"bodyType\":\"json\",\"method\":\"POST\",\"type\":\"http\"},\"output\":{\"example\":{\"results\":[{\"status\":\"ready\",\"title\":\"Example Domain\",\"url\":\"https://example.com/\"}],\"summary\":{\"failed\":0,\"requested\":1,\"status\":\"ready\",\"succeeded\":1}},\"type\":\"json\"}},\"schema\":{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"properties\":{\"input\":{\"additionalProperties\":false,\"properties\":{\"body\":{\"additionalProperties\":false,\"properties\":{\"concurrency\":{\"maximum\":20,\"minimum\":1,\"type\":\"integer\"},\"timeout_seconds\":{\"maximum\":60,\"minimum\":5,\"type\":\"integer\"},\"urls\":{\"items\":{\"format\":\"uri\",\"type\":\"string\"},\"maxItems\":100,\"minItems\":1,\"type\":\"array\"}},\"required\":[\"urls\"],\"type\":\"object\"},\"bodyType\":{\"enum\":[\"json\",\"form-data\",\"text\"],\"type\":\"string\"},\"method\":{\"enum\":[\"POST\"],\"type\":\"string\"},\"type\":{\"const\":\"http\",\"type\":\"string\"}},\"required\":[\"type\",\"method\",\"bodyType\",\"body\"],\"type\":\"object\"},\"output\":{\"properties\":{\"example\":{\"type\":\"object\"},\"type\":{\"type\":\"string\"}},\"required\":[\"type\"],\"type\":\"object\"}},\"required\":[\"input\"],\"type\":\"object\"}}},\"x402Version\":2},\"x402/service\":{\"name\":\"Industrial Platform Web Tools\",\"tags\":[\"metadata\",\"seo\",\"structured-data\",\"web\",\"agents\"]}},\"description\":\"Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata. WARNING: This tool is NOT directly callable. You MUST use proxy_tool_call with this tool's name to execute it.\",\"inputSchema\":{\"description\":\"Parameters for proxy_tool_call. This schema is NOT for direct invocation — pass these parameters inside proxy_tool_call.parameters to execute this tool.\",\"properties\":{\"parameters\":{\"description\":\"Tool-specific parameters. Include 'query', 'body', or 'headers' as needed.\",\"properties\":{\"body\":{\"description\":\"JSON body to include on the request.\"}},\"type\":\"object\"}},\"required\":[\"parameters\"],\"type\":\"object\"},\"name\":\"x402_post_https___x402_gateway_production_1f21_up_railway_app_metadata_f7a28ea2de0d3d70_yp5ni5q4ib74kaa\"}],\"x402Version\":2}"
   },
   "coinbaseValidate": {
     "https://x402-gateway-production-1f21.up.railway.app/metadata": {
       "isError": false,
-      "text": "{\"active\":false,\"hasBazaarExtension\":true,\"indexed\":false,\"preflight\":[{\"check\":\"url_valid\",\"detail\":\"URL is well-formed\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"https\",\"check\":\"url_https\",\"detail\":\"Resource URL uses HTTPS\",\"expected\":\"https\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"endpoint_reachable\",\"detail\":\"Endpoint responded with status 402\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"402\",\"check\":\"returns_402\",\"detail\":\"Endpoint correctly returns HTTP 402 Payment Required\",\"expected\":\"402\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"valid_json\",\"detail\":\"Response body parsed as JSON\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"2\",\"check\":\"x402_version\",\"detail\":\"x402 version is 2\",\"expected\":\"2\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"PAYMENT-REQUIRED header\",\"check\":\"payment_required_header\",\"detail\":\"PaymentRequired delivered via the PAYMENT-REQUIRED response header\",\"expected\":\"PaymentRequired delivered via PAYMENT-REQUIRED response header\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_accepts\",\"detail\":\"Found 1 payment method(s) in accepts array\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"exact\",\"check\":\"accepts[0].scheme\",\"detail\":\"Scheme is exact\",\"expected\":\"exact or upto\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"eip155:8453\",\"check\":\"accepts[0].network\",\"detail\":\"Network eip155:8453 is supported\",\"expected\":\"a facilitator-supported network (Base, Solana, Polygon, Arbitrum, World)\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"check\":\"accepts[0].asset\",\"detail\":\"Asset is USDC\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"1000\",\"check\":\"accepts[0].amount\",\"detail\":\"Amount 1000 meets $0.001 USDC minimum\",\"expected\":\"\\u003e= 1000\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x0e66A3F909D3473E2517709e713B7afc0D767C42\",\"check\":\"accepts[0].payTo\",\"detail\":\"payTo address present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"accepts[0].maxTimeoutSeconds\",\"detail\":\"maxTimeoutSeconds is set\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_resource\",\"detail\":\"Resource URL: https://x402-gateway-production-1f21.up.railway.app/metadata\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_bazaar_extension\",\"detail\":\"Bazaar extension found\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info\",\"detail\":\"Bazaar info block present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.input\",\"detail\":\"Input metadata present in bazaar info\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"http\",\"check\":\"bazaar.info.input.type\",\"detail\":\"Input type is \\\"http\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method\",\"detail\":\"HTTP method is \\\"POST\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method.matches_request\",\"detail\":\"Declared method POST matches the probed method\",\"expected\":\"POST\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.output\",\"detail\":\"Output metadata present in bazaar info\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.info.output.example\",\"detail\":\"Output example provided\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.schema\",\"detail\":\"Bazaar schema present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"parse\",\"detail\":\"Bazaar discovery extension parsed successfully\",\"passed\":true,\"severity\":\"required\"}],\"reachable\":true,\"returns402\":true,\"simulate\":{\"outcome\":\"accepted\"},\"statusCode\":402,\"valid\":true,\"x402Version\":2}"
+      "text": "{\"active\":true,\"hasBazaarExtension\":true,\"indexed\":true,\"lastCrawledAt\":\"2026-09-30T21:03:16.262Z\",\"preflight\":[{\"check\":\"url_valid\",\"detail\":\"URL is well-formed\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"https\",\"check\":\"url_https\",\"detail\":\"Resource URL uses HTTPS\",\"expected\":\"https\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"endpoint_reachable\",\"detail\":\"Endpoint responded with status 402\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"402\",\"check\":\"returns_402\",\"detail\":\"Endpoint correctly returns HTTP 402 Payment Required\",\"expected\":\"402\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"valid_json\",\"detail\":\"Response body parsed as JSON\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"2\",\"check\":\"x402_version\",\"detail\":\"x402 version is 2\",\"expected\":\"2\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"PAYMENT-REQUIRED header\",\"check\":\"payment_required_header\",\"detail\":\"PaymentRequired delivered via the PAYMENT-REQUIRED response header\",\"expected\":\"PaymentRequired delivered via PAYMENT-REQUIRED response header\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_accepts\",\"detail\":\"Found 1 payment method(s) in accepts array\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"exact\",\"check\":\"accepts[0].scheme\",\"detail\":\"Scheme is exact\",\"expected\":\"exact or upto\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"eip155:8453\",\"check\":\"accepts[0].network\",\"detail\":\"Network eip155:8453 is supported\",\"expected\":\"a facilitator-supported network (Base, Solana, Polygon, Arbitrum, World)\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"check\":\"accepts[0].asset\",\"detail\":\"Asset is USDC\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"1000\",\"check\":\"accepts[0].amount\",\"detail\":\"Amount 1000 meets $0.001 USDC minimum\",\"expected\":\"\\u003e= 1000\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744\",\"check\":\"accepts[0].payTo\",\"detail\":\"payTo address present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"accepts[0].maxTimeoutSeconds\",\"detail\":\"maxTimeoutSeconds is set\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_resource\",\"detail\":\"Resource URL: https://x402-gateway-production-1f21.up.railway.app/metadata\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_bazaar_extension\",\"detail\":\"Bazaar extension found\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info\",\"detail\":\"Bazaar info block present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.input\",\"detail\":\"Input metadata present in bazaar info\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"http\",\"check\":\"bazaar.info.input.type\",\"detail\":\"Input type is \\\"http\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method\",\"detail\":\"HTTP method is \\\"POST\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method.matches_request\",\"detail\":\"Declared method POST matches the probed method\",\"expected\":\"POST\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.output\",\"detail\":\"Output metadata present in bazaar info\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.info.output.example\",\"detail\":\"Output example provided\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.schema\",\"detail\":\"Bazaar schema present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"parse\",\"detail\":\"Bazaar discovery extension parsed successfully\",\"passed\":true,\"severity\":\"required\"}],\"reachable\":true,\"returns402\":true,\"simulate\":{\"outcome\":\"accepted\"},\"statusCode\":402,\"valid\":true,\"x402Version\":2}"
     },
     "https://x402-gateway-production-1f21.up.railway.app/change": {
       "isError": false,
-      "text": "{\"active\":false,\"hasBazaarExtension\":true,\"indexed\":false,\"preflight\":[{\"check\":\"url_valid\",\"detail\":\"URL is well-formed\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"https\",\"check\":\"url_https\",\"detail\":\"Resource URL uses HTTPS\",\"expected\":\"https\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"endpoint_reachable\",\"detail\":\"Endpoint responded with status 402\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"402\",\"check\":\"returns_402\",\"detail\":\"Endpoint correctly returns HTTP 402 Payment Required\",\"expected\":\"402\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"valid_json\",\"detail\":\"Response body parsed as JSON\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"2\",\"check\":\"x402_version\",\"detail\":\"x402 version is 2\",\"expected\":\"2\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"PAYMENT-REQUIRED header\",\"check\":\"payment_required_header\",\"detail\":\"PaymentRequired delivered via the PAYMENT-REQUIRED response header\",\"expected\":\"PaymentRequired delivered via PAYMENT-REQUIRED response header\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_accepts\",\"detail\":\"Found 1 payment method(s) in accepts array\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"exact\",\"check\":\"accepts[0].scheme\",\"detail\":\"Scheme is exact\",\"expected\":\"exact or upto\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"eip155:8453\",\"check\":\"accepts[0].network\",\"detail\":\"Network eip155:8453 is supported\",\"expected\":\"a facilitator-supported network (Base, Solana, Polygon, Arbitrum, World)\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"check\":\"accepts[0].asset\",\"detail\":\"Asset is USDC\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"1000\",\"check\":\"accepts[0].amount\",\"detail\":\"Amount 1000 meets $0.001 USDC minimum\",\"expected\":\"\\u003e= 1000\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x0e66A3F909D3473E2517709e713B7afc0D767C42\",\"check\":\"accepts[0].payTo\",\"detail\":\"payTo address present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"accepts[0].maxTimeoutSeconds\",\"detail\":\"maxTimeoutSeconds is set\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_resource\",\"detail\":\"Resource URL: https://x402-gateway-production-1f21.up.railway.app/change\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_bazaar_extension\",\"detail\":\"Bazaar extension found\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info\",\"detail\":\"Bazaar info block present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.input\",\"detail\":\"Input metadata present in bazaar info\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"http\",\"check\":\"bazaar.info.input.type\",\"detail\":\"Input type is \\\"http\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method\",\"detail\":\"HTTP method is \\\"POST\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method.matches_request\",\"detail\":\"Declared method POST matches the probed method\",\"expected\":\"POST\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.output\",\"detail\":\"Output metadata present in bazaar info\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.info.output.example\",\"detail\":\"Output example provided\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.schema\",\"detail\":\"Bazaar schema present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"parse\",\"detail\":\"Bazaar discovery extension parsed successfully\",\"passed\":true,\"severity\":\"required\"}],\"reachable\":true,\"returns402\":true,\"simulate\":{\"outcome\":\"accepted\"},\"statusCode\":402,\"valid\":true,\"x402Version\":2}"
+      "text": "{\"active\":false,\"hasBazaarExtension\":true,\"indexed\":false,\"preflight\":[{\"check\":\"url_valid\",\"detail\":\"URL is well-formed\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"https\",\"check\":\"url_https\",\"detail\":\"Resource URL uses HTTPS\",\"expected\":\"https\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"endpoint_reachable\",\"detail\":\"Endpoint responded with status 402\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"402\",\"check\":\"returns_402\",\"detail\":\"Endpoint correctly returns HTTP 402 Payment Required\",\"expected\":\"402\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"valid_json\",\"detail\":\"Response body parsed as JSON\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"2\",\"check\":\"x402_version\",\"detail\":\"x402 version is 2\",\"expected\":\"2\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"PAYMENT-REQUIRED header\",\"check\":\"payment_required_header\",\"detail\":\"PaymentRequired delivered via the PAYMENT-REQUIRED response header\",\"expected\":\"PaymentRequired delivered via PAYMENT-REQUIRED response header\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_accepts\",\"detail\":\"Found 1 payment method(s) in accepts array\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"exact\",\"check\":\"accepts[0].scheme\",\"detail\":\"Scheme is exact\",\"expected\":\"exact or upto\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"eip155:8453\",\"check\":\"accepts[0].network\",\"detail\":\"Network eip155:8453 is supported\",\"expected\":\"a facilitator-supported network (Base, Solana, Polygon, Arbitrum, World)\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\"check\":\"accepts[0].asset\",\"detail\":\"Asset is USDC\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"1000\",\"check\":\"accepts[0].amount\",\"detail\":\"Amount 1000 meets $0.001 USDC minimum\",\"expected\":\"\\u003e= 1000\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744\",\"check\":\"accepts[0].payTo\",\"detail\":\"payTo address present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"accepts[0].maxTimeoutSeconds\",\"detail\":\"maxTimeoutSeconds is set\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_resource\",\"detail\":\"Resource URL: https://x402-gateway-production-1f21.up.railway.app/change\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"has_bazaar_extension\",\"detail\":\"Bazaar extension found\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info\",\"detail\":\"Bazaar info block present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.input\",\"detail\":\"Input metadata present in bazaar info\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"http\",\"check\":\"bazaar.info.input.type\",\"detail\":\"Input type is \\\"http\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method\",\"detail\":\"HTTP method is \\\"POST\\\"\",\"passed\":true,\"severity\":\"required\"},{\"actual\":\"POST\",\"check\":\"bazaar.info.input.method.matches_request\",\"detail\":\"Declared method POST matches the probed method\",\"expected\":\"POST\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"bazaar.info.output\",\"detail\":\"Output metadata present in bazaar info\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.info.output.example\",\"detail\":\"Output example provided\",\"passed\":true,\"severity\":\"advisory\"},{\"check\":\"bazaar.schema\",\"detail\":\"Bazaar schema present\",\"passed\":true,\"severity\":\"required\"},{\"check\":\"parse\",\"detail\":\"Bazaar discovery extension parsed successfully\",\"passed\":true,\"severity\":\"required\"}],\"reachable\":true,\"returns402\":true,\"simulate\":{\"outcome\":\"accepted\"},\"statusCode\":402,\"valid\":true,\"x402Version\":2}"
     }
   }
 }
