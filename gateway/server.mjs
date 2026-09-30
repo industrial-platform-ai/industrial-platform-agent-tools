@@ -345,7 +345,9 @@ app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
   '',
   'All paid routes use x402 on Base USDC. Utility routes are $0.0005; web metadata and change detection are $0.001.',
   '',
-  ...manifest.tools.map(t=>'- '+t.method+' '+ORIGIN+t.route+' — 
+  ...manifest.tools.map(t=>'- '+t.method+' '+ORIGIN+t.route+' - $'+t.priceUsd+' - '+t.description)
+].join('\n')));
+app.get(['/skill.md','/SKILL.md'], (_req,res)=>res.type('text/markdown').send(skillMd));
 
 app.get('/metadata', (_req,res)=>res.json({
   method:'POST',priceUsd:0.001,network:NETWORK,description:manifest.tools[0].description,
