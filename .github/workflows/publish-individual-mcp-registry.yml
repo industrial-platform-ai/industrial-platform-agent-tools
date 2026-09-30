@@ -8,6 +8,10 @@ on:
       - 'registry/**/server.json'
       - '.github/workflows/publish-individual-mcp-registry.yml'
 
+concurrency:
+  group: industrial-platform-mcp-registry-publish
+  cancel-in-progress: false
+
 permissions:
   contents: read
   id-token: write
