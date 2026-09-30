@@ -21,6 +21,7 @@ const agent402SellerIndexTarget = 'https://agent402.tools/api/index?seller=' + e
 const basedAgentsTasksTarget = 'https://api.basedagents.ai/v1/tasks?status=open&limit=100';
 const agentExchangeTasksTarget = 'https://exchange.agentexchange.work/tasks';
 const agentExchangeRegisterTarget = 'https://exchange.agentexchange.work/agents/register';
+const x402ArenaRegisterTarget = 'https://core.x402arena.gg/register';
 const externalRouteQueries = [
   'URL to clean agent-ready Markdown web reading RAG content extraction',
   'SEC EDGAR recent filings ticker CIK 10-K 10-Q 8-K',
@@ -235,6 +236,70 @@ async function fetchNoSpendOpportunity(label, url) {
   }
 }
 
+async function registerX402ArenaNoSpend() {
+  if (!sellerAccount) return;
+  const listings = [
+    {
+      name:'industrial-platform-markdown',
+      endpoint:sellerOrigin + '/web/markdown',
+      description:'Convert a public URL into clean LLM-ready Markdown for web reading and RAG.',
+      niche:'intelligence',
+      method:'POST',
+      inputSchema:{type:'object',properties:{url:{type:'string',format:'uri'},max_chars:{type:'integer'}},required:['url']},
+      outputSchema:{type:'object',properties:{markdown:{type:'string'},title:{type:'string'},final_url:{type:'string'}}}
+    },
+    {
+      name:'industrial-platform-metadata',
+      endpoint:sellerOrigin + '/metadata',
+      description:'Extract title, canonical URL, Open Graph, JSON-LD and page metadata from public URLs.',
+      niche:'developer-tools',
+      method:'POST',
+      inputSchema:{type:'object',properties:{urls:{type:'array',items:{type:'string',format:'uri'}}},required:['urls']},
+      outputSchema:{type:'object',properties:{summary:{type:'object'},results:{type:'array'}}}
+    },
+    {
+      name:'industrial-platform-change',
+      endpoint:sellerOrigin + '/change',
+      description:'Detect meaningful webpage changes with deterministic hashes and text diffs.',
+      niche:'developer-tools',
+      method:'POST',
+      inputSchema:{type:'object',properties:{url:{type:'string',format:'uri'},previous_hash:{type:'string'}},required:['url']},
+      outputSchema:{type:'object',properties:{status:{type:'string'},current_hash:{type:'string'},changed:{type:'boolean'}}}
+    },
+    {
+      name:'industrial-platform-crypto-snapshot',
+      endpoint:sellerOrigin + '/crypto/snapshot',
+      description:'Coinbase public crypto market snapshot with ticker, book, 24h stats, candles and trades.',
+      niche:'crypto-finance',
+      method:'POST',
+      inputSchema:{type:'object',properties:{product_id:{type:'string'}},required:['product_id']},
+      outputSchema:{type:'object',properties:{status:{type:'string'},product_id:{type:'string'}}}
+    }
+  ];
+  for (const listing of listings) {
+    try {
+      const payload={...listing,walletAddress:sellerAccount.address,resourceType:'http'};
+      const response=await fetch(x402ArenaRegisterTarget,{
+        method:'POST',
+        headers:{'content-type':'application/json','accept':'application/json'},
+        body:JSON.stringify(payload),
+        signal:AbortSignal.timeout(20000)
+      });
+      const body=await response.text();
+      console.log('x402 Arena registration:', JSON.stringify({
+        name:listing.name,httpStatus:response.status,ok:response.ok,
+        body:body.slice(0,8000),completedAt:new Date().toISOString()
+      }));
+      if(response.status===402) {
+        console.log('x402 Arena registration payment challenge ignored; no-spend policy preserved.');
+      }
+    } catch(error) {
+      console.error('x402 Arena registration failed:', listing.name, String(error?.message||error));
+    }
+    await new Promise(resolve=>setTimeout(resolve,500));
+  }
+}
+
 async function registerAgentExchangePassport() {
   try {
     const wallet = sellerAccount?.address || account?.address || null;
@@ -408,6 +473,7 @@ registerTrue402Free();
 fetchAgent402Wishes();
 runExternalEarningDiagnostics();
 registerAgentExchangePassport();
+registerX402ArenaNoSpend();
 registerX402scanFree();
 registerAgent402OriginOnce().catch((error) => {
   console.error('Agent402 index registration failed:', String(error?.stack || error));
