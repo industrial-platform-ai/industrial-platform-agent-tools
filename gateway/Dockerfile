@@ -6,6 +6,7 @@ COPY server.mjs ./
 COPY metadata.mjs ./
 COPY change.mjs ./
 COPY utilities.mjs ./
+COPY market.mjs ./
 ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["node","server.mjs"]
