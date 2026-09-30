@@ -115,6 +115,28 @@ async function payOnce() {
 }
 
 
+async function registerX402scanFree() {
+  const target = 'https://www.x402scan.com/api/x402/registry/register-origin';
+  try {
+    const response = await fetch(target, {
+      method:'POST',
+      redirect:'manual',
+      headers:{'content-type':'application/json','accept':'application/json'},
+      body:JSON.stringify({origin:sellerOrigin})
+    });
+    const body = await response.text();
+    console.log('x402scan free registration:', JSON.stringify({
+      httpStatus:response.status,
+      ok:response.ok,
+      location:response.headers.get('location'),
+      body:body.slice(0,5000),
+      completedAt:new Date().toISOString()
+    }));
+  } catch (error) {
+    console.error('x402scan free registration failed:', String(error?.stack||error));
+  }
+}
+
 async function runFindDiagnostics() {
   for (const q of marketQueries) {
     try {
@@ -197,6 +219,7 @@ async function registerX402scanOnce() {
   if (!response.ok) throw new Error('x402scan registration returned HTTP ' + response.status + ': ' + text.slice(0, 4000));
 }
 
+registerX402scanFree();
 registerAgent402OriginOnce().catch((error) => {
   console.error('Agent402 index registration failed:', String(error?.stack || error));
 });
