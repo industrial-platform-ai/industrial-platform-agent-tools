@@ -74,7 +74,7 @@ jobs:
           cat > actor-update.json <<'JSON'
           {
             "title": "AI Research Brief & Web Research Agent",
-            "description": "Use this tool when an agent needs current multi-source web research, cited competitor/vendor/pricing comparison, fact verification, or source-backed synthesis. Returns a current research brief with citations, unresolved-fact handling, and automated QA. Do not use for simple page metadata, article/PDF extraction, sitemap enumeration, or changed/unchanged checks."
+            "description": "Current multi-source web research for agents: cited competitor, vendor, pricing, and fact-verification briefs with source-backed synthesis and automated QA."
           }
           JSON
           curl --fail-with-body --silent --show-error \
