@@ -225,6 +225,19 @@ const agentCard = {
   skill:ORIGIN+'/skill.md'
 };
 
+const true402ServiceManifest = {
+  x402:'1.0',
+  name:'industrial-platform-article-extractor',
+  capabilities:['web','article','extract','text','rag','research','metadata'],
+  pricing:{currency:'USDC',base:'0.002',unit:'request'},
+  payment:{
+    address:PAY_TO,
+    chain:'base',
+    facilitator:'https://api.cdp.coinbase.com/platform/v2/x402'
+  },
+  endpoint:ORIGIN+'/article'
+};
+
 const agentInstallManifest = {
   version:'1.3',
   schemaVersion:'1.0',
@@ -411,6 +424,7 @@ app.get('/facilitator-health', async (_req,res)=>{
 app.get('/robots.txt', (_req,res)=>res.type('text/plain').send('User-agent: *\nAllow: /\n'));
 app.get('/.well-known/x402', (_req,res)=>res.json(manifest));
 app.get('/.well-known/x402.json', (_req,res)=>res.json(manifest));
+app.get('/.well-known/x402-service.json', (_req,res)=>res.json(true402ServiceManifest));
 app.get('/openapi.json', (_req,res)=>res.json(openapi));
 app.get('/.well-known/agent-card.json', (_req,res)=>res.json(agentCard));
 app.get('/.well-known/agent.json', (_req,res)=>res.json(agentInstallManifest));
