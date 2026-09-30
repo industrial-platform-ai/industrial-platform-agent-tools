@@ -1,0 +1,25 @@
+name: Apify Store Relevance Benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/apify/store-rank-benchmark.mjs'
+      - '.github/workflows/store-rank-benchmark.yml'
+  schedule:
+    - cron: '41 6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Benchmark Store search rank
+        run: node ./scripts/apify/store-rank-benchmark.mjs
