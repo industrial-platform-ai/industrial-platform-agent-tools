@@ -1,0 +1,55 @@
+name: Inspect Research Actor Schema
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-research-actor-schema.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect Actor metadata and latest build
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            "https://api.apify.com/v2/actors/industrial_platform~research-brief-agent" > actor.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const actor = JSON.parse(fs.readFileSync('actor.json','utf8')).data;
+          console.log(JSON.stringify({
+            id: actor.id,
+            name: actor.name,
+            username: actor.username,
+            defaultRunOptions: actor.defaultRunOptions,
+            taggedBuilds: actor.taggedBuilds,
+            versions: actor.versions,
+            currentPricingInfo: actor.pricingInfos?.[actor.pricingInfos.length - 1]
+          }, null, 2));
+          NODE
+
+          BUILD_ID=$(node -e "const a=require('./actor.json').data; console.log(a.taggedBuilds?.latest?.buildId || '')")
+          if [ -n "$BUILD_ID" ]; then
+            curl --fail-with-body --silent --show-error \
+              --header "Authorization: Bearer $APIFY_TOKEN" \
+              "https://api.apify.com/v2/actor-builds/$BUILD_ID" > build.json
+            node <<'NODE'
+            const fs = require('fs');
+            const build = JSON.parse(fs.readFileSync('build.json','utf8')).data;
+            console.log(JSON.stringify({
+              buildId: build.id,
+              buildNumber: build.buildNumber,
+              versionNumber: build.versionNumber,
+              inputSchema: build.inputSchema,
+              actorDefinition: build.actorDefinition
+            }, null, 2));
+            NODE
+          fi
