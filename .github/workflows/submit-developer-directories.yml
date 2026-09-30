@@ -1,0 +1,157 @@
+name: Submit Fast Bundle to Developer Directories
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/submit-developer-directories.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit to public developer directories
+        run: |
+          node <<'NODE'
+          const repoUrl = 'https://github.com/industrial-platform-ai/industrial-platform-agent-tools';
+          const mcpUrl = 'https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence,industrial_platform/web-change-intelligence&payment=x402';
+          const description = 'Fast paid MCP utilities for AI agents: web metadata extraction and deterministic website change detection. $0.01 per successful unit, ~3s median runtime in recent production runs.';
+          const contact = 'art@naturalist.gallery';
+
+          const targets = [
+            {
+              name: 'AgentNDX',
+              url: 'https://agentndx.ai/api/submit',
+              kind: 'form',
+              body: {
+                name: 'Industrial Platform Fast Web Tools',
+                github_url: repoUrl,
+                homepage_url: repoUrl,
+                protocols: ['MCP', 'x402'],
+                description,
+                contact
+              }
+            },
+            {
+              name: 'MCP.Directory',
+              url: 'https://mcp.directory/api/submit-server',
+              kind: 'json',
+              body: {
+                githubUrl: repoUrl,
+                description,
+                email: contact
+              }
+            },
+            {
+              name: 'mcpub',
+              url: 'https://mcpub.dev/mcp',
+              kind: 'json',
+              body: {
+                jsonrpc: '2.0',
+                id: 1,
+                method: 'tools/call',
+                params: {
+                  name: 'submit',
+                  arguments: {
+                    url: mcpUrl,
+                    description
+                  }
+                }
+              }
+            },
+            {
+              name: 'mcp.so',
+              url: 'https://mcp.so/api/servers',
+              kind: 'json',
+              body: {
+                name: 'Industrial Platform Fast Web Tools',
+                url: mcpUrl,
+                github: repoUrl,
+                description
+              }
+            },
+            {
+              name: 'PulseMCP',
+              url: 'https://api.pulsemcp.com/v0beta/servers',
+              kind: 'json',
+              body: {
+                github_url: repoUrl,
+                contact_email: contact
+              }
+            },
+            {
+              name: 'mcp-get',
+              url: 'https://mcp-get.com/api/servers/submit',
+              kind: 'json',
+              body: {
+                name: 'industrial-platform-fast-web',
+                description,
+                vendor: 'Industrial Platform',
+                sourceUrl: repoUrl,
+                homepage: repoUrl,
+                license: 'MIT'
+              }
+            }
+          ];
+
+          const results = [];
+
+          for (const target of targets) {
+            try {
+              const headers = {
+                'user-agent': 'industrial-platform-agent-tools/1.0'
+              };
+              let body;
+              if (target.kind === 'form') {
+                const form = new URLSearchParams();
+                for (const [key, value] of Object.entries(target.body)) {
+                  if (Array.isArray(value)) {
+                    for (const item of value) form.append(key, item);
+                  } else {
+                    form.append(key, String(value));
+                  }
+                }
+                headers['content-type'] = 'application/x-www-form-urlencoded';
+                body = form.toString();
+              } else {
+                headers['content-type'] = 'application/json';
+                body = JSON.stringify(target.body);
+              }
+
+              const response = await fetch(target.url, {
+                method: 'POST',
+                headers,
+                body
+              });
+
+              const text = await response.text();
+              let parsed;
+              try { parsed = JSON.parse(text); } catch { parsed = { raw: text.slice(0, 3000) }; }
+
+              results.push({
+                name: target.name,
+                status: response.status,
+                ok: response.ok,
+                response: parsed
+              });
+            } catch (error) {
+              results.push({
+                name: target.name,
+                status: null,
+                ok: false,
+                error: error instanceof Error ? error.message : String(error)
+              });
+            }
+          }
+
+          console.log(JSON.stringify({ submitted_at: new Date().toISOString(), results }, null, 2));
+
+          const successes = results.filter(r => r.ok).length;
+          if (successes === 0) {
+            throw new Error('All public directory submissions failed.');
+          }
+          NODE
