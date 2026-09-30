@@ -48,8 +48,12 @@ jobs:
       - name: Publish to Skillhu
         working-directory: /tmp/industrial-platform-paid-web-tools
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          gh auth status
           npx --yes skillhu@latest publish . | tee publish-output.txt
 
       - name: Verify install resolution
