@@ -1,6 +1,7 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 
+// Re-audit after Store-test prefills and schema deployments.
 const token = process.env.APIFY_TOKEN?.trim();
 if (!token) throw new Error('APIFY_TOKEN is required.');
 
