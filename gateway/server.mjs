@@ -115,6 +115,9 @@ const manifest = {
   ]
 };
 
+manifest.version = 1;
+manifest.resources = manifest.tools.map(t=>ORIGIN+t.route);
+
 const openapi = {
   openapi:'3.1.0',
   info:{
@@ -132,6 +135,10 @@ const openapi = {
     '/metadata':{
       post:{
         operationId:'webMetadataIntelligence',
+        'x-payment-info':{
+          protocols:['x402'],
+          price:{mode:'fixed',currency:'USD',amount:String(manifest.tools[0].priceUsd)}
+        },
         summary:'Extract webpage metadata',
         description:manifest.tools[0].description,
         requestBody:{required:true,content:{'application/json':{schema:metadataInputSchema}}},
@@ -146,6 +153,10 @@ const openapi = {
     '/change':{
       post:{
         operationId:'webChangeIntelligence',
+        'x-payment-info':{
+          protocols:['x402'],
+          price:{mode:'fixed',currency:'USD',amount:String(manifest.tools[1].priceUsd)}
+        },
         summary:'Detect webpage changes',
         description:manifest.tools[1].description,
         requestBody:{required:true,content:{'application/json':{schema:changeInputSchema}}},
@@ -160,6 +171,10 @@ const openapi = {
     '/read':{
       post:{
         operationId:'webReader',
+        'x-payment-info':{
+          protocols:['x402'],
+          price:{mode:'fixed',currency:'USD',amount:String(manifest.tools[2].priceUsd)}
+        },
         summary:'Read a public URL as normalized text',
         description:manifest.tools[2].description,
         requestBody:{required:true,content:{'application/json':{schema:changeInputSchema}}},
@@ -178,6 +193,10 @@ for (const tool of utilityTools) {
   openapi.paths[tool.route] = {
     post:{
       operationId:tool.name.replace(/[^a-zA-Z0-9]+(.)/g,(_,ch)=>ch.toUpperCase()),
+      'x-payment-info':{
+        protocols:['x402'],
+        price:{mode:'fixed',currency:'USD',amount:String(tool.priceUsd)}
+      },
       summary:tool.description,
       description:tool.description,
       requestBody:{required:true,content:{'application/json':{schema:tool.inputSchema}}},
