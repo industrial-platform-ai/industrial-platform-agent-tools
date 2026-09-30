@@ -37,7 +37,7 @@ jobs:
           const bundle = JSON.parse(fs.readFileSync('manifests/mcp-bundle.json', 'utf8'));
           const remote = JSON.parse(fs.readFileSync('examples/mcp/remote-server.json', 'utf8'));
 
-          if (!Array.isArray(catalog.services) || catalog.services.length < 5) {
+          if (!Array.isArray(catalog.services) || catalog.services.length < 6) {
             throw new Error('catalog.json must contain the current service portfolio.');
           }
 
@@ -52,7 +52,7 @@ jobs:
           }
 
           const expectedTools = actors.join(',');
-          const expectedUrl = `https://mcp.apify.com?tools=${expectedTools}`;
+          const expectedUrl = `https://mcp.apify.com?tools=${expectedTools}&payment=x402`;
 
           if (catalog.mcp_bundle_url !== expectedUrl) {
             throw new Error('catalog.json MCP bundle URL does not match catalog services.');
