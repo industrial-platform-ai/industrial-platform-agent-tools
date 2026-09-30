@@ -1,757 +1,228 @@
 # Industrial Platform Agent Tools
 
-Open-source integration toolkit for connecting AI agents, MCP clients, autonomous workflows, agent orchestrators, and developer applications to **Industrial Platform** research and data services.
+Open-source integration toolkit for connecting AI agents, MCP clients, autonomous workflows, agent orchestrators, and developer applications to **Industrial Platform** machine-callable services.
 
-Industrial Platform is building specialized machine-callable services that other agents can delegate work to instead of rebuilding research, evidence gathering, synthesis, validation, and related capabilities inside every workflow.
+Industrial Platform provides specialized paid utilities that other agents can discover and invoke instead of rebuilding research, monitoring, extraction, and document-processing capabilities inside every workflow.
 
-## Current service
-
-### AI Web Research API for Agents
-
-A pay-per-result research service for current, source-backed web research with citations, structured evidence gathering, uncertainty handling, and automated quality review.
-
-**Apify Actor**
+## One MCP endpoint for the full portfolio
 
 ```text
-industrial_platform/research-brief-agent
+https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence
 ```
 
-**Public Actor**
+This hosted MCP endpoint exposes the current Industrial Platform service portfolio through one integration.
+
+## Current services
+
+| Service | Actor | Primary purpose | Billing event | Current price |
+| --- | --- | --- | --- | ---: |
+| AI Research Brief | `industrial_platform/research-brief-agent` | Current, cited multi-source research | `research-brief-completed` | $1.99 |
+| Web Change Intelligence | `industrial_platform/web-change-intelligence` | Detect deterministic changes in public web content | `page-comparison` | $0.01 |
+| Web Metadata Intelligence | `industrial_platform/web-metadata-intelligence` | Extract page metadata, OG/Twitter, JSON-LD, headings | `metadata-extraction` | $0.01 |
+| Article Content Intelligence | `industrial_platform/article-content-intelligence` | Extract clean article text for RAG/research pipelines | `article-extraction` | $0.002 |
+| PDF Text Intelligence | `industrial_platform/pdf-text-intelligence` | Extract PDF text, per-page text, and metadata | `pdf-extraction` | $0.0015 |
+
+Live pricing and execution eligibility should be verified against Apify Store before paid execution.
+
+## Machine-readable discovery
+
+The repository publishes:
 
 ```text
-https://apify.com/industrial_platform/research-brief-agent
+catalog.json
+manifests/mcp-bundle.json
+examples/mcp/remote-server.json
 ```
 
-**Hosted MCP endpoint**
+### Service catalog
 
-```text
-https://mcp.apify.com?tools=industrial_platform/research-brief-agent
-```
+`catalog.json` is the portfolio-level machine-readable catalog. It contains Actor IDs, Store URLs, billing events, current prices, and common delegation targets.
 
-Use it when an agent needs:
+### MCP bundle manifest
 
-- current web research
-- competitor research
-- vendor comparison
-- SaaS comparison
-- software pricing research
-- product comparison
-- market research
-- technology research
-- current-fact verification
-- multi-source synthesis
-- research with citations
-- source-backed decision support
+`manifests/mcp-bundle.json` defines the hosted MCP endpoint and the Actors included in the bundle.
 
----
+### MCP client configuration
 
-## Why this repository exists
-
-The long-term goal is not to serve one manually operated agent at a time.
-
-Industrial Platform is being built as infrastructure that can sit underneath:
-
-- autonomous agents
-- multi-agent systems
-- MCP clients
-- agent frameworks
-- agent orchestrators
-- workflow products
-- AI applications
-- developer platforms
-- machine-to-machine systems
-
-A single integration should be capable of producing many downstream calls.
-
-This repository provides the public integration layer for that model.
-
-```text
-developer / framework / orchestrator
-              ↓
-     Industrial Platform tools
-              ↓
-       specialized service
-              ↓
-        structured result
-              ↓
-calling system continues its workflow
-```
-
----
+`examples/mcp/remote-server.json` can be used as a starting point for MCP clients that accept remote server configuration.
 
 ## Quick start
 
-The fastest current integration path is through Apify's hosted MCP infrastructure.
+### MCP
 
-### MCP endpoint
+Configure one remote MCP server:
 
-```text
-https://mcp.apify.com?tools=industrial_platform/research-brief-agent
+```json
+{
+  "mcpServers": {
+    "industrial-platform": {
+      "url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence"
+    }
+  }
+}
 ```
 
-This exposes the Industrial Platform research Actor as an MCP-accessible tool for compatible clients.
+Compatible clients can then discover the exposed Actor tools from that server.
 
-See:
+### REST / Apify API
 
-```text
-examples/mcp/README.md
-```
+Every service can also be invoked directly through Apify's Actor API.
 
-for the current MCP integration guide.
-
----
-
-## Framework examples
-
-Industrial Platform includes runnable examples showing a parent agent deciding autonomously when current research should be delegated to `research_web`.
-
-### OpenAI Agents SDK
+General Actor identifier form:
 
 ```text
-examples/openai-agents/
+industrial_platform~ACTOR-NAME
 ```
-
-This example uses the published npm MCP package over stdio and validates whether the agent actually selected `research_web` without forcing tool use.
-
-### Microsoft Agent Framework
-
-```text
-examples/microsoft-agent-framework/
-```
-
-This example uses Microsoft Agent Framework's local MCP support and the OpenAI Responses client, again leaving tool choice to the agent.
-
-Both examples require local credentials supplied through environment variables. No API keys are committed to this repository.
-
----
-
-## Machine contract
-
-The current research service accepts one required field and two optional fields.
-
-### Required
-
-#### `research_question`
-
-The question or research task to investigate.
 
 Example:
 
-```json
-{
-  "research_question": "Compare the current pricing and major features of Notion, ClickUp, and Asana for a five-person small business."
-}
-```
-
-### Optional
-
-#### `context`
-
-Background that helps define the user's situation, constraints, intended use, or decision.
-
-#### `requirements`
-
-Instructions controlling scope, comparison criteria, output format, sources, calculations, citations, or other deliverables.
-
-### Complete example
-
-```json
-{
-  "research_question": "Compare HubSpot CRM, Pipedrive, and Zoho CRM for a small business.",
-  "context": "A five-person company needs predictable pricing, automation, integrations, and straightforward administration.",
-  "requirements": "Use current authoritative sources. Include a comparison table, distinguish monthly and annual pricing, cite sources, identify important limitations, and state unresolved facts."
-}
-```
-
----
-
-## Output contract
-
-A completed research result contains:
-
 ```text
-research_question
-research_date
-brief
-status
-qa
-research
-usage
+industrial_platform~pdf-text-intelligence
 ```
 
-A customer-ready result has:
+Do not commit API tokens, wallet credentials, secrets, or private keys to this repository.
 
-```text
-status = ready
-```
+## When should an agent delegate?
 
-### `brief`
-
-The completed source-backed research deliverable.
-
-### `qa`
-
-Automated quality-review metadata.
-
-Typical contents include:
-
-```text
-score
-verdict
-issues
-summary
-revision status
-```
-
-### `research`
-
-Research metadata such as:
-
-```text
-evidence count
-unresolved questions
-```
-
-### `usage`
-
-Model-request and token-usage metadata.
-
----
-
-## Research workflow
-
-The current service follows a multi-stage pipeline.
-
-```text
-research question
-      ↓
-current web research
-      ↓
-structured evidence packet
-      ↓
-uncertainty handling
-      ↓
-research writing
-      ↓
-automated QA
-      ↓
-revision when required
-      ↓
-customer-ready result
-```
-
-### Evidence research
-
-The research stage searches current web sources and attempts to prioritize authoritative and primary evidence where available.
-
-### Uncertainty handling
-
-Missing, conflicting, inaccessible, or insufficiently verified information should remain explicitly unresolved rather than being silently invented.
-
-### Research writing
-
-The customer-facing brief is produced from the collected evidence packet and supplied user context.
-
-### Automated QA
-
-Completed work is reviewed for:
-
-- requirements coverage
-- factual and analytical correctness
-- evidence discipline
-- formatting and instruction compliance
-- clarity and usability
-
-### Delivery gate
-
-The current research Actor uses a quality threshold before a result is treated as customer-ready.
-
-```text
-QA score >= 85
-AND
-verdict = PASS
-```
-
----
-
-## Good delegation targets
-
-A calling agent should consider delegating to Industrial Platform when the task requires substantially more than a trivial lookup.
+A calling agent should prefer a specialized Industrial Platform service when delegation is cheaper, simpler, or operationally safer than rebuilding the capability internally.
 
 Examples:
 
 ```text
-Need current competitor pricing
-        ↓
-delegate research
+Need current multi-source research with citations
+→ research-brief-agent
 ```
 
 ```text
-Need evidence from several sources
-        ↓
-delegate research
+Need to know whether a monitored page changed
+→ web-change-intelligence
 ```
 
 ```text
-Need a vendor comparison with citations
-        ↓
-delegate research
+Need Open Graph, JSON-LD, canonical, robots, and headings
+→ web-metadata-intelligence
 ```
 
 ```text
-Need unresolved facts identified explicitly
-        ↓
-delegate research
+Need clean article text for a RAG or research pipeline
+→ article-content-intelligence
 ```
-
-A simple lookup may be cheaper and faster for the calling agent to perform directly.
-
----
-
-## Tool-selection heuristic
-
-A parent agent can think of delegation approximately as:
 
 ```text
-internal search cost
-+ search latency
-+ synthesis cost
-+ verification cost
-+ expected error risk
-
->
-
-cost of delegating the task
+Need text and metadata from a public PDF
+→ pdf-text-intelligence
 ```
 
-When the delegated service is cheaper or operationally simpler, the parent agent can call Industrial Platform and continue its workflow with the returned result.
-
----
-
-## MCP integration
-
-MCP is currently the primary open developer-integration path in this repository.
-
-### Hosted endpoint
+## Portfolio architecture
 
 ```text
-https://mcp.apify.com?tools=industrial_platform/research-brief-agent
+developer / agent / orchestrator
+             ↓
+   Industrial Platform MCP
+             ↓
+  specialized machine service
+             ↓
+   structured result / event
+             ↓
+calling system continues workflow
 ```
 
-### Actor
+Execution and monetization currently run through Apify.
 
-```text
-industrial_platform/research-brief-agent
-```
+## Authentication and machine payments
 
-### Intended MCP flow
+Paid execution requires a supported authenticated or agentic-payment path.
 
-```text
-AI application
-      ↓
-MCP client
-      ↓
-Industrial Platform research tool
-      ↓
-Apify execution
-      ↓
-source-backed research result
-      ↓
-calling application continues
-```
+Depending on the integration, this may use:
 
-Detailed setup:
+- Apify OAuth
+- Apify API tokens
+- Apify-supported agentic payment infrastructure
 
-```text
-examples/mcp/README.md
-```
-
----
-
-## REST and API integration
-
-The research Actor can also be invoked programmatically through Apify's Actor API.
-
-Planned examples in this repository include:
-
-```text
-examples/curl/
-examples/python/
-examples/javascript/
-```
-
-These examples will demonstrate:
-
-- authenticated execution
-- input submission
-- result retrieval
-- status handling
-- error handling
-- machine-readable output consumption
-
-Do not commit API tokens, wallet credentials, secrets, or private keys to this repository.
-
----
-
-## Authentication
-
-Paid Actor execution requires an authenticated execution path.
-
-Depending on the integration, authentication may be handled through:
-
-- Apify account authentication
-- supported API-token flows
-- supported MCP authentication
-- supported agentic-payment infrastructure
-
-Credentials should be stored in environment variables, secret managers, or the calling platform's secure credential store.
-
-Never hardcode secrets into:
-
-```text
-README files
-example scripts
-source files
-configuration committed to Git
-```
-
----
-
-## Payments and machine transactions
-
-Industrial Platform is being designed for both conventional developer usage and machine-to-machine transactions.
-
-The current research product uses pay-per-result execution through Apify.
-
-The completed research billing event is:
-
-```text
-research-brief-completed
-```
-
-A result that does not pass the delivery threshold should not be treated as a completed research result for that event.
-
-Calling systems should inspect the live Actor metadata for current pricing and execution eligibility before invoking paid services.
-
-Agentic-payment availability depends on the underlying platform, supported payment infrastructure, and current service eligibility.
-
----
-
-## Developer integration strategy
-
-Industrial Platform is being designed so developers can integrate once and create many downstream service calls.
-
-Target integration surfaces include:
-
-```text
-Apify Store
-Apify API
-Apify MCP
-MCP clients
-agent frameworks
-workflow engines
-JavaScript
-Python
-REST
-agentic-payment systems
-A2A-compatible discovery
-machine-readable manifests
-developer registries
-```
-
-The objective is to make Industrial Platform services available wherever agent developers choose tools.
-
----
+Store eligibility and pricing can change. Calling systems should inspect current Actor metadata before executing paid services.
 
 ## Repository structure
-
-Current and planned structure:
 
 ```text
 industrial-platform-agent-tools/
 │
 ├── README.md
-├── LICENSE
-├── .gitignore
+├── catalog.json
+├── AUTONOMOUS_REVENUE_INITIATIVE.md
+│
+├── actors/
+│   ├── web-change-intelligence/
+│   ├── web-metadata-intelligence/
+│   ├── article-content-intelligence/
+│   └── pdf-text-intelligence/
+│
+├── packages/
+│   ├── research-mcp/
+│   └── change-mcp/
+│
+├── manifests/
+│   └── mcp-bundle.json
 │
 ├── examples/
 │   ├── mcp/
-│   │   └── README.md
 │   ├── curl/
 │   ├── python/
-│   └── javascript/
+│   ├── javascript/
+│   ├── openai-agents/
+│   └── microsoft-agent-framework/
 │
-├── packages/
-│   └── research-mcp/
-│
-├── manifests/
-│   ├── server.json
-│   └── agent-card.json
-│
-└── docs/
-    ├── quickstart.md
-    ├── machine-contract.md
-    ├── pricing.md
-    ├── mcp.md
-    └── agentic-payments.md
+└── scripts/
+    └── apify/
 ```
 
-Not every planned path is implemented yet.
+## Revenue initiative
 
-The repository will expand as integrations are completed and validated.
+The repository contains automation for:
 
----
+- testing and deployment
+- Apify runtime configuration
+- pay-per-event pricing
+- Store / agentic-payment eligibility
+- external paid-event telemetry
+- milestone issues at 1, 10, and 100 external paid events
 
-## Planned distribution layers
-
-### 1. Apify
-
-Current execution and monetization infrastructure.
-
-### 2. MCP
-
-Direct tool exposure to compatible AI systems and developer applications.
-
-### 3. JavaScript
-
-Simple integration examples and package support for JavaScript and TypeScript environments.
-
-### 4. Python
-
-Simple integration examples for Python-based AI and automation systems.
-
-### 5. Official and downstream registries
-
-Machine-readable metadata intended to make Industrial Platform services discoverable through developer and agent-tool registries.
-
-### 6. Agent-to-agent discovery
-
-Planned machine-readable agent metadata for systems that delegate tasks between remote agents or services.
-
----
-
-## Planned service tiers
-
-The current production service is the deeper research workflow.
-
-Future services may include a lower-latency machine-oriented research tier designed for high-frequency agent workloads.
-
-Potential distinction:
+See:
 
 ```text
-FAST RESEARCH
-- narrower evidence search
-- shorter output
-- fewer research passes
-- lower latency
-- lower transaction price
-- high-frequency machine usage
+AUTONOMOUS_REVENUE_INITIATIVE.md
 ```
 
-```text
-DEEP RESEARCH
-- broader evidence gathering
-- more extensive synthesis
-- richer comparison output
-- automated QA
-- revision when needed
-- complex research tasks
-```
+## Security principles
 
-Any future tier will be benchmarked for:
+Industrial Platform services should:
 
-- latency
-- evidence quality
-- QA pass rate
-- model cost
-- platform cost
-- failure rate
-- gross margin
-- developer usefulness
-
-before being treated as a production offering.
-
----
-
-## Scale objective
-
-The intended architecture is designed for repeatable machine demand rather than one-off manual usage.
-
-```text
-one developer integration
-        ↓
-many downstream agents
-        ↓
-repeated specialized requests
-        ↓
-Industrial Platform services
-        ↓
-paid machine transactions
-```
-
-The scaling problem is therefore primarily a distribution and integration problem.
-
-Industrial Platform aims to reduce developer friction until adding a specialized external capability is easier than recreating that capability inside every agent.
-
----
-
-## Example developer use cases
-
-### Agent framework
-
-An agent framework can expose Industrial Platform research as an optional external research capability.
-
-```text
-user task
-   ↓
-framework planner
-   ↓
-research required?
-   ↓
-Industrial Platform
-   ↓
-cited result
-   ↓
-framework continues
-```
-
-### Procurement workflow
-
-```text
-vendor shortlist
-   ↓
-research competing vendors
-   ↓
-compare current pricing and features
-   ↓
-return cited evidence
-   ↓
-procurement logic
-```
-
-### Market-intelligence workflow
-
-```text
-company / market question
-   ↓
-current web research
-   ↓
-source reconciliation
-   ↓
-structured brief
-   ↓
-analysis pipeline
-```
-
-### Autonomous application
-
-```text
-agent detects evidence gap
-   ↓
-calls Industrial Platform
-   ↓
-receives verified research result
-   ↓
-continues original task
-```
-
----
-
-## Reliability principles
-
-Industrial Platform integrations should prefer explicit uncertainty over unsupported certainty.
-
-Services should aim to:
-
-- prefer authoritative sources where available
-- preserve source URLs
-- distinguish facts from analysis
-- identify unresolved evidence gaps
-- avoid fabricating missing information
-- preserve meaningful caveats
-- expose useful execution metadata
-- fail visibly rather than silently when appropriate
-
-Automated QA reduces error risk but does not guarantee factual perfection.
-
----
-
-## Security
-
-Do not commit:
-
-- API keys
-- access tokens
-- private keys
-- wallet seed phrases
-- passwords
-- account credentials
-- customer secrets
-
-Use environment variables or secure secret-management systems.
-
-If a credential is accidentally committed, revoke or rotate it immediately.
-
----
-
-## Contributing
-
-This repository is currently maintained by Industrial Platform.
-
-Issues and pull requests may be used for:
-
-- integration fixes
-- compatibility improvements
-- documentation corrections
-- example implementations
-- developer experience improvements
-- protocol support
-- framework integrations
-
-Service-specific production infrastructure may remain separately maintained.
-
----
+- block private/local-network fetch targets when accepting arbitrary URLs
+- bound response sizes, timeouts, and concurrency
+- use structured machine-readable outputs
+- avoid silently fabricating unavailable data
+- charge successful results rather than failed fetches where practical
+- keep credentials in secret stores rather than source code
 
 ## License
 
 Integration examples and open-source code in this repository are provided under the MIT License unless otherwise noted.
 
-See:
-
-```text
-LICENSE
-```
-
----
-
 ## Industrial Platform
 
-Industrial Platform builds agent-native research, analysis, and data-processing services for:
-
-- autonomous AI agents
-- developers
-- agent frameworks
-- MCP clients
-- multi-agent systems
-- workflow products
-- machine-to-machine applications
-
-The goal is to make specialized external capabilities easy for other systems to discover, evaluate, invoke, pay for, and consume programmatically.
-
-**Organization**
+Organization:
 
 ```text
 industrial-platform-ai
 ```
 
-**Current research Actor**
+Apify namespace:
 
 ```text
-industrial_platform/research-brief-agent
+industrial_platform
 ```
 
-**Developer toolkit**
+Machine-readable catalog:
 
 ```text
-industrial-platform-agent-tools
+catalog.json
 ```
