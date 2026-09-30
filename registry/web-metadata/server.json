@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.industrial-platform-ai/web-metadata",
   "title": "Web Metadata Extractor for AI Agents",
-  "description": "x402-paid web metadata extraction for AI agents. $0.01 per successful URL. Returns title, canonical, robots, Open Graph, Twitter Cards, JSON-LD, headings, language, charset, response size, and latency.",
+  "description": "x402 page metadata for agents: OG, JSON-LD, canonical, robots. $0.01 per URL.",
   "version": "1.0.2",
   "websiteUrl": "https://apify.com/industrial_platform/web-metadata-intelligence",
   "repository": {
