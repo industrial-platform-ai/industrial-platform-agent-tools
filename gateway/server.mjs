@@ -101,6 +101,10 @@ function rewritePaymentRequired(encoded, req, tool) {
       serviceName: 'Industrial Platform Fast Web Tools'
     };
     envelope.extensions = envelope.extensions || {};
+    const outputExample = tool.route === '/metadata'
+      ? { results: [{ url: 'https://example.com/', title: 'Example Domain' }] }
+      : { url: 'https://example.com/', changed: false, current_hash: 'example' };
+
     envelope.extensions.bazaar = {
       info: {
         input: {
@@ -108,9 +112,38 @@ function rewritePaymentRequired(encoded, req, tool) {
           method: 'POST',
           bodyType: 'json',
           body: tool.example || {}
+        },
+        output: {
+          type: 'json',
+          example: outputExample
         }
       },
-      schema: tool.inputSchema
+      schema: {
+        type: 'object',
+        required: ['input'],
+        properties: {
+          input: {
+            type: 'object',
+            required: ['type', 'method', 'bodyType', 'body'],
+            additionalProperties: false,
+            properties: {
+              type: { const: 'http', type: 'string' },
+              method: { enum: ['POST'], type: 'string' },
+              bodyType: { enum: ['json'], type: 'string' },
+              body: tool.inputSchema
+            }
+          },
+          output: {
+            type: 'object',
+            required: ['type', 'example'],
+            additionalProperties: false,
+            properties: {
+              type: { const: 'json', type: 'string' },
+              example: { type: 'object' }
+            }
+          }
+        }
+      }
     };
     return Buffer.from(JSON.stringify(envelope)).toString('base64');
   } catch {
