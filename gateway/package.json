@@ -1,12 +1,24 @@
 {
   "name": "industrial-platform-x402-gateway",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "check": "node --check server.mjs && node --check metadata.mjs && node --check change.mjs"
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "@coinbase/cdp-sdk": "^1.57.1",
+    "@x402/core": "^2.25.0",
+    "@x402/evm": "^2.25.0",
+    "@x402/express": "^2.25.0",
+    "@x402/extensions": "^2.25.0",
+    "cheerio": "^1.2.0",
+    "diff": "^9.0.0",
+    "express": "^5.1.0",
+    "ipaddr.js": "^2.5.0"
   }
 }
