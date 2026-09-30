@@ -1,0 +1,68 @@
+name: Verify Direct Coinbase x402 Gateway
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-direct-coinbase-x402.yml'
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify gateway
+        run: |
+          set -euo pipefail
+          mkdir -p observability
+          BASE='https://x402-gateway-production-1f21.up.railway.app'
+
+          curl -fsS "$BASE/health" > /tmp/health.json
+          curl -fsS "$BASE/facilitator-health" > /tmp/facilitator.json
+
+          curl -sS -D /tmp/headers.txt -o /tmp/body.txt             -X POST "$BASE/metadata"             -H 'content-type: application/json'             --data '{"urls":["https://example.com/"]}' || true
+
+          STATUS="$(awk 'toupper($1) ~ /^HTTP\// {code=$2} END{print code}' /tmp/headers.txt)"
+          if [ "$STATUS" != "402" ]; then
+            echo "Expected 402, got $STATUS"
+            cat /tmp/headers.txt
+            cat /tmp/body.txt
+            exit 1
+          fi
+
+          python - <<'PY'
+          import json, pathlib, base64
+          health=json.load(open('/tmp/health.json'))
+          facilitator=json.load(open('/tmp/facilitator.json'))
+          headers=pathlib.Path('/tmp/headers.txt').read_text()
+          body=pathlib.Path('/tmp/body.txt').read_text()
+          payment_required=None
+          for line in headers.splitlines():
+              if line.lower().startswith('payment-required:'):
+                  payment_required=line.split(':',1)[1].strip()
+                  break
+          decoded=None
+          if payment_required:
+              try:
+                  decoded=json.loads(base64.b64decode(payment_required).decode())
+              except Exception as e:
+                  decoded={'decode_error':str(e)}
+          out={
+              'health':health,
+              'facilitator':facilitator,
+              'unpaidStatus':402,
+              'paymentRequiredDecoded':decoded,
+              'body':body[:4000]
+          }
+          pathlib.Path('observability/direct-coinbase-x402-verification.json').write_text(json.dumps(out,indent=2)+'\n')
+          print(json.dumps(out,indent=2))
+          PY
+
+      - name: Persist result
+        run: |
+          git config user.name "industrial-platform-bot"
+          git config user.email "art@naturalist.gallery"
+          git add observability/direct-coinbase-x402-verification.json
+          git commit -m "Record direct Coinbase x402 verification" || exit 0
+          git pull --rebase origin main
+          git push
