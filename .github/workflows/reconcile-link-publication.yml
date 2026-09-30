@@ -27,6 +27,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
+          (async () => {
           const actorId = 'industrial_platform~link-intelligence';
           const url = 'https://api.apify.com/v2/actors/' + actorId;
           const token = process.env.APIFY_TOKEN;
@@ -173,6 +174,10 @@ jobs:
           output('ready', 'true');
           output('changed', 'true');
           output('deferred', 'false');
+          })().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
           NODE
 
       - name: Smoke test newly published Actor
