@@ -1,0 +1,43 @@
+{
+  "title": "Article Content Intelligence input",
+  "type": "object",
+  "schemaVersion": 1,
+  "additionalProperties": false,
+  "properties": {
+    "urls": {
+      "title": "URLs",
+      "type": "array",
+      "description": "Public HTTP/HTTPS article pages to inspect. Up to 100 unique URLs per run.",
+      "editor": "stringList",
+      "items": { "type": "string", "maxLength": 2048 },
+      "minItems": 1,
+      "maxItems": 100
+    },
+    "timeout_seconds": {
+      "title": "Per-URL timeout",
+      "type": "integer",
+      "description": "Maximum time allowed for each individual page fetch.",
+      "default": 30,
+      "minimum": 5,
+      "maximum": 60,
+      "unit": "seconds"
+    },
+    "concurrency": {
+      "title": "Concurrency",
+      "type": "integer",
+      "description": "Maximum number of URLs fetched concurrently during this run.",
+      "default": 10,
+      "minimum": 1,
+      "maximum": 20
+    },
+    "max_text_chars": {
+      "title": "Maximum article text characters",
+      "type": "integer",
+      "description": "Maximum extracted article text retained per successful URL.",
+      "default": 100000,
+      "minimum": 1000,
+      "maximum": 200000
+    }
+  },
+  "required": ["urls"]
+}
