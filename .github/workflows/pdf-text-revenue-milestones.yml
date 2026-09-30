@@ -1,0 +1,59 @@
+name: PDF Text Revenue Milestones
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '53 */6 * * *'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Measure external paid events
+        id: metrics
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: node ./scripts/apify/pdf-text-metrics.mjs
+      - name: Create milestone issues
+        uses: actions/github-script@v7
+        env:
+          PAID_EVENTS: ${{ steps.metrics.outputs.external_paid_events }}
+          PAID_RUNS: ${{ steps.metrics.outputs.external_paid_runs }}
+          UNIQUE_USERS: ${{ steps.metrics.outputs.unique_external_users }}
+        with:
+          script: |
+            const paidEvents = Number(process.env.PAID_EVENTS || 0);
+            const paidRuns = Number(process.env.PAID_RUNS || 0);
+            const uniqueUsers = Number(process.env.UNIQUE_USERS || 0);
+            const milestones = [
+              [1, 'Revenue milestone: PDF Text Intelligence — first external paid event'],
+              [10, 'Revenue milestone: PDF Text Intelligence — 10 external paid events'],
+              [100, 'Revenue milestone: PDF Text Intelligence — 100 external paid events']
+            ];
+            const existing = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner, repo: context.repo.repo, state: 'all', per_page: 100
+            });
+            const titles = new Set(existing.map(i => i.title));
+            for (const [threshold, title] of milestones) {
+              if (paidEvents < threshold || titles.has(title)) continue;
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body: [
+                  'Automated paid-usage milestone reached for **industrial_platform/pdf-text-intelligence**.',
+                  '',
+                  `- External paid events: **${paidEvents}**`,
+                  `- External paid runs: **${paidRuns}**`,
+                  `- Unique external users: **${uniqueUsers}**`
+                ].join('\n')
+              });
+            }
