@@ -1,0 +1,149 @@
+name: Deploy Link Intelligence
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'actors/link-intelligence/**'
+      - '.github/workflows/deploy-link-intelligence.yml'
+
+concurrency:
+  group: industrial-platform-apify-build-lane-5
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        working-directory: actors/link-intelligence
+        run: npm install
+
+      - name: Run checks
+        working-directory: actors/link-intelligence
+        run: |
+          npm run check
+          npm test
+
+      - name: Push and build Actor on Apify
+        uses: apify/push-actor-action@v1
+        with:
+          token: ${{ secrets.APIFY_TOKEN }}
+          working-directory: ${{ github.workspace }}/actors/link-intelligence
+
+      - name: Configure runtime, pricing, and publication
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          cat > payload.json <<'JSON'
+          {
+            "title": "Link Extractor for AI Agents",
+            "description": "Use to extract normalized links, anchor text, rel flags, target, and internal/external classification from public web pages. Deterministic and low-cost for crawlers, RAG, SEO, and agent workflows.",
+            "categories": ["AI", "DEVELOPER_TOOLS", "SEO_TOOLS"],
+            "isPublic": true,
+            "defaultRunOptions": {
+              "build": "latest",
+              "timeoutSecs": 180,
+              "memoryMbytes": 512,
+              "restartOnError": false,
+              "forcePermissionLevel": "LIMITED_PERMISSIONS"
+            },
+            "actorStandby": { "isEnabled": false },
+            "exampleRunInput": {
+              "body": "{\"urls\":[\"https://example.com/\"]}",
+              "contentType": "application/json; charset=utf-8"
+            }
+          }
+          JSON
+
+          curl --fail-with-body --silent --show-error             --request PUT             --header "Authorization: Bearer $APIFY_TOKEN"             --header "Content-Type: application/json"             --data @payload.json             "https://api.apify.com/v2/actors/industrial_platform~link-intelligence"             > actor-runtime.json
+
+          curl --fail-with-body --silent --show-error             --header "Authorization: Bearer $APIFY_TOKEN"             "https://api.apify.com/v2/actors/industrial_platform~link-intelligence"             > current-actor.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const actor = JSON.parse(fs.readFileSync('current-actor.json','utf8')).data;
+          const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
+          const currentEvent = current?.pricingPerEvent?.actorChargeEvents?.['link-extraction'];
+
+          const pricingCorrect =
+            current?.pricingModel === 'PAY_PER_EVENT' &&
+            currentEvent?.eventPriceUsd === 0.0005 &&
+            currentEvent?.isPrimaryEvent === true;
+
+          if (!pricingCorrect) {
+            fs.writeFileSync('pricing.json', JSON.stringify({
+              pricingInfos: [{
+                pricingModel: 'PAY_PER_EVENT',
+                pricingPerEvent: {
+                  actorChargeEvents: {
+                    'link-extraction': {
+                      eventTitle: 'Link extraction',
+                      eventDescription: 'One successfully processed source page.',
+                      eventPriceUsd: 0.0005,
+                      isPrimaryEvent: true,
+                      isOneTimeEvent: false
+                    }
+                  }
+                }
+              }]
+            }));
+          }
+
+          fs.writeFileSync('pricing-needed.txt', pricingCorrect ? 'false' : 'true');
+          NODE
+
+          if [ "$(cat pricing-needed.txt)" = "true" ]; then
+            curl --fail-with-body --silent --show-error               --request PUT               --header "Authorization: Bearer $APIFY_TOKEN"               --header "Content-Type: application/json"               --data @pricing.json               "https://api.apify.com/v2/actors/industrial_platform~link-intelligence"               > actor-pricing.json
+          fi
+
+      - name: Verify configuration
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          curl --fail-with-body --silent --show-error             --header "Authorization: Bearer $APIFY_TOKEN"             "https://api.apify.com/v2/actors/industrial_platform~link-intelligence"             > actor.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const actor = JSON.parse(fs.readFileSync('actor.json','utf8')).data;
+          const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
+          const event = current?.pricingPerEvent?.actorChargeEvents?.['link-extraction'];
+          if (!actor.isPublic) throw new Error('Actor is not public.');
+          if (actor.defaultRunOptions?.forcePermissionLevel !== 'LIMITED_PERMISSIONS') throw new Error('Actor is not limited-permissions.');
+          if (actor.actorStandby?.isEnabled) throw new Error('Standby must be disabled.');
+          if (current?.pricingModel !== 'PAY_PER_EVENT') throw new Error('Actor is not PPE.');
+          if (event?.eventPriceUsd !== 0.0005) throw new Error('Unexpected link-extraction price.');
+          console.log(JSON.stringify({
+            isPublic: actor.isPublic,
+            pricingModel: current?.pricingModel,
+            eventPriceUsd: event?.eventPriceUsd
+          }, null, 2));
+          NODE
+
+      - name: Smoke test
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          curl --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer $APIFY_TOKEN"             --header "Content-Type: application/json"             --data '{"urls":["https://example.com/"],"max_links_per_page":25}'             "https://api.apify.com/v2/actors/industrial_platform~link-intelligence/run-sync-get-dataset-items?clean=true&format=json&timeout=90"             > result.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const rows = JSON.parse(fs.readFileSync('result.json', 'utf8'));
+          if (!Array.isArray(rows) || rows.length < 1) throw new Error('Expected at least one dataset row.');
+          const row = rows[0];
+          if (row.status !== 'ready') throw new Error('Smoke test row is not ready: ' + JSON.stringify(row));
+          if (!Array.isArray(row.links) || row.links.length < 1) throw new Error('Smoke test returned no links.');
+          console.log(JSON.stringify({
+            returned_links: row.returned_links,
+            sample: row.links[0]
+          }, null, 2));
+          NODE

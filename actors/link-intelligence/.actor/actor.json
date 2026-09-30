@@ -1,0 +1,13 @@
+{
+  "actorSpecification": 1,
+  "name": "link-intelligence",
+  "title": "Link Extractor for AI Agents",
+  "description": "Extract structured links, anchor text, rel flags, target, internal/external classification, and page location from public web pages.",
+  "version": "0.1",
+  "buildTag": "latest",
+  "input": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
+}
