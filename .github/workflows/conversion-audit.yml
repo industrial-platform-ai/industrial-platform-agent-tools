@@ -1,0 +1,45 @@
+name: Revenue Conversion Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/conversion-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Benchmark Apify Store rank
+        run: node ./scripts/apify/store-rank-benchmark.mjs
+
+      - name: Check 402 Index listings
+        run: |
+          node <<'NODE'
+          const ids = [
+            '3ce302ff-82b0-4823-9c27-6f6900c2e72f',
+            '2340de33-ae10-4cb3-8d35-6f35ff237165',
+            '37a179f9-b843-41b1-a2c4-4017d6eb0c3b',
+            'a16e08f6-53b3-41d9-880f-c4f181363fe7',
+            'f2b6d1dc-fee4-46a7-8122-21a33e1cdfc5',
+            '0d7abe9d-b584-4590-ad30-618b9e9a0ed6'
+          ];
+          const details = [];
+          for (const id of ids) {
+            const r = await fetch('https://402index.io/api/v1/services/' + id);
+            const text = await r.text();
+            let body;
+            try { body = JSON.parse(text); } catch { body = { raw: text }; }
+            details.push({ id, http: r.status, body });
+          }
+          console.log(JSON.stringify({ checked_at: new Date().toISOString(), details }, null, 2));
+          NODE
