@@ -1,0 +1,48 @@
+name: Probe Apify Bazaar-Compatible URLs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/probe-apify-bazaar-urls.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe unauthenticated URL variants
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          probe() {
+            local label="$1"
+            local url="$2"
+            shift 2
+
+            echo "::group::$label"
+            code=$(curl --silent --show-error               -D headers.txt               -o body.txt               -w '%{http_code}'               "$@"               "$url")
+
+            echo "HTTP $code"
+            grep -iE '^(payment-required|x-payment|content-type|www-authenticate):' headers.txt || true
+            head -c 2500 body.txt || true
+            echo
+            echo "::endgroup::"
+          }
+
+          META='https://api.apify.com/v2/acts/industrial_platform~web-metadata-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
+          CHANGE='https://api.apify.com/v2/acts/industrial_platform~web-change-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
+
+          probe 'metadata GET normal' "$META"
+          probe 'metadata GET method=POST' "$META&method=POST"
+          probe 'metadata GET explicit x402 header' "$META" -H 'X-APIFY-PAYMENT-PROTOCOL: X402'
+          probe 'metadata GET method=POST + x402 header' "$META&method=POST" -H 'X-APIFY-PAYMENT-PROTOCOL: X402'
+          probe 'metadata POST body no auth' "$META" -X POST -H 'content-type: application/json' --data '{"urls":["https://example.com/"]}'
+          probe 'metadata POST body explicit x402' "$META" -X POST -H 'content-type: application/json' -H 'X-APIFY-PAYMENT-PROTOCOL: X402' --data '{"urls":["https://example.com/"]}'
+
+          probe 'change GET method=POST + x402 header' "$CHANGE&method=POST" -H 'X-APIFY-PAYMENT-PROTOCOL: X402'
+          probe 'change POST body explicit x402' "$CHANGE" -X POST -H 'content-type: application/json' -H 'X-APIFY-PAYMENT-PROTOCOL: X402' --data '{"url":"https://example.com/","include_current_text":false}'
