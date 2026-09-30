@@ -88,4 +88,8 @@ The active objective is external agent-to-agent paid usage: first paid event →
 
 ### Provider publication quota
 
-Apify currently enforces a hard limit of 5 Actor publications per day. Product builds should continue independently of that quota. New Actors beyond the daily allowance remain built and queued, then a quota-aware reconciliation workflow publishes them automatically after the allowance resets. This is a provider scheduling constraint, not a human gate.
+Apify currently enforces a hard limit of 5 Actor publications per day. Product builds should continue independently of that quota. New Actors beyond the daily allowance remain built and queued. A single serialized `publication-queue.json` workflow processes pending Actors in order after the allowance resets, stops cleanly when the quota is exhausted, and resumes on the next daily run. This is a provider scheduling constraint, not a human gate.
+
+## Publication queue
+
+Store/PPE publication is intentionally separated from build deployment. Product branches may continue through implementation, CI, Apify build deployment, MCP metadata, and telemetry while publication slots are exhausted. `publication-queue.json` is the ordered source of truth for Actors that still need public/PPE reconciliation.
