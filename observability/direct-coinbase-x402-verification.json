@@ -1,0 +1,288 @@
+{
+  "health": {
+    "ok": true,
+    "version": "2.0.0",
+    "payment": "coinbase-cdp"
+  },
+  "facilitator": {
+    "ok": true,
+    "extensions": [
+      "bazaar",
+      "builder-code",
+      "eip2612GasSponsoring"
+    ],
+    "kinds": [
+      {
+        "x402Version": 1,
+        "scheme": "exact",
+        "network": "base-sepolia"
+      },
+      {
+        "x402Version": 1,
+        "scheme": "exact",
+        "network": "base"
+      },
+      {
+        "x402Version": 1,
+        "scheme": "exact",
+        "network": "solana"
+      },
+      {
+        "x402Version": 1,
+        "scheme": "exact",
+        "network": "solana-devnet"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "exact",
+        "network": "eip155:84532"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "upto",
+        "network": "eip155:84532"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "batch-settlement",
+        "network": "eip155:84532"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "exact",
+        "network": "eip155:8453"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "upto",
+        "network": "eip155:8453"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "batch-settlement",
+        "network": "eip155:8453"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "exact",
+        "network": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "upto",
+        "network": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "exact",
+        "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "upto",
+        "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "exact",
+        "network": "eip155:137"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "upto",
+        "network": "eip155:137"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "batch-settlement",
+        "network": "eip155:137"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "exact",
+        "network": "eip155:42161"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "upto",
+        "network": "eip155:42161"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "batch-settlement",
+        "network": "eip155:42161"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "exact",
+        "network": "eip155:480"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "upto",
+        "network": "eip155:480"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "batch-settlement",
+        "network": "eip155:480"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "exact",
+        "network": "eip155:4801"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "upto",
+        "network": "eip155:4801"
+      },
+      {
+        "x402Version": 2,
+        "scheme": "batch-settlement",
+        "network": "eip155:4801"
+      }
+    ]
+  },
+  "unpaidStatus": 402,
+  "paymentRequiredDecoded": {
+    "x402Version": 2,
+    "error": "Payment required",
+    "resource": {
+      "url": {
+        "url": "https://x402-gateway-production-1f21.up.railway.app/metadata",
+        "description": "Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.",
+        "mimeType": "application/json",
+        "serviceName": "Industrial Platform Web Tools",
+        "tags": [
+          "metadata",
+          "seo",
+          "structured-data",
+          "web",
+          "agents"
+        ]
+      },
+      "description": "",
+      "mimeType": ""
+    },
+    "accepts": [
+      {
+        "scheme": "exact",
+        "network": "eip155:8453",
+        "amount": "1000",
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "payTo": "0x0e66A3F909D3473E2517709e713B7afc0D767C42",
+        "maxTimeoutSeconds": 90,
+        "extra": {
+          "name": "USD Coin",
+          "version": "2"
+        }
+      }
+    ],
+    "extensions": {
+      "bazaar": {
+        "info": {
+          "input": {
+            "type": "http",
+            "queryParams": {
+              "urls": [
+                "https://example.com/"
+              ]
+            },
+            "method": "POST"
+          },
+          "output": {
+            "type": "json",
+            "example": {
+              "summary": {
+                "status": "ready",
+                "requested": 1,
+                "succeeded": 1,
+                "failed": 0
+              },
+              "results": [
+                {
+                  "status": "ready",
+                  "url": "https://example.com/",
+                  "title": "Example Domain"
+                }
+              ]
+            }
+          }
+        },
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "http"
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "POST"
+                  ]
+                },
+                "queryParams": {
+                  "type": "object",
+                  "properties": {
+                    "urls": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "minItems": 1,
+                      "maxItems": 100
+                    },
+                    "timeout_seconds": {
+                      "type": "integer",
+                      "minimum": 5,
+                      "maximum": 60
+                    },
+                    "concurrency": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 20
+                    }
+                  },
+                  "required": [
+                    "urls"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "type",
+                "method"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "example": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            }
+          },
+          "required": [
+            "input"
+          ]
+        }
+      }
+    }
+  },
+  "body": "{}"
+}
