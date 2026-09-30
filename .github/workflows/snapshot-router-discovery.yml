@@ -300,4 +300,5 @@ jobs:
           fi
 
           git commit -m "Snapshot machine-native router discovery"
+          git pull --rebase origin main
           git push
