@@ -1,3 +1,4 @@
+// Post-distribution optimization telemetry snapshot.
 const token = process.env.APIFY_TOKEN?.trim();
 if (!token) throw new Error('APIFY_TOKEN is required.');
 
