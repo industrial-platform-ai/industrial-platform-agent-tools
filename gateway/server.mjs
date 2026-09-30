@@ -13,7 +13,7 @@ const json = (res, code, body, headers={}) => {
 };
 
 const manifest = {
-  name: 'Industrial Platform Fast Web Tools',
+  name: 'Industrial Platform Web Tools',
   description: 'Low-cost web metadata extraction and deterministic website change detection for autonomous agents.',
   tools: [
     {
@@ -52,7 +52,7 @@ const manifest = {
 
 const openapi = {
   openapi:'3.1.0',
-  info:{title:'Industrial Platform Fast Web Tools',version:'1.0.0'},
+  info:{title:'Industrial Platform Web Tools',version:'1.0.0'},
   paths:{
     '/metadata':{
       post:{
@@ -73,6 +73,62 @@ const openapi = {
       }
     }
   }
+};
+
+
+const skillMd = `---
+name: industrial-platform-web-tools
+description: Paid x402 web metadata extraction and deterministic page-change detection for autonomous agents.
+---
+
+# Industrial Platform Web Tools
+
+Use these tools when an agent needs structured facts from a public webpage or needs to determine whether a public page changed.
+
+## Metadata
+
+POST https://x402-gateway-production-1f21.up.railway.app/metadata
+
+Choose this route for:
+- title and meta description
+- canonical URL and robots directives
+- Open Graph and Twitter card metadata
+- JSON-LD / structured data
+- headings and page metadata for SEO, RAG ingestion, link previews, and content QA
+
+Input:
+\`\`\`json
+{"urls":["https://example.com/"]}
+\`\`\`
+
+## Change detection
+
+POST https://x402-gateway-production-1f21.up.railway.app/change
+
+Choose this route for:
+- scheduled website monitoring
+- pricing, inventory, availability, policy, documentation, and competitor changes
+- deterministic hashes and text diffs
+
+Input:
+\`\`\`json
+{"url":"https://example.com/","include_current_text":false}
+\`\`\`
+
+Both routes use HTTP 402 machine payments in USDC on Base. No API key or account is required by the buyer. Inspect the 402 PAYMENT-REQUIRED header, sign the advertised payment, and retry the same request.
+`;
+
+const agentCard = {
+  name: 'Industrial Platform Web Tools',
+  description: manifest.description,
+  url: 'https://x402-gateway-production-1f21.up.railway.app',
+  capabilities: [
+    { name: 'web-metadata-intelligence', method: 'POST', path: '/metadata', priceUsd: 0.01 },
+    { name: 'web-change-intelligence', method: 'POST', path: '/change', priceUsd: 0.01 }
+  ],
+  payment: { protocol: 'x402', network: 'eip155:8453', asset: 'USDC' },
+  openapi: 'https://x402-gateway-production-1f21.up.railway.app/openapi.json',
+  skill: 'https://x402-gateway-production-1f21.up.railway.app/skill.md'
 };
 
 async function bodyBuffer(req) {
@@ -98,7 +154,10 @@ function rewritePaymentRequired(encoded, req, tool) {
       description: tool.description,
       mimeType: 'application/json',
       tags: ['Industrial Platform', tool.name],
-      serviceName: 'Industrial Platform Fast Web Tools'
+      serviceName: 'Industrial Platform Web Tools',
+      tags: tool.route === '/metadata'
+        ? ['metadata','seo','structured-data','web','agents']
+        : ['monitoring','web-change','diff','web','agents']
     };
     envelope.extensions = envelope.extensions || {};
     const outputExample = tool.route === '/metadata'
@@ -204,6 +263,11 @@ const server = http.createServer(async (req,res)=>{
     if (req.method==='GET' && u.pathname==='/health') return json(res,200,{ok:true});
     if (req.method==='GET' && u.pathname==='/.well-known/x402') return json(res,200,manifest);
     if (req.method==='GET' && u.pathname==='/openapi.json') return json(res,200,openapi);
+    if (req.method==='GET' && (u.pathname==='/skill.md' || u.pathname==='/SKILL.md')) {
+      res.writeHead(200, {'content-type':'text/markdown; charset=utf-8'});
+      return res.end(skillMd);
+    }
+    if (req.method==='GET' && u.pathname==='/.well-known/agent-card.json') return json(res,200,agentCard);
     if (req.method==='GET' && u.pathname==='/metadata') return await proxy(req,res,META_ACTOR,manifest.tools[0],manifest.tools[0].example);
     if (req.method==='GET' && u.pathname==='/change') return await proxy(req,res,CHANGE_ACTOR,manifest.tools[1],manifest.tools[1].example);
     if (req.method==='POST' && u.pathname==='/metadata') return await proxy(req,res,META_ACTOR,manifest.tools[0]);
