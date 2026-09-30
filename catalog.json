@@ -35,8 +35,10 @@
         ]
       },
       "mcp_registry_name": "io.github.industrial-platform-ai/research-brief",
-      "mcp_registry_version": "1.0.0",
-      "mcp_registry_status": "active"
+      "mcp_registry_version": "1.0.1",
+      "mcp_registry_status": "active",
+      "mcp_x402_url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent&payment=x402",
+      "mcp_skyfire_url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent&payment=skyfire"
     },
     {
       "id": "web-change-intelligence",
@@ -55,8 +57,10 @@
         "competitor page monitoring"
       ],
       "mcp_registry_name": "io.github.industrial-platform-ai/web-change",
-      "mcp_registry_version": "1.0.0",
-      "mcp_registry_status": "active"
+      "mcp_registry_version": "1.0.1",
+      "mcp_registry_status": "active",
+      "mcp_x402_url": "https://mcp.apify.com?tools=industrial_platform/web-change-intelligence&payment=x402",
+      "mcp_skyfire_url": "https://mcp.apify.com?tools=industrial_platform/web-change-intelligence&payment=skyfire"
     },
     {
       "id": "web-metadata-intelligence",
@@ -75,8 +79,10 @@
         "machine-readable page inspection"
       ],
       "mcp_registry_name": "io.github.industrial-platform-ai/web-metadata",
-      "mcp_registry_version": "1.0.0",
-      "mcp_registry_status": "active"
+      "mcp_registry_version": "1.0.1",
+      "mcp_registry_status": "active",
+      "mcp_x402_url": "https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence&payment=x402",
+      "mcp_skyfire_url": "https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence&payment=skyfire"
     },
     {
       "id": "article-content-intelligence",
@@ -95,8 +101,10 @@
         "clean web content for downstream agents"
       ],
       "mcp_registry_name": "io.github.industrial-platform-ai/article-extractor",
-      "mcp_registry_version": "1.0.0",
-      "mcp_registry_status": "active"
+      "mcp_registry_version": "1.0.1",
+      "mcp_registry_status": "active",
+      "mcp_x402_url": "https://mcp.apify.com?tools=industrial_platform/article-content-intelligence&payment=x402",
+      "mcp_skyfire_url": "https://mcp.apify.com?tools=industrial_platform/article-content-intelligence&payment=skyfire"
     },
     {
       "id": "pdf-text-intelligence",
@@ -115,8 +123,10 @@
         "document processing pipelines"
       ],
       "mcp_registry_name": "io.github.industrial-platform-ai/pdf-text",
-      "mcp_registry_version": "1.0.0",
-      "mcp_registry_status": "active"
+      "mcp_registry_version": "1.0.1",
+      "mcp_registry_status": "active",
+      "mcp_x402_url": "https://mcp.apify.com?tools=industrial_platform/pdf-text-intelligence&payment=x402",
+      "mcp_skyfire_url": "https://mcp.apify.com?tools=industrial_platform/pdf-text-intelligence&payment=skyfire"
     },
     {
       "id": "sitemap-intelligence",
@@ -135,8 +145,10 @@
         "lastmod/changefreq/priority extraction"
       ],
       "mcp_registry_name": "io.github.industrial-platform-ai/sitemap",
-      "mcp_registry_version": "1.0.0",
-      "mcp_registry_status": "active"
+      "mcp_registry_version": "1.0.1",
+      "mcp_registry_status": "active",
+      "mcp_x402_url": "https://mcp.apify.com?tools=industrial_platform/sitemap-intelligence&payment=x402",
+      "mcp_skyfire_url": "https://mcp.apify.com?tools=industrial_platform/sitemap-intelligence&payment=skyfire"
     }
   ],
   "mcp_registry": {
