@@ -1,0 +1,42 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "status": { "type": "string" },
+      "site": { "type": "string" },
+      "origin": { "type": "string" },
+      "robots_url": { "type": "string" },
+      "robots_status": { "type": "string" },
+      "http_status": { "type": "integer" },
+      "fetched_at": { "type": "string" },
+      "response_bytes": { "type": "integer" },
+      "latency_ms": { "type": "integer" },
+      "groups": { "type": "array", "items": { "type": "object" } },
+      "sitemaps": { "type": "array", "items": { "type": "string" } },
+      "decisions": { "type": "array", "items": { "type": "object" } },
+      "error": { "type": "string" }
+    },
+    "required": ["status", "site", "fetched_at"]
+  },
+  "views": {
+    "overview": {
+      "title": "Robots policy",
+      "transformation": {
+        "fields": ["site","status","robots_status","http_status","latency_ms","fetched_at"]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "site": { "label": "Site", "format": "text" },
+          "status": { "label": "Status", "format": "text" },
+          "robots_status": { "label": "robots.txt", "format": "text" },
+          "http_status": { "label": "HTTP", "format": "number" },
+          "latency_ms": { "label": "Latency ms", "format": "number" },
+          "fetched_at": { "label": "Fetched", "format": "date" }
+        }
+      }
+    }
+  }
+}
