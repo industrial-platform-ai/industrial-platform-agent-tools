@@ -118,13 +118,17 @@ function rewritePaymentRequired(encoded, req, tool) {
   }
 }
 
-async function proxy(req,res,actorId,tool) {
-  const raw = await bodyBuffer(req);
+async function proxy(req,res,actorId,tool,inputOverride=null) {
   let input;
-  try {
-    input = JSON.parse(raw.toString('utf8') || '{}');
-  } catch {
-    return json(res,400,{error:'invalid_json'});
+  if (inputOverride !== null) {
+    input = inputOverride;
+  } else {
+    const raw = await bodyBuffer(req);
+    try {
+      input = JSON.parse(raw.toString('utf8') || '{}');
+    } catch {
+      return json(res,400,{error:'invalid_json'});
+    }
   }
 
   const headers = {'content-type': 'application/json'};
@@ -167,6 +171,8 @@ const server = http.createServer(async (req,res)=>{
     if (req.method==='GET' && u.pathname==='/health') return json(res,200,{ok:true});
     if (req.method==='GET' && u.pathname==='/.well-known/x402') return json(res,200,manifest);
     if (req.method==='GET' && u.pathname==='/openapi.json') return json(res,200,openapi);
+    if (req.method==='GET' && u.pathname==='/metadata') return await proxy(req,res,META_ACTOR,manifest.tools[0],manifest.tools[0].example);
+    if (req.method==='GET' && u.pathname==='/change') return await proxy(req,res,CHANGE_ACTOR,manifest.tools[1],manifest.tools[1].example);
     if (req.method==='POST' && u.pathname==='/metadata') return await proxy(req,res,META_ACTOR,manifest.tools[0]);
     if (req.method==='POST' && u.pathname==='/change') return await proxy(req,res,CHANGE_ACTOR,manifest.tools[1]);
     return json(res,404,{error:'not found'});
