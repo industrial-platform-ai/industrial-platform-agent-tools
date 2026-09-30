@@ -123,3 +123,5 @@ jobs:
           git push
 
 # refresh task-specific x402 registration
+
+# refresh after direct Coinbase migration
