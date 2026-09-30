@@ -8,6 +8,10 @@ on:
       - 'actors/article-content-intelligence/**'
       - '.github/workflows/deploy-article-content-intelligence.yml'
 
+concurrency:
+  group: industrial-platform-apify-build-lane-3
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
