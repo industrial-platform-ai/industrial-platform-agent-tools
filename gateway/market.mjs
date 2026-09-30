@@ -118,5 +118,79 @@ export const marketTools = [
         fetched_at:new Date().toISOString()
       };
     }
+  },
+  {
+    name:'crypto-candles',
+    route:'/crypto/candles',
+    price:'$0.005',
+    priceUsd:0.005,
+    description:'Get recent or bounded historical Coinbase Exchange OHLCV candles for a crypto pair. Returns timestamp, low, high, open, close and volume. Supports 1m, 5m, 15m, 1h, 6h and 1d bars with at most 300 candles.',
+    tags:['crypto','history','candles','ohlcv','market-data','coinbase','trading','timeseries'],
+    inputSchema:{
+      type:'object',
+      properties:{
+        product_id:productSchema.properties.product_id,
+        granularity:{type:'integer',enum:[60,300,900,3600,21600,86400],description:'Candle width in seconds.'},
+        start:{type:'integer',minimum:0,description:'Optional Unix start timestamp in seconds.'},
+        end:{type:'integer',minimum:0,description:'Optional Unix end timestamp in seconds.'},
+        limit:{type:'integer',minimum:1,maximum:300,description:'When start/end are omitted, target this many recent bars; default 100.'}
+      },
+      required:['product_id'],
+      additionalProperties:false
+    },
+    example:{product_id:'BTC-USD',granularity:3600,limit:48},
+    run:async input=>{
+      const id=productId(input);
+      const granularity=[60,300,900,3600,21600,86400].includes(input?.granularity)?input.granularity:3600;
+      const limit=Number.isInteger(input?.limit)?Math.min(300,Math.max(1,input.limit)):100;
+      let end=Number.isInteger(input?.end)?input.end:Math.floor(Date.now()/1000);
+      let start=Number.isInteger(input?.start)?input.start:end-granularity*limit;
+      if(start>=end) throw Object.assign(new Error('start must be earlier than end.'),{statusCode:400});
+      const estimated=Math.ceil((end-start)/granularity);
+      if(estimated>300) throw Object.assign(new Error('Requested range exceeds 300 candles; shorten the range or increase granularity.'),{statusCode:400});
+      const qs=new URLSearchParams({granularity:String(granularity),start:new Date(start*1000).toISOString(),end:new Date(end*1000).toISOString()});
+      const rows=await fetchCoinbase('/products/'+encodeURIComponent(id)+'/candles?'+qs.toString());
+      const candles=(Array.isArray(rows)?rows:[]).map(row=>({
+        time:Number(row[0]),
+        time_iso:new Date(Number(row[0])*1000).toISOString(),
+        low:Number(row[1]),
+        high:Number(row[2]),
+        open:Number(row[3]),
+        close:Number(row[4]),
+        volume:Number(row[5])
+      })).sort((a,b)=>a.time-b.time);
+      return {source:'Coinbase Exchange',product_id:id,granularity_seconds:granularity,start,end,count:candles.length,candles,fetched_at:new Date().toISOString()};
+    }
+  },
+  {
+    name:'crypto-recent-trades',
+    route:'/crypto/trades',
+    price:'$0.001',
+    priceUsd:0.001,
+    description:'Get the most recent public Coinbase Exchange trades for a crypto pair, including trade id, price, size, side and timestamp.',
+    tags:['crypto','trades','ticks','market-data','coinbase','order-flow','live'],
+    inputSchema:{
+      type:'object',
+      properties:{
+        product_id:productSchema.properties.product_id,
+        limit:{type:'integer',minimum:1,maximum:100,description:'Maximum trades to return; default 50.'}
+      },
+      required:['product_id'],
+      additionalProperties:false
+    },
+    example:{product_id:'BTC-USD',limit:50},
+    run:async input=>{
+      const id=productId(input);
+      const limit=Number.isInteger(input?.limit)?Math.min(100,Math.max(1,input.limit)):50;
+      const rows=await fetchCoinbase('/products/'+encodeURIComponent(id)+'/trades?limit='+limit);
+      const trades=(Array.isArray(rows)?rows:[]).slice(0,limit).map(row=>({
+        trade_id:row.trade_id ?? null,
+        price:Number(row.price),
+        size:Number(row.size),
+        side:row.side ?? null,
+        time:row.time ?? null
+      }));
+      return {source:'Coinbase Exchange',product_id:id,count:trades.length,trades,fetched_at:new Date().toISOString()};
+    }
   }
 ];
