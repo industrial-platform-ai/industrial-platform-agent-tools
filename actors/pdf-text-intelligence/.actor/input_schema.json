@@ -1,0 +1,51 @@
+{
+  "title": "PDF Text Intelligence input",
+  "type": "object",
+  "schemaVersion": 1,
+  "additionalProperties": false,
+  "properties": {
+    "urls": {
+      "title": "PDF URLs",
+      "type": "array",
+      "description": "Public HTTP/HTTPS PDF URLs to process. Up to 50 unique PDFs per run.",
+      "editor": "stringList",
+      "items": { "type": "string", "maxLength": 2048 },
+      "minItems": 1,
+      "maxItems": 50
+    },
+    "timeout_seconds": {
+      "title": "Per-PDF timeout",
+      "type": "integer",
+      "description": "Maximum time allowed to download each PDF.",
+      "default": 45,
+      "minimum": 5,
+      "maximum": 90,
+      "unit": "seconds"
+    },
+    "concurrency": {
+      "title": "Concurrency",
+      "type": "integer",
+      "description": "Maximum number of PDFs downloaded and parsed concurrently.",
+      "default": 5,
+      "minimum": 1,
+      "maximum": 10
+    },
+    "max_pages": {
+      "title": "Maximum pages",
+      "type": "integer",
+      "description": "Maximum pages extracted from each PDF.",
+      "default": 200,
+      "minimum": 1,
+      "maximum": 500
+    },
+    "max_text_chars": {
+      "title": "Maximum text characters",
+      "type": "integer",
+      "description": "Maximum retained text characters per PDF.",
+      "default": 500000,
+      "minimum": 1000,
+      "maximum": 1000000
+    }
+  },
+  "required": ["urls"]
+}
