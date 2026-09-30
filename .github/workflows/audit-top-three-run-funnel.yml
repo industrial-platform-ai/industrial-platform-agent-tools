@@ -1,0 +1,115 @@
+name: Audit Top Three Run Funnel
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-top-three-run-funnel.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Audit recent attempts and latency
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          node <<'NODE'
+          const token = process.env.APIFY_TOKEN;
+          if (!token) throw new Error('APIFY_TOKEN missing');
+
+          const names = [
+            'research-brief-agent',
+            'web-metadata-intelligence',
+            'web-change-intelligence'
+          ];
+
+          async function api(path) {
+            const r = await fetch('https://api.apify.com/v2' + path, {
+              headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }
+            });
+            const text = await r.text();
+            if (!r.ok) throw new Error(path + ': HTTP ' + r.status + ' ' + text.slice(0,1200));
+            return text ? JSON.parse(text) : null;
+          }
+
+          function percentile(sorted, p) {
+            if (!sorted.length) return null;
+            const idx = Math.min(sorted.length - 1, Math.max(0, Math.ceil(p * sorted.length) - 1));
+            return sorted[idx];
+          }
+
+          const report = [];
+
+          for (const name of names) {
+            const actorId = 'industrial_platform~' + name;
+            const actor = (await api('/actors/' + encodeURIComponent(actorId)))?.data;
+            const ownerUserId = actor?.userId ?? null;
+
+            const runs = (await api('/actors/' + encodeURIComponent(actorId) + '/runs?desc=1&limit=100'))?.data?.items ?? [];
+
+            const statusCounts = {};
+            const externalStatusCounts = {};
+            const durations = [];
+            const externalAttempts = [];
+
+            for (const run of runs) {
+              statusCounts[run.status] = (statusCounts[run.status] ?? 0) + 1;
+              const external = Boolean(run.userId && ownerUserId && run.userId !== ownerUserId);
+
+              if (external) {
+                externalStatusCounts[run.status] = (externalStatusCounts[run.status] ?? 0) + 1;
+              }
+
+              if (run.startedAt && run.finishedAt) {
+                const ms = Date.parse(run.finishedAt) - Date.parse(run.startedAt);
+                if (Number.isFinite(ms) && ms >= 0) durations.push(ms);
+              }
+
+              if (external) {
+                const detail = (await api('/actor-runs/' + encodeURIComponent(run.id)))?.data ?? run;
+                externalAttempts.push({
+                  runId: run.id,
+                  status: detail.status,
+                  startedAt: detail.startedAt,
+                  finishedAt: detail.finishedAt,
+                  durationMs: detail.startedAt && detail.finishedAt
+                    ? Date.parse(detail.finishedAt) - Date.parse(detail.startedAt)
+                    : null,
+                  chargedEventCounts: detail.chargedEventCounts ?? {},
+                  usageTotalUsd: detail.usageTotalUsd ?? null,
+                  statusMessage: detail.statusMessage ?? null,
+                  origin: detail.meta?.origin ?? null
+                });
+              }
+            }
+
+            durations.sort((a,b)=>a-b);
+
+            report.push({
+              actor: 'industrial_platform/' + name,
+              totalRecentRuns: runs.length,
+              statusCounts,
+              externalStatusCounts,
+              externalAttempts,
+              latencyMs: {
+                n: durations.length,
+                min: durations[0] ?? null,
+                median: percentile(durations, 0.5),
+                p90: percentile(durations, 0.9),
+                p95: percentile(durations, 0.95),
+                max: durations[durations.length - 1] ?? null
+              }
+            });
+          }
+
+          console.log(JSON.stringify({ auditedAt: new Date().toISOString(), report }, null, 2));
+          NODE
