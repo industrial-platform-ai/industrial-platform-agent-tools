@@ -1,0 +1,153 @@
+name: Optimize Research MCP Schema
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/optimize-research-mcp-schema.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Read and patch Research Brief Actor source
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            "https://api.apify.com/v2/actors/industrial_platform~research-brief-agent" > actor.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const actor = JSON.parse(fs.readFileSync('actor.json','utf8')).data;
+          const version = actor.versions?.find((v) => v.versionNumber === '0.0');
+          if (!version || version.sourceType !== 'SOURCE_FILES') throw new Error('Expected SOURCE_FILES version 0.0.');
+
+          const files = version.sourceFiles.map((file) => ({ ...file }));
+          const inputFile = files.find((file) => file.name === '.actor/input_schema.json');
+          if (!inputFile?.content) throw new Error('Input schema source file not found.');
+
+          const schema = JSON.parse(inputFile.content);
+          schema.required = ['research_question'];
+          for (const key of ['research_question', 'context', 'requirements']) {
+            if (schema.properties?.[key]) delete schema.properties[key].default;
+          }
+          schema.properties.research_question.description =
+            'REQUIRED. The current multi-source research question to investigate. Use a specific question that needs web research, comparison, verification, citations, or synthesis.';
+          schema.properties.context.description =
+            'Optional decision context, constraints, audience, or background that should shape the research.';
+          schema.properties.requirements.description =
+            'Optional output and evidence requirements such as comparison criteria, source preferences, tables, calculations, citations, or unresolved-fact handling.';
+          inputFile.content = JSON.stringify(schema, null, 2);
+
+          fs.writeFileSync('version-update.json', JSON.stringify({
+            versionNumber: version.versionNumber,
+            sourceType: version.sourceType,
+            sourceFiles: files,
+            buildTag: version.buildTag ?? 'latest',
+            applyEnvVarsToBuild: version.applyEnvVarsToBuild ?? false
+          }));
+          NODE
+
+          curl --fail-with-body --silent --show-error \
+            --request PUT \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data @version-update.json \
+            "https://api.apify.com/v2/actors/industrial_platform~research-brief-agent/versions/0.0" \
+            > updated-version.json
+
+      - name: Improve Actor routing description
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          cat > actor-update.json <<'JSON'
+          {
+            "title": "AI Research Brief & Web Research Agent",
+            "description": "Use this tool when an agent needs current multi-source web research, cited competitor/vendor/pricing comparison, fact verification, or source-backed synthesis. Returns a current research brief with citations, unresolved-fact handling, and automated QA. Do not use for simple page metadata, article/PDF extraction, sitemap enumeration, or changed/unchanged checks."
+          }
+          JSON
+          curl --fail-with-body --silent --show-error \
+            --request PUT \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data @actor-update.json \
+            "https://api.apify.com/v2/actors/industrial_platform~research-brief-agent" \
+            > actor-updated.json
+
+      - name: Build patched Actor
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            "https://api.apify.com/v2/actors/industrial_platform~research-brief-agent/builds?version=0.0&tag=latest&waitForFinish=60" \
+            > build.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const build = JSON.parse(fs.readFileSync('build.json','utf8')).data;
+          if (!build?.id) throw new Error('Build did not return an ID.');
+          fs.writeFileSync('build-id.txt', build.id);
+          console.log(JSON.stringify({ id: build.id, status: build.status, buildNumber: build.buildNumber }, null, 2));
+          NODE
+
+          BUILD_ID=$(cat build-id.txt)
+          for i in 1 2 3 4 5; do
+            curl --fail-with-body --silent --show-error \
+              --header "Authorization: Bearer $APIFY_TOKEN" \
+              "https://api.apify.com/v2/actor-builds/$BUILD_ID?waitForFinish=60" > build-status.json
+            STATUS=$(node -e "console.log(require('./build-status.json').data.status)")
+            echo "Build status: $STATUS"
+            if [ "$STATUS" = "SUCCEEDED" ]; then exit 0; fi
+            if [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "ABORTED" ] || [ "$STATUS" = "TIMED-OUT" ]; then
+              cat build-status.json
+              exit 1
+            fi
+          done
+          echo 'Build did not reach SUCCEEDED in time.'
+          exit 1
+
+      - name: Audit hosted MCP Research tool
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          npm install --no-save @modelcontextprotocol/sdk
+          node <<'NODE'
+          const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
+          const { StreamableHTTPClientTransport } = await import('@modelcontextprotocol/sdk/client/streamableHttp.js');
+          const endpoint = new URL('https://mcp.apify.com/?tools=industrial_platform/research-brief-agent');
+          const client = new Client({ name: 'research-schema-verifier', version: '1.0.0' }, {});
+          const transport = new StreamableHTTPClientTransport(endpoint, {
+            requestInit: { headers: { Authorization: 'Bearer ' + process.env.APIFY_TOKEN } }
+          });
+          try {
+            await client.connect(transport);
+            const { tools } = await client.listTools();
+            const tool = tools.find((t) => t.name.includes('research-brief-agent'));
+            if (!tool) throw new Error('Research tool not found in MCP tools/list.');
+            console.log(JSON.stringify({
+              name: tool.name,
+              title: tool.title,
+              description: tool.description,
+              required: tool.inputSchema?.required ?? [],
+              research_question: tool.inputSchema?.properties?.research_question
+            }, null, 2));
+            if (!(tool.inputSchema?.required ?? []).includes('research_question')) {
+              throw new Error('research_question is still not required in hosted MCP schema.');
+            }
+          } finally {
+            await client.close().catch(() => {});
+          }
+          NODE
