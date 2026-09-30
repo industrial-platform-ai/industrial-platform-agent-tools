@@ -20,12 +20,14 @@ jobs:
           const targets = [
             {
               name: 'web-metadata-intelligence',
-              url: 'https://stableapify.dev/api/actors/industrial_platform/web-metadata-intelligence/call',
+              actorId: 'industrial_platform/web-metadata-intelligence',
+              url: 'https://stableapify.dev/api/actors/call',
               input: { urls: ['https://example.com/'] }
             },
             {
               name: 'web-change-intelligence',
-              url: 'https://stableapify.dev/api/actors/industrial_platform/web-change-intelligence/call',
+              actorId: 'industrial_platform/web-change-intelligence',
+              url: 'https://stableapify.dev/api/actors/call',
               input: { url: 'https://example.com/', include_current_text: true }
             }
           ];
@@ -38,6 +40,7 @@ jobs:
                 'user-agent': 'industrial-platform-agent-tools/1.0'
               },
               body: JSON.stringify({
+                actorId: target.actorId,
                 input: {
                   type: 'http',
                   method: 'POST',
@@ -57,6 +60,6 @@ jobs:
               body: text.slice(0, 3000)
             }, null, 2));
 
-            if (![200, 402].includes(r.status)) process.exitCode = 1;
+            if (r.status !== 402) process.exitCode = 1;
           }
           NODE
