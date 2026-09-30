@@ -1,0 +1,27 @@
+name: Verify x402scan Registration Final
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-x402scan-registration-final.yml'
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Query x402scan registry
+        run: |
+          mkdir -p observability
+          curl -LsS --get             --data-urlencode 'url=https://x402-gateway-production-1f21.up.railway.app'             --data-urlencode 'page=0'             --data-urlencode 'page_size=20'             'https://x402scan.com/api/x402/registry/origin'             -o observability/x402scan-registry-final.json
+          cat observability/x402scan-registry-final.json
+      - name: Persist result
+        run: |
+          git config user.name "industrial-platform-bot"
+          git config user.email "art@naturalist.gallery"
+          git add observability/x402scan-registry-final.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Record final x402scan registry result"
+          git pull --rebase origin main
+          git push
