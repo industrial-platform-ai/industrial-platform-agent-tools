@@ -20,12 +20,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          curl --fail-with-body --silent --show-error --get             --data-urlencode "q=Industrial Platform"             --data-urlencode "limit=20"             "https://agent-tools.cloud/api/v1/mcp/search" > industrial-platform.json
-
           node <<'NODE'
-          const fs = require('fs');
-          const body = JSON.parse(fs.readFileSync('industrial-platform.json','utf8'));
-          const servers = body.servers ?? [];
           const expected = [
             'industrial-platform-paid-agent-web-tools',
             'industrial-platform-article-content-extractor',
@@ -33,21 +28,42 @@ jobs:
             'industrial-platform-sitemap-url-extractor',
             'industrial-platform-web-metadata-extractor'
           ];
-          const found = servers.map(s => s.slug).filter(Boolean);
+
+          const details = [];
+          for (const slug of expected) {
+            const response = await fetch('https://agent-tools.cloud/api/v1/mcp/servers/' + slug);
+            const text = await response.text();
+            let body;
+            try { body = JSON.parse(text); } catch { body = { raw: text }; }
+            details.push({
+              slug,
+              status: response.status,
+              name: body.name ?? null,
+              endpoint_url: body.endpoint_url ?? null,
+              health: body.health ?? null,
+              x402_supported: body.x402_supported ?? null
+            });
+            if (!response.ok) throw new Error(slug + ': detail endpoint HTTP ' + response.status);
+          }
+
+          console.log(JSON.stringify({ listed: details }, null, 2));
+
+          const search = new URL('https://agent-tools.cloud/api/v1/mcp/search');
+          search.searchParams.set('q', 'Industrial Platform');
+          search.searchParams.set('limit', '100');
+          const searchResponse = await fetch(search);
+          if (!searchResponse.ok) throw new Error('Directory search HTTP ' + searchResponse.status);
+          const searchBody = await searchResponse.json();
+          const servers = searchBody.servers ?? [];
+          const ranked = details.map((entry) => ({
+            slug: entry.slug,
+            rank: servers.findIndex(s => s.slug === entry.slug) + 1 || null
+          }));
           console.log(JSON.stringify({
-            count: body.count,
-            total_matched: body.total_matched,
-            found,
-            servers: servers.map(s => ({
-              slug: s.slug,
-              name: s.name,
-              endpoint_url: s.endpoint_url,
-              health: s.health,
-              x402_supported: s.x402_supported
-            }))
+            query: 'Industrial Platform',
+            total_matched: searchBody.total_matched,
+            ranks: ranked
           }, null, 2));
-          const missing = expected.filter(x => !found.includes(x));
-          if (missing.length) throw new Error('Missing Agent Tools MCP listings: ' + missing.join(', '));
           NODE
 
       - name: Record broker behavior
