@@ -55,7 +55,7 @@ jobs:
             },
             "actorStandby": { "isEnabled": false },
             "exampleRunInput": {
-              "body": "{\"start_urls\":[\"https://www.w3.org\"]}",
+              "body": "{\"start_urls\":[\"https://www.google.com/gmail/sitemap.xml\"]}",
               "contentType": "application/json; charset=utf-8"
             }
           }
@@ -151,7 +151,7 @@ jobs:
             --request POST \
             --header "Authorization: Bearer $APIFY_TOKEN" \
             --header "Content-Type: application/json" \
-            --data '{"start_urls":["https://www.w3.org/sitemap.xml"],"max_urls":25}' \
+            --data '{"start_urls":["https://www.google.com/gmail/sitemap.xml"],"max_urls":25}' \
             "https://api.apify.com/v2/actors/industrial_platform~sitemap-intelligence/run-sync-get-dataset-items?clean=true&format=json&timeout=90" \
             > result.json
 
