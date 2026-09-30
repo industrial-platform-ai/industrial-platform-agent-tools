@@ -9,7 +9,7 @@ import { runChange } from './change.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
-const PAY_TO = '0x0e66A3F909D3473E2517709e713B7afc0D767C42';
+const PAY_TO = process.env.X402_PAY_TO || '0xf282c8175fb41e270122c781f07f61c6d6ceb8d6';
 const PRICE = '$0.001';
 const NETWORK = 'eip155:8453';
 
