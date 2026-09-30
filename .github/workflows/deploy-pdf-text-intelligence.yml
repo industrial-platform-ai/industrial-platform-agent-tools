@@ -53,9 +53,9 @@ jobs:
           const currentEvent = current?.pricingPerEvent?.actorChargeEvents?.['pdf-extraction'];
 
           const payload = {
-            title: 'PDF Text Intelligence',
-            description: 'Extract full text, per-page text, and PDF metadata from public PDFs for AI agents, RAG pipelines, research workflows, and automation without per-run LLM cost.',
-            categories: ['AI'],
+            title: 'PDF Text Extractor for AI Agents',
+            description: 'Use to extract text, per-page text, page count, and document metadata from public PDFs for RAG and document workflows. No OCR for image-only scans.',
+            categories: ['AI','DEVELOPER_TOOLS'],
             isPublic: true,
             defaultRunOptions: {
               build: 'latest',
