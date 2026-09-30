@@ -14,10 +14,10 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify all six registry entries
+      - name: Verify all seven registry entries
         run: |
           node <<'NODE'
-          const names = ["io.github.industrial-platform-ai/research-brief","io.github.industrial-platform-ai/web-change","io.github.industrial-platform-ai/web-metadata","io.github.industrial-platform-ai/article-extractor","io.github.industrial-platform-ai/pdf-text","io.github.industrial-platform-ai/sitemap"];
+          const names = ["io.github.industrial-platform-ai/research-brief","io.github.industrial-platform-ai/web-change","io.github.industrial-platform-ai/web-metadata","io.github.industrial-platform-ai/article-extractor","io.github.industrial-platform-ai/pdf-text","io.github.industrial-platform-ai/sitemap","io.github.industrial-platform-ai/link-extractor"];
           for (const name of names) {
             const url = new URL('https://registry.modelcontextprotocol.io/v0.1/servers');
             url.searchParams.set('search', name);
