@@ -1,0 +1,42 @@
+name: Audit Top Three Conversion Fields
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-top-three-conversion-fields.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read live Actor metadata
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          node <<'NODE'
+          const names = ['research-brief-agent','web-metadata-intelligence','web-change-intelligence'];
+          for (const name of names) {
+            const r = await fetch('https://api.apify.com/v2/actors/industrial_platform~' + name, {
+              headers: { Authorization: 'Bearer ' + process.env.APIFY_TOKEN }
+            });
+            const body = await r.json();
+            if (!r.ok) throw new Error(name + ': ' + JSON.stringify(body));
+            const a = body.data ?? {};
+            console.log(JSON.stringify({
+              name,
+              title: a.title,
+              description: a.description,
+              categories: a.categories,
+              exampleRunInput: a.exampleRunInput,
+              defaultRunOptions: a.defaultRunOptions,
+              pricingInfos: a.pricingInfos,
+              isPublic: a.isPublic,
+              taggedBuilds: a.taggedBuilds
+            }, null, 2));
+          }
+          NODE
