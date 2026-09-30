@@ -19,7 +19,7 @@ jobs:
           node <<'NODE'
           const repoUrl = 'https://github.com/industrial-platform-ai/industrial-platform-agent-tools';
           const mcpUrl = 'https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence,industrial_platform/web-change-intelligence&payment=x402';
-          const description = 'Fast paid MCP utilities for AI agents: web metadata extraction and deterministic website change detection. $0.01 per successful unit, ~3s median runtime in recent production runs.';
+          const description = 'Fast x402 MCP: web metadata + deterministic page-change checks at $0.01 per successful unit.';
           const contact = 'art@naturalist.gallery';
 
           const targets = [
