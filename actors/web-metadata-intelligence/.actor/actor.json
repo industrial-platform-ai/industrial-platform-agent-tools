@@ -1,11 +1,13 @@
 {
   "actorSpecification": 1,
   "name": "web-metadata-intelligence",
-  "title": "Web Metadata Intelligence",
-  "description": "Extract machine-readable web metadata for AI agents and automated workflows.",
+  "title": "Web Metadata Extractor for AI Agents",
+  "description": "Extract page metadata, Open Graph, JSON-LD, canonical, robots, headings, language, and charset.",
   "version": "0.1",
   "buildTag": "latest",
   "input": "./input_schema.json",
   "output": "./output_schema.json",
-  "storages": { "dataset": "./dataset_schema.json" }
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
 }
