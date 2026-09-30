@@ -1,0 +1,24 @@
+name: Publish Native GitHub Agent Skill
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/industrial-platform-paid-web-tools/**'
+      - '.github/workflows/publish-github-agent-skill.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show GitHub CLI version
+        run: gh --version
+      - name: Validate Agent Skill
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh skill publish --dry-run
