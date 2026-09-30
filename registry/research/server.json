@@ -3,7 +3,7 @@
   "name": "io.github.industrial-platform-ai/research-brief",
   "title": "AI Web Research & Research Brief Agent",
   "description": "Current cited web research and comparison briefs for autonomous AI agents.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "websiteUrl": "https://apify.com/industrial_platform/research-brief-agent",
   "repository": {
     "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
@@ -12,14 +12,17 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent"
+      "url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent&payment=x402"
     }
   ],
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
       "provider": "Industrial Platform",
       "paymentModel": "Apify pay-per-event and supported agentic payments",
-      "actor": "industrial_platform/research-brief-agent"
+      "actor": "industrial_platform/research-brief-agent",
+      "paymentMode": "direct-x402",
+      "paymentNetwork": "Base",
+      "paymentAsset": "USDC"
     }
   }
 }
