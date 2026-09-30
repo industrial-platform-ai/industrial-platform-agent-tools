@@ -44,6 +44,10 @@ jobs:
           }
           schema.properties.research_question.description =
             'REQUIRED. The current multi-source research question to investigate. Use a specific question that needs web research, comparison, verification, citations, or synthesis.';
+          schema.properties.research_question.prefill =
+            'What are the current official Model Context Protocol transport options in the latest specification?';
+          schema.properties.research_question.example =
+            'Compare the current pricing and major differences between three project-management platforms.';
           schema.properties.context.description =
             'Optional decision context, constraints, audience, or background that should shape the research.';
           schema.properties.requirements.description =
