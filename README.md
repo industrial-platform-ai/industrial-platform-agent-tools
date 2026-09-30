@@ -1,5 +1,7 @@
 # Industrial Platform Agent Tools
 
+[![AllMCPs Verified](https://allmcps.com/api/badge/industrial-platform?style=shield)](https://allmcps.com/mcp/industrial-platform)
+
 Open-source integration toolkit for connecting AI agents, MCP clients, autonomous workflows, agent orchestrators, and developer applications to **Industrial Platform** machine-callable services.
 
 Industrial Platform provides specialized paid utilities that other agents can discover and invoke instead of rebuilding research, monitoring, extraction, and document-processing capabilities inside every workflow.
