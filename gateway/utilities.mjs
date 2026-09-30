@@ -29,12 +29,26 @@ function canonicalize(value) {
 
 export const utilityTools = [
   {
-    name:'sha256-hash', route:'/hash', price:'$0.0005', priceUsd:0.0005,
-    description:'Hash text deterministically with SHA-256 for cache keys, integrity checks, deduplication and agent workflows.',
-    tags:['hash','sha256','integrity','utility'],
-    inputSchema:textSchema,
-    example:{text:'hello world'},
-    run: async input => ({algorithm:'sha256',digest:createHash('sha256').update(boundedText(input?.text),'utf8').digest('hex')})
+    name:'hash', route:'/hash', price:'$0.0005', priceUsd:0.0005,
+    description:'Cryptographic hash of UTF-8 text. Supports SHA-256, SHA-512, SHA-1 and MD5 and returns both hex and Base64 digests for integrity checks, cache keys and agent workflows.',
+    tags:['hash','sha256','sha512','sha1','md5','checksum','encoding','crypto','utility'],
+    inputSchema:{
+      type:'object',
+      properties:{
+        text:{type:'string',maxLength:250000,description:'Text to hash.'},
+        algo:{type:'string',enum:['sha256','sha512','sha1','md5'],description:'Hash algorithm; defaults to sha256.'}
+      },
+      required:['text'],
+      additionalProperties:false
+    },
+    example:{text:'hello world',algo:'sha256'},
+    run: async input => {
+      const text=boundedText(input?.text);
+      const algo=input?.algo||'sha256';
+      const h=createHash(algo).update(text,'utf8');
+      const bytes=h.digest();
+      return {algo,hex:bytes.toString('hex'),base64:bytes.toString('base64')};
+    }
   },
   {
     name:'base64-encode', route:'/base64/encode', price:'$0.0005', priceUsd:0.0005,
@@ -286,6 +300,91 @@ export const utilityTools = [
       const value=boundedText(input?.value,'value').trim();
       if(!/^(?:[0-9a-fA-F]{2})*$/.test(value)) throw Object.assign(new Error('value must contain an even number of hexadecimal characters.'),{statusCode:400});
       return {encoding:'utf8',result:Buffer.from(value,'hex').toString('utf8')};
+    }
+  },
+  {
+    name:'base64', route:'/base64', price:'$0.0005', priceUsd:0.0005,
+    description:'Base64 encode or decode UTF-8 text. Supports standard and URL-safe Base64 decoding. Use mode encode or decode.',
+    tags:['base64','encode','decode','encoding','conversion','utility'],
+    inputSchema:{
+      type:'object',
+      properties:{
+        text:{type:'string',maxLength:250000,description:'Input text or Base64 value.'},
+        mode:{type:'string',enum:['encode','decode'],description:'encode or decode; defaults to encode.'}
+      },
+      required:['text'],
+      additionalProperties:false
+    },
+    example:{text:'hello',mode:'encode'},
+    run: async input => {
+      const text=boundedText(input?.text);
+      const mode=input?.mode||'encode';
+      if(mode==='decode'){
+        const normalized=text.replace(/-/g,'+').replace(/_/g,'/').replace(/\s+/g,'');
+        if(!/^[A-Za-z0-9+/]*={0,2}$/.test(normalized)) throw Object.assign(new Error('text is not valid Base64.'),{statusCode:400});
+        return {mode,result:Buffer.from(normalized,'base64').toString('utf8')};
+      }
+      return {mode,result:Buffer.from(text,'utf8').toString('base64')};
+    }
+  },
+  {
+    name:'url-encode-decode', route:'/url/code', price:'$0.0005', priceUsd:0.0005,
+    description:'Percent-encode or decode text for URLs using URL-component semantics. Use mode encode or decode.',
+    tags:['url','encode','decode','percent-encoding','conversion','utility'],
+    inputSchema:{
+      type:'object',
+      properties:{
+        text:{type:'string',maxLength:250000},
+        mode:{type:'string',enum:['encode','decode']}
+      },
+      required:['text'],
+      additionalProperties:false
+    },
+    example:{text:'a b&c',mode:'encode'},
+    run: async input => {
+      const text=boundedText(input?.text);
+      const mode=input?.mode||'encode';
+      try{return {mode,result:mode==='decode'?decodeURIComponent(text):encodeURIComponent(text)};}
+      catch{throw Object.assign(new Error('Input cannot be URL-decoded.'),{statusCode:400});}
+    }
+  },
+  {
+    name:'multi-digest-checksum', route:'/checksum', price:'$0.0005', priceUsd:0.0005,
+    description:'Compute MD5, SHA-1, SHA-256 and SHA-512 checksums of one UTF-8 string in a single call.',
+    tags:['checksum','hash','md5','sha1','sha256','sha512','integrity','utility'],
+    inputSchema:{type:'object',properties:{data:{type:'string',maxLength:250000}},required:['data'],additionalProperties:false},
+    example:{data:'hello world'},
+    run: async input => {
+      const data=boundedText(input?.data,'data');
+      return {md5:createHash('md5').update(data).digest('hex'),sha1:createHash('sha1').update(data).digest('hex'),sha256:createHash('sha256').update(data).digest('hex'),sha512:createHash('sha512').update(data).digest('hex')};
+    }
+  },
+  {
+    name:'text-chunk', route:'/text/chunk', price:'$0.0005', priceUsd:0.0005,
+    description:'Split text deterministically into overlapping character chunks for RAG ingestion, embeddings and agent context windows.',
+    tags:['text','chunk','rag','embeddings','split','utility'],
+    inputSchema:{
+      type:'object',
+      properties:{
+        text:{type:'string',maxLength:500000},
+        size:{type:'integer',minimum:50,maximum:50000},
+        overlap:{type:'integer',minimum:0,maximum:10000}
+      },
+      required:['text'],
+      additionalProperties:false
+    },
+    example:{text:'Long document text',size:800,overlap:100},
+    run: async input => {
+      const text=boundedText(input?.text);
+      const size=Number.isInteger(input?.size)?input.size:800;
+      const overlap=Number.isInteger(input?.overlap)?input.overlap:0;
+      if(overlap>=size) throw Object.assign(new Error('overlap must be smaller than size.'),{statusCode:400});
+      const chunks=[]; const step=size-overlap;
+      for(let start=0;start<text.length&&chunks.length<10000;start+=step){
+        chunks.push({index:chunks.length,start,end:Math.min(text.length,start+size),text:text.slice(start,start+size)});
+        if(start+size>=text.length) break;
+      }
+      return {size,overlap,count:chunks.length,chunks};
     }
   }
 ];
