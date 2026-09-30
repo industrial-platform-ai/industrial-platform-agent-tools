@@ -14,6 +14,7 @@ const runRegistry = process.env.RUN_X402SCAN_REGISTRATION === '1';
 const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan.com/api/x402/registry/register-origin';
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
 const agent402IndexTarget = 'https://agent402.tools/api/index/register';
+const expectedAgent402ToolCount = 34;
 const agent402FindTarget = 'https://agent402.tools/api/find';
 const agent402WishesTarget = 'https://agent402.tools/api/wishes?limit=50&qualifiedOnly=true&sort=count';
 const agent402SellerIndexTarget = 'https://agent402.tools/api/index?seller=' + encodeURIComponent(new URL(sellerOrigin || 'https://x402-gateway-production-1f21.up.railway.app').host);
@@ -359,7 +360,7 @@ async function registerAgent402OriginOnce({scheduleRetry=true}={}) {
   const rereadSeconds = Number(parsed?.reverify?.nextRereadInSeconds);
   const toolCount = Number(parsed?.seller?.toolCount);
 
-  if (response.ok && Number.isFinite(toolCount) && toolCount >= 33) {
+  if (response.ok && Number.isFinite(toolCount) && toolCount >= expectedAgent402ToolCount) {
     await runExternalRouteDiagnostics();
     await runFindDiagnostics();
     return;
