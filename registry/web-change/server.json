@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.industrial-platform-ai/web-change",
-  "title": "Website Change Detector & Diff API",
-  "description": "x402 page-change detection and deterministic diffs. $0.001 per successful comparison.",
-  "version": "1.0.3",
+  "title": "Website Change Monitor & Deterministic Diff",
+  "description": "Detect whether a public webpage changed using deterministic hashes and text diffs. Built for recurring monitoring of prices, inventory, availability, policies, documentation, competitor pages, and other web content. Direct x402 MCP; $0.001 per successful comparison.",
+  "version": "1.0.4",
   "websiteUrl": "https://apify.com/industrial_platform/web-change-intelligence",
   "repository": {
     "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
