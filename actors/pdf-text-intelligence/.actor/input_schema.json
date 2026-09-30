@@ -9,9 +9,18 @@
       "type": "array",
       "description": "Public HTTP/HTTPS PDF URLs to process. Up to 50 unique PDFs per run.",
       "editor": "stringList",
-      "items": { "type": "string", "maxLength": 2048 },
+      "items": {
+        "type": "string",
+        "maxLength": 2048
+      },
       "minItems": 1,
-      "maxItems": 50
+      "maxItems": 50,
+      "prefill": [
+        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      ],
+      "example": [
+        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      ]
     },
     "timeout_seconds": {
       "title": "Per-PDF timeout",
@@ -47,5 +56,7 @@
       "maximum": 1000000
     }
   },
-  "required": ["urls"]
+  "required": [
+    "urls"
+  ]
 }
