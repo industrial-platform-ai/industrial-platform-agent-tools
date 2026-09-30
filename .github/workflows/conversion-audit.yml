@@ -1,4 +1,5 @@
 name: Revenue Conversion Audit
+# Re-run after top-three conversion metadata updates.
 
 on:
   workflow_dispatch:
