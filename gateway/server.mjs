@@ -20,7 +20,8 @@ const manifest = {
       name: 'web-metadata-intelligence',
       route: '/metadata',
       method: 'POST',
-      price: 'Bridge price returned live by StableApify; Actor event is $0.001 per successful URL',
+      price: 0.01,
+      example: { urls: ['https://example.com/'] },
       description: 'Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.',
       inputSchema: {
         type:'object',
@@ -32,7 +33,8 @@ const manifest = {
       name: 'web-change-intelligence',
       route: '/change',
       method: 'POST',
-      price: 'Bridge price returned live by StableApify; Actor event is $0.001 per successful comparison',
+      price: 0.01,
+      example: { url: 'https://example.com/', include_current_text: false },
       description: 'Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.',
       inputSchema: {
         type:'object',
@@ -84,7 +86,39 @@ async function bodyBuffer(req) {
   return Buffer.concat(chunks);
 }
 
-async function proxy(req,res,actorId) {
+function rewritePaymentRequired(encoded, req, tool) {
+  if (!encoded) return encoded;
+  try {
+    const envelope = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8'));
+    const origin = 'https://' + req.headers.host;
+    envelope.resource = {
+      ...(envelope.resource || {}),
+      url: origin + tool.route,
+      method: 'POST',
+      description: tool.description,
+      mimeType: 'application/json',
+      tags: ['Industrial Platform', tool.name],
+      serviceName: 'Industrial Platform Fast Web Tools'
+    };
+    envelope.extensions = envelope.extensions || {};
+    envelope.extensions.bazaar = {
+      info: {
+        input: {
+          type: 'http',
+          method: 'POST',
+          bodyType: 'json',
+          body: tool.example || {}
+        }
+      },
+      schema: tool.inputSchema
+    };
+    return Buffer.from(JSON.stringify(envelope)).toString('base64');
+  } catch {
+    return encoded;
+  }
+}
+
+async function proxy(req,res,actorId,tool) {
   const raw = await bodyBuffer(req);
   let input;
   try {
@@ -114,7 +148,11 @@ async function proxy(req,res,actorId) {
   }
   const passthrough={};
   for (const [k,v] of upstream.headers) {
-    if (/^(payment-required|x-payment-response|content-type|www-authenticate)$/i.test(k)) passthrough[k]=v;
+    if (/^(payment-required|x-payment-response|content-type|www-authenticate)$/i.test(k)) {
+      passthrough[k] = k.toLowerCase() === 'payment-required'
+        ? rewritePaymentRequired(v, req, tool)
+        : v;
+    }
   }
   res.writeHead(upstream.status,passthrough);
   if (upstream.body) {
@@ -129,8 +167,8 @@ const server = http.createServer(async (req,res)=>{
     if (req.method==='GET' && u.pathname==='/health') return json(res,200,{ok:true});
     if (req.method==='GET' && u.pathname==='/.well-known/x402') return json(res,200,manifest);
     if (req.method==='GET' && u.pathname==='/openapi.json') return json(res,200,openapi);
-    if (req.method==='POST' && u.pathname==='/metadata') return await proxy(req,res,META_ACTOR);
-    if (req.method==='POST' && u.pathname==='/change') return await proxy(req,res,CHANGE_ACTOR);
+    if (req.method==='POST' && u.pathname==='/metadata') return await proxy(req,res,META_ACTOR,manifest.tools[0]);
+    if (req.method==='POST' && u.pathname==='/change') return await proxy(req,res,CHANGE_ACTOR,manifest.tools[1]);
     return json(res,404,{error:'not found'});
   } catch (e) {
     const status = Number(e?.statusCode) || (e?.name === 'AbortError' ? 504 : 502);
