@@ -8,6 +8,10 @@ on:
       - 'actors/pdf-text-intelligence/**'
       - '.github/workflows/deploy-pdf-text-intelligence.yml'
 
+concurrency:
+  group: industrial-platform-apify-build-lane-4
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
