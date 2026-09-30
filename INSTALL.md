@@ -2,8 +2,8 @@
 
 The recommended developer entry point is the **fast web bundle**:
 
-- Web Metadata Intelligence — $0.01 per successful URL
-- Web Change Intelligence — $0.01 per successful comparison
+- Web Metadata Intelligence — $0.001 per successful URL
+- Web Change Intelligence — $0.001 per successful comparison
 
 Recent production runs complete in about 3 seconds median for each service. Use the larger six-tool portfolio only when you also need research, article extraction, PDF text, or sitemap discovery.
 
