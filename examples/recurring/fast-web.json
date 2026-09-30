@@ -1,0 +1,33 @@
+{
+  "name": "industrial-platform-fast-web",
+  "endpoint": "https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence,industrial_platform/web-change-intelligence&payment=x402",
+  "payment": {
+    "protocol": "x402",
+    "network": "Base",
+    "asset": "USDC"
+  },
+  "use_cases": [
+    {
+      "name": "metadata-batch",
+      "tool": "industrial_platform/web-metadata-intelligence",
+      "price_usd_per_successful_url": 0.01,
+      "example_input": {
+        "urls": ["https://example.com/"]
+      }
+    },
+    {
+      "name": "change-monitor",
+      "tool": "industrial_platform/web-change-intelligence",
+      "price_usd_per_successful_comparison": 0.01,
+      "baseline_input": {
+        "url": "https://example.com/",
+        "include_current_text": true
+      },
+      "followup_input": {
+        "url": "https://example.com/",
+        "previous_hash": "<SHA-256>",
+        "include_current_text": false
+      }
+    }
+  ]
+}
