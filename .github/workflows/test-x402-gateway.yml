@@ -1,0 +1,48 @@
+name: Test x402 Task Gateway
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'gateway/**'
+      - '.github/workflows/test-x402-gateway.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Boot gateway
+        run: |
+          cd gateway
+          node --check server.mjs
+          npm start > /tmp/gateway.log 2>&1 &
+          echo $! > /tmp/gateway.pid
+          for i in {1..20}; do
+            curl -fsS http://127.0.0.1:3000/health && break
+            sleep 0.25
+          done
+      - name: Verify discovery surfaces
+        run: |
+          set -euo pipefail
+          curl -fsS http://127.0.0.1:3000/.well-known/x402 | tee /tmp/manifest.json
+          curl -fsS http://127.0.0.1:3000/openapi.json | tee /tmp/openapi.json
+          node <<'NODE'
+          const fs=require('fs');
+          const m=JSON.parse(fs.readFileSync('/tmp/manifest.json','utf8'));
+          const o=JSON.parse(fs.readFileSync('/tmp/openapi.json','utf8'));
+          if (!m.tools?.some(x=>x.route==='/metadata')) throw new Error('metadata missing');
+          if (!m.tools?.some(x=>x.route==='/change')) throw new Error('change missing');
+          if (!o.paths?.['/metadata']?.post) throw new Error('metadata OpenAPI missing');
+          if (!o.paths?.['/change']?.post) throw new Error('change OpenAPI missing');
+          NODE
+      - name: Show log
+        if: always()
+        run: cat /tmp/gateway.log || true
