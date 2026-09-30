@@ -6,7 +6,8 @@ const cases = [
   ['article content extractor', 'article-content-intelligence'],
   ['pdf text extractor', 'pdf-text-intelligence'],
   ['sitemap extractor', 'sitemap-intelligence'],
-  ['link extractor', 'link-intelligence']
+  ['link extractor', 'link-intelligence'],
+  ['robots.txt parser', 'robots-policy-intelligence']
 ];
 
 const rows = [];
