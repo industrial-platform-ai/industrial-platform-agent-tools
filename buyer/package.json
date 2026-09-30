@@ -9,7 +9,8 @@
   "dependencies": {
     "@x402/evm": "latest",
     "@x402/fetch": "latest",
-    "viem": "latest"
+    "viem": "latest",
+    "@x402/extensions": "latest"
   },
   "engines": {
     "node": ">=22"
