@@ -100,7 +100,7 @@ jobs:
               try {
                 const r = await client.callTool({
                   name:'validate_endpoint',
-                  arguments:{url}
+                  arguments:{url, method:'POST'}
                 });
                 out.coinbaseValidate[url] = {
                   isError:Boolean(r.isError),
