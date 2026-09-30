@@ -1,0 +1,34 @@
+name: Verify MCP Registry Listing
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-mcp-registry.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify published listing
+        run: |
+          curl --fail-with-body --silent --show-error             "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.industrial-platform-ai%2Findustrial-platform&version=latest"             > registry.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const body = JSON.parse(fs.readFileSync('registry.json','utf8'));
+          const servers = body.servers ?? [];
+          const match = servers.find((entry) => {
+            const server = entry.server ?? entry;
+            return server.name === 'io.github.industrial-platform-ai/industrial-platform';
+          });
+          if (!match) {
+            console.log(JSON.stringify(body, null, 2));
+            throw new Error('Industrial Platform not found in official MCP Registry.');
+          }
+          console.log(JSON.stringify(match, null, 2));
+          NODE
