@@ -1,0 +1,28 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.industrial-platform-ai/link-extractor",
+  "title": "Link Extractor for AI Agents",
+  "description": "x402 structured link extraction for agents. $0.0005 per successfully processed page.",
+  "version": "1.0.0",
+  "websiteUrl": "https://apify.com/industrial_platform/link-intelligence",
+  "repository": {
+    "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.apify.com?tools=industrial_platform/link-intelligence&payment=x402"
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "provider": "Industrial Platform",
+      "paymentModel": "Apify pay-per-event and supported agentic payments",
+      "actor": "industrial_platform/link-intelligence",
+      "paymentMode": "direct-x402",
+      "paymentNetwork": "Base",
+      "paymentAsset": "USDC"
+    }
+  }
+}
