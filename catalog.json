@@ -3,11 +3,11 @@
   "provider": "Industrial Platform",
   "provider_id": "industrial_platform",
   "repository": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
-  "mcp_bundle_url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence,industrial_platform/link-intelligence",
+  "mcp_bundle_url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402",
   "notes": [
-    "Live pricing and eligibility should be verified against Apify Store before paid execution.",
-    "All machine-native utility Actors are designed for structured JSON inputs and outputs.",
-    "Credentials and payment authorization are handled by Apify-supported authentication or agentic-payment flows."
+    "Active services are published for direct x402 agent-paid execution.",
+    "Tool discovery is free; payment occurs on paid Actor execution.",
+    "Live pricing and eligibility should be verified against Apify Store before paid execution."
   ],
   "services": [
     {
@@ -149,7 +149,15 @@
       "mcp_registry_status": "active",
       "mcp_x402_url": "https://mcp.apify.com?tools=industrial_platform/sitemap-intelligence&payment=x402",
       "mcp_skyfire_url": "https://mcp.apify.com?tools=industrial_platform/sitemap-intelligence&payment=skyfire"
-    },
+    }
+  ],
+  "mcp_registry": {
+    "name": "io.github.industrial-platform-ai/industrial-platform",
+    "version": "1.0.2",
+    "status": "active",
+    "api_search": "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.industrial-platform-ai%2Findustrial-platform&version=latest"
+  },
+  "pending_services": [
     {
       "id": "link-intelligence",
       "title": "Link Intelligence",
@@ -169,13 +177,9 @@
       "mcp_registry_version": "1.0.0",
       "mcp_registry_status": "publication-automated",
       "mcp_x402_url": "https://mcp.apify.com?tools=industrial_platform/link-intelligence&payment=x402",
-      "mcp_skyfire_url": "https://mcp.apify.com?tools=industrial_platform/link-intelligence&payment=skyfire"
+      "mcp_skyfire_url": "https://mcp.apify.com?tools=industrial_platform/link-intelligence&payment=skyfire",
+      "status": "publication-pending",
+      "agentic_payment_eligible": false
     }
-  ],
-  "mcp_registry": {
-    "name": "io.github.industrial-platform-ai/industrial-platform",
-    "version": "1.0.1",
-    "status": "active",
-    "api_search": "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.industrial-platform-ai%2Findustrial-platform&version=latest"
-  }
+  ]
 }
