@@ -1,0 +1,31 @@
+name: Verify Public Skill Search
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-public-skill-search.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Search skills catalog with public CLI
+        shell: bash
+        run: |
+          set +e
+          for q in             'industrial platform'             'web metadata extractor'             'website change detector'
+          do
+            echo "::group::$q"
+            npx --yes skills@latest find "$q"
+            echo "exit=$?"
+            echo "::endgroup::"
+          done
+          exit 0
