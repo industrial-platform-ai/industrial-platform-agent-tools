@@ -3,6 +3,7 @@ const token = process.env.APIFY_TOKEN?.trim();
 if (!token) throw new Error('APIFY_TOKEN is required.');
 
 const services = [
+  ['research-brief-agent', 'research-brief-completed'],
   ['web-change-intelligence', 'page-comparison'],
   ['web-metadata-intelligence', 'metadata-extraction'],
   ['article-content-intelligence', 'article-extraction'],
