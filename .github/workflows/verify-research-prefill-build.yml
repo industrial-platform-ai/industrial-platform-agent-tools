@@ -64,24 +64,36 @@ jobs:
           node <<'NODE'
           const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
           const { StreamableHTTPClientTransport } = await import('@modelcontextprotocol/sdk/client/streamableHttp.js');
-          const client = new Client({ name: 'research-prefill-verifier', version: '1.0.0' }, {});
-          const transport = new StreamableHTTPClientTransport(
-            new URL('https://mcp.apify.com/?tools=industrial_platform/research-brief-agent'),
-            { requestInit: { headers: { Authorization: 'Bearer ' + process.env.APIFY_TOKEN } } }
-          );
-          try {
-            await client.connect(transport);
-            const { tools } = await client.listTools();
-            const tool = tools.find(t => t.name.includes('research-brief-agent'));
-            if (!tool) throw new Error('Research tool missing.');
-            console.log(JSON.stringify({
-              required: tool.inputSchema?.required ?? [],
-              research_question: tool.inputSchema?.properties?.research_question
-            }, null, 2));
-            if (!(tool.inputSchema?.required ?? []).includes('research_question')) {
-              throw new Error('Hosted MCP no longer marks research_question required.');
+
+          let last;
+          for (let attempt = 1; attempt <= 6; attempt += 1) {
+            const client = new Client({ name: 'research-prefill-verifier', version: '1.0.0' }, {});
+            const endpoint = new URL('https://mcp.apify.com/?tools=industrial_platform/research-brief-agent');
+            endpoint.searchParams.set('_schema_check', String(Date.now()));
+            const transport = new StreamableHTTPClientTransport(endpoint, {
+              requestInit: { headers: { Authorization: 'Bearer ' + process.env.APIFY_TOKEN } }
+            });
+
+            try {
+              await client.connect(transport);
+              const { tools } = await client.listTools();
+              const tool = tools.find(t => t.name.includes('research-brief-agent'));
+              if (!tool) throw new Error('Research tool missing.');
+
+              last = {
+                required: tool.inputSchema?.required ?? [],
+                research_question: tool.inputSchema?.properties?.research_question
+              };
+              console.log(JSON.stringify({ attempt, ...last }, null, 2));
+
+              if (last.required.includes('research_question')) process.exit(0);
+            } finally {
+              await client.close().catch(() => {});
             }
-          } finally {
-            await client.close().catch(() => {});
+
+            await new Promise(resolve => setTimeout(resolve, 15000));
           }
+
+          console.error(JSON.stringify(last, null, 2));
+          throw new Error('Hosted MCP schema did not propagate required research_question within retry window.');
           NODE
