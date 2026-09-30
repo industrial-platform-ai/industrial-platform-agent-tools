@@ -14,6 +14,7 @@ const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
 const agent402IndexTarget = 'https://agent402.tools/api/index/register';
 const agent402FindTarget = 'https://agent402.tools/api/find';
+const agent402WishesTarget = 'https://agent402.tools/api/wishes';
 const marketQueries = [
   'cryptographic hash sha256 sha512 text',
   'hmac signature',
@@ -179,6 +180,21 @@ async function registerX402scanFree() {
   }
 }
 
+async function fetchAgent402Wishes() {
+  try {
+    const response = await fetch(agent402WishesTarget, { headers: { accept: 'application/json' } });
+    const body = await response.text();
+    console.log('Agent402 wishes feed:', JSON.stringify({
+      httpStatus:response.status,
+      ok:response.ok,
+      body:body.slice(0,20000),
+      completedAt:new Date().toISOString()
+    }));
+  } catch (error) {
+    console.error('Agent402 wishes feed failed:', String(error?.message || error));
+  }
+}
+
 async function runFindDiagnostics() {
   for (const q of marketQueries) {
     try {
@@ -262,6 +278,7 @@ async function registerX402scanOnce() {
   if (!response.ok) throw new Error('x402scan registration returned HTTP ' + response.status + ': ' + text.slice(0, 4000));
 }
 
+fetchAgent402Wishes();
 registerX402scanFree();
 registerAgent402OriginOnce().catch((error) => {
   console.error('Agent402 index registration failed:', String(error?.stack || error));
