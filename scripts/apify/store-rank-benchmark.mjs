@@ -1,3 +1,4 @@
+// Post-quality-score optimization benchmark.
 const cases = [
   ['web research', 'research-brief-agent'],
   ['website change detector', 'web-change-intelligence'],
