@@ -2,5 +2,23 @@
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "maintainers": [
     "industrial-platform"
+  ],
+  "name": "industrial-platform-agent-tools",
+  "description": "Direct x402-paid research and web-data MCP tools for autonomous AI agents.",
+  "type": "mcp_server",
+  "status": "production",
+  "transport": [
+    "streamable-http"
+  ],
+  "keywords": [
+    "mcp",
+    "x402",
+    "ai-agents",
+    "web-research",
+    "web-scraping",
+    "rag",
+    "pdf",
+    "sitemap",
+    "metadata"
   ]
 }
