@@ -9,9 +9,18 @@
       "type": "array",
       "description": "Public HTTP/HTTPS article pages to inspect. Up to 100 unique URLs per run.",
       "editor": "stringList",
-      "items": { "type": "string", "maxLength": 2048 },
+      "items": {
+        "type": "string",
+        "maxLength": 2048
+      },
       "minItems": 1,
-      "maxItems": 100
+      "maxItems": 100,
+      "prefill": [
+        "https://www.iana.org/help/example-domains"
+      ],
+      "example": [
+        "https://www.iana.org/help/example-domains"
+      ]
     },
     "timeout_seconds": {
       "title": "Per-URL timeout",
@@ -39,5 +48,7 @@
       "maximum": 200000
     }
   },
-  "required": ["urls"]
+  "required": [
+    "urls"
+  ]
 }
