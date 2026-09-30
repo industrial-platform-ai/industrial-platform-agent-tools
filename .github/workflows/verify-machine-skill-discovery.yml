@@ -44,3 +44,5 @@ jobs:
             echo "::endgroup::"
           done
           exit 0
+
+# recheck machine discovery after production x402 launch
