@@ -1,0 +1,46 @@
+name: Verify Machine Skill Discovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-machine-skill-discovery.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Query skills.sh catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          for q in             'industrial platform paid web tools'             'web metadata extractor'             'website change detector'
+          do
+            echo "::group::skills.sh $q"
+            code=$(curl --silent --show-error               -o body.json               -w '%{http_code}'               --get               --data-urlencode "q=$q"               --data-urlencode 'limit=20'               'https://skills.sh/api/v1/skills/search')
+            echo "HTTP $code"
+            cat body.json
+            echo
+            echo "::endgroup::"
+          done
+
+      - name: Query AgentCash search
+        shell: bash
+        run: |
+          set +e
+          for q in             'web metadata extractor'             'website change detector'
+          do
+            echo "::group::agentcash $q"
+            npx --yes agentcash@latest search "$q" --format pretty
+            echo "exit=$?"
+            echo "::endgroup::"
+          done
+          exit 0
