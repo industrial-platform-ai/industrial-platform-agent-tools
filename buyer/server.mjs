@@ -5,6 +5,7 @@ import { registerExactEvmScheme } from '@x402/evm/exact/client';
 import { createSIWxClientExtension } from '@x402/extensions/sign-in-with-x';
 import { privateKeyToAccount } from 'viem/accounts';
 import { submitFreeDirectoryListing } from './free-directory.mjs';
+import { registerOpenTaskAutonomousAgent } from './opentask.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const TARGET = process.env.X402_TARGET || 'https://x402-gateway-production-1f21.up.railway.app/metadata';
@@ -476,6 +477,7 @@ fetchAgent402Wishes();
 runExternalEarningDiagnostics();
 registerAgentExchangePassport();
 registerX402ArenaNoSpend();
+registerOpenTaskAutonomousAgent().catch(error => console.error('OpenTask autonomous registration failed:', String(error?.message || error)));
 registerX402scanFree();
 registerAgent402OriginOnce().catch((error) => {
   console.error('Agent402 index registration failed:', String(error?.stack || error));
