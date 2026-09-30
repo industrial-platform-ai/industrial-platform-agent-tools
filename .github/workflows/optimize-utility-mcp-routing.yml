@@ -1,0 +1,51 @@
+name: Optimize Utility MCP Routing
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/optimize-utility-mcp-routing.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Update Actor routing descriptions
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          const actors = {
+            'web-change-intelligence': 'Use for changed/unchanged checks and deterministic diffs of public web pages against prior text or hash. Best for pricing, stock, docs, policies, and competitor monitoring.',
+            'web-metadata-intelligence': 'Use to extract machine-readable page metadata: title, description, canonical, robots, Open Graph, Twitter Cards, JSON-LD, headings, language, and charset.',
+            'article-content-intelligence': 'Use to extract clean article body text plus title, author, dates, canonical URL, and JSON-LD for RAG, research, summarization, and downstream agents.',
+            'pdf-text-intelligence': 'Use to extract text, per-page text, page count, and document metadata from public PDFs for RAG and document workflows. No OCR for image-only scans.',
+            'sitemap-intelligence': 'Use to discover and expand robots.txt or sitemaps into deduplicated crawl URLs with lastmod, changefreq, and priority. Supports indexes, gzip, RSS, Atom, and text lists.'
+          };
+
+          for (const [name, description] of Object.entries(actors)) {
+            fs.writeFileSync(name + '.json', JSON.stringify({ description }));
+          }
+          NODE
+
+          for NAME in web-change-intelligence web-metadata-intelligence article-content-intelligence pdf-text-intelligence sitemap-intelligence; do
+            curl --fail-with-body --silent --show-error               --request PUT               --header "Authorization: Bearer $APIFY_TOKEN"               --header "Content-Type: application/json"               --data @"$NAME.json"               "https://api.apify.com/v2/actors/industrial_platform~$NAME"               > /dev/null
+          done
+
+      - name: Audit updated hosted MCP descriptions
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          npm install --no-save @modelcontextprotocol/sdk
+          node ./scripts/mcp/audit-portfolio.mjs
