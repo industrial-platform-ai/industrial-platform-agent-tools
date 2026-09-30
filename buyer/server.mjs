@@ -12,6 +12,7 @@ const runPayment = process.env.RUN_PAYMENT === '1';
 const runRegistry = process.env.RUN_X402SCAN_REGISTRATION === '1';
 const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan.com/api/x402/registry/register-origin';
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
+const agent402IndexTarget = 'https://agent402.tools/api/index/register';
 const requestMethod = (process.env.X402_METHOD || 'POST').toUpperCase();
 const requestBodyOverride = process.env.X402_REQUEST_BODY || '';
 
@@ -97,6 +98,22 @@ async function payOnce() {
 }
 
 
+async function registerAgent402OriginOnce() {
+  const response = await fetch(agent402IndexTarget, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ origin: sellerOrigin }),
+  });
+  const body = await response.text();
+  console.log('Agent402 index registration:', JSON.stringify({
+    httpStatus: response.status,
+    ok: response.ok,
+    origin: sellerOrigin,
+    body: body.slice(0, 4000),
+    completedAt: new Date().toISOString(),
+  }));
+}
+
 async function registerX402scanOnce() {
   const { signer, fetch: authFetch } = makeClient();
   state.status = 'registering';
@@ -121,6 +138,10 @@ async function registerX402scanOnce() {
   console.log('x402scan registration result:', JSON.stringify(state.result));
   if (!response.ok) throw new Error('x402scan registration returned HTTP ' + response.status + ': ' + text.slice(0, 4000));
 }
+
+registerAgent402OriginOnce().catch((error) => {
+  console.error('Agent402 index registration failed:', String(error?.stack || error));
+});
 
 if (runRegistry) {
   registerX402scanOnce().catch((error) => {
