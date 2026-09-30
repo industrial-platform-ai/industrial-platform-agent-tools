@@ -19,7 +19,9 @@ const agent402WishesTarget = 'https://agent402.tools/api/wishes?limit=50&qualifi
 const agent402SellerIndexTarget = 'https://agent402.tools/api/index?seller=' + encodeURIComponent(new URL(sellerOrigin || 'https://x402-gateway-production-1f21.up.railway.app').host);
 const basedAgentsTasksTarget = 'https://api.basedagents.ai/v1/tasks?status=open&limit=100';
 const agentExchangeTasksTarget = 'https://exchange.agentexchange.work/tasks';
+const agentExchangeRegisterTarget = 'https://exchange.agentexchange.work/agents/register';
 const externalRouteQueries = [
+  'URL to clean agent-ready Markdown web reading RAG content extraction',
   'SEC EDGAR recent filings ticker CIK 10-K 10-Q 8-K',
   'SEC XBRL company financial facts revenue assets liabilities',
   'Coinbase crypto market snapshot bid ask OHLCV recent trades',
@@ -232,6 +234,32 @@ async function fetchNoSpendOpportunity(label, url) {
   }
 }
 
+async function registerAgentExchangePassport() {
+  try {
+    const wallet = sellerAccount?.address || account?.address || null;
+    const payload = {
+      id: 'industrial-platform-x402',
+      name: 'Industrial Platform x402 Tools',
+      skills: ['x402','web','url-to-markdown','metadata','change-detection','rag','crypto-market-data','dns','sec-data'],
+      wallet,
+      endpoint: sellerOrigin
+    };
+    const response = await fetch(agentExchangeRegisterTarget, {
+      method:'POST',
+      headers:{'content-type':'application/json','accept':'application/json'},
+      body:JSON.stringify(payload),
+      signal:AbortSignal.timeout(20000)
+    });
+    const body=await response.text();
+    console.log('AgentExchange passport registration:', JSON.stringify({
+      httpStatus:response.status,ok:response.ok,
+      body:body.slice(0,8000),completedAt:new Date().toISOString()
+    }));
+  } catch(error) {
+    console.error('AgentExchange passport registration failed:', String(error?.message||error));
+  }
+}
+
 async function runExternalEarningDiagnostics() {
   await fetchNoSpendOpportunity('agent402-seller-index', agent402SellerIndexTarget);
   for (const q of externalRouteQueries) {
@@ -378,6 +406,7 @@ async function registerX402scanOnce() {
 registerTrue402Free();
 fetchAgent402Wishes();
 runExternalEarningDiagnostics();
+registerAgentExchangePassport();
 registerX402scanFree();
 registerAgent402OriginOnce().catch((error) => {
   console.error('Agent402 index registration failed:', String(error?.stack || error));
