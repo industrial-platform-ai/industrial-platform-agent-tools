@@ -1,8 +1,8 @@
 {
   "actorSpecification": 1,
   "name": "web-change-intelligence",
-  "title": "Web Change Intelligence",
-  "description": "Detect deterministic changes in public web pages and machine-readable endpoints for AI agents and automated workflows.",
+  "title": "Website Change Detector & Diff API",
+  "description": "Detect changed or unchanged public web content and return deterministic diffs for AI agents.",
   "version": "0.1",
   "buildTag": "latest",
   "input": "./input_schema.json",
