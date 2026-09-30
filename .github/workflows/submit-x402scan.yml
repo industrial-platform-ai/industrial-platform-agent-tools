@@ -50,6 +50,6 @@ jobs:
             echo "::endgroup::"
           }
 
-          register             'Web Metadata Intelligence'             'https://api.apify.com/v2/acts/industrial_platform~web-metadata-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
+          register             'Web Metadata Intelligence'             'https://x402-gateway-production-1f21.up.railway.app/metadata'
 
-          register             'Web Change Intelligence'             'https://api.apify.com/v2/acts/industrial_platform~web-change-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
+          register             'Web Change Intelligence'             'https://x402-gateway-production-1f21.up.railway.app/change'
