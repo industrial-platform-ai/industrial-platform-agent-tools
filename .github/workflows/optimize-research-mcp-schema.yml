@@ -7,6 +7,10 @@ on:
       - '.github/workflows/optimize-research-mcp-schema.yml'
   workflow_dispatch:
 
+concurrency:
+  group: industrial-platform-apify-build-lane-1
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
