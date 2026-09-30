@@ -75,6 +75,24 @@ jobs:
             }));
 
             out.coinbaseSearch = {};
+
+            try {
+              const exact = await client.callTool({
+                name:'search_resources',
+                arguments:{
+                  urlSubstring:'x402-gateway-production-1f21.up.railway.app',
+                  curatedOnly:false,
+                  limit:20
+                }
+              });
+              out.coinbaseExactUrlSearch = {
+                isError:Boolean(exact.isError),
+                text:(exact.content??[]).filter(x=>x.type==='text').map(x=>x.text).join('\n')
+              };
+            } catch(e) {
+              out.coinbaseExactUrlSearch = {error:String(e)};
+            }
+
             for (const q of [
               'Industrial Platform Fast Web Tools',
               'x402-gateway-production-1f21.up.railway.app',
