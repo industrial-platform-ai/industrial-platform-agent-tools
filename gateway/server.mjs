@@ -141,6 +141,27 @@ const agentCard = {
   skill: 'https://x402-gateway-production-1f21.up.railway.app/skill.md'
 };
 
+const serviceIndex = {
+  name: 'Industrial Platform Web Tools',
+  description: manifest.description,
+  paymentProtocol: 'x402',
+  network: 'eip155:8453',
+  asset: 'USDC',
+  capabilities: manifest.tools.map(t => ({
+    name: t.name,
+    method: t.method,
+    route: t.route,
+    priceUsd: 0.01,
+    description: t.description
+  })),
+  discovery: {
+    x402: '/.well-known/x402',
+    openapi: '/openapi.json',
+    agentCard: '/.well-known/agent-card.json',
+    skill: '/skill.md'
+  }
+};
+
 async function bodyBuffer(req) {
   const chunks=[];
   let total=0;
@@ -270,6 +291,19 @@ async function proxy(req,res,actorId,tool,inputOverride=null) {
 const server = http.createServer(async (req,res)=>{
   try {
     const u = new URL(req.url,'http://localhost');
+    if (req.method==='GET' && u.pathname==='/') return json(res,200,serviceIndex);
+    if (req.method==='GET' && u.pathname==='/robots.txt') {
+      res.writeHead(200, {'content-type':'text/plain; charset=utf-8'});
+      return res.end('User-agent: *\nAllow: /\n');
+    }
+    if (req.method==='OPTIONS' && (u.pathname==='/metadata' || u.pathname==='/change')) {
+      res.writeHead(204, {
+        'allow':'GET, HEAD, POST, OPTIONS',
+        'access-control-allow-methods':'GET, HEAD, POST, OPTIONS',
+        'access-control-allow-headers':'content-type,payment-signature,x-payment,skyfire-pay-id'
+      });
+      return res.end();
+    }
     if (req.method==='GET' && u.pathname==='/health') return json(res,200,{ok:true});
     if (req.method==='GET' && u.pathname==='/.well-known/x402') return json(res,200,manifest);
     if (req.method==='GET' && u.pathname==='/openapi.json') return json(res,200,openapi);
