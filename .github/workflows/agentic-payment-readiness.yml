@@ -1,0 +1,129 @@
+name: Agentic Payment Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/agentic-payment-readiness.yml'
+  schedule:
+    - cron: '23 */6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify no-spend Skyfire 402 challenges
+        run: |
+          node <<'NODE'
+          const actors = [
+            'industrial_platform~research-brief-agent',
+            'industrial_platform~web-change-intelligence',
+            'industrial_platform~web-metadata-intelligence',
+            'industrial_platform~article-content-intelligence',
+            'industrial_platform~pdf-text-intelligence',
+            'industrial_platform~sitemap-intelligence'
+          ];
+
+          const results = [];
+
+          for (const actor of actors) {
+            const url = `https://api.apify.com/v2/actors/${actor}/run-sync-get-dataset-items`;
+            const response = await fetch(url, {
+              method: 'GET',
+              headers: {
+                'X-APIFY-PAYMENT-PROTOCOL': 'SKYFIRE',
+                'Accept': 'application/json'
+              },
+              redirect: 'manual'
+            });
+
+            const text = await response.text();
+            let body;
+            try { body = JSON.parse(text); }
+            catch { body = { raw: text.slice(0, 1000) }; }
+
+            const safeHeaders = {};
+            for (const [key, value] of response.headers.entries()) {
+              if (/payment|skyfire|content-type|www-authenticate/i.test(key)) {
+                safeHeaders[key] = value.length > 1200 ? value.slice(0, 1200) + '...[truncated]' : value;
+              }
+            }
+
+            results.push({
+              actor,
+              status: response.status,
+              error_type: body?.error?.type ?? null,
+              error_message: body?.error?.message ?? null,
+              headers: safeHeaders
+            });
+
+            if (response.status !== 402) {
+              throw new Error(`${actor}: expected HTTP 402 payment challenge, got ${response.status}`);
+            }
+          }
+
+          console.log(JSON.stringify(results, null, 2));
+          NODE
+
+      - name: Inspect Skyfire MCP tool schemas
+        run: |
+          npm install --no-save @modelcontextprotocol/sdk
+
+          node <<'NODE'
+          const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
+          const { StreamableHTTPClientTransport } = await import('@modelcontextprotocol/sdk/client/streamableHttp.js');
+
+          const actors = [
+            'industrial_platform/research-brief-agent',
+            'industrial_platform/web-change-intelligence',
+            'industrial_platform/web-metadata-intelligence',
+            'industrial_platform/article-content-intelligence',
+            'industrial_platform/pdf-text-intelligence',
+            'industrial_platform/sitemap-intelligence'
+          ];
+
+          const endpoint = new URL('https://mcp.apify.com/');
+          endpoint.searchParams.set('tools', actors.join(','));
+          endpoint.searchParams.set('payment', 'skyfire');
+
+          const client = new Client({ name: 'industrial-platform-payment-readiness', version: '1.0.0' }, {});
+          const transport = new StreamableHTTPClientTransport(endpoint);
+
+          try {
+            await client.connect(transport);
+            const { tools } = await client.listTools();
+
+            const serviceTools = tools.filter((tool) =>
+              actors.some((actor) => tool.name.includes(actor.split('/')[1]))
+            );
+
+            const rows = serviceTools.map((tool) => ({
+              name: tool.name,
+              description: tool.description,
+              required: tool.inputSchema?.required ?? [],
+              properties: Object.keys(tool.inputSchema?.properties ?? {}),
+              paymentProperties: Object.keys(tool.inputSchema?.properties ?? {})
+                .filter((key) => /pay|skyfire|payment/i.test(key))
+            }));
+
+            console.log(JSON.stringify({
+              endpoint: endpoint.toString(),
+              service_tool_count: rows.length,
+              tools: rows
+            }, null, 2));
+
+            if (rows.length !== actors.length) {
+              throw new Error(`Expected ${actors.length} service tools, found ${rows.length}`);
+            }
+          } finally {
+            await client.close().catch(() => {});
+          }
+          NODE
