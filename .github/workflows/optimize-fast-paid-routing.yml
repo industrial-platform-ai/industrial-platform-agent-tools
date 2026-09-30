@@ -14,7 +14,7 @@ jobs:
   optimize:
     runs-on: ubuntu-latest
     steps:
-      - name: Apply acquisition pricing only
+      - name: Lower acquisition prices while preserving Apify pricing metadata
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
         run: |
@@ -23,27 +23,34 @@ jobs:
           update_price() {
             local actor="$1"
             local event="$2"
-            local event_title="$3"
-            local event_description="$4"
 
-            cat > payload.json <<JSON
-          {
-            "pricingInfos": [{
-              "pricingModel": "PAY_PER_EVENT",
-              "pricingPerEvent": {
-                "actorChargeEvents": {
-                  "$event": {
-                    "eventTitle": "$event_title",
-                    "eventDescription": "$event_description",
-                    "eventPriceUsd": 0.001,
-                    "isPrimaryEvent": true,
-                    "isOneTimeEvent": false
-                  }
-                }
-              }
-            }]
+            curl --fail-with-body --silent --show-error               --header "Authorization: Bearer $APIFY_TOKEN"               "https://api.apify.com/v2/actors/$actor"               > current.json
+
+            node - "$event" <<'NODE'
+          const fs = require('fs');
+          const eventName = process.argv[2];
+          const actor = JSON.parse(fs.readFileSync('current.json','utf8')).data;
+          const pricingInfos = structuredClone(actor.pricingInfos ?? []);
+          if (!pricingInfos.length) throw new Error('No pricingInfos found');
+
+          const current = pricingInfos[pricingInfos.length - 1];
+          if (current.pricingModel !== 'PAY_PER_EVENT') {
+            throw new Error('Current pricing model is not PAY_PER_EVENT');
           }
-          JSON
+
+          const charge = current.pricingPerEvent?.actorChargeEvents?.[eventName];
+          if (!charge) throw new Error('Billing event not found: ' + eventName);
+
+          charge.eventPriceUsd = 0.001;
+
+          fs.writeFileSync('payload.json', JSON.stringify({ pricingInfos }));
+          console.log(JSON.stringify({
+            pricingModel: current.pricingModel,
+            event: eventName,
+            oldRecordCreatedAt: current.createdAt,
+            newEventPriceUsd: charge.eventPriceUsd
+          }, null, 2));
+          NODE
 
             code=$(curl --silent --show-error               -o response.json               -w '%{http_code}'               --request PUT               --header "Authorization: Bearer $APIFY_TOKEN"               --header "Content-Type: application/json"               --data @payload.json               "https://api.apify.com/v2/actors/$actor")
 
@@ -77,9 +84,8 @@ jobs:
           NODE
           }
 
-          update_price             'industrial_platform~web-metadata-intelligence'             'metadata-extraction'             'Metadata extraction'             'One successful public URL metadata extraction.'
-
-          update_price             'industrial_platform~web-change-intelligence'             'page-comparison'             'Page comparison'             'One successful public webpage baseline or comparison.'
+          update_price 'industrial_platform~web-metadata-intelligence' 'metadata-extraction'
+          update_price 'industrial_platform~web-change-intelligence' 'page-comparison'
 
       - name: Verify Store agentic visibility
         run: |
