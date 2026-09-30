@@ -1,0 +1,30 @@
+name: PDF Text Intelligence
+
+on:
+  pull_request:
+    paths:
+      - 'actors/pdf-text-intelligence/**'
+      - '.github/workflows/pdf-text-intelligence.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'actors/pdf-text-intelligence/**'
+      - '.github/workflows/pdf-text-intelligence.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  actor:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: actors/pdf-text-intelligence
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      - run: npm run check
+      - run: npm test
