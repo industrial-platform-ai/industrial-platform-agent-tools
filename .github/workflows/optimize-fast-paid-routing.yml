@@ -1,0 +1,149 @@
+name: Optimize Fast Paid Routing
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/optimize-fast-paid-routing.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply acquisition pricing and agentic configuration
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          configure_actor() {
+            local actor="$1"
+            local title="$2"
+            local description="$3"
+            local event="$4"
+            local event_title="$5"
+            local event_description="$6"
+            local example_body="$7"
+
+            cat > payload.json <<JSON
+          {
+            "title": "$title",
+            "description": "$description",
+            "categories": ["AI", "DEVELOPER_TOOLS", "SEO_TOOLS"],
+            "isPublic": true,
+            "defaultRunOptions": {
+              "build": "latest",
+              "timeoutSecs": 180,
+              "memoryMbytes": 512,
+              "restartOnError": false,
+              "forcePermissionLevel": "LIMITED_PERMISSIONS"
+            },
+            "actorStandby": {
+              "isEnabled": false
+            },
+            "exampleRunInput": {
+              "body": "$example_body",
+              "contentType": "application/json; charset=utf-8"
+            },
+            "pricingInfos": [{
+              "pricingModel": "PAY_PER_EVENT",
+              "pricingPerEvent": {
+                "actorChargeEvents": {
+                  "$event": {
+                    "eventTitle": "$event_title",
+                    "eventDescription": "$event_description",
+                    "eventPriceUsd": 0.001,
+                    "isPrimaryEvent": true,
+                    "isOneTimeEvent": false
+                  }
+                }
+              }
+            }]
+          }
+          JSON
+
+            curl --fail-with-body --silent --show-error               --request PUT               --header "Authorization: Bearer $APIFY_TOKEN"               --header "Content-Type: application/json"               --data @payload.json               "https://api.apify.com/v2/actors/$actor"               > updated.json
+
+            node - "$actor" "$event" <<'NODE'
+          const fs = require('fs');
+          const actorName = process.argv[2];
+          const eventName = process.argv[3];
+          const actor = JSON.parse(fs.readFileSync('updated.json', 'utf8')).data;
+          const pricing = actor.pricingInfos?.[actor.pricingInfos.length - 1];
+          const event = pricing?.pricingPerEvent?.actorChargeEvents?.[eventName];
+
+          const summary = {
+            actor: actorName,
+            isPublic: actor.isPublic,
+            pricingModel: pricing?.pricingModel,
+            eventPriceUsd: event?.eventPriceUsd,
+            isPrimaryEvent: event?.isPrimaryEvent,
+            permission: actor.defaultRunOptions?.forcePermissionLevel,
+            standby: actor.actorStandby?.isEnabled,
+            agenticWhitelist: actor.isWhiteListedForAgenticPayments
+          };
+          console.log(JSON.stringify(summary, null, 2));
+
+          if (actor.isPublic !== true) throw new Error(actorName + ' is not public');
+          if (pricing?.pricingModel !== 'PAY_PER_EVENT') throw new Error(actorName + ' is not PAY_PER_EVENT');
+          if (event?.eventPriceUsd !== 0.001) throw new Error(actorName + ' price is not $0.001');
+          if (event?.isPrimaryEvent !== true) throw new Error(actorName + ' primary billing event missing');
+          if (actor.defaultRunOptions?.forcePermissionLevel !== 'LIMITED_PERMISSIONS') throw new Error(actorName + ' permissions are not limited');
+          if (actor.actorStandby?.isEnabled !== false) throw new Error(actorName + ' Standby is enabled');
+          NODE
+          }
+
+          configure_actor             'industrial_platform~web-metadata-intelligence'             'Web Metadata Extractor for AI Agents'             'Fetch Open Graph, JSON-LD, canonical URLs, robots directives, headings, language, and page metadata for up to 100 public URLs. Acquisition price: $0.001 per successful URL; failed URLs are not billed.'             'metadata-extraction'             'Metadata extraction'             'One successful public URL metadata extraction.'             '{\"urls\":[\"https://example.com/\"]}'
+
+          configure_actor             'industrial_platform~web-change-intelligence'             'Website Change Detector & Diff API'             'Baseline or compare a public webpage for changed/unchanged status, SHA-256 fingerprints, normalized content, and deterministic diffs. Acquisition price: $0.001 per successful comparison; failed fetches are not billed.'             'page-comparison'             'Page comparison'             'One successful public webpage baseline or comparison.'             '{\"url\":\"https://example.com/\",\"include_current_text\":false}'
+
+      - name: Verify Store agentic visibility
+        run: |
+          set -euo pipefail
+          for actor in web-metadata-intelligence web-change-intelligence; do
+            curl --fail-with-body --silent --show-error               "https://api.apify.com/v2/store?search=$actor&username=industrial_platform&responseFormat=full&allowsAgenticUsers=true&includeUnrunnableActors=true"               > store.json
+
+            node - "$actor" <<'NODE'
+          const fs = require('fs');
+          const name = process.argv[2];
+          const items = JSON.parse(fs.readFileSync('store.json', 'utf8')).data?.items ?? [];
+          const actor = items.find(x => x.username === 'industrial_platform' && x.name === name);
+          console.log(JSON.stringify({
+            actor: name,
+            foundAgentic: Boolean(actor),
+            currentPricingInfo: actor?.currentPricingInfo,
+            isWhiteListedForAgenticPayments: actor?.isWhiteListedForAgenticPayments
+          }, null, 2));
+          if (!actor) throw new Error(name + ' is not visible with allowsAgenticUsers=true');
+          NODE
+          done
+
+      - name: Verify native x402 payment challenge
+        run: |
+          set -euo pipefail
+
+          probe() {
+            local label="$1"
+            local url="$2"
+            local body="$3"
+
+            code=$(curl --silent --show-error               -D headers.txt               -o body.txt               -w '%{http_code}'               -X POST               -H 'content-type: application/json'               --data "$body"               "$url")
+
+            echo "$label HTTP $code"
+            grep -iE '^(payment-required|x-payment|content-type):' headers.txt || true
+            head -c 2000 body.txt || true
+            echo
+
+            if [[ "$code" != "402" ]]; then
+              echo "::error::$label did not return HTTP 402"
+              return 1
+            fi
+          }
+
+          probe             'Web Metadata Intelligence'             'https://api.apify.com/v2/acts/industrial_platform~web-metadata-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'             '{"urls":["https://example.com/"]}'
+
+          probe             'Web Change Intelligence'             'https://api.apify.com/v2/acts/industrial_platform~web-change-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'             '{"url":"https://example.com/","include_current_text":false}'
