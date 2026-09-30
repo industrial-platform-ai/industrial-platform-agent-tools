@@ -25,6 +25,18 @@ This hosted MCP endpoint exposes the current Industrial Platform service portfol
 
 Live pricing and execution eligibility should be verified against Apify Store before paid execution.
 
+## Official MCP Registry
+
+Industrial Platform is published in the official MCP Registry as:
+
+```text
+io.github.industrial-platform-ai/industrial-platform
+```
+
+Registry version: `1.0.0` — status: `active`.
+
+The Registry listing points to the same hosted six-service Apify MCP bundle used by this repository.
+
 ## Machine-readable discovery
 
 The repository publishes:
