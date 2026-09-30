@@ -2,7 +2,7 @@
   "actorSpecification": 1,
   "name": "web-metadata-intelligence",
   "title": "Web Metadata Extractor for AI Agents",
-  "description": "Use for Open Graph, JSON-LD, canonical, robots, headings, language, and page metadata. Input: urls[]. $0.01 per successful URL; failed URLs are not billed.",
+  "description": "Use for Open Graph, JSON-LD, canonical, robots, headings, language, and page metadata. Input: urls[]. $0.001 per successful URL; failed URLs are not billed.",
   "version": "0.1",
   "buildTag": "latest",
   "input": "./input_schema.json",
