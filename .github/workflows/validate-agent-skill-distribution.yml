@@ -1,0 +1,42 @@
+name: Validate Agent Skill Distribution
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/industrial-platform-paid-web-tools/**'
+      - '.github/workflows/validate-agent-skill-distribution.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Inspect installable skills
+        run: |
+          npx --yes skills@latest add https://github.com/industrial-platform-ai/industrial-platform-agent-tools             --list
+
+      - name: Install Industrial Platform paid web skill
+        run: |
+          npx --yes skills@latest add https://github.com/industrial-platform-ai/industrial-platform-agent-tools             --skill industrial-platform-paid-web-tools             --yes
+
+      - name: Verify installed skill content
+        run: |
+          set -euo pipefail
+          FOUND=$(find . -type f -path '*/industrial-platform-paid-web-tools/SKILL.md' -print -quit)
+          if [ -z "$FOUND" ]; then
+            echo "::error::Installed SKILL.md not found"
+            exit 1
+          fi
+          echo "installed=$FOUND"
+          grep -q 'industrial_platform/web-metadata-intelligence' "$FOUND"
+          grep -q 'industrial_platform/web-change-intelligence' "$FOUND"
+          grep -q 'stableapify.dev/api/actors/call' "$FOUND"
+          grep -q 'agentcash@latest fetch' "$FOUND"
