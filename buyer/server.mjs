@@ -120,6 +120,29 @@ async function payOnce() {
 }
 
 
+async function registerX402scanAuthenticatedNoSpend() {
+  if (!sellerAccount) throw new Error('Seller account unavailable');
+  const client = new x402Client();
+  registerExactEvmScheme(client, { signer: sellerAccount });
+  client.registerExtension(createSIWxClientExtension({ signers: [sellerAccount] }));
+  const httpClient = new x402HTTPClient(client);
+  const authFetch = wrapFetchWithPayment(globalThis.fetch, httpClient);
+  const target = 'https://www.x402scan.com/api/x402/registry/register-origin';
+  const response = await authFetch(target, {
+    method:'POST',
+    headers:{'content-type':'application/json','accept':'application/json'},
+    body:JSON.stringify({origin:sellerOrigin})
+  });
+  const body = await response.text();
+  console.log('x402scan SIWX registration:', JSON.stringify({
+    httpStatus:response.status,
+    ok:response.ok,
+    wallet:sellerAccount.address,
+    body:body.slice(0,5000),
+    completedAt:new Date().toISOString()
+  }));
+}
+
 async function registerX402scanFree() {
   const target = 'https://www.x402scan.com/api/x402/registry/register-origin';
   try {
@@ -137,6 +160,17 @@ async function registerX402scanFree() {
       body:body.slice(0,5000),
       completedAt:new Date().toISOString()
     }));
+    if(response.status===402){
+      let challenge=null;
+      try{challenge=JSON.parse(body);}catch{}
+      const accepts=challenge?.accepts;
+      const siwx=challenge?.extensions?.['sign-in-with-x'];
+      if(Array.isArray(accepts) && accepts.length===0 && siwx){
+        await registerX402scanAuthenticatedNoSpend();
+      } else {
+        console.log('x402scan auth not attempted because challenge may require payment');
+      }
+    }
   } catch (error) {
     console.error('x402scan free registration failed:', String(error?.stack||error));
   }
