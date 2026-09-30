@@ -19,14 +19,18 @@ jobs:
           node <<'NODE'
           const names = ["io.github.industrial-platform-ai/research-brief","io.github.industrial-platform-ai/web-change","io.github.industrial-platform-ai/web-metadata","io.github.industrial-platform-ai/article-extractor","io.github.industrial-platform-ai/pdf-text","io.github.industrial-platform-ai/sitemap","io.github.industrial-platform-ai/link-extractor"];
           for (const name of names) {
-            const url = new URL('https://registry.modelcontextprotocol.io/v0.1/servers');
-            url.searchParams.set('search', name);
-            url.searchParams.set('version', 'latest');
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(name + ': HTTP ' + response.status);
-            const body = await response.json();
-            const match = (body.servers ?? []).find((entry) => (entry.server ?? entry).name === name);
-            if (!match) throw new Error(name + ': not found');
+            let match = null;
+            for (let attempt = 1; attempt <= 12 && !match; attempt += 1) {
+              const url = new URL('https://registry.modelcontextprotocol.io/v0.1/servers');
+              url.searchParams.set('search', name);
+              url.searchParams.set('version', 'latest');
+              const response = await fetch(url);
+              if (!response.ok) throw new Error(name + ': HTTP ' + response.status);
+              const body = await response.json();
+              match = (body.servers ?? []).find((entry) => (entry.server ?? entry).name === name) ?? null;
+              if (!match && attempt < 12) await new Promise((resolve) => setTimeout(resolve, 10000));
+            }
+            if (!match) throw new Error(name + ': not found after registry propagation retries');
             const official = match._meta?.['io.modelcontextprotocol.registry/official'];
             if (official?.status !== 'active') throw new Error(name + ': status is ' + official?.status);
             console.log(JSON.stringify({
