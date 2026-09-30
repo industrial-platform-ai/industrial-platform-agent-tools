@@ -3,7 +3,7 @@
   "provider": "Industrial Platform",
   "provider_id": "industrial_platform",
   "repository": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
-  "mcp_bundle_url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence,industrial_platform/link-intelligence",
+  "mcp_bundle_url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence,industrial_platform/link-intelligence,industrial_platform/robots-policy-intelligence",
   "notes": [
     "Live pricing and eligibility should be verified against Apify Store before paid execution.",
     "All machine-native utility Actors are designed for structured JSON inputs and outputs.",
@@ -170,11 +170,33 @@
       "mcp_registry_status": "publication-automated",
       "mcp_x402_url": "https://mcp.apify.com?tools=industrial_platform/link-intelligence&payment=x402",
       "mcp_skyfire_url": "https://mcp.apify.com?tools=industrial_platform/link-intelligence&payment=skyfire"
+    },
+    {
+      "id": "robots-policy-intelligence",
+      "title": "Robots Policy Intelligence",
+      "actor": "industrial_platform/robots-policy-intelligence",
+      "store_url": "https://apify.com/industrial_platform/robots-policy-intelligence",
+      "pricing_model": "PAY_PER_EVENT",
+      "billing_event": "robots-analysis",
+      "current_event_price_usd": 0.0005,
+      "publication_state": "queued",
+      "best_for": [
+        "robots.txt parsing",
+        "crawler access decisions",
+        "AI crawler policy checks",
+        "crawl planning",
+        "SEO and RAG preflight checks"
+      ],
+      "mcp_registry_name": "io.github.industrial-platform-ai/robots-policy",
+      "mcp_registry_version": "1.0.0",
+      "mcp_registry_status": "publication-automated",
+      "mcp_x402_url": "https://mcp.apify.com?tools=industrial_platform/robots-policy-intelligence&payment=x402",
+      "mcp_skyfire_url": "https://mcp.apify.com?tools=industrial_platform/robots-policy-intelligence&payment=skyfire"
     }
   ],
   "mcp_registry": {
     "name": "io.github.industrial-platform-ai/industrial-platform",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "status": "active",
     "api_search": "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.industrial-platform-ai%2Findustrial-platform&version=latest"
   }
