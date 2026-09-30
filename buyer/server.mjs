@@ -37,7 +37,9 @@ const marketQueries = [
   'detect webpage changes',
   'crypto price BTC',
   'crypto 24h stats volume high low',
-  'crypto order book best bid ask'
+  'crypto order book best bid ask',
+  'crypto historical candles OHLCV',
+  'crypto recent trades order flow'
 ];
 const requestMethod = (process.env.X402_METHOD || 'POST').toUpperCase();
 const requestBodyOverride = process.env.X402_REQUEST_BODY || '';
@@ -235,7 +237,7 @@ async function registerAgent402OriginOnce({scheduleRetry=true}={}) {
   const rereadSeconds = Number(parsed?.reverify?.nextRereadInSeconds);
   const toolCount = Number(parsed?.seller?.toolCount);
 
-  if (response.ok && Number.isFinite(toolCount) && toolCount >= 26) {
+  if (response.ok && Number.isFinite(toolCount) && toolCount >= 28) {
     await runFindDiagnostics();
     return;
   }
