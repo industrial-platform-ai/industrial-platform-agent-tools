@@ -1,30 +1,31 @@
-# Article Content Intelligence
+# Article Content Extractor for AI Agents
 
-LLM-free article extraction for AI agents, RAG pipelines, research workflows, and automated systems.
+Deterministic article content extraction for AI agents, RAG ingestion, research pipelines, summarization, and automation.
 
-## Input
+**Actor:** `industrial_platform/article-content-intelligence`
 
-```json
-{
-  "urls": [
-    "https://example.com/article"
-  ]
-}
-```
+## Price
 
-Up to 100 unique public HTTP/HTTPS article URLs can be processed per run.
+**$0.002 per successful article extraction** using the `article-extraction` pay-per-event billing event.
 
-## Successful output
+Failed URLs are returned as error records without a successful extraction event.
 
-Each successful article can include:
+Examples:
 
-- title
-- description
+- 1 article: $0.002
+- 100 articles: $0.20
+- 1,000 articles: $2.00
+
+## Output
+
+A successful article can include:
+
+- clean article body text
+- title and description
 - author
 - published / modified metadata when present
 - canonical URL
 - language
-- clean article text
 - word count
 - reading-time estimate
 - JSON-LD
@@ -33,12 +34,30 @@ Each successful article can include:
 - response bytes
 - latency
 
-The Actor uses deterministic HTML extraction and does not call an LLM.
+## Input
 
-## Pricing event
-
-```text
-article-extraction
+```json
+{
+  "urls": [
+    "https://www.iana.org/help/example-domains"
+  ]
+}
 ```
 
-One successful article extraction produces one event. Failed URLs are returned as error records without an extraction event.
+Up to 100 unique public HTTP/HTTPS URLs can be processed per run.
+
+## When to use it
+
+Use this Actor for **article content extraction**, RAG ingestion, research corpora, article summarization pipelines, and clean text for downstream agents.
+
+## Runtime model
+
+The Actor uses deterministic static HTTP + HTML extraction and does not call an LLM. It does not execute client-side JavaScript.
+
+## Security
+
+Only public HTTP/HTTPS targets are accepted. Private/local targets and unsafe redirects are blocked, with bounded response size and timeout.
+
+## MCP
+
+The required MCP/API input is `urls`.
