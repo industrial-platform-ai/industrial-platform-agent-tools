@@ -1,0 +1,82 @@
+name: Optimize Apify Store Discovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/optimize-store-discovery.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Actor titles and categories
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          cat > research.json <<'JSON'
+          {
+            "title": "AI Web Research & Research Brief Agent",
+            "categories": ["AI","DEVELOPER_TOOLS"]
+          }
+          JSON
+
+          cat > change.json <<'JSON'
+          {
+            "title": "Website Change Detector & Diff API",
+            "categories": ["AI","DEVELOPER_TOOLS"]
+          }
+          JSON
+
+          cat > metadata.json <<'JSON'
+          {
+            "title": "Web Metadata Extractor for AI Agents",
+            "categories": ["AI","DEVELOPER_TOOLS","SEO_TOOLS"]
+          }
+          JSON
+
+          cat > article.json <<'JSON'
+          {
+            "title": "Article Content Extractor for AI Agents",
+            "categories": ["AI","DEVELOPER_TOOLS"]
+          }
+          JSON
+
+          cat > pdf.json <<'JSON'
+          {
+            "title": "PDF Text Extractor for AI Agents",
+            "categories": ["AI","DEVELOPER_TOOLS"]
+          }
+          JSON
+
+          cat > sitemap.json <<'JSON'
+          {
+            "title": "Sitemap URL Extractor for AI Agents",
+            "categories": ["AI","DEVELOPER_TOOLS","SEO_TOOLS"]
+          }
+          JSON
+
+          declare -A FILES=(
+            [research-brief-agent]=research.json
+            [web-change-intelligence]=change.json
+            [web-metadata-intelligence]=metadata.json
+            [article-content-intelligence]=article.json
+            [pdf-text-intelligence]=pdf.json
+            [sitemap-intelligence]=sitemap.json
+          )
+
+          for NAME in "${!FILES[@]}"; do
+            curl --fail-with-body --silent --show-error               --request PUT               --header "Authorization: Bearer $APIFY_TOKEN"               --header "Content-Type: application/json"               --data @"${FILES[$NAME]}"               "https://api.apify.com/v2/actors/industrial_platform~$NAME"               > /dev/null
+          done
+
+      - name: Verify Store-facing metadata
+        run: |
+          for NAME in research-brief-agent web-change-intelligence web-metadata-intelligence article-content-intelligence pdf-text-intelligence sitemap-intelligence; do
+            curl --fail-with-body --silent --show-error               "https://api.apify.com/v2/store?search=$NAME&username=industrial_platform&responseFormat=agent&includeUnrunnableActors=true"               >> store.jsonl
+            echo >> store.jsonl
+          done
+          cat store.jsonl
