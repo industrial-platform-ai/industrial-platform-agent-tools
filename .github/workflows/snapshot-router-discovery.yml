@@ -1,0 +1,247 @@
+name: Snapshot Machine-Native Router Discovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/snapshot-router-discovery.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install MCP SDK
+        run: npm install --no-save @modelcontextprotocol/sdk
+
+      - name: Capture router and marketplace discovery
+        shell: bash
+        run: |
+          mkdir -p observability
+
+          node <<'NODE'
+          import fs from 'node:fs/promises';
+          import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+          import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+
+          const clip = (value, max = 20000) => {
+            if (value == null) return value;
+            const s = typeof value === 'string' ? value : JSON.stringify(value);
+            return s.length > max ? s.slice(0, max) + '…[truncated]' : s;
+          };
+
+          async function request(url, options = {}) {
+            const started = Date.now();
+            try {
+              const response = await fetch(url, {
+                redirect: 'follow',
+                headers: {
+                  'user-agent': 'industrial-platform-agent-tools/1.0',
+                  ...(options.headers ?? {})
+                },
+                ...options
+              });
+              const text = await response.text();
+              let body;
+              try { body = JSON.parse(text); } catch { body = text; }
+              return {
+                ok: response.ok,
+                status: response.status,
+                elapsedMs: Date.now() - started,
+                headers: Object.fromEntries(
+                  [...response.headers.entries()].filter(([k]) =>
+                    ['content-type','payment-required','www-authenticate','x-payment','x402-version'].includes(k.toLowerCase())
+                  )
+                ),
+                body: typeof body === 'string' ? clip(body) : JSON.parse(clip(body))
+              };
+            } catch (error) {
+              return {
+                ok: false,
+                status: null,
+                elapsedMs: Date.now() - started,
+                error: String(error)
+              };
+            }
+          }
+
+          const snapshot = {
+            generatedAt: new Date().toISOString(),
+            purpose: 'Machine-readable snapshot of buyer-side discovery/routing surfaces for Industrial Platform agent tools.',
+            agent402: {},
+            stableApify: {},
+            coinbaseBazaar: {}
+          };
+
+          const queries = [
+            'web metadata extractor',
+            'website change detector',
+            'extract Open Graph JSON-LD canonical robots metadata',
+            'detect meaningful website changes deterministic diff'
+          ];
+
+          snapshot.agent402.indexStableApify = await request(
+            'https://agent402.tools/api/index?seller=stableapify.dev'
+          );
+
+          snapshot.agent402.find = {};
+          for (const query of queries) {
+            snapshot.agent402.find[query] = await request(
+              'https://agent402.tools/api/find?q=' + encodeURIComponent(query)
+            );
+          }
+
+          snapshot.agent402.routeExternal = {};
+          for (const query of queries) {
+            snapshot.agent402.routeExternal[query] = await request(
+              'https://agent402.tools/api/route',
+              {
+                method: 'POST',
+                headers: {'content-type': 'application/json'},
+                body: JSON.stringify({query, top: 20, include: 'external'})
+              }
+            );
+          }
+
+          const stableBase = 'https://stableapify.dev';
+          snapshot.stableApify.discovery = {};
+          for (const path of ['/', '/.well-known/x402', '/openapi.json', '/llms.txt']) {
+            snapshot.stableApify.discovery[path] = await request(stableBase + path);
+          }
+
+          const actorCalls = [
+            {
+              key: 'typedMetadata',
+              url: stableBase + '/api/actors/industrial_platform/web-metadata-intelligence/call',
+              body: {input: {urls: ['https://example.com/']}}
+            },
+            {
+              key: 'typedChange',
+              url: stableBase + '/api/actors/industrial_platform/web-change-intelligence/call',
+              body: {input: {url: 'https://example.com/', include_current_text: false}}
+            },
+            {
+              key: 'genericMetadata',
+              url: stableBase + '/api/actors/call',
+              body: {
+                actorId: 'industrial_platform/web-metadata-intelligence',
+                input: {urls: ['https://example.com/']}
+              }
+            },
+            {
+              key: 'genericChange',
+              url: stableBase + '/api/actors/call',
+              body: {
+                actorId: 'industrial_platform/web-change-intelligence',
+                input: {url: 'https://example.com/', include_current_text: false}
+              }
+            }
+          ];
+
+          snapshot.stableApify.calls = {};
+          for (const target of actorCalls) {
+            snapshot.stableApify.calls[target.key] = await request(target.url, {
+              method: 'POST',
+              headers: {'content-type': 'application/json'},
+              body: JSON.stringify(target.body)
+            });
+          }
+
+          const coinbaseEndpoint = new URL('https://api.cdp.coinbase.com/platform/v2/x402/discovery/mcp');
+          const client = new Client(
+            {name: 'industrial-platform-router-snapshot', version: '1.0.0'},
+            {}
+          );
+
+          try {
+            await client.connect(new StreamableHTTPClientTransport(coinbaseEndpoint));
+            const tools = await client.listTools();
+            snapshot.coinbaseBazaar.tools = tools.tools.map(t => ({
+              name: t.name,
+              description: t.description
+            }));
+
+            snapshot.coinbaseBazaar.search = {};
+            const bazaarQueries = [
+              'web metadata extractor JSON-LD Open Graph canonical robots',
+              'website change detector monitor page changes deterministic diff',
+              'Industrial Platform web metadata',
+              'Industrial Platform web change'
+            ];
+
+            for (const query of bazaarQueries) {
+              try {
+                const result = await client.callTool({
+                  name: 'search_resources',
+                  arguments: {query}
+                });
+                snapshot.coinbaseBazaar.search[query] = {
+                  isError: Boolean(result.isError),
+                  text: clip((result.content ?? [])
+                    .filter(x => x.type === 'text')
+                    .map(x => x.text)
+                    .join('\n'), 30000)
+                };
+              } catch (error) {
+                snapshot.coinbaseBazaar.search[query] = {error: String(error)};
+              }
+            }
+
+            const validationTargets = [
+              'https://stableapify.dev/api/actors/industrial_platform/web-metadata-intelligence/call',
+              'https://stableapify.dev/api/actors/industrial_platform/web-change-intelligence/call',
+              'https://stableapify.dev/api/actors/call'
+            ];
+
+            snapshot.coinbaseBazaar.validation = {};
+            for (const url of validationTargets) {
+              try {
+                const result = await client.callTool({
+                  name: 'validate_endpoint',
+                  arguments: {url}
+                });
+                snapshot.coinbaseBazaar.validation[url] = {
+                  isError: Boolean(result.isError),
+                  text: clip((result.content ?? [])
+                    .filter(x => x.type === 'text')
+                    .map(x => x.text)
+                    .join('\n'), 30000)
+                };
+              } catch (error) {
+                snapshot.coinbaseBazaar.validation[url] = {error: String(error)};
+              }
+            }
+          } catch (error) {
+            snapshot.coinbaseBazaar.connectionError = String(error);
+          } finally {
+            await client.close().catch(() => {});
+          }
+
+          await fs.writeFile(
+            'observability/router-discovery-snapshot.json',
+            JSON.stringify(snapshot, null, 2) + '\n'
+          );
+          NODE
+
+      - name: Commit snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "industrial-platform-bot"
+          git config user.email "art@naturalist.gallery"
+          git add observability/router-discovery-snapshot.json
+
+          if git diff --cached --quiet; then
+            echo "No snapshot changes."
+            exit 0
+          fi
+
+          git commit -m "Snapshot machine-native router discovery"
+          git push
