@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.industrial-platform-ai/industrial-platform",
   "title": "Industrial Platform",
-  "description": "Paid machine-callable research, web monitoring, metadata, article, PDF, and sitemap utilities for autonomous AI agents and MCP workflows.",
+  "description": "Paid research and web-data tools for autonomous AI agents and MCP workflows.",
   "version": "1.0.0",
   "websiteUrl": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
   "repository": {
