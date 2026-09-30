@@ -154,3 +154,5 @@ jobs:
 # rerun after validator compatibility deploy
 
 # post-schema-deploy validation
+
+# recheck after direct Coinbase settlement migration
