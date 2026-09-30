@@ -1,0 +1,27 @@
+name: Portfolio Revenue Telemetry
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/apify/portfolio-metrics.mjs'
+      - '.github/workflows/portfolio-revenue-telemetry.yml'
+  schedule:
+    - cron: '29 * * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Measure portfolio external paid usage
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: node ./scripts/apify/portfolio-metrics.mjs
