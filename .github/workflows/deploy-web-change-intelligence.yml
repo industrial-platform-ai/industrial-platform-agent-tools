@@ -9,6 +9,10 @@ on:
       - 'actors/web-change-intelligence/**'
       - '.github/workflows/deploy-web-change-intelligence.yml'
 
+concurrency:
+  group: industrial-platform-apify-build-lane-1
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
