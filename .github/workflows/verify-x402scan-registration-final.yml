@@ -25,3 +25,5 @@ jobs:
           git commit -m "Record final x402scan registry result"
           git pull --rebase origin main
           git push
+
+# verify production gateway registration
