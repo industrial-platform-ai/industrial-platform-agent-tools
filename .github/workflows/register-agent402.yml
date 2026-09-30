@@ -1,0 +1,70 @@
+name: Register Fast Tools with Agent402
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/register-agent402.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Register candidate Industrial Platform origins
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          register() {
+            local label="$1"
+            local origin="$2"
+
+            echo "::group::$label"
+            response=$(curl --silent --show-error               -w $'\nHTTP_STATUS:%{http_code}'               -X POST               'https://agent402.tools/api/index/register'               -H 'content-type: application/json'               -d "$(jq -nc --arg origin "$origin" '{origin:$origin}')")
+
+            status=$(printf '%s\n' "$response" | sed -n 's/^HTTP_STATUS://p')
+            payload=$(printf '%s\n' "$response" | sed '/^HTTP_STATUS:/d')
+
+            echo "HTTP $status"
+            echo "$payload" | jq . || echo "$payload"
+
+            if [[ "$status" -lt 200 || "$status" -ge 300 ]]; then
+              echo "::error::$label registration HTTP $status"
+              return 1
+            fi
+            echo "::endgroup::"
+          }
+
+          register 'Apify API origin' 'https://api.apify.com'
+          register 'Apify MCP origin' 'https://mcp.apify.com'
+          register 'Industrial Platform fast MCP URL' 'https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence,industrial_platform/web-change-intelligence&payment=x402'
+
+      - name: Query Agent402 for our tasks
+        shell: bash
+        run: |
+          set -euo pipefail
+          for q in             'web metadata extractor'             'website change detector'             'Industrial Platform web metadata'             'Industrial Platform web change'
+          do
+            echo "::group::$q"
+            curl --silent --show-error --get               --data-urlencode "q=$q"               'https://agent402.tools/api/find'               | tee result.json
+            echo
+            node - "$q" <<'NODE'
+          const fs = require('fs');
+          const query = process.argv[2];
+          const body = JSON.parse(fs.readFileSync('result.json','utf8'));
+          const rows = Array.isArray(body) ? body : (body.results ?? []);
+          const hits = rows.filter(row => {
+            const hay = JSON.stringify(row).toLowerCase();
+            return hay.includes('industrial_platform') ||
+                   hay.includes('industrial-platform') ||
+                   hay.includes('mcp.apify.com') ||
+                   hay.includes('api.apify.com');
+          });
+          console.log(JSON.stringify({query, total: rows.length, hits}, null, 2));
+          NODE
+            echo "::endgroup::"
+          done
