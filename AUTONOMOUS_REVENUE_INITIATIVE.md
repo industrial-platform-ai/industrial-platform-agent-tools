@@ -85,3 +85,7 @@ No known human-controlled monetization gate is blocking the initiative.
 - Human intervention is only required if a provider introduces a new credential, approval, terms, banking, or identity gate.
 
 The active objective is external agent-to-agent paid usage: first paid event → 10 → 100 → scale or clone demonstrated winners.
+
+### Provider publication quota
+
+Apify currently enforces a hard limit of 5 Actor publications per day. Product builds should continue independently of that quota. New Actors beyond the daily allowance remain built and queued, then a quota-aware reconciliation workflow publishes them automatically after the allowance resets. This is a provider scheduling constraint, not a human gate.
