@@ -42,8 +42,8 @@ jobs:
         run: |
           cat > payload.json <<'JSON'
           {
-            "title": "Sitemap Intelligence",
-            "description": "Discover website sitemaps and extract clean deduplicated URL rows for AI agents, crawlers, RAG pipelines, SEO tools, and automation. Supports robots.txt discovery, sitemap indexes, XML, gzip, RSS, Atom, and plain-text sitemaps.",
+            "title": "Sitemap URL Extractor for AI Agents",
+            "description": "Use to discover and expand robots.txt or sitemaps into deduplicated crawl URLs with lastmod, changefreq, and priority. Supports indexes, gzip, RSS, Atom, and text lists.",
             "categories": ["AI", "DEVELOPER_TOOLS", "SEO_TOOLS"],
             "isPublic": true,
             "defaultRunOptions": {
