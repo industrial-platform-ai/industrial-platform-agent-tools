@@ -10,13 +10,14 @@ import { utilityTools } from './utilities.mjs';
 import { marketTools } from './market.mjs';
 import { documentTools } from './article.mjs';
 import { networkTools } from './network.mjs';
+import { bundleTools } from './bundles.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
 const PAY_TO = process.env.X402_PAY_TO || '0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744';
 const PRICE = '$0.001';
 const NETWORK = 'eip155:8453';
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools];
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools];
 
 const metadataInputSchema = {
   type:'object',
