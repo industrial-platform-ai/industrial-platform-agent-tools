@@ -74,8 +74,14 @@ Expand products that show external paid usage, repeat users, integration activit
 
 ChatGPT/GitHub → implementation + tests → GitHub Actions → Apify deploy + smoke test → Store/MCP discovery → external paid calls → Apify run telemetry → milestone monitor → 1 → 10 → 100 paid events → improve/clone/Product #3.
 
-## Current human gate
+## Current operating state
 
-The repository requires a GitHub Actions secret named `APIFY_TOKEN`.
+No known human-controlled monetization gate is blocking the initiative.
 
-Once that secret exists and the deployment workflow is on the default branch, GitHub can deploy and smoke-test Web Change Intelligence without local Git, PowerShell navigation, or a downloaded ZIP.
+- `APIFY_TOKEN` is configured for GitHub Actions.
+- Developer identity verification / KYC is complete.
+- Payout eligibility is confirmed.
+- The normal development instruction remains `continue`.
+- Human intervention is only required if a provider introduces a new credential, approval, terms, banking, or identity gate.
+
+The active objective is external agent-to-agent paid usage: first paid event → 10 → 100 → scale or clone demonstrated winners.
