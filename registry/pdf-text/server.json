@@ -1,0 +1,25 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.industrial-platform-ai/pdf-text",
+  "title": "PDF Text Extractor for AI Agents",
+  "description": "Extract text, page text, and metadata from public PDFs for AI agents and RAG.",
+  "version": "1.0.0",
+  "websiteUrl": "https://apify.com/industrial_platform/pdf-text-intelligence",
+  "repository": {
+    "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.apify.com?tools=industrial_platform/pdf-text-intelligence"
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "provider": "Industrial Platform",
+      "paymentModel": "Apify pay-per-event and supported agentic payments",
+      "actor": "industrial_platform/pdf-text-intelligence"
+    }
+  }
+}
