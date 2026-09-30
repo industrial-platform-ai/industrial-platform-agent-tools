@@ -1,0 +1,82 @@
+name: Submit Paid MCP Surfaces to Agent Tools Directory
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/submit-agent-tools-directory.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit five high-conversion MCP endpoints
+        env:
+          CONTACT_EMAIL: art@naturalist.gallery
+        run: |
+          node <<'NODE'
+          const entries = [
+            {
+              name: 'Industrial Platform — Paid Agent Web Tools',
+              url: 'https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402',
+              description: 'Six direct-x402 MCP tools for web research, change detection, metadata, article extraction, PDF text, and sitemap discovery.'
+            },
+            {
+              name: 'Industrial Platform Article Content Extractor',
+              url: 'https://mcp.apify.com?tools=industrial_platform/article-content-intelligence&payment=x402',
+              description: 'Direct-x402 clean article text and metadata for AI, RAG, and research pipelines. $0.002 per successful article.'
+            },
+            {
+              name: 'Industrial Platform PDF Text Extractor',
+              url: 'https://mcp.apify.com?tools=industrial_platform/pdf-text-intelligence&payment=x402',
+              description: 'Direct-x402 public PDF text, per-page content, and metadata extraction. $0.0015 per successful PDF.'
+            },
+            {
+              name: 'Industrial Platform Sitemap URL Extractor',
+              url: 'https://mcp.apify.com?tools=industrial_platform/sitemap-intelligence&payment=x402',
+              description: 'Direct-x402 sitemap discovery and crawl URL extraction for autonomous agents. $0.0001 per emitted URL.'
+            },
+            {
+              name: 'Industrial Platform Web Metadata Extractor',
+              url: 'https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence&payment=x402',
+              description: 'Direct-x402 Open Graph, JSON-LD, canonical, robots, headings, and page metadata extraction. $0.01 per URL.'
+            }
+          ];
+
+          const endpoint = 'https://agent-tools.cloud/api/v1/mcp/submit';
+          const contact = process.env.CONTACT_EMAIL;
+          const results = [];
+
+          for (const entry of entries) {
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json',
+                'user-agent': 'industrial-platform-agent-tools/1.0'
+              },
+              body: JSON.stringify({
+                ...entry,
+                transport: 'streamable-http',
+                contact
+              })
+            });
+            const text = await response.text();
+            let body;
+            try { body = JSON.parse(text); } catch { body = { raw: text }; }
+            results.push({
+              name: entry.name,
+              status: response.status,
+              response: body
+            });
+            if (!response.ok) {
+              console.error(JSON.stringify(results, null, 2));
+              process.exit(1);
+            }
+          }
+
+          console.log(JSON.stringify(results, null, 2));
+          NODE
