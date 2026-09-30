@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "provider": "Industrial Platform",
+  "provider_id": "industrial_platform",
+  "repository": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+  "mcp_bundle_url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence",
+  "notes": [
+    "Live pricing and eligibility should be verified against Apify Store before paid execution.",
+    "All machine-native utility Actors are designed for structured JSON inputs and outputs.",
+    "Credentials and payment authorization are handled by Apify-supported authentication or agentic-payment flows."
+  ],
+  "services": [
+    {
+      "id": "research-brief-agent",
+      "title": "AI Research Brief & Web Research Agent",
+      "actor": "industrial_platform/research-brief-agent",
+      "store_url": "https://apify.com/industrial_platform/research-brief-agent",
+      "pricing_model": "PAY_PER_EVENT",
+      "billing_event": "research-brief-completed",
+      "current_event_price_usd": 1.99,
+      "best_for": [
+        "current web research",
+        "competitor and vendor comparison",
+        "pricing research",
+        "multi-source synthesis",
+        "source-backed briefs with citations"
+      ],
+      "input": {
+        "required": ["research_question"],
+        "optional": ["context", "requirements"]
+      }
+    },
+    {
+      "id": "web-change-intelligence",
+      "title": "Web Change Intelligence",
+      "actor": "industrial_platform/web-change-intelligence",
+      "store_url": "https://apify.com/industrial_platform/web-change-intelligence",
+      "pricing_model": "PAY_PER_EVENT",
+      "billing_event": "page-comparison",
+      "current_event_price_usd": 0.01,
+      "agentic_payment_eligible": true,
+      "best_for": [
+        "pricing page changes",
+        "availability changes",
+        "documentation changes",
+        "policy and terms changes",
+        "competitor page monitoring"
+      ]
+    },
+    {
+      "id": "web-metadata-intelligence",
+      "title": "Web Metadata Intelligence",
+      "actor": "industrial_platform/web-metadata-intelligence",
+      "store_url": "https://apify.com/industrial_platform/web-metadata-intelligence",
+      "pricing_model": "PAY_PER_EVENT",
+      "billing_event": "metadata-extraction",
+      "current_event_price_usd": 0.01,
+      "agentic_payment_eligible": true,
+      "best_for": [
+        "page metadata extraction",
+        "Open Graph and Twitter Cards",
+        "JSON-LD extraction",
+        "canonical and robots metadata",
+        "machine-readable page inspection"
+      ]
+    },
+    {
+      "id": "article-content-intelligence",
+      "title": "Article Content Intelligence",
+      "actor": "industrial_platform/article-content-intelligence",
+      "store_url": "https://apify.com/industrial_platform/article-content-intelligence",
+      "pricing_model": "PAY_PER_EVENT",
+      "billing_event": "article-extraction",
+      "current_event_price_usd": 0.002,
+      "agentic_payment_eligible": true,
+      "best_for": [
+        "article text extraction",
+        "RAG ingestion",
+        "research pipelines",
+        "article metadata",
+        "clean web content for downstream agents"
+      ]
+    },
+    {
+      "id": "pdf-text-intelligence",
+      "title": "PDF Text Intelligence",
+      "actor": "industrial_platform/pdf-text-intelligence",
+      "store_url": "https://apify.com/industrial_platform/pdf-text-intelligence",
+      "pricing_model": "PAY_PER_EVENT",
+      "billing_event": "pdf-extraction",
+      "current_event_price_usd": 0.0015,
+      "agentic_payment_eligible": true,
+      "best_for": [
+        "PDF text extraction",
+        "per-page text",
+        "PDF metadata",
+        "RAG ingestion",
+        "document processing pipelines"
+      ]
+    }
+  ]
+}
