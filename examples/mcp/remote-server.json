@@ -1,7 +1,7 @@
 {
   "mcpServers": {
-    "industrial-platform-research": {
-      "url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent"
+    "industrial-platform": {
+      "url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence"
     }
   }
 }
