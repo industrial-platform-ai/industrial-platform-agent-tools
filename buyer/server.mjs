@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { x402Client, wrapFetchWithPayment } from '@x402/fetch';
+import { x402Client, x402HTTPClient, wrapFetchWithPayment } from '@x402/fetch';
 import { registerExactEvmScheme } from '@x402/evm/exact/client';
 import { createSIWxClientExtension } from '@x402/extensions/sign-in-with-x';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -28,7 +28,8 @@ function makeClient() {
   const client = new x402Client();
   registerExactEvmScheme(client, { signer });
   client.registerExtension(createSIWxClientExtension({ signers: [signer] }));
-  return { signer, fetch: wrapFetchWithPayment(globalThis.fetch, client) };
+  const httpClient = new x402HTTPClient(client);
+  return { signer, fetch: wrapFetchWithPayment(globalThis.fetch, httpClient) };
 }
 
 async function payOnce() {
