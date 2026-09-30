@@ -1,4 +1,5 @@
 name: Audit Live x402 Tool Selection Surface
+# Re-run after hosted Actor conversion descriptions deploy.
 
 on:
   workflow_dispatch:
