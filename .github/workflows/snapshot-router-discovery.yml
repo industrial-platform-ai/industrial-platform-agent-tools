@@ -62,7 +62,7 @@ jobs:
                     ['content-type','payment-required','www-authenticate','x-payment','x402-version'].includes(k.toLowerCase())
                   )
                 ),
-                body: typeof body === 'string' ? clip(body) : JSON.parse(clip(body))
+                body: typeof body === 'string' ? clip(body) : body
               };
             } catch (error) {
               return {
@@ -92,6 +92,59 @@ jobs:
           snapshot.agent402.indexStableApify = await request(
             'https://agent402.tools/api/index?seller=stableapify.dev'
           );
+          snapshot.agent402.indexApify = await request(
+            'https://agent402.tools/api/index?seller=api.apify.com'
+          );
+
+          async function sellerTrust(origin) {
+            try {
+              const challengeRes = await fetch(
+                'https://agent402.tools/api/pow/challenge?slug=seller-trust'
+              );
+              if (!challengeRes.ok) {
+                return {error: 'challenge HTTP ' + challengeRes.status + ': ' + await challengeRes.text()};
+              }
+              const challenge = await challengeRes.json();
+              const { createHash } = await import('node:crypto');
+
+              const leadingZeroBits = (buf) => {
+                let total = 0;
+                for (const x of buf) {
+                  if (x === 0) { total += 8; continue; }
+                  total += Math.clz32(x) - 24;
+                  break;
+                }
+                return total;
+              };
+
+              let nonce = 0;
+              for (;;) {
+                const digest = createHash('sha256')
+                  .update(challenge.challenge + ':' + nonce)
+                  .digest();
+                if (leadingZeroBits(digest) >= challenge.difficulty) break;
+                nonce++;
+              }
+
+              const url = new URL('https://agent402.tools/api/x402/seller-trust');
+              url.searchParams.set('origin', origin);
+              const res = await fetch(url, {
+                headers: {
+                  'X-Pow-Solution': challenge.token + ':' + nonce,
+                  'user-agent': 'industrial-platform-agent-tools/1.0'
+                }
+              });
+              const text = await res.text();
+              let body;
+              try { body = JSON.parse(text); } catch { body = text; }
+              return {status: res.status, body};
+            } catch (error) {
+              return {error: String(error)};
+            }
+          }
+
+          snapshot.agent402.sellerTrustStableApify = await sellerTrust('stableapify.dev');
+          snapshot.agent402.sellerTrustApify = await sellerTrust('api.apify.com');
 
           snapshot.agent402.find = {};
           for (const query of queries) {
@@ -167,7 +220,8 @@ jobs:
             const tools = await client.listTools();
             snapshot.coinbaseBazaar.tools = tools.tools.map(t => ({
               name: t.name,
-              description: t.description
+              description: t.description,
+              inputSchema: t.inputSchema ?? null
             }));
 
             snapshot.coinbaseBazaar.search = {};
