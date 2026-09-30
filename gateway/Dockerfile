@@ -10,6 +10,7 @@ COPY market.mjs ./
 COPY article.mjs ./
 COPY network.mjs ./
 COPY bundles.mjs ./
+RUN npm run check
 ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["node","server.mjs"]
