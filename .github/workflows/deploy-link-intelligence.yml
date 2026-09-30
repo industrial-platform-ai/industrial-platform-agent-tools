@@ -47,7 +47,7 @@ jobs:
           cat > payload.json <<'JSON'
           {
             "title": "Link Extractor for AI Agents",
-            "description": "Use to extract normalized links, anchor text, rel flags, target, and internal/external classification from public web pages. Deterministic and low-cost for crawlers, RAG, SEO, and agent workflows.",
+            "description": "Extract links, anchors, rel flags and link class. Price: $0.0005 per successful page.",
             "categories": ["AI", "DEVELOPER_TOOLS", "SEO_TOOLS"],
             "isPublic": true,
             "defaultRunOptions": {
@@ -61,58 +61,41 @@ jobs:
             "exampleRunInput": {
               "body": "{\"urls\":[\"https://example.com/\"]}",
               "contentType": "application/json; charset=utf-8"
-            }
+            },
+            "pricingInfos": [{
+              "pricingModel": "PAY_PER_EVENT",
+              "pricingPerEvent": {
+                "actorChargeEvents": {
+                  "link-extraction": {
+                    "eventTitle": "Link extraction",
+                    "eventDescription": "One successfully processed source page.",
+                    "eventPriceUsd": 0.0005,
+                    "isPrimaryEvent": true,
+                    "isOneTimeEvent": false
+                  }
+                }
+              }
+            }]
           }
           JSON
 
           sleep 8
-
-          curl --retry 6 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error             --request PUT             --header "Authorization: Bearer $APIFY_TOKEN"             --header "Content-Type: application/json"             --data @payload.json             "https://api.apify.com/v2/actors/industrial_platform~link-intelligence"             > actor-runtime.json
-
-          curl --retry 6 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error             --header "Authorization: Bearer $APIFY_TOKEN"             "https://api.apify.com/v2/actors/industrial_platform~link-intelligence"             > current-actor.json
-
-          node <<'NODE'
-          const fs = require('fs');
-          const actor = JSON.parse(fs.readFileSync('current-actor.json','utf8')).data;
-          const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
-          const currentEvent = current?.pricingPerEvent?.actorChargeEvents?.['link-extraction'];
-
-          const pricingCorrect =
-            current?.pricingModel === 'PAY_PER_EVENT' &&
-            currentEvent?.eventPriceUsd === 0.0005 &&
-            currentEvent?.isPrimaryEvent === true;
-
-          if (!pricingCorrect) {
-            fs.writeFileSync('pricing.json', JSON.stringify({
-              pricingInfos: [{
-                pricingModel: 'PAY_PER_EVENT',
-                pricingPerEvent: {
-                  actorChargeEvents: {
-                    'link-extraction': {
-                      eventTitle: 'Link extraction',
-                      eventDescription: 'One successfully processed source page.',
-                      eventPriceUsd: 0.0005,
-                      isPrimaryEvent: true,
-                      isOneTimeEvent: false
-                    }
-                  }
-                }
-              }]
-            }));
-          }
-
-          fs.writeFileSync('pricing-needed.txt', pricingCorrect ? 'false' : 'true');
-          NODE
-
-          if [ "$(cat pricing-needed.txt)" = "true" ]; then
-            curl --retry 6 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error               --request PUT               --header "Authorization: Bearer $APIFY_TOKEN"               --header "Content-Type: application/json"               --data @pricing.json               "https://api.apify.com/v2/actors/industrial_platform~link-intelligence"               > actor-pricing.json
-          fi
+          curl --retry 8 --retry-delay 8 --retry-all-errors --fail-with-body --silent --show-error \
+            --request PUT \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data @payload.json \
+            "https://api.apify.com/v2/actors/industrial_platform~link-intelligence" \
+            > actor-configured.json
 
       - name: Verify configuration
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
         run: |
-          curl --retry 6 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error             --header "Authorization: Bearer $APIFY_TOKEN"             "https://api.apify.com/v2/actors/industrial_platform~link-intelligence"             > actor.json
+          curl --retry 6 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            "https://api.apify.com/v2/actors/industrial_platform~link-intelligence" \
+            > actor.json
 
           node <<'NODE'
           const fs = require('fs');
@@ -124,10 +107,12 @@ jobs:
           if (actor.actorStandby?.isEnabled) throw new Error('Standby must be disabled.');
           if (current?.pricingModel !== 'PAY_PER_EVENT') throw new Error('Actor is not PPE.');
           if (event?.eventPriceUsd !== 0.0005) throw new Error('Unexpected link-extraction price.');
+          if (event?.isPrimaryEvent !== true) throw new Error('link-extraction must be the primary event.');
           console.log(JSON.stringify({
             isPublic: actor.isPublic,
             pricingModel: current?.pricingModel,
-            eventPriceUsd: event?.eventPriceUsd
+            eventPriceUsd: event?.eventPriceUsd,
+            primary: event?.isPrimaryEvent
           }, null, 2));
           NODE
 
@@ -135,7 +120,13 @@ jobs:
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
         run: |
-          curl --retry 6 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error             --request POST             --header "Authorization: Bearer $APIFY_TOKEN"             --header "Content-Type: application/json"             --data '{"urls":["https://example.com/"],"max_links_per_page":25}'             "https://api.apify.com/v2/actors/industrial_platform~link-intelligence/run-sync-get-dataset-items?clean=true&format=json&timeout=90"             > result.json
+          curl --retry 3 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data '{"urls":["https://example.com/"],"max_links_per_page":25}' \
+            "https://api.apify.com/v2/actors/industrial_platform~link-intelligence/run-sync-get-dataset-items?clean=true&format=json&timeout=90" \
+            > result.json
 
           node <<'NODE'
           const fs = require('fs');
