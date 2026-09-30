@@ -14,10 +14,10 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify all seven registry entries
+      - name: Verify all eight registry entries
         run: |
           node <<'NODE'
-          const names = ["io.github.industrial-platform-ai/research-brief","io.github.industrial-platform-ai/web-change","io.github.industrial-platform-ai/web-metadata","io.github.industrial-platform-ai/article-extractor","io.github.industrial-platform-ai/pdf-text","io.github.industrial-platform-ai/sitemap","io.github.industrial-platform-ai/link-extractor"];
+          const names = ["io.github.industrial-platform-ai/research-brief","io.github.industrial-platform-ai/web-change","io.github.industrial-platform-ai/web-metadata","io.github.industrial-platform-ai/article-extractor","io.github.industrial-platform-ai/pdf-text","io.github.industrial-platform-ai/sitemap","io.github.industrial-platform-ai/link-extractor","io.github.industrial-platform-ai/robots-policy"];
           for (const name of names) {
             let match = null;
             for (let attempt = 1; attempt <= 12 && !match; attempt += 1) {
