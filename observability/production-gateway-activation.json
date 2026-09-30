@@ -1,0 +1,1118 @@
+{
+  "generatedAt": "2026-09-30T17:46:00.960Z",
+  "origin": "https://x402-gateway-production-1f21.up.railway.app",
+  "health": {
+    "status": 200,
+    "ok": true,
+    "elapsedMs": 290,
+    "headers": {
+      "connection": "keep-alive",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 30 Sep 2026 17:46:01 GMT",
+      "server": "railway-hikari",
+      "transfer-encoding": "chunked",
+      "x-hikari-trace": "iad1.dh1s",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "_372HYTmRC6YIH5JLPU1MQ"
+    },
+    "body": {
+      "ok": true
+    }
+  },
+  "manifest": {
+    "status": 200,
+    "ok": true,
+    "elapsedMs": 228,
+    "headers": {
+      "connection": "keep-alive",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 30 Sep 2026 17:46:01 GMT",
+      "server": "railway-hikari",
+      "transfer-encoding": "chunked",
+      "x-hikari-trace": "iad1.fp5t",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "_f5zAHxISeWiD1Ef2prcFg"
+    },
+    "body": {
+      "name": "Industrial Platform Fast Web Tools",
+      "description": "Low-cost web metadata extraction and deterministic website change detection for autonomous agents.",
+      "tools": [
+        {
+          "name": "web-metadata-intelligence",
+          "route": "/metadata",
+          "method": "POST",
+          "price": "Bridge price returned live by StableApify; Actor event is $0.001 per successful URL",
+          "description": "Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "urls": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "maxItems": 100
+              }
+            },
+            "required": [
+              "urls"
+            ]
+          }
+        },
+        {
+          "name": "web-change-intelligence",
+          "route": "/change",
+          "method": "POST",
+          "price": "Bridge price returned live by StableApify; Actor event is $0.001 per successful comparison",
+          "description": "Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "previous_hash": {
+                "type": "string"
+              },
+              "previous_text": {
+                "type": "string"
+              },
+              "include_current_text": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "url"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "openapi": {
+    "status": 200,
+    "ok": true,
+    "elapsedMs": 126,
+    "headers": {
+      "connection": "keep-alive",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 30 Sep 2026 17:46:01 GMT",
+      "server": "railway-hikari",
+      "transfer-encoding": "chunked",
+      "x-hikari-trace": "iad1.dh1s",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "dcIf2mnqSkuPAXZ0nPRhug"
+    },
+    "body": {
+      "openapi": "3.1.0",
+      "info": {
+        "title": "Industrial Platform Fast Web Tools",
+        "version": "1.0.0"
+      },
+      "paths": {
+        "/metadata": {
+          "post": {
+            "operationId": "webMetadataIntelligence",
+            "summary": "Extract webpage metadata",
+            "description": "Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.",
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "urls": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1,
+                        "maxItems": 100
+                      }
+                    },
+                    "required": [
+                      "urls"
+                    ]
+                  }
+                }
+              }
+            },
+            "responses": {
+              "200": {
+                "description": "Metadata result"
+              },
+              "402": {
+                "description": "x402 payment required"
+              }
+            }
+          }
+        },
+        "/change": {
+          "post": {
+            "operationId": "webChangeIntelligence",
+            "summary": "Detect webpage changes",
+            "description": "Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.",
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string"
+                      },
+                      "previous_hash": {
+                        "type": "string"
+                      },
+                      "previous_text": {
+                        "type": "string"
+                      },
+                      "include_current_text": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "url"
+                    ]
+                  }
+                }
+              }
+            },
+            "responses": {
+              "200": {
+                "description": "Change comparison result"
+              },
+              "402": {
+                "description": "x402 payment required"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "status": 402,
+    "ok": false,
+    "elapsedMs": 429,
+    "headers": {
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 17:46:02 GMT",
+      "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9zdGFibGVhcGlmeS5kZXYvYXBpL2FjdG9ycy9jYWxsIiwibWV0aG9kIjoiUE9TVCIsImRlc2NyaXB0aW9uIjoiU3RhcnQgYW4gQXBpZnkgQWN0b3IgcnVuIGFzeW5jaHJvbm91c2x5IGZvciBhbnkgU3RvcmUgYWN0b3IuIFJldHVybnMgYSBzaWduZWQgdG9rZW4gZm9yIHBvbGxpbmcgL2FwaS9hY3RvcnMvc3RhdHVzIChmcmVlIFNJV1gpIGFuZCBmZXRjaGluZyAvYXBpL2FjdG9ycy9yZXN1bHRzIChwYWlkIG9uIGZpcnN0IGNhbGwgcGVyIHdhbGxldCwgdGhlbiBmcmVlIHdpdGggU0lXWCByZXBsYXkpLiIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiIsInRhZ3MiOlsiQWN0b3JzIl0sInNlcnZpY2VOYW1lIjoiQXBpZnkgQVBJIn0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4ODMzNTg5ZkNENmVEYjZFMDhmNGM3QzMyRDRmNzFiNTRiZEEwMjkxMyIsInBheVRvIjoiMHgyM2Q5MzFmOTU4MzFjZWU1MGI1ZjVlZGY0ZDBlODgyNzBmNmM4NDExIiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnsibmFtZSI6IlVTRCBDb2luIiwidmVyc2lvbiI6IjIifX1dLCJleHRlbnNpb25zIjp7ImJhemFhciI6eyJpbmZvIjp7ImlucHV0Ijp7InR5cGUiOiJodHRwIiwibWV0aG9kIjoiUE9TVCIsImJvZHlUeXBlIjoianNvbiIsImJvZHkiOnt9fX0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJpbnB1dCI6eyJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJ0eXBlIjp7InR5cGUiOiJzdHJpbmciLCJjb25zdCI6Imh0dHAifSwibWV0aG9kIjp7InR5cGUiOiJzdHJpbmciLCJlbnVtIjpbIlBPU1QiLCJQVVQiLCJQQVRDSCJdfSwiYm9keVR5cGUiOnsidHlwZSI6InN0cmluZyIsImVudW0iOlsianNvbiIsImZvcm0tZGF0YSIsInRleHQiXX0sImJvZHkiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsiaW5wdXQiOnsiZGVzY3JpcHRpb24iOiJKU09OLXNlcmlhbGl6YWJsZSBBY3RvciBpbnB1dC4ifSwib3B0aW9ucyI6eyJkZXNjcmlwdGlvbiI6Ik9wdGlvbmFsIEFwaWZ5IHJ1biBvcHRpb25zLiIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7ImJ1aWxkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjEsIm1heExlbmd0aCI6MTAwfSwibWVtb3J5Ijp7InR5cGUiOiJpbnRlZ2VyIiwibWluaW11bSI6MTI4LCJtYXhpbXVtIjozMjc2OH0sIm1heEl0ZW1zIjp7InR5cGUiOiJpbnRlZ2VyIiwibWluaW11bSI6MSwibWF4aW11bSI6MTAwMDAwfX0sImFkZGl0aW9uYWxQcm9wZXJ0aWVzIjpmYWxzZX0sImFjdG9ySWQiOnsidHlwZSI6InN0cmluZyIsIm1pbkxlbmd0aCI6MSwibWF4TGVuZ3RoIjoyMDAsInBhdHRlcm4iOiJeW0EtWmEtejAtOV1bQS1aYS16MC05Xy1dKihcXC9bQS1aYS16MC05XVtBLVphLXowLTlfLV0qKT8kIiwiZGVzY3JpcHRpb24iOiJBY3RvciBJRCBvciB1c2VybmFtZS9uYW1lLCBlLmcuIFwiYXBpZnkvd2ViLXNjcmFwZXJcIi4ifX0sInJlcXVpcmVkIjpbImFjdG9ySWQiXSwiYWRkaXRpb25hbFByb3BlcnRpZXMiOmZhbHNlfX0sInJlcXVpcmVkIjpbInR5cGUiLCJtZXRob2QiLCJib2R5VHlwZSIsImJvZHkiXSwiYWRkaXRpb25hbFByb3BlcnRpZXMiOmZhbHNlfX0sInJlcXVpcmVkIjpbImlucHV0Il19fX19",
+      "server": "railway-hikari",
+      "transfer-encoding": "chunked",
+      "x-hikari-trace": "iad1.fp5t",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "gIviDrjEQFqxHXW7n6XIxQ"
+    },
+    "body": ""
+  },
+  "change": {
+    "status": 402,
+    "ok": false,
+    "elapsedMs": 209,
+    "headers": {
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 17:46:02 GMT",
+      "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9zdGFibGVhcGlmeS5kZXYvYXBpL2FjdG9ycy9jYWxsIiwibWV0aG9kIjoiUE9TVCIsImRlc2NyaXB0aW9uIjoiU3RhcnQgYW4gQXBpZnkgQWN0b3IgcnVuIGFzeW5jaHJvbm91c2x5IGZvciBhbnkgU3RvcmUgYWN0b3IuIFJldHVybnMgYSBzaWduZWQgdG9rZW4gZm9yIHBvbGxpbmcgL2FwaS9hY3RvcnMvc3RhdHVzIChmcmVlIFNJV1gpIGFuZCBmZXRjaGluZyAvYXBpL2FjdG9ycy9yZXN1bHRzIChwYWlkIG9uIGZpcnN0IGNhbGwgcGVyIHdhbGxldCwgdGhlbiBmcmVlIHdpdGggU0lXWCByZXBsYXkpLiIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiIsInRhZ3MiOlsiQWN0b3JzIl0sInNlcnZpY2VOYW1lIjoiQXBpZnkgQVBJIn0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4ODMzNTg5ZkNENmVEYjZFMDhmNGM3QzMyRDRmNzFiNTRiZEEwMjkxMyIsInBheVRvIjoiMHgyM2Q5MzFmOTU4MzFjZWU1MGI1ZjVlZGY0ZDBlODgyNzBmNmM4NDExIiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnsibmFtZSI6IlVTRCBDb2luIiwidmVyc2lvbiI6IjIifX1dLCJleHRlbnNpb25zIjp7ImJhemFhciI6eyJpbmZvIjp7ImlucHV0Ijp7InR5cGUiOiJodHRwIiwibWV0aG9kIjoiUE9TVCIsImJvZHlUeXBlIjoianNvbiIsImJvZHkiOnt9fX0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJpbnB1dCI6eyJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJ0eXBlIjp7InR5cGUiOiJzdHJpbmciLCJjb25zdCI6Imh0dHAifSwibWV0aG9kIjp7InR5cGUiOiJzdHJpbmciLCJlbnVtIjpbIlBPU1QiLCJQVVQiLCJQQVRDSCJdfSwiYm9keVR5cGUiOnsidHlwZSI6InN0cmluZyIsImVudW0iOlsianNvbiIsImZvcm0tZGF0YSIsInRleHQiXX0sImJvZHkiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsiaW5wdXQiOnsiZGVzY3JpcHRpb24iOiJKU09OLXNlcmlhbGl6YWJsZSBBY3RvciBpbnB1dC4ifSwib3B0aW9ucyI6eyJkZXNjcmlwdGlvbiI6Ik9wdGlvbmFsIEFwaWZ5IHJ1biBvcHRpb25zLiIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7ImJ1aWxkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjEsIm1heExlbmd0aCI6MTAwfSwibWVtb3J5Ijp7InR5cGUiOiJpbnRlZ2VyIiwibWluaW11bSI6MTI4LCJtYXhpbXVtIjozMjc2OH0sIm1heEl0ZW1zIjp7InR5cGUiOiJpbnRlZ2VyIiwibWluaW11bSI6MSwibWF4aW11bSI6MTAwMDAwfX0sImFkZGl0aW9uYWxQcm9wZXJ0aWVzIjpmYWxzZX0sImFjdG9ySWQiOnsidHlwZSI6InN0cmluZyIsIm1pbkxlbmd0aCI6MSwibWF4TGVuZ3RoIjoyMDAsInBhdHRlcm4iOiJeW0EtWmEtejAtOV1bQS1aYS16MC05Xy1dKihcXC9bQS1aYS16MC05XVtBLVphLXowLTlfLV0qKT8kIiwiZGVzY3JpcHRpb24iOiJBY3RvciBJRCBvciB1c2VybmFtZS9uYW1lLCBlLmcuIFwiYXBpZnkvd2ViLXNjcmFwZXJcIi4ifX0sInJlcXVpcmVkIjpbImFjdG9ySWQiXSwiYWRkaXRpb25hbFByb3BlcnRpZXMiOmZhbHNlfX0sInJlcXVpcmVkIjpbInR5cGUiLCJtZXRob2QiLCJib2R5VHlwZSIsImJvZHkiXSwiYWRkaXRpb25hbFByb3BlcnRpZXMiOmZhbHNlfX0sInJlcXVpcmVkIjpbImlucHV0Il19fX19",
+      "server": "railway-hikari",
+      "transfer-encoding": "chunked",
+      "x-hikari-trace": "iad1.dh1s",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "aTHmRR84QeKzLg3S9I3ezw"
+    },
+    "body": ""
+  },
+  "agent402Register": {
+    "status": 200,
+    "ok": true,
+    "elapsedMs": 461,
+    "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
+      "connection": "keep-alive",
+      "content-length": "195",
+      "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 30 Sep 2026 17:46:02 GMT",
+      "etag": "W/\"c3-MonYyWrSAZ0c8H6Myy8HM95+u3o\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "railway-hikari",
+      "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "x-hikari-trace": "iad1.dh1s",
+      "x-permitted-cross-domain-policies": "none",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "c0mRJyakRs-UFwYGlt7tkg",
+      "x-request-id": "d4efca6d-d002-480a-a2d5-fe9d66a8be2d"
+    },
+    "body": {
+      "listed": true,
+      "origin": "https://x402-gateway-production-1f21.up.railway.app",
+      "seller": {
+        "displayName": "Industrial Platform Fast Web Tools",
+        "toolCount": 2,
+        "networks": [],
+        "routable": true,
+        "health": 1
+      }
+    }
+  },
+  "agent402Index": {
+    "status": 200,
+    "ok": true,
+    "elapsedMs": 321,
+    "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
+      "cache-control": "public, max-age=60, stale-while-revalidate=300",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 30 Sep 2026 17:46:03 GMT",
+      "etag": "W/\"2c53-8bDIBaH1Itg9JX+iKcUAPWXTxrw\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "railway-hikari",
+      "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "x-hikari-trace": "iad1.trg5",
+      "x-permitted-cross-domain-policies": "none",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "jOo-OQWGRp62T4TdnPRhug",
+      "x-request-id": "c5b7abb1-ee44-463d-a360-2fdf8cb27b27"
+    },
+    "body": {
+      "origin": "https://x402-gateway-production-1f21.up.railway.app",
+      "displayName": "Industrial Platform Fast Web Tools",
+      "homepage": "https://x402-gateway-production-1f21.up.railway.app",
+      "toolCount": 2,
+      "fetchedAt": 1790790362643,
+      "error": null,
+      "health": 1,
+      "routable": true,
+      "networks": [],
+      "paywall": null,
+      "mpp": null,
+      "originResponded": true,
+      "discoveryPath": "/.well-known/x402",
+      "payToByNetwork": {},
+      "payTosByNetwork": {},
+      "evmDomainByNetwork": {},
+      "history": [
+        1
+      ],
+      "healthWindow": 5,
+      "listingLegend": "Per tool: declared = your own manifest, OpenAPI, agents.json or llms.txt names the route; source = manifest, or registry for a row minted by a settled payment (omitted for rows read from your OpenAPI, agents.json or llms.txt); lastVerifiedAt = when the route last answered us live. A route you do not declare must answer a live 402 at least every 7 days, and leaves the listing when its method answers 404 or 405 twice at least an hour apart, or 410 once. A 410 removes even a declared route. Re-registering at /sell re-checks every route now.",
+      "historyLegend": "the last 5 crawl outcomes, oldest first: 1 = the manifest parsed, 0 = it did not. Fewer than 5 entries means we have crawled this origin that many times, not that entries were dropped. Paywall liveness is measured separately and reported as `paywall`.",
+      "toolsReturned": 2,
+      "toolsTruncated": false,
+      "toolsCap": 500,
+      "tools": [
+        {
+          "method": "POST",
+          "route": "/metadata",
+          "slug": "webMetadataIntelligence",
+          "name": "Extract webpage metadata",
+          "description": "Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.",
+          "price": "$Bridge price returned live by StableApify; Actor event is $0.001 per successful URL",
+          "priceKnown": false,
+          "requestContract": {
+            "state": "declared",
+            "source": "seller_openapi",
+            "required": {
+              "body": [
+                "urls"
+              ]
+            },
+            "runtimeVerified": false
+          },
+          "declared": true
+        },
+        {
+          "method": "POST",
+          "route": "/change",
+          "slug": "webChangeIntelligence",
+          "name": "Detect webpage changes",
+          "description": "Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.",
+          "price": "$Bridge price returned live by StableApify; Actor event is $0.001 per successful comparison",
+          "priceKnown": false,
+          "requestContract": {
+            "state": "declared",
+            "source": "seller_openapi",
+            "required": {
+              "body": [
+                "url"
+              ]
+            },
+            "optional": {
+              "body": [
+                "previous_hash",
+                "previous_text",
+                "include_current_text"
+              ]
+            },
+            "runtimeVerified": false
+          },
+          "declared": true
+        }
+      ],
+      "paymentNetworksKnown": false,
+      "routerDispatchEligible": false,
+      "routerDispatchReason": "network_unknown",
+      "legend": {
+        "routerSpendChains": [
+          "base",
+          "algorand",
+          "tempo",
+          "solana"
+        ],
+        "corrections": "every field here is a reading of public data (the seller's own manifest and 402 challenges, and on-chain settlements) taken at the scan time shown, so it can be stale or, where wallets fold to the wrong operator, wrong. A seller who believes a row misreads them can write to mike@agent402.tools and we will re-scan and correct or withdraw it. Listing is free and unreviewed, and so is delisting: an origin that stops serving x402 drops out on its own.",
+        "routerDispatchByChain": "one entry per chain this host holds a spending wallet for (base, algorand, tempo, solana) that the seller also advertises, each with the router's verdict there. A chain missing from this map is one this host cannot pay on at all, whatever the seller's networks list says; it is never an eligibility verdict about that chain. A seller advertising only chains outside that set reads routerDispatchReason no_supported_route.",
+        "routable": "the last crawl of this origin succeeded (manifest, OpenAPI or a live 402 was read). It is crawl readiness, never a promise that the router will pay the seller.",
+        "health": "a score from the last crawl outcomes of this origin; 1 = every recent crawl succeeded.",
+        "networks": "chains the seller's own 402 challenges advertise; empty means the crawl could not learn any.",
+        "paymentNetworksKnown": "true when at least one payment network was learned from the seller's 402s.",
+        "networksInferred": "present and true on a route row that observed no accepts of its own and inherited the chains its seller advertises elsewhere (other routes, or the Bazaar's settled view); the router still pins the chain from the live 402 before it signs.",
+        "routerDispatchEligible": "true when this host's Smart Order Router will pay the seller on a buyer's behalf right now on at least one chain it holds a spending wallet for.",
+        "routerDispatchReason": {
+          "crawl_failed": "the last crawl of this origin did not succeed, so nothing is routed to it",
+          "network_unknown": "the crawl learned no payment network (the paid route answered something other than a 402 to the unpaid probe), so the router cannot tell which chain to pay on",
+          "no_supported_route": "the seller advertises no chain this host holds a spending wallet for",
+          "settlement_required": "on Base the router pays sellers with on-chain settlement history above the floor from enough distinct payers; a seller below it is tried only under the small unproven ceiling when its verdict carries unprovenTier",
+          "settlement_self_funded": "on Base the router counts only settlement the seller did not fund itself: a payment made with USDC that the wallet it pays had sent the payer earlier is the seller's own money coming home and does not count, and without those payments this seller's history is below the floor; payments made with the payers' own money still count",
+          "settlement_checked_at_pay_time": "on this chain proven-ness is read from the chain at pay time (recent inbound USDC to the seller's own payTo); a thin history may still be tried under the small unproven allowance",
+          "price_unknown": "no seller price is known for this route, and the router never spends against an unknown price",
+          "url_template": "the route is an unsubstituted path template; the router never spends against it",
+          "gateway_rail_unsupported": "the seller's accept on this chain is signed under Circle Gateway's EIP-712 domain (extra.name \"GatewayWalletBatched\", extra.verifyingContract the GatewayWallet), not under the token's own, and settles through a batch facilitator - a deliberate, working rail that this router's stock x402 signer cannot produce a credential for; nothing for the seller to fix, and it becomes eligible the day the router speaks the rail",
+          "usdc_domain_mismatch": "the seller's USDC accept on this chain advertises an EIP-712 domain name that is not the token's own (Base USDC signs under \"USD Coin\"; Monad, Celo and Sei USDC under \"USDC\"), so a stock x402 buyer - this router included - signs an authorization the facilitator refuses and nothing settles; the seller has to fix the accept before anyone can pay it",
+          "delivery_failing": "the last time this router paid this seller on this chain the call did not deliver (a 5xx answer carrying no settle receipt, or no answer at all before the timeout), so it is skipped until that memo expires or a call to it succeeds. Settlement history is evidence about the past; this is what happened the last time someone actually paid",
+          "eligible": "the router will pay this seller on a buyer's behalf",
+          "local_catalog": "this host's own tool; no external payment is involved"
+        },
+        "routerDispatchByChain.base.unprovenTier": "present and true on a Base verdict of settlement_required when the floor is the only thing in the way and this route's price is within unprovenMaxUsd: the router may still pay the seller, but only after every proven seller for the task, only at the wallet its own live 402 names, never above that ceiling, and flagged unproven on the buyer's receipt. Absent when the ceiling is switched off.",
+        "routerDispatchReason.settlement_self_funded": "measured from the chain by this host: the wallet's own outbound USDC transfers are read beside its inbound payments, in chain order. USDC the wallet sent a payer is set against that payer's later payments to it, first in first out, until it is spent: that much of those payments is self-funded, and a payment at least half covered this way does not count as a settlement. Money a payer sends the wallet that is too large to count as a call pays that back first, and a later transfer returning it covers nothing. A transfer the seller makes to a payer that fits inside that payer's own earlier payments not yet refunded is a refund: the refunded payments, newest first, are not counted at all, neither as settlements nor as self-funded, and only what is left over covers later payments, up to its own amount. Third-party counts of the same wallet include the same payments, so they are reduced by the payments found self-funded and by the payers that paid only with the wallet's own money, over the days those counts cover; where more than half of the dollars a wallet received were self-funded, they are not counted at all.",
+        "evmDomainByNetwork": "the EIP-712 domain (asset + extra.name) each of the seller's EVM accepts advertised on its 402; the router label refuses a Base accept whose name is not the token's own (usdc_domain_mismatch) because no stock x402 signature under it can verify.",
+        "routerDispatchDetail": {
+          "evidence_payto_mismatch": "the settlement history that clears the floor for this origin was measured at a wallet its own 402 does not ask to be paid at; each wallet's history counts only where that wallet is paid, so it does not count for this origin",
+          "evidence_payto_unverified": "the settlement history that clears the floor for this origin was measured at a specific wallet and the origin's own Base payTo could not be read, so it does not count until the live 402 names that wallet",
+          "evidence_payto_shared": "the wallet this origin's 402 asks to be paid at is listed by this host as a settlement contract shared by many sellers, so that wallet's own settlement history is credited to none of them; only settlement measured on this origin's own URLs counts toward the floor",
+          "_note": "settlement_required may carry one of these in routerDispatchByChain.base.detail beside the gate's own sentence; settlement history is kept per wallet and counts for an origin only when the wallet its own 402 asks to be paid at clears the floor on that wallet's own history, which the router checks live before it signs and again on the payment it signs; a wallet this host lists as a settlement contract shared by many sellers credits its own history to none of them"
+        },
+        "executeVia": "present only on a row the router will pay right now: the route-execute tier (and price) that runs it. Its absence on a priced row is deliberate.",
+        "executeViaWhenEligible": "the route-execute tier this row WOULD run under once its seller is dispatch-eligible; not callable through the router today.",
+        "executeViaCallableNow": "true on rows carrying executeVia, false on rows carrying executeViaWhenEligible. A buyer agent should key on this, never on the presence of a tier name.",
+        "routerDispatchReason.delivery_failing": "this host paid this seller on this chain and the call did not deliver, so we stopped routing to them until the memo expires or a call succeeds. The verdict is published because it is a statement about what WE do; the underlying observation (the status they answered, how long it took) is deliberately NOT published, because that is a specific adverse claim about a named third party and every other figure on these pages is a count or a gate verdict. A seller who wants to know what we saw can ask us."
+      }
+    }
+  },
+  "agent402FindMetadata": {
+    "status": 200,
+    "ok": true,
+    "elapsedMs": 131,
+    "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 30 Sep 2026 17:46:03 GMT",
+      "etag": "W/\"1e94-4aQzwhMPCF6W89wpcmiPgph8v/4\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "railway-hikari",
+      "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-cache": "miss",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "x-hikari-trace": "iad1.dh1s",
+      "x-permitted-cross-domain-policies": "none",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "RfKiqlCeS_qGNnGpCYBc-A",
+      "x-request-id": "943534c7-614a-4501-9227-0968c5840f2a"
+    },
+    "body": {
+      "query": "web metadata extractor Open Graph JSON-LD canonical robots",
+      "count": 5,
+      "topMax": 25,
+      "returned": 5,
+      "matched": 336,
+      "complete": false,
+      "truncated": true,
+      "results": [
+        {
+          "slug": "robots-check",
+          "name": "Robots.txt check",
+          "route": "POST /api/robots-check",
+          "price": "$0.001",
+          "priceUsd": 0.001,
+          "callExample": {
+            "method": "POST",
+            "path": "/api/robots-check",
+            "body": {
+              "url": "https://www.wikipedia.org/wiki/Robots.txt",
+              "userAgent": "MyAgent"
+            }
+          },
+          "example": {
+            "url": "https://www.wikipedia.org/wiki/Robots.txt",
+            "userAgent": "MyAgent"
+          },
+          "required": [
+            "url"
+          ],
+          "inputSchema": {
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "URL whose path to check"
+              },
+              "userAgent": {
+                "type": "string",
+                "description": "User-agent token (default *)"
+              }
+            },
+            "required": [
+              "url"
+            ]
+          },
+          "category": "network",
+          "description": "Fetch a site's robots.txt and answer: may this user-agent crawl this path? Returns the matched rule and all declared sitemaps.",
+          "score": 50.51586490479714,
+          "computePayable": false,
+          "docs": "https://agent402.tools/tools/robots-check"
+        },
+        {
+          "slug": "json-format",
+          "name": "JSON validate & format",
+          "route": "POST /api/json-format",
+          "price": "$0.001",
+          "priceUsd": 0.001,
+          "callExample": {
+            "method": "POST",
+            "path": "/api/json-format",
+            "body": {
+              "json": "{\"b\":2,\"a\":1}",
+              "indent": 2,
+              "sortKeys": true
+            }
+          },
+          "example": {
+            "json": "{\"b\":2,\"a\":1}",
+            "indent": 2,
+            "sortKeys": true
+          },
+          "required": [
+            "json"
+          ],
+          "inputSchema": {
+            "properties": {
+              "json": {
+                "type": "string",
+                "description": "JSON text to validate/format (max 100KB)"
+              },
+              "indent": {
+                "type": "number",
+                "description": "Spaces of indentation; 0 = minify (default 2). Ignored when canonical is true."
+              },
+              "sortKeys": {
+                "type": "boolean",
+                "description": "Sort object keys at every depth (default false)."
+              },
+              "canonical": {
+                "type": "boolean",
+                "description": "Return the RFC 8785 canonical form and its sha256 (default false)."
+              }
+            },
+            "required": [
+              "json"
+            ]
+          },
+          "category": "conversion",
+          "description": "Validate, pretty-print (any indentation, 0-8 spaces), or minify JSON, optionally with object keys sorted. canonical: true returns the RFC 8785 (JCS) canonical form - keys sorted, no whitespace, ECMAScript number and string serialization - plus its SHA-256, for hashing and signing. Numbers are read as IEEE-754 doubles and a duplicate key keeps its last value. Returns parse errors with position when invalid.",
+          "score": 43.11814760059768,
+          "computePayable": true,
+          "docs": "https://agent402.tools/tools/json-format"
+        },
+        {
+          "slug": "nft-metadata",
+          "name": "NFT metadata lookup",
+          "route": "POST /api/nft-metadata",
+          "price": "$0.001",
+          "priceUsd": 0.001,
+          "callExample": {
+            "method": "POST",
+            "path": "/api/nft-metadata",
+            "body": {
+              "contract": "0xed5af388653567af2f388e6224dc7c4b3241c544",
+              "tokenId": "1",
+              "network": "ethereum"
+            }
+          },
+          "example": {
+            "contract": "0xed5af388653567af2f388e6224dc7c4b3241c544",
+            "tokenId": "1",
+            "network": "ethereum"
+          },
+          "required": [
+            "contract",
+            "tokenId"
+          ],
+          "inputSchema": {
+            "properties": {
+              "contract": {
+                "type": "string",
+                "description": "0x-prefixed 40-char NFT contract address."
+              },
+              "tokenId": {
+                "type": "string",
+                "description": "Token ID as a string (decimal or hex)."
+              },
+              "network": {
+                "type": "string",
+                "description": "ethereum / base / polygon / arbitrum / optimism (default base)."
+              }
+            },
+            "required": [
+              "contract",
+              "tokenId"
+            ]
+          },
+          "category": "crypto",
+          "description": "Resolve the metadata for a single NFT: title, description, image URLs (original + cached CDN), attributes/traits, and the standard (ERC-721 vs ERC-1155). Useful when you have a contract+tokenId and need the display data without re-fetching the whole collection.",
+          "score": 35.674713379010015,
+          "computePayable": false,
+          "docs": "https://agent402.tools/tools/nft-metadata"
+        },
+        {
+          "slug": "token-metadata",
+          "name": "ERC-20 token metadata",
+          "route": "POST /api/token-metadata",
+          "price": "$0.001",
+          "priceUsd": 0.001,
+          "callExample": {
+            "method": "POST",
+            "path": "/api/token-metadata",
+            "body": {
+              "contract": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+              "network": "base"
+            }
+          },
+          "example": {
+            "contract": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "network": "base"
+          },
+          "required": [
+            "contract"
+          ],
+          "inputSchema": {
+            "properties": {
+              "contract": {
+                "type": "string",
+                "description": "0x-prefixed 40-char ERC-20 contract address."
+              },
+              "network": {
+                "type": "string",
+                "description": "ethereum / base / polygon / arbitrum / optimism (default base)."
+              }
+            },
+            "required": [
+              "contract"
+            ]
+          },
+          "category": "crypto",
+          "description": "Resolve an ERC-20 contract address to its on-chain metadata: symbol, decimals, name, and logo URL where available. Use this to humanize a raw contract address before showing it to a user or before computing fiat values.",
+          "score": 35.674713379010015,
+          "computePayable": false,
+          "docs": "https://agent402.tools/tools/token-metadata"
+        },
+        {
+          "slug": "csv-to-json",
+          "name": "CSV to JSON",
+          "route": "POST /api/csv-to-json",
+          "price": "$0.002",
+          "priceUsd": 0.002,
+          "callExample": {
+            "method": "POST",
+            "path": "/api/csv-to-json",
+            "body": {
+              "csv": "name,age\nAda,36\n"
+            }
+          },
+          "example": {
+            "csv": "name,age\nAda,36\n"
+          },
+          "required": [
+            "csv"
+          ],
+          "inputSchema": {
+            "properties": {
+              "csv": {
+                "type": "string",
+                "description": "CSV text (max 100KB)"
+              },
+              "delimiter": {
+                "type": "string",
+                "description": "Default ,"
+              },
+              "header": {
+                "type": "boolean",
+                "description": "First row is headers (default true)"
+              }
+            },
+            "required": [
+              "csv"
+            ]
+          },
+          "category": "conversion",
+          "description": "Parse CSV (quoted fields supported) into a JSON array of objects, using the first row as headers (header=false for arrays).",
+          "score": 29.353284027502625,
+          "computePayable": true,
+          "docs": "https://agent402.tools/tools/csv-to-json"
+        }
+      ],
+      "packs": [
+        {
+          "slug": "link-preview",
+          "title": "Link preview card",
+          "tagline": "The 'turn a URL into a card-shaped preview' workflow. Pull OpenGraph/Twitter card metadata, fetch the article body as a description fallback, normalize the og:image into a standard 1200×630 social card variant and a 400×400 square thumbnail, and extract URL/mention entities from the body for related-link surfacing. Five tools, one structured card payload ready for chat embeds, social shares, or RSS-to-card pipelines.",
+          "toolSlugs": [
+            "meta",
+            "extract",
+            "image-resize",
+            "image-thumbnail",
+            "extract-entities"
+          ],
+          "score": 14,
+          "url": "https://agent402.tools/skills/link-preview",
+          "promptName": "link-preview",
+          "method": "POST",
+          "route": "/api/skill/link-preview",
+          "callUrl": "https://agent402.tools/api/skill/link-preview",
+          "price": "$0.015",
+          "aLaCarteUsd": 0.016,
+          "oneCall": "POST https://agent402.tools/api/skill/link-preview runs all 5 steps for one $0.015 payment (partial success per step). The same 5 tools bought individually total $0.016 — the bundle is also the cheaper path."
+        },
+        {
+          "slug": "webhook-intake",
+          "title": "Webhook secure intake",
+          "tagline": "The production ingest path for every incoming webhook: verify the provider signature (GitHub / Stripe / Shopify / Slack, constant-time, replay-window enforced), schema-validate the now-trusted body against the provider envelope, fingerprint the raw bytes for redelivery dedup, normalize the event timestamp to UTC + epoch, and redact PII before anything hits a log. Five pure-CPU tools - the accept-or-reject gate, run on every event.",
+          "toolSlugs": [
+            "webhook-verify",
+            "json-validate",
+            "hash",
+            "time-convert",
+            "redact"
+          ],
+          "score": 14,
+          "url": "https://agent402.tools/skills/webhook-intake",
+          "promptName": "webhook-intake",
+          "method": "POST",
+          "route": "/api/skill/webhook-intake",
+          "callUrl": "https://agent402.tools/api/skill/webhook-intake",
+          "price": "$0.006",
+          "aLaCarteUsd": 0.006,
+          "oneCall": "POST https://agent402.tools/api/skill/webhook-intake runs all 5 steps for one $0.006 payment (partial success per step). The same 5 tools bought individually total $0.006 — the bundle is also the cheaper path."
+        }
+      ],
+      "rarestTerm": "extractor",
+      "rarestTermCovered": false,
+      "coverageShare": 0.16,
+      "multiStep": {
+        "tool": "decide",
+        "route": "POST /api/decide",
+        "mcp": "decide.plan",
+        "note": "need a multi-step plan across this catalog and outside x402 sellers, with fallbacks and validated params? call decide"
+      },
+      "hint": "no catalog tool matched, but an indexed seller serves this - see routeAcross",
+      "routeAcross": "https://agent402.tools/api/route?q=web%20metadata%20extractor%20Open%20Graph%20JSON-LD%20canonical%20robots&include=external"
+    }
+  },
+  "agent402FindChange": {
+    "status": 200,
+    "ok": true,
+    "elapsedMs": 330,
+    "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 30 Sep 2026 17:46:03 GMT",
+      "etag": "W/\"1a85-U30UwQGbglIFFGL/0ldMSOV+Is0\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "railway-hikari",
+      "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-cache": "miss",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "x-hikari-trace": "iad1.dh1s",
+      "x-permitted-cross-domain-policies": "none",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "nIX6IvX9RKyULbD2lt7tkg",
+      "x-request-id": "f6d315cd-950c-4d4b-80a6-094c52cddacd"
+    },
+    "body": {
+      "query": "website change detector deterministic diff monitor",
+      "count": 5,
+      "topMax": 25,
+      "returned": 5,
+      "matched": 143,
+      "complete": false,
+      "truncated": true,
+      "results": [
+        {
+          "slug": "openapi-diff",
+          "name": "OpenAPI / Swagger diff",
+          "route": "POST /api/openapi-diff",
+          "price": "$0.001",
+          "priceUsd": 0.001,
+          "callExample": {
+            "method": "POST",
+            "path": "/api/openapi-diff",
+            "body": {
+              "before": {
+                "openapi": "3.0.0",
+                "paths": {
+                  "/users": {
+                    "get": {
+                      "responses": {
+                        "200": {}
+                      }
+                    }
+                  },
+                  "/legacy": {
+                    "get": {
+                      "responses": {
+                        "200": {}
+                      }
+                    }
+                  }
+                }
+              },
+              "after": {
+                "openapi": "3.0.0",
+                "paths": {
+                  "/users": {
+                    "get": {
+                      "responses": {
+                        "200": {}
+                      }
+                    }
+                  },
+                  "/admin": {
+                    "post": {
+                      "responses": {
+                        "201": {}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "example": {
+            "before": {
+              "openapi": "3.0.0",
+              "paths": {
+                "/users": {
+                  "get": {
+                    "responses": {
+                      "200": {}
+                    }
+                  }
+                },
+                "/legacy": {
+                  "get": {
+                    "responses": {
+                      "200": {}
+                    }
+                  }
+                }
+              }
+            },
+            "after": {
+              "openapi": "3.0.0",
+              "paths": {
+                "/users": {
+                  "get": {
+                    "responses": {
+                      "200": {}
+                    }
+                  }
+                },
+                "/admin": {
+                  "post": {
+                    "responses": {
+                      "201": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "before",
+            "after"
+          ],
+          "inputSchema": {
+            "properties": {
+              "before": {
+                "description": "OpenAPI/Swagger document (object or JSON string) for the previous version"
+              },
+              "after": {
+                "description": "OpenAPI/Swagger document (object or JSON string) for the new version"
+              }
+            },
+            "required": [
+              "before",
+              "after"
+            ]
+          },
+          "category": "conversion",
+          "description": "Compare two OpenAPI 3.x or Swagger 2.x documents and return a structured diff: added / removed / changed endpoints, with a conservative \"is any change breaking?\" flag. Breaking = an endpoint or required-2xx status was removed, a required parameter was added, an optional param became required, a param type changed, or a JSON body field became required. Pure CPU - deterministic, no network, no $ref dereferencing (resolve refs upstream if needed).",
+          "score": 44.34125139165995,
+          "computePayable": true,
+          "docs": "https://agent402.tools/tools/openapi-diff"
+        },
+        {
+          "slug": "json-diff",
+          "name": "JSON diff",
+          "route": "POST /api/json-diff",
+          "price": "$0.001",
+          "priceUsd": 0.001,
+          "callExample": {
+            "method": "POST",
+            "path": "/api/json-diff",
+            "body": {
+              "a": {
+                "x": 1,
+                "y": 2
+              },
+              "b": {
+                "x": 1,
+                "y": 3,
+                "z": 4
+              }
+            }
+          },
+          "example": {
+            "a": {
+              "x": 1,
+              "y": 2
+            },
+            "b": {
+              "x": 1,
+              "y": 3,
+              "z": 4
+            }
+          },
+          "required": [
+            "a",
+            "b"
+          ],
+          "inputSchema": {
+            "properties": {
+              "a": {
+                "description": "First JSON value"
+              },
+              "b": {
+                "description": "Second JSON value"
+              }
+            },
+            "required": [
+              "a",
+              "b"
+            ]
+          },
+          "category": "conversion",
+          "description": "Deep-compare two JSON values. Returns a list of changed/added/removed paths (capped at 1000 differences).",
+          "score": 41.97742267342519,
+          "computePayable": true,
+          "docs": "https://agent402.tools/tools/json-diff"
+        },
+        {
+          "slug": "text-diff",
+          "name": "Text diff",
+          "route": "POST /api/text-diff",
+          "price": "$0.001",
+          "priceUsd": 0.001,
+          "callExample": {
+            "method": "POST",
+            "path": "/api/text-diff",
+            "body": {
+              "a": "line1\nline2",
+              "b": "line1\nline2 changed"
+            }
+          },
+          "example": {
+            "a": "line1\nline2",
+            "b": "line1\nline2 changed"
+          },
+          "required": [
+            "a",
+            "b"
+          ],
+          "inputSchema": {
+            "properties": {
+              "a": {
+                "type": "string",
+                "description": "Original text"
+              },
+              "b": {
+                "type": "string",
+                "description": "New text"
+              }
+            },
+            "required": [
+              "a",
+              "b"
+            ]
+          },
+          "category": "text",
+          "description": "Line-by-line diff of two texts (LCS). Returns unified-style ops and change counts. Up to 2000 lines per side.",
+          "score": 41.97742267342519,
+          "computePayable": true,
+          "docs": "https://agent402.tools/tools/text-diff"
+        },
+        {
+          "slug": "date-diff",
+          "name": "Date difference",
+          "route": "POST /api/date-diff",
+          "price": "$0.001",
+          "priceUsd": 0.001,
+          "callExample": {
+            "method": "POST",
+            "path": "/api/date-diff",
+            "body": {
+              "from": "2026-01-01",
+              "to": "2026-06-11T10:00:00Z"
+            }
+          },
+          "example": {
+            "from": "2026-01-01",
+            "to": "2026-06-11T10:00:00Z"
+          },
+          "required": [
+            "from"
+          ],
+          "inputSchema": {
+            "properties": {
+              "from": {
+                "description": "Start (epoch/ISO)"
+              },
+              "to": {
+                "description": "End (epoch/ISO, default now)"
+              }
+            },
+            "required": [
+              "from"
+            ]
+          },
+          "category": "time",
+          "description": "Difference between two dates/times in ms, seconds, minutes, hours, days, and a human summary.",
+          "score": 39.79005039253198,
+          "computePayable": true,
+          "docs": "https://agent402.tools/tools/date-diff"
+        },
+        {
+          "slug": "skill-fx-monitor",
+          "name": "Skill: FX monitor",
+          "route": "POST /api/skill/fx-monitor",
+          "price": "$0.009",
+          "priceUsd": 0.009,
+          "callExample": {
+            "method": "POST",
+            "path": "/api/skill/fx-monitor",
+            "body": {}
+          },
+          "example": {},
+          "required": [],
+          "inputSchema": {
+            "properties": {},
+            "required": []
+          },
+          "category": "skill-pack",
+          "description": "Major currency snapshot: EUR/USD, GBP/USD, JPY/USD rates plus the full FX dashboard in one call. FX monitor skill pack: one x402 payment runs 3 underlying tools (fx-rate, fx-dashboard, fx-historical); partial-success per step.",
+          "score": 36.93865403767742,
+          "computePayable": false,
+          "docs": "https://agent402.tools/tools/skill-fx-monitor"
+        }
+      ],
+      "packs": [
+        {
+          "slug": "regulatory-watch",
+          "title": "SEC regulatory monitoring",
+          "tagline": "The 'who just filed / who just bought / what just IPO'd / what does the full-text search say' monitoring loop. Five EDGAR tools composed: full-text search for a keyword, surface recent filings on the matched companies, pull insider Form 4 transactions, pull 13F institutional holdings changes, and check the IPO calendar. Different from sec-filings-deep-dive (which goes deep on one company's earnings) - this is the wide-and-recent radar.",
+          "toolSlugs": [
+            "edgar-search",
+            "edgar-filings",
+            "edgar-insider-trades",
+            "edgar-13f-holdings",
+            "edgar-recent-ipos"
+          ],
+          "score": 14,
+          "url": "https://agent402.tools/skills/regulatory-watch",
+          "promptName": "regulatory-watch",
+          "method": "POST",
+          "route": "/api/skill/regulatory-watch",
+          "callUrl": "https://agent402.tools/api/skill/regulatory-watch",
+          "price": "$0.023",
+          "aLaCarteUsd": 0.025,
+          "oneCall": "POST https://agent402.tools/api/skill/regulatory-watch runs all 5 steps for one $0.023 payment (partial success per step). The same 5 tools bought individually total $0.025 — the bundle is also the cheaper path."
+        },
+        {
+          "slug": "price-monitor",
+          "title": "Cross-asset price monitor",
+          "tagline": "Side-by-side snapshot of a stock and a crypto asset: the equity's latest close against a live crypto quote, a trailing-year series for each, and a date-stamped comparison.",
+          "toolSlugs": [
+            "stock-quote",
+            "stock-history",
+            "crypto-price",
+            "crypto-history",
+            "date-format"
+          ],
+          "score": 9,
+          "url": "https://agent402.tools/skills/price-monitor",
+          "promptName": "price-monitor",
+          "method": "POST",
+          "route": "/api/skill/price-monitor",
+          "callUrl": "https://agent402.tools/api/skill/price-monitor",
+          "price": "$0.021",
+          "aLaCarteUsd": 0.023,
+          "oneCall": "POST https://agent402.tools/api/skill/price-monitor runs all 5 steps for one $0.021 payment (partial success per step). The same 5 tools bought individually total $0.023 — the bundle is also the cheaper path."
+        }
+      ],
+      "rarestTerm": "detector",
+      "rarestTermCovered": false,
+      "coverageShare": 0.35,
+      "multiStep": {
+        "tool": "decide",
+        "route": "POST /api/decide",
+        "mcp": "decide.plan",
+        "note": "need a multi-step plan across this catalog and outside x402 sellers, with fallbacks and validated params? call decide"
+      },
+      "hint": "no catalog tool matched, but an indexed seller serves this - see routeAcross",
+      "routeAcross": "https://agent402.tools/api/route?q=website%20change%20detector%20deterministic%20diff%20monitor&include=external"
+    }
+  }
+}
