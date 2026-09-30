@@ -1,0 +1,6 @@
+{
+  "payTo": "0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744",
+  "amount": "1000",
+  "network": "eip155:8453",
+  "resource": "https://x402-gateway-production-1f21.up.railway.app/metadata"
+}
