@@ -10,7 +10,9 @@
       "type": "string",
       "description": "Public http:// or https:// URL to inspect.",
       "editor": "textfield",
-      "maxLength": 2048
+      "maxLength": 2048,
+      "prefill": "https://example.com/",
+      "example": "https://example.com/"
     },
     "previous_text": {
       "title": "Previous normalized text",
@@ -77,5 +79,7 @@
       "unit": "seconds"
     }
   },
-  "required": ["url"]
+  "required": [
+    "url"
+  ]
 }
