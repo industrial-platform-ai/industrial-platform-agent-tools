@@ -50,6 +50,10 @@ async function payOnce() {
       response.headers.get('payment-response') ||
       response.headers.get('x-payment-response') ||
       null,
+    paymentRequired:
+      response.headers.get('payment-required') ||
+      response.headers.get('x-payment-required') ||
+      null,
     extensionResponses:
       response.headers.get('extension-responses') ||
       response.headers.get('x-extension-responses') ||
