@@ -12,6 +12,8 @@ const runPayment = process.env.RUN_PAYMENT === '1';
 const runRegistry = process.env.RUN_X402SCAN_REGISTRATION === '1';
 const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan.com/api/x402/registry/register-origin';
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
+const requestMethod = (process.env.X402_METHOD || 'POST').toUpperCase();
+const requestBodyOverride = process.env.X402_REQUEST_BODY || '';
 
 function deriveSellerAccount() {
   if (!key) throw new Error('EVM_PRIVATE_KEY missing');
@@ -47,15 +49,28 @@ async function payOnce() {
   const { fetch: paidFetch } = makeClient();
 
   state.status = 'paying';
-  const requestBody = TARGET.endsWith('/change')
-    ? { url: 'https://example.com/', include_current_text: false }
-    : { urls: ['https://example.com/'] };
+  let requestBody;
+  if (requestBodyOverride) {
+    try {
+      requestBody = JSON.parse(requestBodyOverride);
+    } catch (error) {
+      throw new Error('X402_REQUEST_BODY must be valid JSON: ' + String(error?.message || error));
+    }
+  } else {
+    requestBody = TARGET.endsWith('/change')
+      ? { url: 'https://example.com/', include_current_text: false }
+      : { urls: ['https://example.com/'] };
+  }
 
-  const response = await paidFetch(TARGET, {
-    method: 'POST',
+  const requestInit = {
+    method: requestMethod,
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(requestBody),
-  });
+  };
+  if (requestMethod !== 'GET' && requestMethod !== 'HEAD') {
+    requestInit.body = JSON.stringify(requestBody);
+  }
+
+  const response = await paidFetch(TARGET, requestInit);
 
   const text = await response.text();
   state.result = {
