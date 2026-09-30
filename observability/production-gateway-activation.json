@@ -1,52 +1,59 @@
 {
-  "generatedAt": "2026-09-30T17:49:49.118Z",
+  "generatedAt": "2026-09-30T20:44:32.147Z",
   "origin": "https://x402-gateway-production-1f21.up.railway.app",
   "health": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 118,
+    "elapsedMs": 369,
     "headers": {
       "connection": "keep-alive",
+      "content-length": "54",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:49:49 GMT",
+      "date": "Wed, 30 Sep 2026 20:44:32 GMT",
+      "etag": "W/\"36-zekxOiGqgBaqdc863MfI7FdyNpA\"",
       "server": "railway-hikari",
-      "transfer-encoding": "chunked",
-      "x-hikari-trace": "lax1.e74w",
-      "x-railway-edge": "lax1",
-      "x-railway-request-id": "fnk3LirRSYy7nejp2prcFg"
+      "x-hikari-trace": "iad1.fp5t",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "yLJbuDp7TPiKSD5nwUFZXw"
     },
     "body": {
-      "ok": true
+      "ok": true,
+      "version": "2.0.0",
+      "payment": "coinbase-cdp"
     }
   },
   "manifest": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 50,
+    "elapsedMs": 203,
     "headers": {
       "connection": "keep-alive",
+      "content-length": "1619",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:49:49 GMT",
+      "date": "Wed, 30 Sep 2026 20:44:32 GMT",
+      "etag": "W/\"653-miobktH378XIVULIlZK+3V9pobs\"",
       "server": "railway-hikari",
-      "transfer-encoding": "chunked",
-      "x-hikari-trace": "lax1.e74w",
-      "x-railway-edge": "lax1",
-      "x-railway-request-id": "FdlHGF54Th2BSMDNLPU1MQ"
+      "vary": "accept-encoding",
+      "x-hikari-trace": "iad1.dh1s",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "-IVvaYiSTaGBi-856WHkDg"
     },
     "body": {
-      "name": "Industrial Platform Fast Web Tools",
-      "description": "Low-cost web metadata extraction and deterministic website change detection for autonomous agents.",
+      "name": "Industrial Platform Web Tools",
+      "description": "Low-cost metadata extraction and deterministic webpage change detection for autonomous agents.",
+      "payment": {
+        "protocol": "x402",
+        "network": "eip155:8453",
+        "asset": "USDC",
+        "priceUsd": 0.001,
+        "payTo": "0x0e66A3F909D3473E2517709e713B7afc0D767C42"
+      },
       "tools": [
         {
           "name": "web-metadata-intelligence",
-          "route": "/metadata",
           "method": "POST",
-          "price": 0.01,
-          "example": {
-            "urls": [
-              "https://example.com/"
-            ]
-          },
+          "route": "/metadata",
+          "priceUsd": 0.001,
           "description": "Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.",
           "inputSchema": {
             "type": "object",
@@ -54,32 +61,41 @@
               "urls": {
                 "type": "array",
                 "items": {
-                  "type": "string"
+                  "type": "string",
+                  "format": "uri"
                 },
                 "minItems": 1,
                 "maxItems": 100
+              },
+              "timeout_seconds": {
+                "type": "integer",
+                "minimum": 5,
+                "maximum": 60
+              },
+              "concurrency": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
               }
             },
             "required": [
               "urls"
-            ]
+            ],
+            "additionalProperties": false
           }
         },
         {
           "name": "web-change-intelligence",
-          "route": "/change",
           "method": "POST",
-          "price": 0.01,
-          "example": {
-            "url": "https://example.com/",
-            "include_current_text": false
-          },
-          "description": "Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.",
+          "route": "/change",
+          "priceUsd": 0.001,
+          "description": "Detect meaningful webpage changes with deterministic hashes and diffs for prices, docs, policies, availability and competitor monitoring.",
           "inputSchema": {
             "type": "object",
             "properties": {
               "url": {
-                "type": "string"
+                "type": "string",
+                "format": "uri"
               },
               "previous_hash": {
                 "type": "string"
@@ -87,13 +103,38 @@
               "previous_text": {
                 "type": "string"
               },
+              "selector": {
+                "type": "string"
+              },
+              "ignore_selectors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "include_current_text": {
                 "type": "boolean"
+              },
+              "max_text_chars": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 250000
+              },
+              "max_diff_chars": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 50000
+              },
+              "timeout_seconds": {
+                "type": "integer",
+                "minimum": 5,
+                "maximum": 60
               }
             },
             "required": [
               "url"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       ]
@@ -102,23 +143,36 @@
   "openapi": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 55,
+    "elapsedMs": 101,
     "headers": {
       "connection": "keep-alive",
+      "content-length": "2274",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:49:49 GMT",
+      "date": "Wed, 30 Sep 2026 20:44:32 GMT",
+      "etag": "W/\"8e2-NTF1VMI/BFVqxtFANvY7RZj/bVo\"",
       "server": "railway-hikari",
-      "transfer-encoding": "chunked",
-      "x-hikari-trace": "lax1.e74w",
-      "x-railway-edge": "lax1",
-      "x-railway-request-id": "1XaoGTqFQaG0pl3jCYBc-A"
+      "vary": "accept-encoding",
+      "x-hikari-trace": "iad1.fp5t",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "xofqKbTCTrCtx3a99I3ezw"
     },
     "body": {
       "openapi": "3.1.0",
       "info": {
-        "title": "Industrial Platform Fast Web Tools",
-        "version": "1.0.0"
+        "title": "Industrial Platform Web Tools",
+        "version": "2.0.0",
+        "description": "Machine-payable metadata extraction and deterministic webpage change detection for autonomous agents.",
+        "contact": {
+          "name": "Industrial Platform",
+          "email": "art@naturalist.gallery",
+          "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools"
+        }
       },
+      "servers": [
+        {
+          "url": "https://x402-gateway-production-1f21.up.railway.app"
+        }
+      ],
       "paths": {
         "/metadata": {
           "post": {
@@ -135,15 +189,27 @@
                       "urls": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "type": "string",
+                          "format": "uri"
                         },
                         "minItems": 1,
                         "maxItems": 100
+                      },
+                      "timeout_seconds": {
+                        "type": "integer",
+                        "minimum": 5,
+                        "maximum": 60
+                      },
+                      "concurrency": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 20
                       }
                     },
                     "required": [
                       "urls"
-                    ]
+                    ],
+                    "additionalProperties": false
                   }
                 }
               }
@@ -152,8 +218,14 @@
               "200": {
                 "description": "Metadata result"
               },
+              "400": {
+                "description": "Invalid input"
+              },
               "402": {
                 "description": "x402 payment required"
+              },
+              "502": {
+                "description": "Target fetch failed"
               }
             }
           }
@@ -162,7 +234,7 @@
           "post": {
             "operationId": "webChangeIntelligence",
             "summary": "Detect webpage changes",
-            "description": "Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.",
+            "description": "Detect meaningful webpage changes with deterministic hashes and diffs for prices, docs, policies, availability and competitor monitoring.",
             "requestBody": {
               "required": true,
               "content": {
@@ -171,7 +243,8 @@
                     "type": "object",
                     "properties": {
                       "url": {
-                        "type": "string"
+                        "type": "string",
+                        "format": "uri"
                       },
                       "previous_hash": {
                         "type": "string"
@@ -179,13 +252,38 @@
                       "previous_text": {
                         "type": "string"
                       },
+                      "selector": {
+                        "type": "string"
+                      },
+                      "ignore_selectors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
                       "include_current_text": {
                         "type": "boolean"
+                      },
+                      "max_text_chars": {
+                        "type": "integer",
+                        "minimum": 1000,
+                        "maximum": 250000
+                      },
+                      "max_diff_chars": {
+                        "type": "integer",
+                        "minimum": 1000,
+                        "maximum": 50000
+                      },
+                      "timeout_seconds": {
+                        "type": "integer",
+                        "minimum": 5,
+                        "maximum": 60
                       }
                     },
                     "required": [
                       "url"
-                    ]
+                    ],
+                    "additionalProperties": false
                   }
                 }
               }
@@ -194,8 +292,14 @@
               "200": {
                 "description": "Change comparison result"
               },
+              "400": {
+                "description": "Invalid input"
+              },
               "402": {
                 "description": "x402 payment required"
+              },
+              "502": {
+                "description": "Target fetch failed"
               }
             }
           }
@@ -206,50 +310,54 @@
   "metadata": {
     "status": 402,
     "ok": false,
-    "elapsedMs": 304,
+    "elapsedMs": 104,
     "headers": {
+      "cache-control": "no-store",
       "connection": "keep-alive",
-      "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 17:49:49 GMT",
-      "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly94NDAyLWdhdGV3YXktcHJvZHVjdGlvbi0xZjIxLnVwLnJhaWx3YXkuYXBwL21ldGFkYXRhIiwibWV0aG9kIjoiUE9TVCIsImRlc2NyaXB0aW9uIjoiRXh0cmFjdCB0aXRsZSwgZGVzY3JpcHRpb24sIE9wZW4gR3JhcGgsIFR3aXR0ZXIgY2FyZHMsIGNhbm9uaWNhbCBVUkwsIHJvYm90cyBkaXJlY3RpdmVzLCBoZWFkaW5ncywgSlNPTi1MRCBhbmQgb3RoZXIgcGFnZSBtZXRhZGF0YS4iLCJtaW1lVHlwZSI6ImFwcGxpY2F0aW9uL2pzb24iLCJ0YWdzIjpbIkluZHVzdHJpYWwgUGxhdGZvcm0iLCJ3ZWItbWV0YWRhdGEtaW50ZWxsaWdlbmNlIl0sInNlcnZpY2VOYW1lIjoiSW5kdXN0cmlhbCBQbGF0Zm9ybSBGYXN0IFdlYiBUb29scyJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MyIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDgzMzU4OWZDRDZlRGI2RTA4ZjRjN0MzMkQ0ZjcxYjU0YmRBMDI5MTMiLCJwYXlUbyI6IjB4MjNkOTMxZjk1ODMxY2VlNTBiNWY1ZWRmNGQwZTg4MjcwZjZjODQxMSIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0QgQ29pbiIsInZlcnNpb24iOiIyIn19XSwiZXh0ZW5zaW9ucyI6eyJiYXphYXIiOnsiaW5mbyI6eyJpbnB1dCI6eyJ0eXBlIjoiaHR0cCIsIm1ldGhvZCI6IlBPU1QiLCJib2R5VHlwZSI6Impzb24iLCJib2R5Ijp7InVybHMiOlsiaHR0cHM6Ly9leGFtcGxlLmNvbS8iXX19fSwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InVybHMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyJ9LCJtaW5JdGVtcyI6MSwibWF4SXRlbXMiOjEwMH19LCJyZXF1aXJlZCI6WyJ1cmxzIl19fX19",
+      "content-length": "2",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 30 Sep 2026 20:44:32 GMT",
+      "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+      "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly94NDAyLWdhdGV3YXktcHJvZHVjdGlvbi0xZjIxLnVwLnJhaWx3YXkuYXBwL21ldGFkYXRhIiwiZGVzY3JpcHRpb24iOiJFeHRyYWN0IHRpdGxlLCBkZXNjcmlwdGlvbiwgT3BlbiBHcmFwaCwgVHdpdHRlciBjYXJkcywgY2Fub25pY2FsIFVSTCwgcm9ib3RzIGRpcmVjdGl2ZXMsIGhlYWRpbmdzLCBKU09OLUxEIGFuZCBvdGhlciBwYWdlIG1ldGFkYXRhLiIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiIsInNlcnZpY2VOYW1lIjoiSW5kdXN0cmlhbCBQbGF0Zm9ybSBXZWIgVG9vbHMiLCJ0YWdzIjpbIm1ldGFkYXRhIiwic2VvIiwic3RydWN0dXJlZC1kYXRhIiwid2ViIiwiYWdlbnRzIl19LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MyIsImFtb3VudCI6IjEwMDAiLCJhc3NldCI6IjB4ODMzNTg5ZkNENmVEYjZFMDhmNGM3QzMyRDRmNzFiNTRiZEEwMjkxMyIsInBheVRvIjoiMHgwZTY2QTNGOTA5RDM0NzNFMjUxNzcwOWU3MTNCN2FmYzBENzY3QzQyIiwibWF4VGltZW91dFNlY29uZHMiOjkwLCJleHRyYSI6eyJuYW1lIjoiVVNEIENvaW4iLCJ2ZXJzaW9uIjoiMiJ9fV0sImV4dGVuc2lvbnMiOnsiYmF6YWFyIjp7ImluZm8iOnsiaW5wdXQiOnsidHlwZSI6Imh0dHAiLCJib2R5VHlwZSI6Impzb24iLCJib2R5Ijp7InVybHMiOlsiaHR0cHM6Ly9leGFtcGxlLmNvbS8iXX0sIm1ldGhvZCI6IlBPU1QifSwib3V0cHV0Ijp7InR5cGUiOiJqc29uIiwiZXhhbXBsZSI6eyJzdW1tYXJ5Ijp7InN0YXR1cyI6InJlYWR5IiwicmVxdWVzdGVkIjoxLCJzdWNjZWVkZWQiOjEsImZhaWxlZCI6MH0sInJlc3VsdHMiOlt7InN0YXR1cyI6InJlYWR5IiwidXJsIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS8iLCJ0aXRsZSI6IkV4YW1wbGUgRG9tYWluIn1dfX19LCJzY2hlbWEiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsiaW5wdXQiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidHlwZSI6eyJ0eXBlIjoic3RyaW5nIiwiY29uc3QiOiJodHRwIn0sIm1ldGhvZCI6eyJ0eXBlIjoic3RyaW5nIiwiZW51bSI6WyJQT1NUIl19LCJib2R5VHlwZSI6eyJ0eXBlIjoic3RyaW5nIiwiZW51bSI6WyJqc29uIiwiZm9ybS1kYXRhIiwidGV4dCJdfSwiYm9keSI6eyJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJ1cmxzIjp7InR5cGUiOiJhcnJheSIsIml0ZW1zIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifSwibWluSXRlbXMiOjEsIm1heEl0ZW1zIjoxMDB9LCJ0aW1lb3V0X3NlY29uZHMiOnsidHlwZSI6ImludGVnZXIiLCJtaW5pbXVtIjo1LCJtYXhpbXVtIjo2MH0sImNvbmN1cnJlbmN5Ijp7InR5cGUiOiJpbnRlZ2VyIiwibWluaW11bSI6MSwibWF4aW11bSI6MjB9fSwicmVxdWlyZWQiOlsidXJscyJdLCJhZGRpdGlvbmFsUHJvcGVydGllcyI6ZmFsc2V9fSwicmVxdWlyZWQiOlsidHlwZSIsIm1ldGhvZCIsImJvZHlUeXBlIiwiYm9keSJdLCJhZGRpdGlvbmFsUHJvcGVydGllcyI6ZmFsc2V9LCJvdXRwdXQiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidHlwZSI6eyJ0eXBlIjoic3RyaW5nIn0sImV4YW1wbGUiOnsidHlwZSI6Im9iamVjdCJ9fSwicmVxdWlyZWQiOlsidHlwZSJdfX0sInJlcXVpcmVkIjpbImlucHV0Il19fX19",
       "server": "railway-hikari",
-      "transfer-encoding": "chunked",
-      "x-hikari-trace": "lax1.e74w",
-      "x-railway-edge": "lax1",
-      "x-railway-request-id": "pbmJNYknSpyp_hSljq4OvQ"
+      "x-hikari-trace": "iad1.dh1s",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "qZI37jjNToO7w-7j9I3ezw"
     },
-    "body": ""
+    "body": {}
   },
   "change": {
     "status": 402,
     "ok": false,
-    "elapsedMs": 156,
+    "elapsedMs": 102,
     "headers": {
+      "cache-control": "no-store",
       "connection": "keep-alive",
-      "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 17:49:49 GMT",
-      "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly94NDAyLWdhdGV3YXktcHJvZHVjdGlvbi0xZjIxLnVwLnJhaWx3YXkuYXBwL2NoYW5nZSIsIm1ldGhvZCI6IlBPU1QiLCJkZXNjcmlwdGlvbiI6IkRldGVjdCBtZWFuaW5nZnVsIHdlYnBhZ2UgY2hhbmdlcyB3aXRoIGRldGVybWluaXN0aWMgaGFzaGVzIGFuZCBkaWZmcyBmb3IgbW9uaXRvcmluZyBwcmljZXMsIGRvY3MsIHBvbGljaWVzLCBhdmFpbGFiaWxpdHkgYW5kIGNvbXBldGl0b3JzLiIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiIsInRhZ3MiOlsiSW5kdXN0cmlhbCBQbGF0Zm9ybSIsIndlYi1jaGFuZ2UtaW50ZWxsaWdlbmNlIl0sInNlcnZpY2VOYW1lIjoiSW5kdXN0cmlhbCBQbGF0Zm9ybSBGYXN0IFdlYiBUb29scyJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MyIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDgzMzU4OWZDRDZlRGI2RTA4ZjRjN0MzMkQ0ZjcxYjU0YmRBMDI5MTMiLCJwYXlUbyI6IjB4MjNkOTMxZjk1ODMxY2VlNTBiNWY1ZWRmNGQwZTg4MjcwZjZjODQxMSIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0QgQ29pbiIsInZlcnNpb24iOiIyIn19XSwiZXh0ZW5zaW9ucyI6eyJiYXphYXIiOnsiaW5mbyI6eyJpbnB1dCI6eyJ0eXBlIjoiaHR0cCIsIm1ldGhvZCI6IlBPU1QiLCJib2R5VHlwZSI6Impzb24iLCJib2R5Ijp7InVybCI6Imh0dHBzOi8vZXhhbXBsZS5jb20vIiwiaW5jbHVkZV9jdXJyZW50X3RleHQiOmZhbHNlfX19LCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidXJsIjp7InR5cGUiOiJzdHJpbmcifSwicHJldmlvdXNfaGFzaCI6eyJ0eXBlIjoic3RyaW5nIn0sInByZXZpb3VzX3RleHQiOnsidHlwZSI6InN0cmluZyJ9LCJpbmNsdWRlX2N1cnJlbnRfdGV4dCI6eyJ0eXBlIjoiYm9vbGVhbiJ9fSwicmVxdWlyZWQiOlsidXJsIl19fX19",
+      "content-length": "2",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 30 Sep 2026 20:44:33 GMT",
+      "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+      "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly94NDAyLWdhdGV3YXktcHJvZHVjdGlvbi0xZjIxLnVwLnJhaWx3YXkuYXBwL2NoYW5nZSIsImRlc2NyaXB0aW9uIjoiRGV0ZWN0IG1lYW5pbmdmdWwgd2VicGFnZSBjaGFuZ2VzIHdpdGggZGV0ZXJtaW5pc3RpYyBoYXNoZXMgYW5kIGRpZmZzIGZvciBwcmljZXMsIGRvY3MsIHBvbGljaWVzLCBhdmFpbGFiaWxpdHkgYW5kIGNvbXBldGl0b3IgbW9uaXRvcmluZy4iLCJtaW1lVHlwZSI6ImFwcGxpY2F0aW9uL2pzb24iLCJzZXJ2aWNlTmFtZSI6IkluZHVzdHJpYWwgUGxhdGZvcm0gV2ViIFRvb2xzIiwidGFncyI6WyJtb25pdG9yaW5nIiwid2ViLWNoYW5nZSIsImRpZmYiLCJ3ZWIiLCJhZ2VudHMiXX0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHg4MzM1ODlmQ0Q2ZURiNkUwOGY0YzdDMzJENGY3MWI1NGJkQTAyOTEzIiwicGF5VG8iOiIweDBlNjZBM0Y5MDlEMzQ3M0UyNTE3NzA5ZTcxM0I3YWZjMEQ3NjdDNDIiLCJtYXhUaW1lb3V0U2Vjb25kcyI6OTAsImV4dHJhIjp7Im5hbWUiOiJVU0QgQ29pbiIsInZlcnNpb24iOiIyIn19XSwiZXh0ZW5zaW9ucyI6eyJiYXphYXIiOnsiaW5mbyI6eyJpbnB1dCI6eyJ0eXBlIjoiaHR0cCIsImJvZHlUeXBlIjoianNvbiIsImJvZHkiOnsidXJsIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS8iLCJpbmNsdWRlX2N1cnJlbnRfdGV4dCI6ZmFsc2V9LCJtZXRob2QiOiJQT1NUIn0sIm91dHB1dCI6eyJ0eXBlIjoianNvbiIsImV4YW1wbGUiOnsic3RhdHVzIjoicmVhZHkiLCJ1cmwiOiJodHRwczovL2V4YW1wbGUuY29tLyIsImNvbXBhcmlzb25fc3RhdHVzIjoiYmFzZWxpbmUiLCJjdXJyZW50X2hhc2giOiJleGFtcGxlIn19fSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7ImlucHV0Ijp7InR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InR5cGUiOnsidHlwZSI6InN0cmluZyIsImNvbnN0IjoiaHR0cCJ9LCJtZXRob2QiOnsidHlwZSI6InN0cmluZyIsImVudW0iOlsiUE9TVCJdfSwiYm9keVR5cGUiOnsidHlwZSI6InN0cmluZyIsImVudW0iOlsianNvbiIsImZvcm0tZGF0YSIsInRleHQiXX0sImJvZHkiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidXJsIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifSwicHJldmlvdXNfaGFzaCI6eyJ0eXBlIjoic3RyaW5nIn0sInByZXZpb3VzX3RleHQiOnsidHlwZSI6InN0cmluZyJ9LCJzZWxlY3RvciI6eyJ0eXBlIjoic3RyaW5nIn0sImlnbm9yZV9zZWxlY3RvcnMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyJ9fSwiaW5jbHVkZV9jdXJyZW50X3RleHQiOnsidHlwZSI6ImJvb2xlYW4ifSwibWF4X3RleHRfY2hhcnMiOnsidHlwZSI6ImludGVnZXIiLCJtaW5pbXVtIjoxMDAwLCJtYXhpbXVtIjoyNTAwMDB9LCJtYXhfZGlmZl9jaGFycyI6eyJ0eXBlIjoiaW50ZWdlciIsIm1pbmltdW0iOjEwMDAsIm1heGltdW0iOjUwMDAwfSwidGltZW91dF9zZWNvbmRzIjp7InR5cGUiOiJpbnRlZ2VyIiwibWluaW11bSI6NSwibWF4aW11bSI6NjB9fSwicmVxdWlyZWQiOlsidXJsIl0sImFkZGl0aW9uYWxQcm9wZXJ0aWVzIjpmYWxzZX19LCJyZXF1aXJlZCI6WyJ0eXBlIiwibWV0aG9kIiwiYm9keVR5cGUiLCJib2R5Il0sImFkZGl0aW9uYWxQcm9wZXJ0aWVzIjpmYWxzZX0sIm91dHB1dCI6eyJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJ0eXBlIjp7InR5cGUiOiJzdHJpbmcifSwiZXhhbXBsZSI6eyJ0eXBlIjoib2JqZWN0In19LCJyZXF1aXJlZCI6WyJ0eXBlIl19fSwicmVxdWlyZWQiOlsiaW5wdXQiXX19fX0=",
       "server": "railway-hikari",
-      "transfer-encoding": "chunked",
-      "x-hikari-trace": "lax1.e74w",
-      "x-railway-edge": "lax1",
-      "x-railway-request-id": "yJvkfpE0R2qgb7U-pHNmDw"
+      "x-hikari-trace": "iad1.fp5t",
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "XCn1Anz5TNuH6OcP2prcFg"
     },
-    "body": ""
+    "body": {}
   },
   "agent402Register": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 769,
+    "elapsedMs": 311,
     "headers": {
       "access-control-allow-origin": "*",
       "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
       "connection": "keep-alive",
-      "content-length": "593",
+      "content-length": "588",
       "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:49:50 GMT",
-      "etag": "W/\"251-ifwa/PCsFJKO3oSJVcTX/ZZP8e8\"",
+      "date": "Wed, 30 Sep 2026 20:44:33 GMT",
+      "etag": "W/\"24c-49+DGyLsOAYdfyKfVUQxIHsC4qA\"",
       "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
       "referrer-policy": "strict-origin-when-cross-origin",
       "server": "railway-hikari",
@@ -257,17 +365,17 @@
       "vary": "Accept-Encoding",
       "x-content-type-options": "nosniff",
       "x-frame-options": "SAMEORIGIN",
-      "x-hikari-trace": "lax1.sx7j",
+      "x-hikari-trace": "iad1.fp5t",
       "x-permitted-cross-domain-policies": "none",
-      "x-railway-edge": "lax1",
-      "x-railway-request-id": "3U1iAE4hRYOzKqAIljLL4A",
-      "x-request-id": "328e0176-deb5-400a-bb06-40b704dea96b"
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "kUCHvS_gRIKjgfltYqVb7A",
+      "x-request-id": "1c6910fe-c425-4a1f-a66b-73a264c40b97"
     },
     "body": {
       "listed": true,
       "origin": "https://x402-gateway-production-1f21.up.railway.app",
       "seller": {
-        "displayName": "Industrial Platform Fast Web Tools",
+        "displayName": "Industrial Platform Web Tools",
         "toolCount": 2,
         "networks": [
           "eip155:8453"
@@ -292,7 +400,7 @@
   "agent402Index": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 100,
+    "elapsedMs": 319,
     "headers": {
       "access-control-allow-origin": "*",
       "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
@@ -301,8 +409,8 @@
       "content-encoding": "br",
       "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:49:50 GMT",
-      "etag": "W/\"2d91-KTMWWD8oSN2mZysjYg1dnJ24Hcs\"",
+      "date": "Wed, 30 Sep 2026 20:44:33 GMT",
+      "etag": "W/\"2e1b-8y4Wl60KLxzqq01hfQZz+xfMZSM\"",
       "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
       "referrer-policy": "strict-origin-when-cross-origin",
       "server": "railway-hikari",
@@ -311,18 +419,18 @@
       "vary": "Accept-Encoding",
       "x-content-type-options": "nosniff",
       "x-frame-options": "SAMEORIGIN",
-      "x-hikari-trace": "lax1.ez9k",
+      "x-hikari-trace": "iad1.dh1s",
       "x-permitted-cross-domain-policies": "none",
-      "x-railway-edge": "lax1",
-      "x-railway-request-id": "x4UKOcGLS26FKmzB0_TJvA",
-      "x-request-id": "df9f3b0c-e520-46fd-9b89-9f83302bfe54"
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "O33Cs9qiTwSv2yrEnpoFkQ",
+      "x-request-id": "69a130da-119c-4fe4-b5ac-236d32ec00a0"
     },
     "body": {
       "origin": "https://x402-gateway-production-1f21.up.railway.app",
-      "displayName": "Industrial Platform Fast Web Tools",
+      "displayName": "Industrial Platform Web Tools",
       "homepage": "https://x402-gateway-production-1f21.up.railway.app",
       "toolCount": 2,
-      "fetchedAt": 1790790590315,
+      "fetchedAt": 1790801073260,
       "error": null,
       "health": 1,
       "routable": true,
@@ -334,11 +442,11 @@
       "originResponded": true,
       "discoveryPath": "/.well-known/x402",
       "payToByNetwork": {
-        "eip155:8453": "0x23d931f95831cee50b5f5edf4d0e88270f6c8411"
+        "eip155:8453": "0x0e66A3F909D3473E2517709e713B7afc0D767C42"
       },
       "payTosByNetwork": {
         "eip155:8453": [
-          "0x23d931f95831cee50b5f5edf4d0e88270f6c8411"
+          "0x0e66A3F909D3473E2517709e713B7afc0D767C42"
         ]
       },
       "evmDomainByNetwork": {
@@ -348,6 +456,9 @@
         }
       },
       "history": [
+        1,
+        1,
+        1,
         1,
         1
       ],
@@ -364,7 +475,7 @@
           "slug": "webMetadataIntelligence",
           "name": "Extract webpage metadata",
           "description": "Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.",
-          "price": "$0.01",
+          "price": "$0.001",
           "priceKnown": true,
           "requestContract": {
             "state": "declared",
@@ -374,21 +485,27 @@
                 "urls"
               ]
             },
+            "optional": {
+              "body": [
+                "timeout_seconds",
+                "concurrency"
+              ]
+            },
             "runtimeVerified": false
           },
           "networks": [
             "eip155:8453"
           ],
           "declared": true,
-          "lastVerifiedAt": "2026-09-30T17:49:50.422Z"
+          "lastVerifiedAt": "2026-09-30T20:44:33.270Z"
         },
         {
           "method": "POST",
           "route": "/change",
           "slug": "webChangeIntelligence",
           "name": "Detect webpage changes",
-          "description": "Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.",
-          "price": "$0.01",
+          "description": "Detect meaningful webpage changes with deterministic hashes and diffs for prices, docs, policies, availability and competitor monitoring.",
+          "price": "$0.001",
           "priceKnown": true,
           "requestContract": {
             "state": "declared",
@@ -402,7 +519,12 @@
               "body": [
                 "previous_hash",
                 "previous_text",
-                "include_current_text"
+                "selector",
+                "ignore_selectors",
+                "include_current_text",
+                "max_text_chars",
+                "max_diff_chars",
+                "timeout_seconds"
               ]
             },
             "runtimeVerified": false
@@ -411,7 +533,7 @@
             "eip155:8453"
           ],
           "declared": true,
-          "lastVerifiedAt": "2026-09-30T17:49:50.553Z"
+          "lastVerifiedAt": "2026-09-30T20:44:33.278Z"
         }
       ],
       "paymentNetworksKnown": true,
@@ -473,7 +595,7 @@
   "agent402FindMetadata": {
     "status": 200,
     "ok": true,
-    "elapsedMs": 512,
+    "elapsedMs": 578,
     "headers": {
       "access-control-allow-origin": "*",
       "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
@@ -481,7 +603,7 @@
       "content-encoding": "br",
       "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:49:51 GMT",
+      "date": "Wed, 30 Sep 2026 20:44:34 GMT",
       "etag": "W/\"1e94-4aQzwhMPCF6W89wpcmiPgph8v/4\"",
       "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
       "referrer-policy": "strict-origin-when-cross-origin",
@@ -492,11 +614,11 @@
       "x-cache": "miss",
       "x-content-type-options": "nosniff",
       "x-frame-options": "SAMEORIGIN",
-      "x-hikari-trace": "lax1.sx7j",
+      "x-hikari-trace": "iad1.fp5t",
       "x-permitted-cross-domain-policies": "none",
-      "x-railway-edge": "lax1",
-      "x-railway-request-id": "XI9cfO8gRCW1iSlJ2prcFg",
-      "x-request-id": "9df65833-16e5-4585-87e0-323b4bf71941"
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "JybUqzN4SiuaYT4Fjq4OvQ",
+      "x-request-id": "62b580ad-b2b8-4e6e-bde2-3e23d75f0117"
     },
     "body": {
       "query": "web metadata extractor Open Graph JSON-LD canonical robots",
@@ -798,7 +920,7 @@
   "agent402FindChange": {
     "status": 503,
     "ok": false,
-    "elapsedMs": 34,
+    "elapsedMs": 112,
     "headers": {
       "access-control-allow-origin": "*",
       "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count",
@@ -807,7 +929,7 @@
       "content-length": "128",
       "content-security-policy": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
       "content-type": "application/json; charset=utf-8",
-      "date": "Wed, 30 Sep 2026 17:49:51 GMT",
+      "date": "Wed, 30 Sep 2026 20:44:34 GMT",
       "etag": "W/\"80-dv95CGDAW4GHn9C72JYr8qI1F3Y\"",
       "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
       "referrer-policy": "strict-origin-when-cross-origin",
@@ -817,11 +939,11 @@
       "vary": "Accept-Encoding",
       "x-content-type-options": "nosniff",
       "x-frame-options": "SAMEORIGIN",
-      "x-hikari-trace": "lax1.sx7j",
+      "x-hikari-trace": "iad1.fp5t",
       "x-permitted-cross-domain-policies": "none",
-      "x-railway-edge": "lax1",
-      "x-railway-request-id": "Grzcj7f5TMOiCr5dlt7tkg",
-      "x-request-id": "7334258c-9684-46e7-ba1d-6101e23138bc"
+      "x-railway-edge": "iad1",
+      "x-railway-request-id": "LLTT_M9BQLqo33TnnPRhug",
+      "x-request-id": "c08b2288-7524-4ef4-8d9e-16f300255fc7"
     },
     "body": {
       "error": "The server is busy; free and discovery requests are paused briefly so paid calls keep flowing.",
