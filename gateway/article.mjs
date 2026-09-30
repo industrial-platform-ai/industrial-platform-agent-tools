@@ -206,9 +206,9 @@ export const documentTools=[{
 },{
   name:'url-to-markdown',
   route:'/web/markdown',
-  price:'$0.0015',
-  priceUsd:0.0015,
-  description:'Convert a public webpage URL into clean agent-ready Markdown for web reading, grounding, RAG ingestion, content extraction, article parsing, research and LLM context. Static public HTML pages only; strips navigation, scripts and boilerplate. Lower-cost x402 alternative for agents that need URL-to-Markdown.',
+  price:'$0.0009',
+  priceUsd:0.0009,
+  description:'Convert a public webpage URL into clean agent-ready Markdown for web reading, grounding, RAG ingestion, content extraction, article parsing, research and LLM context. Static public HTML pages only; strips navigation, scripts and boilerplate. Ultra-low-cost x402 alternative for agents that need URL-to-Markdown.',
   tags:['web','url-to-markdown','markdown','web-reading','content-extraction','rag','grounding','research','agents'],
   inputSchema:{
     type:'object',
