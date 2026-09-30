@@ -102,7 +102,7 @@ jobs:
               try {
                 const r = await client.callTool({
                   name:'search_resources',
-                  arguments:{query:q}
+                  arguments:{query:q, curatedOnly:false, urlSubstring:'x402-gateway-production-1f21.up.railway.app', limit:20}
                 });
                 out.coinbaseSearch[q] = {
                   isError:Boolean(r.isError),
