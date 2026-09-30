@@ -203,7 +203,7 @@ export const documentTools=[{
     if(!article.text||article.word_count<20) throw Object.assign(new Error('No substantial article content was detected.'),{statusCode:422});
     return {status:'ready',url,final_url:fetched.finalUrl,fetched_at:new Date().toISOString(),http_status:fetched.httpStatus,content_type:fetched.contentType,response_bytes:fetched.bytes,latency_ms:fetched.durationMs,...article,untrusted_content:true};
   }
-,{
+},{
   name:'url-to-markdown',
   route:'/web/markdown',
   price:'$0.0015',
