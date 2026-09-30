@@ -3,7 +3,7 @@
   "provider": "Industrial Platform",
   "provider_id": "industrial_platform",
   "repository": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
-  "mcp_bundle_url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence",
+  "mcp_bundle_url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence",
   "notes": [
     "Live pricing and eligibility should be verified against Apify Store before paid execution.",
     "All machine-native utility Actors are designed for structured JSON inputs and outputs.",
@@ -26,8 +26,13 @@
         "source-backed briefs with citations"
       ],
       "input": {
-        "required": ["research_question"],
-        "optional": ["context", "requirements"]
+        "required": [
+          "research_question"
+        ],
+        "optional": [
+          "context",
+          "requirements"
+        ]
       }
     },
     {
@@ -96,6 +101,23 @@
         "PDF metadata",
         "RAG ingestion",
         "document processing pipelines"
+      ]
+    },
+    {
+      "id": "sitemap-intelligence",
+      "title": "Sitemap Intelligence",
+      "actor": "industrial_platform/sitemap-intelligence",
+      "store_url": "https://apify.com/industrial_platform/sitemap-intelligence",
+      "pricing_model": "PAY_PER_EVENT",
+      "billing_event": "sitemap-url",
+      "current_event_price_usd": 0.0001,
+      "agentic_payment_eligible": true,
+      "best_for": [
+        "sitemap discovery",
+        "crawl URL enumeration",
+        "RAG ingestion planning",
+        "sitemap index expansion",
+        "lastmod/changefreq/priority extraction"
       ]
     }
   ]
