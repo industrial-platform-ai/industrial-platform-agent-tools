@@ -40,7 +40,10 @@ const marketQueries = [
   'crypto order book best bid ask',
   'crypto historical candles OHLCV',
   'crypto recent trades order flow',
-  'extract article clean text'
+  'extract article clean text',
+  'dns lookup MX TXT',
+  'http security headers status',
+  'robots.txt crawl allowed path'
 ];
 const requestMethod = (process.env.X402_METHOD || 'POST').toUpperCase();
 const requestBodyOverride = process.env.X402_REQUEST_BODY || '';
@@ -238,7 +241,7 @@ async function registerAgent402OriginOnce({scheduleRetry=true}={}) {
   const rereadSeconds = Number(parsed?.reverify?.nextRereadInSeconds);
   const toolCount = Number(parsed?.seller?.toolCount);
 
-  if (response.ok && Number.isFinite(toolCount) && toolCount >= 29) {
+  if (response.ok && Number.isFinite(toolCount) && toolCount >= 32) {
     await runFindDiagnostics();
     return;
   }
