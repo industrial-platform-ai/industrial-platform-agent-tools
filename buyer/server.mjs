@@ -47,10 +47,14 @@ async function payOnce() {
   const { fetch: paidFetch } = makeClient();
 
   state.status = 'paying';
+  const requestBody = TARGET.endsWith('/change')
+    ? { url: 'https://example.com/', include_current_text: false }
+    : { urls: ['https://example.com/'] };
+
   const response = await paidFetch(TARGET, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ urls: ['https://example.com/'] }),
+    body: JSON.stringify(requestBody),
   });
 
   const text = await response.text();
