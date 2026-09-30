@@ -13,6 +13,23 @@ const runRegistry = process.env.RUN_X402SCAN_REGISTRATION === '1';
 const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan.com/api/x402/registry/register-origin';
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
 const agent402IndexTarget = 'https://agent402.tools/api/index/register';
+const agent402FindTarget = 'https://agent402.tools/api/find';
+const marketQueries = [
+  'sha256 hash text',
+  'base64 encode text',
+  'base64 decode text',
+  'canonicalize json',
+  'parse query string',
+  'inspect url',
+  'text statistics word count',
+  'compare text diff',
+  'convert html to text',
+  'extract links from html',
+  'extract metadata from html',
+  'slugify text',
+  'extract webpage metadata',
+  'detect webpage changes'
+];
 const requestMethod = (process.env.X402_METHOD || 'POST').toUpperCase();
 const requestBodyOverride = process.env.X402_REQUEST_BODY || '';
 
@@ -98,7 +115,26 @@ async function payOnce() {
 }
 
 
-async function registerAgent402OriginOnce() {
+async function runFindDiagnostics() {
+  for (const q of marketQueries) {
+    try {
+      const url = agent402FindTarget + '?q=' + encodeURIComponent(q);
+      const response = await fetch(url, { headers: { accept: 'application/json' } });
+      const body = await response.text();
+      console.log('Agent402 find diagnostic:', JSON.stringify({
+        q,
+        httpStatus: response.status,
+        ok: response.ok,
+        body: body.slice(0, 6000),
+        completedAt: new Date().toISOString(),
+      }));
+    } catch (error) {
+      console.error('Agent402 find diagnostic failed:', q, String(error?.message || error));
+    }
+  }
+}
+
+async function registerAgent402OriginOnce({scheduleRetry=true}={}) {
   const response = await fetch(agent402IndexTarget, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -112,6 +148,28 @@ async function registerAgent402OriginOnce() {
     body: body.slice(0, 4000),
     completedAt: new Date().toISOString(),
   }));
+
+  let parsed = null;
+  try { parsed = JSON.parse(body); } catch {}
+  const rereadSeconds = Number(parsed?.reverify?.nextRereadInSeconds);
+  const toolCount = Number(parsed?.seller?.toolCount);
+
+  if (response.ok && Number.isFinite(toolCount) && toolCount >= 14) {
+    await runFindDiagnostics();
+    return;
+  }
+
+  if (response.ok && scheduleRetry && Number.isFinite(rereadSeconds) && rereadSeconds > 0 && rereadSeconds <= 3600) {
+    const delayMs = (rereadSeconds + 5) * 1000;
+    console.log('Agent402 re-index retry scheduled in', Math.round(delayMs / 1000), 'seconds');
+    setTimeout(() => {
+      registerAgent402OriginOnce({scheduleRetry:false}).then(runFindDiagnostics).catch((error) => {
+        console.error('Agent402 scheduled re-index failed:', String(error?.stack || error));
+      });
+    }, delayMs);
+  } else if (response.ok) {
+    await runFindDiagnostics();
+  }
 }
 
 async function registerX402scanOnce() {
