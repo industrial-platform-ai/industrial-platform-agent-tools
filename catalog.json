@@ -120,5 +120,11 @@
         "lastmod/changefreq/priority extraction"
       ]
     }
-  ]
+  ],
+  "mcp_registry": {
+    "name": "io.github.industrial-platform-ai/industrial-platform",
+    "version": "1.0.0",
+    "status": "active",
+    "api_search": "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.industrial-platform-ai%2Findustrial-platform&version=latest"
+  }
 }
