@@ -121,3 +121,5 @@ jobs:
           git commit -m "Record production x402 gateway activation"
           git pull --rebase origin main
           git push
+
+# refresh task-specific x402 registration
