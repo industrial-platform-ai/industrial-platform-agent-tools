@@ -1,0 +1,76 @@
+name: Audit Coinbase x402 Bazaar Discovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-coinbase-bazaar.yml'
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install MCP SDK
+        run: npm install --no-save @modelcontextprotocol/sdk
+
+      - name: Search Coinbase Bazaar MCP
+        run: |
+          node <<'NODE'
+          const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
+          const { StreamableHTTPClientTransport } = await import('@modelcontextprotocol/sdk/client/streamableHttp.js');
+
+          const client = new Client(
+            { name: 'industrial-platform-bazaar-audit', version: '1.0.0' },
+            {}
+          );
+
+          const endpoint = new URL('https://api.cdp.coinbase.com/platform/v2/x402/discovery/mcp');
+          await client.connect(new StreamableHTTPClientTransport(endpoint));
+
+          try {
+            const listed = await client.listTools();
+            console.log('tools=' + JSON.stringify(listed.tools.map(t => ({
+              name: t.name,
+              description: t.description
+            }))));
+
+            const queries = [
+              'web metadata extractor JSON-LD Open Graph canonical robots',
+              'website change detector monitor page changes deterministic diff',
+              'Industrial Platform web metadata',
+              'Industrial Platform web change'
+            ];
+
+            for (const query of queries) {
+              const result = await client.callTool({
+                name: 'search_resources',
+                arguments: { query }
+              });
+
+              const text = (result.content ?? [])
+                .filter(x => x.type === 'text')
+                .map(x => x.text)
+                .join('\n');
+
+              const hit = /industrial[_ -]?platform|web-metadata-intelligence|web-change-intelligence|api\.apify\.com/i.test(text);
+
+              console.log(JSON.stringify({
+                query,
+                industrialPlatformHit: hit,
+                response: text.slice(0, 16000)
+              }, null, 2));
+            }
+          } finally {
+            await client.close().catch(() => {});
+          }
+          NODE
