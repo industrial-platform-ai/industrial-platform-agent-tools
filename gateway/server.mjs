@@ -3,6 +3,8 @@ import http from 'node:http';
 const PORT = Number(process.env.PORT || 3000);
 const META = 'https://api.apify.com/v2/actors/industrial_platform~web-metadata-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.01';
 const CHANGE = 'https://api.apify.com/v2/actors/industrial_platform~web-change-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.01';
+const MAX_BODY_BYTES = 256 * 1024;
+const UPSTREAM_TIMEOUT_MS = 75_000;
 
 const json = (res, code, body, headers={}) => {
   res.writeHead(code, {'content-type':'application/json; charset=utf-8', ...headers});
@@ -17,7 +19,7 @@ const manifest = {
       name: 'web-metadata-intelligence',
       route: '/metadata',
       method: 'POST',
-      price: '$0.001 per successful URL',
+      price: '$0.001 Actor event; x402 authorization terms are returned live by Apify',
       description: 'Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.',
       inputSchema: {
         type:'object',
@@ -29,7 +31,7 @@ const manifest = {
       name: 'web-change-intelligence',
       route: '/change',
       method: 'POST',
-      price: '$0.001 per successful comparison',
+      price: '$0.001 Actor event; x402 authorization terms are returned live by Apify',
       description: 'Detect meaningful webpage changes with deterministic hashes and diffs for monitoring prices, docs, policies, availability and competitors.',
       inputSchema: {
         type:'object',
@@ -72,17 +74,29 @@ const openapi = {
 
 async function bodyBuffer(req) {
   const chunks=[];
-  for await (const c of req) chunks.push(c);
+  let total=0;
+  for await (const chunk of req) {
+    total += chunk.length;
+    if (total > MAX_BODY_BYTES) throw Object.assign(new Error('request body too large'), { statusCode: 413 });
+    chunks.push(chunk);
+  }
   return Buffer.concat(chunks);
 }
 
 async function proxy(req,res,target) {
   const body = await bodyBuffer(req);
-  const headers = {'content-type': req.headers['content-type'] || 'application/json'};
-  for (const h of ['payment-signature','x-payment','authorization']) {
+  const headers = {'content-type': 'application/json'};
+  for (const h of ['payment-signature','x-payment','skyfire-pay-id','x-apify-payment-protocol']) {
     if (req.headers[h]) headers[h]=req.headers[h];
   }
-  const upstream = await fetch(target,{method:'POST',headers,body,redirect:'manual'});
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
+  let upstream;
+  try {
+    upstream = await fetch(target,{method:'POST',headers,body,redirect:'manual',signal:controller.signal});
+  } finally {
+    clearTimeout(timer);
+  }
   const passthrough={};
   for (const [k,v] of upstream.headers) {
     if (/^(payment-required|x-payment-response|content-type|www-authenticate)$/i.test(k)) passthrough[k]=v;
@@ -104,7 +118,8 @@ const server = http.createServer(async (req,res)=>{
     if (req.method==='POST' && u.pathname==='/change') return await proxy(req,res,CHANGE);
     return json(res,404,{error:'not found'});
   } catch (e) {
-    return json(res,502,{error:'gateway_error',message:String(e?.message||e)});
+    const status = Number(e?.statusCode) || (e?.name === 'AbortError' ? 504 : 502);
+    return json(res,status,{error:'gateway_error',message:String(e?.message||e)});
   }
 });
 server.listen(PORT,'0.0.0.0',()=>console.log('Industrial Platform x402 gateway listening on',PORT));
