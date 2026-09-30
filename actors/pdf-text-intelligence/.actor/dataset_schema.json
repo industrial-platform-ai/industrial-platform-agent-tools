@@ -1,0 +1,52 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "status": { "type": "string" },
+      "url": { "type": "string" },
+      "final_url": { "type": "string" },
+      "fetched_at": { "type": "string" },
+      "http_status": { "type": "integer" },
+      "content_type": { "type": "string" },
+      "response_bytes": { "type": "integer" },
+      "latency_ms": { "type": "integer" },
+      "page_count": { "type": "integer" },
+      "extracted_pages": { "type": "integer" },
+      "title": { "type": "string" },
+      "author": { "type": "string" },
+      "subject": { "type": "string" },
+      "creator": { "type": "string" },
+      "producer": { "type": "string" },
+      "creation_date": { "type": "string" },
+      "modification_date": { "type": "string" },
+      "text": { "type": "string" },
+      "text_length": { "type": "integer" },
+      "text_truncated": { "type": "boolean" },
+      "pages": { "type": "array" },
+      "error": { "type": "string" }
+    },
+    "required": ["status", "url", "fetched_at"]
+  },
+  "views": {
+    "overview": {
+      "title": "PDFs",
+      "transformation": {
+        "fields": ["url","status","title","author","page_count","text_length","fetched_at"]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "url": { "label": "URL", "format": "link" },
+          "status": { "label": "Status", "format": "text" },
+          "title": { "label": "Title", "format": "text" },
+          "author": { "label": "Author", "format": "text" },
+          "page_count": { "label": "Pages", "format": "number" },
+          "text_length": { "label": "Text chars", "format": "number" },
+          "fetched_at": { "label": "Fetched", "format": "date" }
+        }
+      }
+    }
+  }
+}
