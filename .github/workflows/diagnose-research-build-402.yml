@@ -1,0 +1,44 @@
+name: Diagnose Research Build 402
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/diagnose-research-build-402.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Capture Apify build response
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          STATUS=$(curl --silent --show-error             --output response.json             --write-out "%{http_code}"             --request POST             --header "Authorization: Bearer $APIFY_TOKEN"             "https://api.apify.com/v2/actors/industrial_platform~research-brief-agent/builds?version=0.0&tag=latest&waitForFinish=0")
+
+          echo "HTTP_STATUS=$STATUS"
+
+          node <<'NODE'
+          const fs = require('fs');
+          const raw = fs.readFileSync('response.json','utf8');
+          let body;
+          try { body = JSON.parse(raw); }
+          catch { body = { raw }; }
+
+          function redact(value) {
+            if (Array.isArray(value)) return value.map(redact);
+            if (!value || typeof value !== 'object') return value;
+            const out = {};
+            for (const [k,v] of Object.entries(value)) {
+              if (/token|secret|password|key/i.test(k)) out[k] = '[redacted]';
+              else out[k] = redact(v);
+            }
+            return out;
+          }
+
+          console.log(JSON.stringify(redact(body), null, 2));
+          NODE
