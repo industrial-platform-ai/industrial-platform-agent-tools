@@ -1,0 +1,62 @@
+name: Probe StableApify Bridge
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/probe-stableapify-bridge.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe Industrial Platform actors through stableapify.dev
+        run: |
+          node <<'NODE'
+          const targets = [
+            {
+              name: 'web-metadata-intelligence',
+              url: 'https://stableapify.dev/api/actors/industrial_platform/web-metadata-intelligence/call',
+              input: { urls: ['https://example.com/'] }
+            },
+            {
+              name: 'web-change-intelligence',
+              url: 'https://stableapify.dev/api/actors/industrial_platform/web-change-intelligence/call',
+              input: { url: 'https://example.com/', include_current_text: true }
+            }
+          ];
+
+          for (const target of targets) {
+            const r = await fetch(target.url, {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json',
+                'user-agent': 'industrial-platform-agent-tools/1.0'
+              },
+              body: JSON.stringify({
+                input: {
+                  type: 'http',
+                  method: 'POST',
+                  bodyType: 'json',
+                  body: target.input
+                }
+              })
+            });
+
+            const text = await r.text();
+            const headers = Object.fromEntries(r.headers.entries());
+            console.log(JSON.stringify({
+              name: target.name,
+              url: target.url,
+              status: r.status,
+              headers,
+              body: text.slice(0, 3000)
+            }, null, 2));
+
+            if (![200, 402].includes(r.status)) process.exitCode = 1;
+          }
+          NODE
