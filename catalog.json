@@ -181,5 +181,20 @@
       "status": "publication-pending",
       "agentic_payment_eligible": false
     }
-  ]
+  ],
+  "agent_entrypoints": {
+    "preferred": {
+      "protocol": "MCP",
+      "payment": "x402",
+      "network": "Base",
+      "asset": "USDC",
+      "url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402",
+      "client": "mcpc"
+    },
+    "registry": {
+      "name": "io.github.industrial-platform-ai/industrial-platform",
+      "version": "1.0.2"
+    },
+    "instructions": "AGENTS.md"
+  }
 }
