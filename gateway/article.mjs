@@ -129,6 +129,52 @@ function extractArticle(html,finalUrl,{maxTextChars=150000}={}) {
   };
 }
 
+
+function markdownEscapeInline(value='') {
+  return String(value).replace(/\\/g,'\\\\').replace(/([*_\`])/g,'\\$1');
+}
+
+function extractMarkdown(html,finalUrl,{maxChars=150000}={}) {
+  const $=cheerio.load(html);
+  let root=$('article').first();
+  if(!root.length||(clean(root.text())||'').length<200) root=$('main').first();
+  if(!root.length||(clean(root.text())||'').length<200){
+    const candidates=$('section,div').toArray().map(el=>({el,score:candidateScore($,el)})).sort((a,b)=>b.score-a.score);
+    root=candidates.length?$(candidates[0].el):$('body');
+  }
+  root.find('script,style,noscript,template,svg,canvas,iframe,form,nav,footer,aside').remove();
+
+  const blocks=[];
+  root.find('h1,h2,h3,h4,h5,h6,p,li,blockquote,pre').each((_,el)=>{
+    const node=$(el);
+    const tag=String(el.tagName||'').toLowerCase();
+    let text=clean(node.text());
+    if(!text) return;
+    if(/^h[1-6]$/.test(tag)) {
+      blocks.push('#'.repeat(Number(tag[1]))+' '+markdownEscapeInline(text));
+      return;
+    }
+    if(tag==='li') { blocks.push('- '+markdownEscapeInline(text)); return; }
+    if(tag==='blockquote') { blocks.push('> '+markdownEscapeInline(text).replace(/\n/g,'\n> ')); return; }
+    if(tag==='pre') { blocks.push('\\`\\`\\`\n'+text.slice(0,12000)+'\n\\`\\`\\`'); return; }
+
+    const clone=node.clone();
+    clone.find('a').each((__,a)=>{
+      const link=$(a);
+      const label=clean(link.text())||'link';
+      const href=absoluteUrl(link.attr('href'),finalUrl);
+      link.replaceWith(href?'['+markdownEscapeInline(label)+']('+href+')':markdownEscapeInline(label));
+    });
+    text=clean(clone.text());
+    if(text) blocks.push(text);
+  });
+  let markdown=blocks.join('\n\n').replace(/\n{3,}/g,'\n\n').trim();
+  const originalLength=markdown.length;
+  const truncated=originalLength>maxChars;
+  if(truncated) markdown=markdown.slice(0,maxChars).trimEnd();
+  return {markdown,markdown_length:markdown.length,original_markdown_length:originalLength,markdown_truncated:truncated};
+}
+
 export const documentTools=[{
   name:'extract-article',
   route:'/article',
@@ -157,4 +203,39 @@ export const documentTools=[{
     if(!article.text||article.word_count<20) throw Object.assign(new Error('No substantial article content was detected.'),{statusCode:422});
     return {status:'ready',url,final_url:fetched.finalUrl,fetched_at:new Date().toISOString(),http_status:fetched.httpStatus,content_type:fetched.contentType,response_bytes:fetched.bytes,latency_ms:fetched.durationMs,...article,untrusted_content:true};
   }
-}];
+,{
+  name:'url-to-markdown',
+  route:'/web/markdown',
+  price:'$0.0015',
+  priceUsd:0.0015,
+  description:'Convert a public webpage URL into clean agent-ready Markdown for web reading, grounding, RAG ingestion, content extraction, article parsing, research and LLM context. Static public HTML pages only; strips navigation, scripts and boilerplate. Lower-cost x402 alternative for agents that need URL-to-Markdown.',
+  tags:['web','url-to-markdown','markdown','web-reading','content-extraction','rag','grounding','research','agents'],
+  inputSchema:{
+    type:'object',
+    properties:{
+      url:{type:'string',format:'uri',description:'Public http(s) webpage URL.'},
+      max_chars:{type:'integer',minimum:1000,maximum:150000},
+      timeout_seconds:{type:'integer',minimum:5,maximum:60}
+    },
+    required:['url'],
+    additionalProperties:false
+  },
+  example:{url:'https://example.com/',max_chars:100000},
+  run:async input=>{
+    const url=typeof input?.url==='string'?input.url.trim():'';
+    if(!url) throw Object.assign(new Error('url is required.'),{statusCode:400});
+    const maxChars=Number.isInteger(input?.max_chars)?Math.min(150000,Math.max(1000,input.max_chars)):100000;
+    const timeoutSeconds=Number.isInteger(input?.timeout_seconds)?Math.min(60,Math.max(5,input.timeout_seconds)):30;
+    const fetched=await fetchPublicPage(url,{timeoutSeconds});
+    const article=extractArticle(fetched.body,fetched.finalUrl,{maxTextChars:maxChars});
+    const md=extractMarkdown(fetched.body,fetched.finalUrl,{maxChars});
+    if(!md.markdown||md.markdown.length<100) throw Object.assign(new Error('No substantial readable content was detected.'),{statusCode:422});
+    return {
+      status:'ready',url,final_url:fetched.finalUrl,fetched_at:new Date().toISOString(),
+      http_status:fetched.httpStatus,content_type:fetched.contentType,response_bytes:fetched.bytes,
+      latency_ms:fetched.durationMs,title:article.title,description:article.description,
+      author:article.author,published_at:article.published_at,canonical:article.canonical,
+      language:article.language,...md,untrusted_content:true
+    };
+  }
+}}];
