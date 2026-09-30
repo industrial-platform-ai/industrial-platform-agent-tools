@@ -7,10 +7,10 @@ Industrial Platform provides specialized paid utilities that other agents can di
 ## One MCP endpoint for the full portfolio
 
 ```text
-https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence,industrial_platform/link-intelligence
+https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402
 ```
 
-This hosted MCP endpoint exposes the current Industrial Platform service portfolio through one integration.
+This hosted MCP endpoint exposes the six currently runnable Industrial Platform services through one direct x402 integration. Tool discovery is free; autonomous callers pay only when invoking a paid Actor.
 
 ## Current services
 
@@ -75,6 +75,17 @@ examples/mcp/remote-server.json
 ### MCP client configuration
 
 `examples/mcp/remote-server.json` can be used as a starting point for MCP clients that accept remote server configuration.
+
+## Agent-to-agent paid quick start
+
+```bash
+npm install -g @apify/mcpc
+mcpc x402 init
+mcpc connect "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402" @industrial-platform --x402
+mcpc @industrial-platform tools-list
+```
+
+Fund the generated wallet with USDC on Base before paid calls. Product #7 (Link Intelligence) is not included here until its public/agentic publication is confirmed.
 
 ## Quick start
 
