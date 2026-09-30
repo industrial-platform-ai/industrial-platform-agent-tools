@@ -132,3 +132,5 @@ jobs:
           git commit -m "Record post-canary machine discovery"
           git pull --rebase origin main
           git push
+
+# rerun after validator compatibility deploy
