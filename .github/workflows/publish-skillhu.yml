@@ -1,0 +1,62 @@
+name: Publish Skillhu Agent Skill
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/industrial-platform-paid-web-tools/**'
+      - '.github/workflows/publish-skillhu.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Prepare portable Skillhu package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/industrial-platform-paid-web-tools
+          cp skills/industrial-platform-paid-web-tools/SKILL.md             /tmp/industrial-platform-paid-web-tools/skill.md
+          cat > /tmp/industrial-platform-paid-web-tools/manifest.json <<'JSON'
+          {
+            "name": "industrial-platform-paid-web-tools",
+            "description": "Paid web metadata extraction and deterministic website change detection for autonomous AI agents.",
+            "author": "industrial-platform-ai",
+            "version": "1.0.0",
+            "tags": [
+              "x402",
+              "ai-agents",
+              "web-metadata",
+              "change-detection",
+              "agentcash",
+              "apify"
+            ],
+            "category": "integrations"
+          }
+          JSON
+
+      - name: Publish to Skillhu
+        working-directory: /tmp/industrial-platform-paid-web-tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes skillhu@latest publish . | tee publish-output.txt
+
+      - name: Verify install resolution
+        shell: bash
+        run: |
+          set +e
+          npx --yes skillhu@latest install industrial-platform-paid-web-tools
+          code=$?
+          echo "install_exit=$code"
+          exit 0
