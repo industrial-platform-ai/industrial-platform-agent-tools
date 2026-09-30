@@ -1,0 +1,18 @@
+{
+  "name": "industrial-platform-sitemap-intelligence",
+  "version": "0.1.0",
+  "description": "Deterministic sitemap discovery and URL extraction for AI agents and automated workflows.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node ./src/main.js",
+    "check": "node --check ./src/main.js && node --check ./src/fetch.js && node --check ./src/sitemap.js",
+    "test": "node --test"
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "apify": "^3.7.2",
+    "fast-xml-parser": "^5.3.1",
+    "ipaddr.js": "^2.5.0"
+  }
+}
