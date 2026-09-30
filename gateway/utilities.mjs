@@ -29,7 +29,7 @@ function canonicalize(value) {
 
 export const utilityTools = [
   {
-    name:'sha256-hash', route:'/hash', price:'$0.001', priceUsd:0.001,
+    name:'sha256-hash', route:'/hash', price:'$0.0005', priceUsd:0.0005,
     description:'Hash text deterministically with SHA-256 for cache keys, integrity checks, deduplication and agent workflows.',
     tags:['hash','sha256','integrity','utility'],
     inputSchema:textSchema,
@@ -37,7 +37,7 @@ export const utilityTools = [
     run: async input => ({algorithm:'sha256',digest:createHash('sha256').update(boundedText(input?.text),'utf8').digest('hex')})
   },
   {
-    name:'base64-encode', route:'/base64/encode', price:'$0.001', priceUsd:0.001,
+    name:'base64-encode', route:'/base64/encode', price:'$0.0005', priceUsd:0.0005,
     description:'Encode UTF-8 text as Base64.',
     tags:['base64','encode','conversion','utility'],
     inputSchema:textSchema,
@@ -45,7 +45,7 @@ export const utilityTools = [
     run: async input => ({encoding:'base64',result:Buffer.from(boundedText(input?.text),'utf8').toString('base64')})
   },
   {
-    name:'base64-decode', route:'/base64/decode', price:'$0.001', priceUsd:0.001,
+    name:'base64-decode', route:'/base64/decode', price:'$0.0005', priceUsd:0.0005,
     description:'Decode Base64 into UTF-8 text.',
     tags:['base64','decode','conversion','utility'],
     inputSchema:{
@@ -59,7 +59,7 @@ export const utilityTools = [
     }
   },
   {
-    name:'json-canonicalize', route:'/json/canonicalize', price:'$0.001', priceUsd:0.001,
+    name:'json-canonicalize', route:'/json/canonicalize', price:'$0.0005', priceUsd:0.0005,
     description:'Canonicalize JSON by recursively sorting object keys for stable hashing, comparison and signatures.',
     tags:['json','canonicalize','normalize','utility'],
     inputSchema:{type:'object',properties:{value:{}},required:['value'],additionalProperties:false},
@@ -67,7 +67,7 @@ export const utilityTools = [
     run: async input => ({result:canonicalize(input?.value)})
   },
   {
-    name:'querystring', route:'/querystring', price:'$0.001', priceUsd:0.001,
+    name:'querystring', route:'/querystring', price:'$0.0005', priceUsd:0.0005,
     description:'Parse a URL query string into structured JSON or build a query string from an object.',
     tags:['querystring','url','parse','build','conversion'],
     inputSchema:{
@@ -100,7 +100,7 @@ export const utilityTools = [
     }
   },
   {
-    name:'url-inspect', route:'/url/inspect', price:'$0.001', priceUsd:0.001,
+    name:'url-inspect', route:'/url/inspect', price:'$0.0005', priceUsd:0.0005,
     description:'Normalize a URL and return its origin, host, path, query parameters and fragments as structured JSON.',
     tags:['url','normalize','parse','utility'],
     inputSchema:{type:'object',properties:{url:{type:'string',maxLength:8192}},required:['url'],additionalProperties:false},
@@ -111,7 +111,7 @@ export const utilityTools = [
     }
   },
   {
-    name:'text-stats', route:'/text/stats', price:'$0.001', priceUsd:0.001,
+    name:'text-stats', route:'/text/stats', price:'$0.0005', priceUsd:0.0005,
     description:'Return deterministic character, byte, word, line and sentence counts for text.',
     tags:['text','count','stats','utility'],
     inputSchema:textSchema,
@@ -125,7 +125,7 @@ export const utilityTools = [
     }
   },
   {
-    name:'text-diff', route:'/text/diff', price:'$0.001', priceUsd:0.001,
+    name:'text-diff', route:'/text/diff', price:'$0.0005', priceUsd:0.0005,
     description:'Compare two text values and return added and removed line blocks plus deterministic hashes.',
     tags:['text','diff','compare','utility'],
     inputSchema:{
@@ -147,7 +147,7 @@ export const utilityTools = [
     }
   },
   {
-    name:'html-to-text', route:'/html/text', price:'$0.001', priceUsd:0.001,
+    name:'html-to-text', route:'/html/text', price:'$0.0005', priceUsd:0.0005,
     description:'Convert supplied HTML into clean normalized text without network access.',
     tags:['html','text','extract','documents'],
     inputSchema:{type:'object',properties:{html:{type:'string',maxLength:500000}},required:['html'],additionalProperties:false},
@@ -163,7 +163,7 @@ export const utilityTools = [
     }
   },
   {
-    name:'html-links', route:'/html/links', price:'$0.001', priceUsd:0.001,
+    name:'html-links', route:'/html/links', price:'$0.0005', priceUsd:0.0005,
     description:'Extract links and anchor text from supplied HTML, resolving relative URLs against an optional base URL.',
     tags:['html','links','extract','web'],
     inputSchema:{
@@ -190,7 +190,7 @@ export const utilityTools = [
     }
   },
   {
-    name:'html-metadata', route:'/html/meta', price:'$0.001', priceUsd:0.001,
+    name:'html-metadata', route:'/html/meta', price:'$0.0005', priceUsd:0.0005,
     description:'Extract title, meta description, canonical URL, robots directives, Open Graph fields and JSON-LD from supplied HTML.',
     tags:['html','metadata','open-graph','json-ld','web'],
     inputSchema:{
@@ -219,7 +219,7 @@ export const utilityTools = [
     }
   },
   {
-    name:'slugify', route:'/text/slugify', price:'$0.001', priceUsd:0.001,
+    name:'slugify', route:'/text/slugify', price:'$0.0005', priceUsd:0.0005,
     description:'Convert text into a deterministic lowercase URL-safe slug.',
     tags:['text','slug','normalize','utility'],
     inputSchema:textSchema,
