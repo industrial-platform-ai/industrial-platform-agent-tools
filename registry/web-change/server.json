@@ -3,7 +3,7 @@
   "name": "io.github.industrial-platform-ai/web-change",
   "title": "Website Change Detector & Diff API",
   "description": "Detect changed or unchanged web content and deterministic diffs for AI agents.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "websiteUrl": "https://apify.com/industrial_platform/web-change-intelligence",
   "repository": {
     "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
@@ -12,14 +12,17 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://mcp.apify.com?tools=industrial_platform/web-change-intelligence"
+      "url": "https://mcp.apify.com?tools=industrial_platform/web-change-intelligence&payment=x402"
     }
   ],
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
       "provider": "Industrial Platform",
       "paymentModel": "Apify pay-per-event and supported agentic payments",
-      "actor": "industrial_platform/web-change-intelligence"
+      "actor": "industrial_platform/web-change-intelligence",
+      "paymentMode": "direct-x402",
+      "paymentNetwork": "Base",
+      "paymentAsset": "USDC"
     }
   }
 }
