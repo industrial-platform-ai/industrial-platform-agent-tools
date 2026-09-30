@@ -4,6 +4,7 @@ import { x402Client, x402HTTPClient, wrapFetchWithPayment } from '@x402/fetch';
 import { registerExactEvmScheme } from '@x402/evm/exact/client';
 import { createSIWxClientExtension } from '@x402/extensions/sign-in-with-x';
 import { privateKeyToAccount } from 'viem/accounts';
+import { submitFreeDirectoryListing } from './free-directory.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const TARGET = process.env.X402_TARGET || 'https://x402-gateway-production-1f21.up.railway.app/metadata';
@@ -186,6 +187,15 @@ async function registerX402scanFree() {
   }
 }
 
+async function registerTrue402Free() {
+  try {
+    const result = await submitFreeDirectoryListing(sellerOrigin);
+    console.log('true402 free registration:', JSON.stringify(result));
+  } catch (error) {
+    console.error('true402 free registration failed:', String(error?.stack || error));
+  }
+}
+
 async function fetchAgent402Wishes() {
   try {
     const response = await fetch(agent402WishesTarget, { headers: { accept: 'application/json' } });
@@ -284,6 +294,7 @@ async function registerX402scanOnce() {
   if (!response.ok) throw new Error('x402scan registration returned HTTP ' + response.status + ': ' + text.slice(0, 4000));
 }
 
+registerTrue402Free();
 fetchAgent402Wishes();
 registerX402scanFree();
 registerAgent402OriginOnce().catch((error) => {
