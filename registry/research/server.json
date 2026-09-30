@@ -1,0 +1,25 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.industrial-platform-ai/research-brief",
+  "title": "AI Web Research & Research Brief Agent",
+  "description": "Current cited web research and comparison briefs for autonomous AI agents.",
+  "version": "1.0.0",
+  "websiteUrl": "https://apify.com/industrial_platform/research-brief-agent",
+  "repository": {
+    "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent"
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "provider": "Industrial Platform",
+      "paymentModel": "Apify pay-per-event and supported agentic payments",
+      "actor": "industrial_platform/research-brief-agent"
+    }
+  }
+}
