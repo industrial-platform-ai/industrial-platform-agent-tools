@@ -47,11 +47,11 @@ jobs:
             const validationTargets = [
               {
                 name: 'web-metadata-intelligence',
-                url: 'https://api.apify.com/v2/actors/industrial_platform~web-metadata-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
+                url: 'https://api.apify.com/v2/acts/industrial_platform~web-metadata-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
               },
               {
                 name: 'web-change-intelligence',
-                url: 'https://api.apify.com/v2/actors/industrial_platform~web-change-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
+                url: 'https://api.apify.com/v2/acts/industrial_platform~web-change-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
               }
             ];
 
