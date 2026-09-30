@@ -1,0 +1,117 @@
+name: Register Active Paid Actors with 402 Index
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/register-402index.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Register six native x402 Actor endpoints
+        run: |
+          node <<'NODE'
+          const services = [
+            {
+              actor: 'research-brief-agent',
+              name: 'Industrial Platform — AI Web Research Brief',
+              description: 'Current cited multi-source web research and synthesis for autonomous agents.',
+              category: 'ai/research',
+              probeBody: { query: 'What is example.com?', max_sources: 2 },
+              priceUsd: 1.99
+            },
+            {
+              actor: 'web-change-intelligence',
+              name: 'Industrial Platform — Website Change Detector',
+              description: 'Deterministic changed/unchanged checks and webpage diffs for autonomous agents.',
+              category: 'web/monitoring',
+              probeBody: { url: 'https://example.com', previous_text: 'Example Domain' },
+              priceUsd: 0.01
+            },
+            {
+              actor: 'web-metadata-intelligence',
+              name: 'Industrial Platform — Web Metadata Extractor',
+              description: 'Extract Open Graph, JSON-LD, canonical, robots, headings, language, and metadata.',
+              category: 'web/extraction',
+              probeBody: { urls: ['https://example.com'] },
+              priceUsd: 0.01
+            },
+            {
+              actor: 'article-content-intelligence',
+              name: 'Industrial Platform — Article Content Extractor',
+              description: 'Clean article body text and metadata for AI, RAG, and research pipelines.',
+              category: 'web/extraction',
+              probeBody: { urls: ['https://example.com'] },
+              priceUsd: 0.002
+            },
+            {
+              actor: 'pdf-text-intelligence',
+              name: 'Industrial Platform — PDF Text Extractor',
+              description: 'Extract public PDF text, per-page content, and document metadata for AI and RAG.',
+              category: 'document/extraction',
+              probeBody: { urls: ['https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'] },
+              priceUsd: 0.0015
+            },
+            {
+              actor: 'sitemap-intelligence',
+              name: 'Industrial Platform — Sitemap URL Extractor',
+              description: 'Discover sitemaps and emit deduplicated crawl URLs with sitemap metadata.',
+              category: 'web/crawling',
+              probeBody: { startUrls: ['https://www.google.com/gmail/sitemap.xml'] },
+              priceUsd: 0.0001
+            }
+          ];
+
+          const results = [];
+          for (const service of services) {
+            const url = 'https://api.apify.com/v2/actors/industrial_platform~' +
+              service.actor + '/run-sync-get-dataset-items?maxTotalChargeUsd=2';
+
+            const payload = {
+              url,
+              name: service.name,
+              protocol: 'x402',
+              http_method: 'POST',
+              probe_body: JSON.stringify(service.probeBody),
+              description: service.description,
+              price_usd: service.priceUsd,
+              payment_asset: 'USDC',
+              payment_network: 'Base',
+              category: service.category,
+              provider: 'Industrial Platform',
+              contact_email: 'art@naturalist.gallery'
+            };
+
+            const response = await fetch('https://402index.io/api/v1/register', {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json',
+                'user-agent': 'industrial-platform-agent-tools/1.0'
+              },
+              body: JSON.stringify(payload)
+            });
+
+            const text = await response.text();
+            let body;
+            try { body = JSON.parse(text); } catch { body = { raw: text }; }
+
+            results.push({
+              actor: service.actor,
+              status: response.status,
+              response: body
+            });
+
+            if (!response.ok) {
+              console.error(JSON.stringify(results, null, 2));
+              process.exit(1);
+            }
+          }
+
+          console.log(JSON.stringify(results, null, 2));
+          NODE
