@@ -1,0 +1,52 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "status": { "type": "string" },
+      "url": { "type": "string" },
+      "final_url": { "type": "string" },
+      "fetched_at": { "type": "string" },
+      "http_status": { "type": "integer" },
+      "content_type": { "type": "string" },
+      "response_bytes": { "type": "integer" },
+      "latency_ms": { "type": "integer" },
+      "title": { "type": "string" },
+      "description": { "type": "string" },
+      "author": { "type": "string" },
+      "published_at": { "type": "string" },
+      "modified_at": { "type": "string" },
+      "canonical": { "type": "string" },
+      "language": { "type": "string" },
+      "text": { "type": "string" },
+      "word_count": { "type": "integer" },
+      "reading_time_minutes": { "type": "integer" },
+      "text_truncated": { "type": "boolean" },
+      "original_text_length": { "type": "integer" },
+      "json_ld": { "type": "array" },
+      "error": { "type": "string" }
+    },
+    "required": ["status", "url", "fetched_at"]
+  },
+  "views": {
+    "overview": {
+      "title": "Articles",
+      "transformation": {
+        "fields": ["url","status","title","author","word_count","reading_time_minutes","fetched_at"]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "url": { "label": "URL", "format": "link" },
+          "status": { "label": "Status", "format": "text" },
+          "title": { "label": "Title", "format": "text" },
+          "author": { "label": "Author", "format": "text" },
+          "word_count": { "label": "Words", "format": "number" },
+          "reading_time_minutes": { "label": "Minutes", "format": "number" },
+          "fetched_at": { "label": "Fetched", "format": "date" }
+        }
+      }
+    }
+  }
+}
