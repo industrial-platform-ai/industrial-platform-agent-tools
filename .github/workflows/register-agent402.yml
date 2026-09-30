@@ -14,17 +14,98 @@ jobs:
   register:
     runs-on: ubuntu-latest
     steps:
-      - name: Register candidate Industrial Platform origins
+      - name: Register Apify API origin
         shell: bash
         run: |
           set -euo pipefail
 
-          register() {
-            local label="$1"
-            local origin="$2"
+          curl --fail-with-body --silent --show-error             -X POST             'https://agent402.tools/api/index/register'             -H 'content-type: application/json'             -d '{"origin":"https://api.apify.com"}'             | tee register.json
 
-            echo "::group::$label"
-            response=$(curl --silent --show-error               -w $'\nHTTP_STATUS:%{http_code}'               -X POST               'https://agent402.tools/api/index/register'               -H 'content-type: application/json'               -d "$(jq -nc --arg origin "$origin" '{origin:$origin}')")
+          jq . register.json
+
+      - name: Inspect free seller index view
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          curl --fail-with-body --silent --show-error --get             --data-urlencode 'seller=https://api.apify.com'             'https://agent402.tools/api/index'             | tee index.json
+
+          jq . index.json
+
+      - name: Inspect seller trust via free proof of work
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node <<'NODE'
+          const { createHash } = require('crypto');
+
+          function leadingZeroBits(buf) {
+            let total = 0;
+            for (const x of buf) {
+              if (x === 0) {
+                total += 8;
+                continue;
+              }
+              total += Math.clz32(x) - 24;
+              break;
+            }
+            return total;
+          }
+
+          async function main() {
+            const challengeRes = await fetch(
+              'https://agent402.tools/api/pow/challenge?slug=seller-trust'
+            );
+            if (!challengeRes.ok) {
+              throw new Error('challenge HTTP ' + challengeRes.status + ': ' + await challengeRes.text());
+            }
+            const challenge = await challengeRes.json();
+            console.log('challenge=' + JSON.stringify({
+              difficulty: challenge.difficulty,
+              expiresAt: challenge.expiresAt ?? null
+            }));
+
+            let nonce = 0;
+            for (;;) {
+              const digest = createHash('sha256')
+                .update(challenge.challenge + ':' + nonce)
+                .digest();
+              if (leadingZeroBits(digest) >= challenge.difficulty) break;
+              nonce++;
+            }
+
+            const url = new URL('https://agent402.tools/api/x402/seller-trust');
+            url.searchParams.set('origin', 'api.apify.com');
+
+            const res = await fetch(url, {
+              headers: {
+                'X-Pow-Solution': challenge.token + ':' + nonce,
+                'user-agent': 'industrial-platform-agent-tools/1.0'
+              }
+            });
+
+            const text = await res.text();
+            console.log('seller-trust HTTP ' + res.status);
+            console.log(text);
+            if (!res.ok) process.exitCode = 1;
+          }
+
+          main().catch(err => {
+            console.error(err);
+            process.exit(1);
+          });
+          NODE
+
+      - name: Query Agent402 for target tasks
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for q in             'web metadata extractor'             'website change detector'             'Industrial Platform web metadata'             'Industrial Platform web change'
+          do
+            echo "::group::$q"
+            response=$(curl --silent --show-error               -w $'\nHTTP_STATUS:%{http_code}'               --get               --data-urlencode "q=$q"               'https://agent402.tools/api/find')
 
             status=$(printf '%s\n' "$response" | sed -n 's/^HTTP_STATUS://p')
             payload=$(printf '%s\n' "$response" | sed '/^HTTP_STATUS:/d')
@@ -32,27 +113,9 @@ jobs:
             echo "HTTP $status"
             echo "$payload" | jq . || echo "$payload"
 
-            if [[ "$status" -lt 200 || "$status" -ge 300 ]]; then
-              echo "::error::$label registration HTTP $status"
-              return 1
-            fi
-            echo "::endgroup::"
-          }
-
-          register 'Apify API origin' 'https://api.apify.com'
-          register 'Apify MCP origin' 'https://mcp.apify.com'
-          register 'Industrial Platform fast MCP URL' 'https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence,industrial_platform/web-change-intelligence&payment=x402'
-
-      - name: Query Agent402 for our tasks
-        shell: bash
-        run: |
-          set -euo pipefail
-          for q in             'web metadata extractor'             'website change detector'             'Industrial Platform web metadata'             'Industrial Platform web change'
-          do
-            echo "::group::$q"
-            curl --silent --show-error --get               --data-urlencode "q=$q"               'https://agent402.tools/api/find'               | tee result.json
-            echo
-            node - "$q" <<'NODE'
+            if [[ "$status" -eq 200 ]]; then
+              printf '%s' "$payload" > result.json
+              node - "$q" <<'NODE'
           const fs = require('fs');
           const query = process.argv[2];
           const body = JSON.parse(fs.readFileSync('result.json','utf8'));
@@ -61,10 +124,11 @@ jobs:
             const hay = JSON.stringify(row).toLowerCase();
             return hay.includes('industrial_platform') ||
                    hay.includes('industrial-platform') ||
-                   hay.includes('mcp.apify.com') ||
                    hay.includes('api.apify.com');
           });
           console.log(JSON.stringify({query, total: rows.length, hits}, null, 2));
           NODE
+            fi
+
             echo "::endgroup::"
           done
