@@ -1,0 +1,124 @@
+name: Deploy Article Content Intelligence
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'actors/article-content-intelligence/**'
+      - '.github/workflows/deploy-article-content-intelligence.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        working-directory: actors/article-content-intelligence
+        run: npm install
+
+      - name: Run checks
+        working-directory: actors/article-content-intelligence
+        run: |
+          npm run check
+          npm test
+
+      - name: Push and build Actor on Apify
+        id: push
+        uses: apify/push-actor-action@v1
+        with:
+          token: ${{ secrets.APIFY_TOKEN }}
+          working-directory: ${{ github.workspace }}/actors/article-content-intelligence
+
+      - name: Configure runtime, pricing, and publication
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          cat > payload.json <<'JSON'
+          {
+            "title": "Article Content Intelligence",
+            "description": "Extract clean article text and metadata from public web pages for AI agents, RAG pipelines, research workflows, and automation without per-run LLM cost.",
+            "categories": ["AI"],
+            "isPublic": true,
+            "defaultRunOptions": {
+              "build": "latest",
+              "timeoutSecs": 180,
+              "memoryMbytes": 512,
+              "restartOnError": false,
+              "forcePermissionLevel": "LIMITED_PERMISSIONS"
+            },
+            "actorStandby": { "isEnabled": false },
+            "exampleRunInput": {
+              "body": "{\"urls\":[\"https://example.com/\"]}",
+              "contentType": "application/json; charset=utf-8"
+            },
+            "pricingInfos": [
+              {
+                "pricingModel": "PAY_PER_EVENT",
+                "pricingPerEvent": {
+                  "actorChargeEvents": {
+                    "article-extraction": {
+                      "eventTitle": "Article extraction",
+                      "eventDescription": "One successful article content extraction.",
+                      "eventPriceUsd": 0.002,
+                      "isPrimaryEvent": true,
+                      "isOneTimeEvent": false
+                    }
+                  }
+                }
+              }
+            ]
+          }
+          JSON
+
+          curl --fail-with-body --silent --show-error \
+            --request PUT \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data @payload.json \
+            "https://api.apify.com/v2/actors/industrial_platform~article-content-intelligence" \
+            > actor.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const actor = JSON.parse(fs.readFileSync('actor.json','utf8')).data;
+          const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
+          const event = current?.pricingPerEvent?.actorChargeEvents?.['article-extraction'];
+          if (!actor.isPublic) throw new Error('Actor is not public.');
+          if (actor.defaultRunOptions?.forcePermissionLevel !== 'LIMITED_PERMISSIONS') throw new Error('Actor is not limited-permissions.');
+          if (actor.actorStandby?.isEnabled) throw new Error('Standby must be disabled.');
+          if (current?.pricingModel !== 'PAY_PER_EVENT') throw new Error('Actor is not PPE.');
+          if (!event?.isPrimaryEvent) throw new Error('Primary event not configured.');
+          console.log(JSON.stringify({
+            isPublic: actor.isPublic,
+            pricingModel: current?.pricingModel,
+            eventPriceUsd: event?.eventPriceUsd
+          }, null, 2));
+          NODE
+
+      - name: Smoke test
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $APIFY_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data '{"urls":["https://example.com/"]}' \
+            "https://api.apify.com/v2/actors/industrial_platform~article-content-intelligence/run-sync-get-dataset-items?clean=true&format=json&timeout=60" \
+            > result.json
+
+          node <<'NODE'
+          const fs = require('fs');
+          const rows = JSON.parse(fs.readFileSync('result.json', 'utf8'));
+          if (!Array.isArray(rows) || rows.length !== 1) throw new Error('Expected one dataset row.');
+          if (!['ready','error'].includes(rows[0].status)) throw new Error('Unexpected smoke-test status.');
+          console.log(JSON.stringify(rows[0], null, 2));
+          NODE
