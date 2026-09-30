@@ -1,11 +1,13 @@
 {
   "actorSpecification": 1,
   "name": "article-content-intelligence",
-  "title": "Article Content Intelligence",
-  "description": "Extract clean article text and metadata for AI agents, RAG pipelines, research workflows, and automation.",
+  "title": "Article Content Extractor for AI Agents",
+  "description": "Extract clean article body text and metadata for RAG, research, summarization, and AI workflows.",
   "version": "0.1",
   "buildTag": "latest",
   "input": "./input_schema.json",
   "output": "./output_schema.json",
-  "storages": { "dataset": "./dataset_schema.json" }
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
 }
