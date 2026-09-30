@@ -5,7 +5,7 @@ Industrial Platform's current service portfolio can be exposed through one hoste
 ## Full portfolio endpoint
 
 ```text
-https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence
+https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence
 ```
 
 Apify supports comma-separated Actor full names in the `tools` query parameter, allowing a client to expose only selected Actors through one MCP server.
@@ -18,6 +18,7 @@ industrial_platform/web-change-intelligence
 industrial_platform/web-metadata-intelligence
 industrial_platform/article-content-intelligence
 industrial_platform/pdf-text-intelligence
+industrial_platform/sitemap-intelligence
 ```
 
 ## Example remote MCP configuration
@@ -56,6 +57,10 @@ Use to extract clean article text and associated metadata for RAG, research, sum
 
 Use to extract text, page-level text, page count, and document metadata from public PDFs.
 
+### Sitemap Intelligence
+
+Use to discover robots.txt sitemaps, expand sitemap indexes, and return deduplicated crawl URLs with lastmod/changefreq/priority metadata.
+
 ## Authentication
 
 The hosted Apify MCP server supports OAuth or bearer-token authentication.
@@ -83,6 +88,9 @@ need article body?
 
 need PDF text?
 → PDF Text Intelligence
+
+need sitemap URLs for crawling or ingestion?
+→ Sitemap Intelligence
 ```
 
 This reduces tool-installation friction and lets the parent agent route each task to the lowest-cost specialized service that satisfies the requirement.
