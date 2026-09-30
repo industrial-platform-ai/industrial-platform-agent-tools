@@ -1,0 +1,40 @@
+name: Verify Individual MCP Registry Entries
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-individual-mcp-registry.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all six registry entries
+        run: |
+          node <<'NODE'
+          const names = ["io.github.industrial-platform-ai/research-brief","io.github.industrial-platform-ai/web-change","io.github.industrial-platform-ai/web-metadata","io.github.industrial-platform-ai/article-extractor","io.github.industrial-platform-ai/pdf-text","io.github.industrial-platform-ai/sitemap"];
+          for (const name of names) {
+            const url = new URL('https://registry.modelcontextprotocol.io/v0.1/servers');
+            url.searchParams.set('search', name);
+            url.searchParams.set('version', 'latest');
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(name + ': HTTP ' + response.status);
+            const body = await response.json();
+            const match = (body.servers ?? []).find((entry) => (entry.server ?? entry).name === name);
+            if (!match) throw new Error(name + ': not found');
+            const official = match._meta?.['io.modelcontextprotocol.registry/official'];
+            if (official?.status !== 'active') throw new Error(name + ': status is ' + official?.status);
+            console.log(JSON.stringify({
+              name,
+              status: official.status,
+              version: (match.server ?? match).version,
+              title: (match.server ?? match).title,
+              remote: (match.server ?? match).remotes?.[0]?.url
+            }));
+          }
+          NODE
