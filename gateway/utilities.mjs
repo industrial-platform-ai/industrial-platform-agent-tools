@@ -228,5 +228,64 @@ export const utilityTools = [
       const text=boundedText(input?.text);
       return {result:text.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,2000)};
     }
+  },
+  {
+    name:'hmac', route:'/hmac', price:'$0.0005', priceUsd:0.0005,
+    description:'Compute an HMAC for text using SHA-256 or SHA-512 for signatures, webhook verification and agent integrity checks.',
+    tags:['hmac','hash','signature','sha256','sha512','utility'],
+    inputSchema:{
+      type:'object',
+      properties:{
+        text:{type:'string',maxLength:250000},
+        key:{type:'string',maxLength:10000},
+        algorithm:{type:'string',enum:['sha256','sha512']}
+      },
+      required:['text','key'],
+      additionalProperties:false
+    },
+    example:{text:'hello world',key:'secret',algorithm:'sha256'},
+    run: async input => {
+      const text=boundedText(input?.text), key=boundedText(input?.key,'key');
+      const algorithm=input?.algorithm||'sha256';
+      const digest=(await import('node:crypto')).createHmac(algorithm,key).update(text,'utf8').digest('hex');
+      return {algorithm,digest};
+    }
+  },
+  {
+    name:'jwt-decode', route:'/jwt/decode', price:'$0.0005', priceUsd:0.0005,
+    description:'Decode JWT header and payload without verification for inspection, debugging and agent workflows.',
+    tags:['jwt','decode','token','json','utility'],
+    inputSchema:{type:'object',properties:{token:{type:'string',maxLength:200000}},required:['token'],additionalProperties:false},
+    example:{token:'eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMjMifQ.'},
+    run: async input => {
+      const token=boundedText(input?.token,'token');
+      const parts=token.split('.');
+      if(parts.length!==3) throw Object.assign(new Error('token must have three JWT segments.'),{statusCode:400});
+      const decode=(part)=>{
+        const raw=Buffer.from(part.replace(/-/g,'+').replace(/_/g,'/'),'base64').toString('utf8');
+        try{return JSON.parse(raw);}catch{return raw;}
+      };
+      return {header:decode(parts[0]),payload:decode(parts[1]),signature_present:parts[2].length>0,verified:false};
+    }
+  },
+  {
+    name:'hex-encode', route:'/hex/encode', price:'$0.0005', priceUsd:0.0005,
+    description:'Encode UTF-8 text as hexadecimal.',
+    tags:['hex','encode','conversion','utility'],
+    inputSchema:textSchema,
+    example:{text:'hello'},
+    run: async input => ({encoding:'hex',result:Buffer.from(boundedText(input?.text),'utf8').toString('hex')})
+  },
+  {
+    name:'hex-decode', route:'/hex/decode', price:'$0.0005', priceUsd:0.0005,
+    description:'Decode hexadecimal bytes into UTF-8 text.',
+    tags:['hex','decode','conversion','utility'],
+    inputSchema:{type:'object',properties:{value:{type:'string',maxLength:500000}},required:['value'],additionalProperties:false},
+    example:{value:'68656c6c6f'},
+    run: async input => {
+      const value=boundedText(input?.value,'value').trim();
+      if(!/^(?:[0-9a-fA-F]{2})*$/.test(value)) throw Object.assign(new Error('value must contain an even number of hexadecimal characters.'),{statusCode:400});
+      return {encoding:'utf8',result:Buffer.from(value,'hex').toString('utf8')};
+    }
   }
 ];
