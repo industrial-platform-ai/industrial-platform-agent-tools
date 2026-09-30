@@ -1,0 +1,181 @@
+name: Quota-Aware Actor Publication Queue
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'publication-queue.json'
+      - '.github/workflows/publication-queue.yml'
+  schedule:
+    - cron: '47 3 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: industrial-platform-publication-queue
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Reconcile queued Actors in order
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const queue = JSON.parse(fs.readFileSync('publication-queue.json', 'utf8'));
+          const token = process.env.APIFY_TOKEN;
+          if (!token) throw new Error('APIFY_TOKEN is required.');
+
+          const base = 'https://api.apify.com/v2';
+          const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+          function desiredState(service) {
+            return {
+              title: service.title,
+              description: service.description,
+              categories: service.categories,
+              isPublic: true,
+              defaultRunOptions: {
+                build: 'latest',
+                timeoutSecs: service.timeout_secs,
+                memoryMbytes: service.memory_mbytes,
+                restartOnError: false,
+                forcePermissionLevel: 'LIMITED_PERMISSIONS'
+              },
+              actorStandby: { isEnabled: false },
+              exampleRunInput: {
+                body: JSON.stringify(service.smoke_input),
+                contentType: 'application/json; charset=utf-8'
+              },
+              pricingInfos: [{
+                pricingModel: 'PAY_PER_EVENT',
+                pricingPerEvent: {
+                  actorChargeEvents: {
+                    [service.billing_event]: {
+                      eventTitle: service.event_title,
+                      eventDescription: service.event_description,
+                      eventPriceUsd: service.event_price_usd,
+                      isPrimaryEvent: true,
+                      isOneTimeEvent: false
+                    }
+                  }
+                }
+              }]
+            };
+          }
+
+          function inspect(actor, service) {
+            const current = actor.pricingInfos?.[actor.pricingInfos.length - 1];
+            const event = current?.pricingPerEvent?.actorChargeEvents?.[service.billing_event];
+            return {
+              configured:
+                actor.isPublic === true &&
+                actor.defaultRunOptions?.forcePermissionLevel === 'LIMITED_PERMISSIONS' &&
+                actor.actorStandby?.isEnabled !== true &&
+                current?.pricingModel === 'PAY_PER_EVENT' &&
+                event?.eventPriceUsd === service.event_price_usd &&
+                event?.isPrimaryEvent === true,
+              isPublic: actor.isPublic === true,
+              pricingModel: current?.pricingModel ?? null,
+              eventPriceUsd: event?.eventPriceUsd ?? null
+            };
+          }
+
+          async function getActor(service) {
+            const response = await fetch(base + '/actors/' + service.actor, {
+              headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }
+            });
+            const text = await response.text();
+            if (response.status === 404) return null;
+            if (!response.ok) throw new Error(service.actor + ' GET HTTP ' + response.status + ': ' + text.slice(0, 1000));
+            return JSON.parse(text).data;
+          }
+
+          async function smoke(service) {
+            const endpoint = base + '/actors/' + service.actor + '/run-sync-get-dataset-items?clean=true&format=json&timeout=90';
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                Authorization: 'Bearer ' + token,
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+              },
+              body: JSON.stringify(service.smoke_input)
+            });
+            const text = await response.text();
+            if (!response.ok) throw new Error(service.actor + ' smoke HTTP ' + response.status + ': ' + text.slice(0, 1200));
+            const rows = JSON.parse(text);
+            if (!Array.isArray(rows) || rows.length < 1 || rows[0]?.status !== 'ready') {
+              throw new Error(service.actor + ' smoke test returned no ready row: ' + text.slice(0, 1200));
+            }
+            if (service.smoke_required_field && !Array.isArray(rows[0][service.smoke_required_field])) {
+              throw new Error(service.actor + ' smoke row missing ' + service.smoke_required_field);
+            }
+            return { rows: rows.length };
+          }
+
+          const report = [];
+
+          for (const service of queue.services) {
+            let actor = await getActor(service);
+            if (!actor) {
+              report.push({ actor: service.actor_store_id, state: 'build_not_available_yet' });
+              continue;
+            }
+
+            let state = inspect(actor, service);
+            if (state.configured) {
+              report.push({ actor: service.actor_store_id, state: 'already_published', ...state });
+              continue;
+            }
+
+            const response = await fetch(base + '/actors/' + service.actor, {
+              method: 'PUT',
+              headers: {
+                Authorization: 'Bearer ' + token,
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+              },
+              body: JSON.stringify(desiredState(service))
+            });
+            const text = await response.text();
+            let parsed = null;
+            try { parsed = JSON.parse(text); } catch {}
+
+            if (!response.ok) {
+              const type = parsed?.error?.type ?? null;
+              const message = parsed?.error?.message ?? text.slice(0, 1000);
+              if (type === 'daily-publication-limit-exceeded') {
+                report.push({ actor: service.actor_store_id, state: 'deferred_daily_publication_quota', message });
+                console.log(JSON.stringify({ report, stopped_at: service.actor_store_id }, null, 2));
+                process.exit(0);
+              }
+              if (response.status === 429) {
+                report.push({ actor: service.actor_store_id, state: 'transient_429', message });
+                await sleep(5000);
+                throw new Error(service.actor + ' unexpected 429: ' + message);
+              }
+              throw new Error(service.actor + ' update HTTP ' + response.status + ': ' + message);
+            }
+
+            actor = parsed.data;
+            state = inspect(actor, service);
+            if (!state.configured) throw new Error(service.actor + ' update succeeded but desired public/PPE state did not converge.');
+
+            const smokeResult = await smoke(service);
+            report.push({ actor: service.actor_store_id, state: 'published_now', ...state, smoke: smokeResult });
+            await sleep(1500);
+          }
+
+          console.log(JSON.stringify({ report, completed: true }, null, 2));
+          NODE
