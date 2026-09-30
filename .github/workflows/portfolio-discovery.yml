@@ -1,0 +1,81 @@
+name: Portfolio Discovery
+
+on:
+  pull_request:
+    paths:
+      - 'README.md'
+      - 'catalog.json'
+      - 'manifests/mcp-bundle.json'
+      - 'examples/mcp/remote-server.json'
+      - '.github/workflows/portfolio-discovery.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'README.md'
+      - 'catalog.json'
+      - 'manifests/mcp-bundle.json'
+      - 'examples/mcp/remote-server.json'
+      - '.github/workflows/portfolio-discovery.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate portfolio discovery artifacts
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          const catalog = JSON.parse(fs.readFileSync('catalog.json', 'utf8'));
+          const bundle = JSON.parse(fs.readFileSync('manifests/mcp-bundle.json', 'utf8'));
+          const remote = JSON.parse(fs.readFileSync('examples/mcp/remote-server.json', 'utf8'));
+
+          if (!Array.isArray(catalog.services) || catalog.services.length < 5) {
+            throw new Error('catalog.json must contain the current service portfolio.');
+          }
+
+          const actors = catalog.services.map((service) => service.actor);
+          const unique = new Set(actors);
+          if (unique.size !== actors.length) throw new Error('Duplicate Actor IDs in catalog.');
+
+          for (const actor of actors) {
+            if (!bundle.actors.includes(actor)) {
+              throw new Error(`MCP bundle is missing ${actor}`);
+            }
+          }
+
+          const expectedTools = actors.join(',');
+          const expectedUrl = `https://mcp.apify.com?tools=${expectedTools}`;
+
+          if (catalog.mcp_bundle_url !== expectedUrl) {
+            throw new Error('catalog.json MCP bundle URL does not match catalog services.');
+          }
+          if (bundle.url !== expectedUrl) {
+            throw new Error('mcp-bundle.json URL does not match catalog services.');
+          }
+          if (remote.mcpServers?.['industrial-platform']?.url !== expectedUrl) {
+            throw new Error('remote-server.json URL does not match catalog services.');
+          }
+
+          for (const service of catalog.services) {
+            if (!service.id || !service.title || !service.actor || !service.store_url) {
+              throw new Error(`Catalog service is missing required discovery fields: ${JSON.stringify(service)}`);
+            }
+            if (!service.billing_event || typeof service.current_event_price_usd !== 'number') {
+              throw new Error(`Catalog service is missing billing metadata: ${service.id}`);
+            }
+          }
+
+          console.log(JSON.stringify({
+            services: catalog.services.length,
+            actors,
+            mcp_bundle_url: expectedUrl
+          }, null, 2));
+          NODE
