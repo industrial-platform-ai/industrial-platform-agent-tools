@@ -1,0 +1,134 @@
+name: Audit Post-Canary Machine Discovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-post-canary-discovery.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save @modelcontextprotocol/sdk
+
+      - name: Audit live machine discovery
+        run: |
+          mkdir -p observability
+          node <<'NODE'
+          import fs from 'node:fs';
+          import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+          import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+
+          const origin = 'https://x402-gateway-production-1f21.up.railway.app';
+          const out = { generatedAt: new Date().toISOString(), origin };
+
+          async function get(url, init={}) {
+            try {
+              const r = await fetch(url, {redirect:'manual', ...init});
+              const text = await r.text();
+              let body=text;
+              try { body=JSON.parse(text); } catch {}
+              return {status:r.status,headers:Object.fromEntries(r.headers),body};
+            } catch (e) { return {status:null,error:String(e)}; }
+          }
+
+          out.agent402Index = await get(
+            'https://agent402.tools/api/index?seller=' + encodeURIComponent(new URL(origin).host)
+          );
+
+          out.agent402Find = {};
+          for (const q of [
+            'web metadata extractor',
+            'website change detector',
+            'Industrial Platform Fast Web Tools',
+            'x402-gateway-production-1f21.up.railway.app'
+          ]) {
+            out.agent402Find[q] = await get(
+              'https://agent402.tools/api/find?q=' + encodeURIComponent(q)
+            );
+          }
+
+          const client = new Client(
+            {name:'industrial-platform-post-canary-audit',version:'1.0.0'},
+            {}
+          );
+
+          try {
+            await client.connect(new StreamableHTTPClientTransport(
+              new URL('https://api.cdp.coinbase.com/platform/v2/x402/discovery/mcp')
+            ));
+
+            const tools = await client.listTools();
+            out.coinbaseTools = tools.tools.map(t => ({
+              name:t.name,
+              description:t.description,
+              inputSchema:t.inputSchema ?? null
+            }));
+
+            out.coinbaseSearch = {};
+            for (const q of [
+              'Industrial Platform Fast Web Tools',
+              'x402-gateway-production-1f21.up.railway.app',
+              'web metadata extractor Open Graph JSON-LD canonical robots',
+              'website change detector deterministic diff monitor'
+            ]) {
+              try {
+                const r = await client.callTool({
+                  name:'search_resources',
+                  arguments:{query:q}
+                });
+                out.coinbaseSearch[q] = {
+                  isError:Boolean(r.isError),
+                  text:(r.content??[]).filter(x=>x.type==='text').map(x=>x.text).join('\n')
+                };
+              } catch(e) {
+                out.coinbaseSearch[q] = {error:String(e)};
+              }
+            }
+
+            out.coinbaseValidate = {};
+            for (const url of [origin + '/metadata', origin + '/change']) {
+              try {
+                const r = await client.callTool({
+                  name:'validate_endpoint',
+                  arguments:{url}
+                });
+                out.coinbaseValidate[url] = {
+                  isError:Boolean(r.isError),
+                  text:(r.content??[]).filter(x=>x.type==='text').map(x=>x.text).join('\n')
+                };
+              } catch(e) {
+                out.coinbaseValidate[url] = {error:String(e)};
+              }
+            }
+          } catch(e) {
+            out.coinbaseError = String(e);
+          } finally {
+            await client.close().catch(()=>{});
+          }
+
+          fs.writeFileSync(
+            'observability/post-canary-discovery.json',
+            JSON.stringify(out,null,2)+'\n'
+          );
+          console.log(JSON.stringify(out,null,2));
+          NODE
+
+      - name: Persist discovery snapshot
+        run: |
+          git config user.name "industrial-platform-bot"
+          git config user.email "art@naturalist.gallery"
+          git add observability/post-canary-discovery.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Record post-canary machine discovery"
+          git pull --rebase origin main
+          git push
