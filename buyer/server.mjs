@@ -44,7 +44,9 @@ const marketQueries = [
   'extract article clean text',
   'dns lookup MX TXT',
   'http security headers status',
-  'robots.txt crawl allowed path'
+  'robots.txt crawl allowed path',
+  'crypto market snapshot dashboard',
+  'web intelligence dossier RAG research'
 ];
 const requestMethod = (process.env.X402_METHOD || 'POST').toUpperCase();
 const requestBodyOverride = process.env.X402_REQUEST_BODY || '';
@@ -251,7 +253,7 @@ async function registerAgent402OriginOnce({scheduleRetry=true}={}) {
   const rereadSeconds = Number(parsed?.reverify?.nextRereadInSeconds);
   const toolCount = Number(parsed?.seller?.toolCount);
 
-  if (response.ok && Number.isFinite(toolCount) && toolCount >= 32) {
+  if (response.ok && Number.isFinite(toolCount) && toolCount >= 34) {
     await runFindDiagnostics();
     return;
   }
