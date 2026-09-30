@@ -15,9 +15,13 @@ const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-producti
 const agent402IndexTarget = 'https://agent402.tools/api/index/register';
 const agent402FindTarget = 'https://agent402.tools/api/find';
 const marketQueries = [
-  'sha256 hash text',
+  'cryptographic hash sha256 sha512 text',
+  'hmac signature',
   'base64 encode text',
   'base64 decode text',
+  'jwt decode token',
+  'hex encode decode',
+  'checksum sha256 sha512',
   'canonicalize json',
   'parse query string',
   'inspect url',
@@ -28,6 +32,7 @@ const marketQueries = [
   'extract metadata from html',
   'slugify text',
   'extract webpage metadata',
+  'read webpage text for RAG',
   'detect webpage changes'
 ];
 const requestMethod = (process.env.X402_METHOD || 'POST').toUpperCase();
@@ -150,6 +155,7 @@ async function runFindDiagnostics() {
         body: body.slice(0, 6000),
         completedAt: new Date().toISOString(),
       }));
+      await new Promise(resolve => setTimeout(resolve, 2200));
     } catch (error) {
       console.error('Agent402 find diagnostic failed:', q, String(error?.message || error));
     }
@@ -176,7 +182,7 @@ async function registerAgent402OriginOnce({scheduleRetry=true}={}) {
   const rereadSeconds = Number(parsed?.reverify?.nextRereadInSeconds);
   const toolCount = Number(parsed?.seller?.toolCount);
 
-  if (response.ok && Number.isFinite(toolCount) && toolCount >= 14) {
+  if (response.ok && Number.isFinite(toolCount) && toolCount >= 23) {
     await runFindDiagnostics();
     return;
   }
