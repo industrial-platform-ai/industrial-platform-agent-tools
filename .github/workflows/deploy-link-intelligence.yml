@@ -65,7 +65,9 @@ jobs:
           }
           JSON
 
-          sleep 8\n\n          curl --retry 6 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error             --request PUT             --header "Authorization: Bearer $APIFY_TOKEN"             --header "Content-Type: application/json"             --data @payload.json             "https://api.apify.com/v2/actors/industrial_platform~link-intelligence"             > actor-runtime.json
+          sleep 8
+
+          curl --retry 6 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error             --request PUT             --header "Authorization: Bearer $APIFY_TOKEN"             --header "Content-Type: application/json"             --data @payload.json             "https://api.apify.com/v2/actors/industrial_platform~link-intelligence"             > actor-runtime.json
 
           curl --retry 6 --retry-delay 5 --retry-all-errors --fail-with-body --silent --show-error             --header "Authorization: Bearer $APIFY_TOKEN"             "https://api.apify.com/v2/actors/industrial_platform~link-intelligence"             > current-actor.json
 
