@@ -33,7 +33,10 @@
           "context",
           "requirements"
         ]
-      }
+      },
+      "mcp_registry_name": "io.github.industrial-platform-ai/research-brief",
+      "mcp_registry_version": "1.0.0",
+      "mcp_registry_status": "active"
     },
     {
       "id": "web-change-intelligence",
@@ -50,7 +53,10 @@
         "documentation changes",
         "policy and terms changes",
         "competitor page monitoring"
-      ]
+      ],
+      "mcp_registry_name": "io.github.industrial-platform-ai/web-change",
+      "mcp_registry_version": "1.0.0",
+      "mcp_registry_status": "active"
     },
     {
       "id": "web-metadata-intelligence",
@@ -67,7 +73,10 @@
         "JSON-LD extraction",
         "canonical and robots metadata",
         "machine-readable page inspection"
-      ]
+      ],
+      "mcp_registry_name": "io.github.industrial-platform-ai/web-metadata",
+      "mcp_registry_version": "1.0.0",
+      "mcp_registry_status": "active"
     },
     {
       "id": "article-content-intelligence",
@@ -84,7 +93,10 @@
         "research pipelines",
         "article metadata",
         "clean web content for downstream agents"
-      ]
+      ],
+      "mcp_registry_name": "io.github.industrial-platform-ai/article-extractor",
+      "mcp_registry_version": "1.0.0",
+      "mcp_registry_status": "active"
     },
     {
       "id": "pdf-text-intelligence",
@@ -101,7 +113,10 @@
         "PDF metadata",
         "RAG ingestion",
         "document processing pipelines"
-      ]
+      ],
+      "mcp_registry_name": "io.github.industrial-platform-ai/pdf-text",
+      "mcp_registry_version": "1.0.0",
+      "mcp_registry_status": "active"
     },
     {
       "id": "sitemap-intelligence",
@@ -118,7 +133,10 @@
         "RAG ingestion planning",
         "sitemap index expansion",
         "lastmod/changefreq/priority extraction"
-      ]
+      ],
+      "mcp_registry_name": "io.github.industrial-platform-ai/sitemap",
+      "mcp_registry_version": "1.0.0",
+      "mcp_registry_status": "active"
     }
   ],
   "mcp_registry": {
