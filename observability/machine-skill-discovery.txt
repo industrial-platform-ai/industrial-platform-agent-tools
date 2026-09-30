@@ -1,0 +1,907 @@
+=== skills.sh :: industrial platform paid web tools :: HTTP 401 ===
+{"error":"authentication_required","message":"This endpoint requires authentication. Pass a Vercel OIDC token (Authorization: Bearer <VERCEL_OIDC_TOKEN>) — see https://skills.sh/docs/api#authentication."}
+=== skills.sh :: web metadata extractor :: HTTP 401 ===
+{"error":"authentication_required","message":"This endpoint requires authentication. Pass a Vercel OIDC token (Authorization: Bearer <VERCEL_OIDC_TOKEN>) — see https://skills.sh/docs/api#authentication."}
+=== skills.sh :: website change detector :: HTTP 401 ===
+{"error":"authentication_required","message":"This endpoint requires authentication. Pass a Vercel OIDC token (Authorization: Bearer <VERCEL_OIDC_TOKEN>) — see https://skills.sh/docs/api#authentication."}
+=== AgentCash :: web metadata extractor ===
+{
+  "success": true,
+  "results": {
+    "version": 1,
+    "results": [
+      {
+        "method": "GET",
+        "path": "/web/meta",
+        "summary": "Extracts structured metadata from any public web page, including OpenGraph, Twitter cards, meta tags, canonical URL, and JSON-LD blocks.",
+        "semanticDescription": "Origin URL: https://agent-data-api-ui1c.onrender.com\nOrigin hostname: agent-data-api-ui1c.onrender.com\nOrigin brand: Agent Data API\nFamily key: agent-data-api-ui1c.onrender.com::web\nEndpoint: GET /web/meta\nSummary: Extracts structured metadata from any public web page, including OpenGraph, Twitter cards, meta tags, canonical URL, and JSON-LD blocks.\nKeyword: page metadata\nKeyword: OpenGraph\nKeyword: meta tags\nKeyword: JSON-LD\nKeyword: Twitter card\nKeyword: canonical URL\nKeyword: structured data\nUse case: get OpenGraph tags from a URL\nUse case: extract Twitter card metadata from a webpage\nUse case: fetch JSON-LD structured data from a page\nUse case: retrieve canonical URL and meta description\nUse case: check social preview data for a link\nUse case: scrape page metadata for SEO analysis\nUse case: pull meta tags from any website\nUse case: get structured metadata before sharing a link\nSource description: Structured page metadata\nAuth mode: paid",
+        "authMode": "paid",
+        "score": 0.361,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.601974,
+            "rank": 1
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 5,
+            "uniqueUserCount": 1,
+            "uniqueWalletCount": 1,
+            "volumeUsd": 0.025,
+            "trustedUserUsageRatio": 0.000103,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-07-22T21:06:45.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://agent-data-api-ui1c.onrender.com",
+          "title": "Agent Data API",
+          "description": "Pay-per-call data services for AI agents: web extraction (text, Markdown, metadata), PDF-to-text, RSS/Atom parsing, FX and crypto prices, weather, DNS and email validation. All paid endpoints use the x402 payment protocol (USDC).",
+          "favicon": "",
+          "x402OriginId": "499fb05a-df5c-442d-92b6-127d0e11c0fc",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/metadata",
+        "summary": "Extracts structured metadata (title, description, author, date, OpenGraph image, canonical URL, favicon, reading time) from any public web page for a small USDC micropayment.",
+        "semanticDescription": "Origin URL: https://x402.valkyry.fr\nOrigin hostname: x402.valkyry.fr\nOrigin brand: x402-markdown-extractor\nProvider aliases: x402, x402 protocol, Valkyry\nFamily key: x402.valkyry.fr::x402\nEndpoint: POST /metadata\nSummary: Extracts structured metadata (title, description, author, date, OpenGraph image, canonical URL, favicon, reading time) from any public web page for a small USDC micropayment.\nKeyword: web metadata\nKeyword: OpenGraph\nKeyword: page title\nKeyword: canonical URL\nKeyword: favicon\nKeyword: link enrichment\nKeyword: reading time\nUse case: extract metadata from a webpage by URL\nUse case: get OpenGraph title and description for a link\nUse case: find the author and published date of an article\nUse case: fetch favicon and canonical URL from a site\nUse case: enrich a link index with page metadata\nUse case: get reading time estimate for a web page\nUse case: pull structured page info for an AI agent pipeline\nUse case: get language and OpenGraph image from a URL\nSource description: Extract structured metadata from any web page: title, description, author, published date, language, OpenGraph image, canonical URL, favicon\nAuth mode: paid",
+        "authMode": "paid",
+        "score": 0.354,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.590588,
+            "rank": 2
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 7,
+            "uniqueUserCount": 1,
+            "uniqueWalletCount": 1,
+            "volumeUsd": 0.01,
+            "trustedUserUsageRatio": 0.000103,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-06-01T23:31:01.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://x402.valkyry.fr",
+          "title": "x402-markdown-extractor",
+          "description": "Pay-per-call micro-APIs for AI agents — USDC on Base via the x402 protocol. 12 endpoints: web content extraction, metadata, RSS, PDF, QR, format conversion, and on-chain data (prices, balances, ENS, gas, token info). POST JSON; each route returns an x402 402 challenge until paid.",
+          "favicon": "",
+          "x402OriginId": "8b41fc19-7ad3-47bd-bff0-56f81d346303",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/meta-extract",
+        "summary": "Extracts standard meta tags, Open Graph, and Twitter Card data from any webpage URL.",
+        "semanticDescription": "Origin URL: https://engedi.digi-life17.workers.dev\nOrigin hostname: engedi.digi-life17.workers.dev\nOrigin brand: Engedi\nProvider aliases: Engedi\nFamily key: engedi.digi-life17.workers.dev::engedi\nEndpoint: GET /api/meta-extract\nSummary: Extracts standard meta tags, Open Graph, and Twitter Card data from any webpage URL.\nKeyword: meta tags\nKeyword: Open Graph\nKeyword: Twitter Card\nKeyword: link preview\nKeyword: SEO audit\nKeyword: webpage metadata\nUse case: get all meta tags from a webpage\nUse case: extract Open Graph data for a URL\nUse case: debug link preview for social media\nUse case: check Twitter Card metadata on a page\nUse case: inspect meta description and title tags\nUse case: audit SEO meta tags on a website\nUse case: pull structured metadata from a URL\nUse case: check how a URL appears when shared on social platforms\nSource description: Use this tool when a user needs all meta data from a webpage. Extracts standard meta tags, Open Graph tags (for social previews), and Twitter Card data. Essential for link preview debugging or social media optimization.\nAuth mode: paid",
+        "authMode": "paid",
+        "score": 0.35,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.584068,
+            "rank": 4
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 50,
+            "uniqueUserCount": 4,
+            "uniqueWalletCount": 13,
+            "volumeUsd": 0.8350000000000001,
+            "trustedUserUsageRatio": 0.000413,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-24T21:40:10.911Z"
+          }
+        },
+        "origin": {
+          "url": "https://engedi.digi-life17.workers.dev",
+          "title": "Engedi",
+          "description": "Live data API for AI agents. 28 free endpoints + 66 paid endpoints (94 total) covering finance, travel, weather, location, news, commerce, knowledge, content, seo, property, education, utilities, and work.",
+          "favicon": "",
+          "x402OriginId": "afd8b2c3-a5c9-4563-8318-a5de894390e0",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/v1/web/metadata",
+        "summary": "Extracts structured metadata from any public webpage including title, description, Open Graph, Twitter Cards, JSON-LD, hreflang, icons, feeds, and redirect provenance.",
+        "semanticDescription": "Origin URL: https://apiacre.com\nOrigin hostname: apiacre.com\nOrigin brand: API Acre\nProvider aliases: API Acre\nFamily key: apiacre.com::api-acre\nEndpoint: POST /v1/web/metadata\nSummary: Extracts structured metadata from any public webpage including title, description, Open Graph, Twitter Cards, JSON-LD, hreflang, icons, feeds, and redirect provenance.\nKeyword: webpage metadata\nKeyword: Open Graph\nKeyword: JSON-LD\nKeyword: meta tags\nKeyword: hreflang\nKeyword: canonical URL\nKeyword: structured data\nUse case: extract metadata from a webpage URL\nUse case: get Open Graph and Twitter Card tags from a site\nUse case: find JSON-LD schema types on a page\nUse case: check canonical URL and hreflang tags\nUse case: pull page title and meta description programmatically\nUse case: audit a site's structured data markup\nUse case: get feed URLs and favicon from a page\nUse case: research publisher organization facts from a website\nUse case: collect redirect chain and response provenance for a URL\nUse case: gather all social and SEO metadata from a public page\nSource description: Webpage metadata extraction\nAuth mode: paid\nPrice: 0.002 USD",
+        "authMode": "paid",
+        "price": "0.002 USD",
+        "score": 0.347,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.578895,
+            "rank": 8
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 11,
+            "uniqueUserCount": 10,
+            "uniqueWalletCount": 10,
+            "volumeUsd": 0.08600000000000001,
+            "trustedUserUsageRatio": 0.001033,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-17T10:29:17.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://apiacre.com",
+          "title": "API Acre",
+          "description": "Machine-discoverable web, document, data, developer, research, and EVM utilities. Every paid POST returns structured JSON and uses x402 v2 exact USDC settlement on Base and Solana. Start with GET /.well-known/x402 or GET /catalog.",
+          "favicon": "https://apiacre.com/static/base/apple-touch-icon.png",
+          "x402OriginId": "feafbfe2-bed0-4939-ac17-919199a25082",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/proxy/html-metadata-extractor-api-53e7c3",
+        "summary": "Extracts metadata (title, description, Open Graph tags, etc.) from any HTML page via a pay-per-call API.",
+        "semanticDescription": "Origin URL: https://orbisapi.com\nOrigin hostname: orbisapi.com\nOrigin brand: Orbis — Thousands of APIs. All x402. Pay per call in USDC.\nFamily key: orbisapi.com::proxy\nEndpoint: POST /proxy/html-metadata-extractor-api-53e7c3\nSummary: Extracts metadata (title, description, Open Graph tags, etc.) from any HTML page via a pay-per-call API.\nKeyword: html metadata\nKeyword: meta tags\nKeyword: Open Graph\nKeyword: page scraping\nKeyword: SEO metadata\nKeyword: link preview\nUse case: extract Open Graph tags from a webpage\nUse case: scrape page title and meta description\nUse case: pull structured metadata from a URL\nUse case: get og:image and og:title from a link\nUse case: collect SEO metadata from external pages\nUse case: preview link metadata before displaying\nUse case: extract canonical URL from a webpage\nUse case: gather social sharing tags from HTML content\nAuth mode: paid\nPrice: 0.01",
+        "authMode": "paid",
+        "price": "0.01",
+        "score": 0.347,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.577341,
+            "rank": 9
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 1230,
+            "uniqueUserCount": 73,
+            "uniqueWalletCount": 73,
+            "volumeUsd": 6.917099999999999,
+            "trustedUserUsageRatio": 0.007541,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-06-28T12:02:11.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://orbisapi.com",
+          "title": "Orbis — Thousands of APIs. All x402. Pay per call in USDC.",
+          "description": "The API marketplace for the agent era. Thousands of x402-enabled APIs on Base and Solana. No subscriptions required — agents pay per call in USDC.",
+          "favicon": "https://orbisapi.com/logo.png",
+          "x402OriginId": "0857c19e-8b08-462c-aa8a-f47a32f3c311",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/x402/extract/url-metadata",
+        "summary": "Extracts structured metadata from any URL including title, description, Open Graph tags, JSON-LD, images, headings, and response headers for SEO and AI use cases.",
+        "semanticDescription": "Origin URL: https://minifetch.com\nOrigin hostname: minifetch.com\nOrigin brand: Minifetch.com: Fetch & extract metadata and data from web pages. For SEO research and AI projects.\nProvider aliases: Minifetch\nFamily key: minifetch.com::minifetch\nEndpoint: GET /api/v1/x402/extract/url-metadata\nSummary: Extracts structured metadata from any URL including title, description, Open Graph tags, JSON-LD, images, headings, and response headers for SEO and AI use cases.\nKeyword: url metadata\nKeyword: open graph tags\nKeyword: SEO research\nKeyword: JSON-LD\nKeyword: page scraping\nKeyword: meta tags\nKeyword: web extraction\nKeyword: structured data\nUse case: extract metadata from a webpage\nUse case: get open graph tags from a URL\nUse case: pull title and description from a website\nUse case: scrape structured SEO data from a page\nUse case: analyze JSON-LD schema markup on a site\nUse case: retrieve twitter card tags from a URL\nUse case: index page metadata for AI processing\nUse case: check what images and headings a page contains\nUse case: research on-page SEO signals for a domain\nUse case: gather page metadata for link preview generation\nSource description: Extracts rich structured metadata from a URL: title, description, og/twitter tags, json-ld, images, headings, response headers, and more. Perfect for SEO research or metadata indexing & analysis\nAuth mode: paid\nPrice: 0.00",
+        "authMode": "paid",
+        "price": "0.00",
+        "score": 0.345,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.574514,
+            "rank": 11
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 10,
+            "uniqueUserCount": 7,
+            "uniqueWalletCount": 7,
+            "volumeUsd": 0.014000000000000002,
+            "trustedUserUsageRatio": 0.000723,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-22T00:11:43.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://minifetch.com",
+          "title": "Pay-per-URL SEO audits. Composable toolkit for AI agents.",
+          "description": "Run a technical SEO page audit on any URL, or call the same extraction tools individually for AI agents and automation. Pay per URL, no subscription, no black box scoring.",
+          "favicon": "https://minifetch.com/favicon.ico",
+          "x402OriginId": "9d5ea5ef-0085-4561-b2f9-5602a7a3f47b",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/x402/meta-extract",
+        "summary": "Extracts all metadata from a given URL for a micropayment of 0.013 USDC via the x402 protocol.",
+        "semanticDescription": "Origin URL: https://x402helper.xyz\nOrigin hostname: x402helper.xyz\nOrigin brand: x402 Helper API\nProvider aliases: x402 Helper, x402helper\nFamily key: x402helper.xyz::x402-helper\nEndpoint: GET /x402/meta-extract\nSummary: Extracts all metadata from a given URL for a micropayment of 0.013 USDC via the x402 protocol.\nKeyword: metadata extraction\nKeyword: URL metadata\nKeyword: open graph\nKeyword: meta tags\nKeyword: web scraping\nKeyword: micropayment API\nKeyword: x402\nKeyword: USDC payment\nUse case: extract metadata from a webpage URL\nUse case: get open graph and meta tags from a site\nUse case: scrape page title and description from a link\nUse case: pull structured metadata from any URL\nUse case: retrieve SEO metadata for a given web page\nUse case: analyze a URL for its embedded metadata\nUse case: collect social media preview data from a URL\nUse case: get canonical and structured data from a web address\nSource description: \"Extract all metadata from a URL - 0.013000 USDC\"",
+        "score": 0.342,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.568189,
+            "rank": 15
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 1057,
+            "uniqueUserCount": 151,
+            "uniqueWalletCount": 154,
+            "volumeUsd": 29.945100000000032,
+            "trustedUserUsageRatio": 0.015598,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-19T01:54:05.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://x402helper.xyz",
+          "title": "x402 Helper API",
+          "description": "Professional API aggregator with X402 micropayments",
+          "favicon": "",
+          "x402OriginId": "23cd0267-0ff1-4f24-878d-cda0637cd4b4",
+          "mppOriginId": "04231603573cfebd38ee829b1a1bc919a829a2ab7b4fb2c5d9d211c79956c6bc",
+          "protocols": [
+            "mpp",
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/v1/marketplace/api/meta-extract",
+        "summary": "Extracts metadata from a URL, returning page title, description, Open Graph tags, and other head-level meta information.",
+        "semanticDescription": "Origin URL: https://api.jarvisclaw.ai\nOrigin hostname: api.jarvisclaw.ai\nOrigin brand: JarvisClaw API\nFamily key: api.jarvisclaw.ai::marketplace\nEndpoint: POST /v1/marketplace/api/meta-extract\nSummary: Extracts metadata from a URL, returning page title, description, Open Graph tags, and other head-level meta information.\nKeyword: meta tags\nKeyword: Open Graph\nKeyword: URL metadata\nKeyword: page title\nKeyword: link preview\nKeyword: web scraping\nUse case: extract metadata from a webpage URL\nUse case: get Open Graph title and description for a link\nUse case: scrape meta tags from any website\nUse case: preview link information before sharing\nUse case: pull page title and description for SEO analysis\nUse case: get structured metadata for a list of URLs\nUse case: fetch og:image and og:type for a URL\nUse case: collect head tags from a webpage programmatically\nSource description: Meta Extract\nAuth mode: paid\nPrice: 0.037260 USD",
+        "authMode": "paid",
+        "price": "0.037260 USD",
+        "score": 0.341,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.568553,
+            "rank": 14
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 22,
+            "uniqueUserCount": 15,
+            "uniqueWalletCount": 18,
+            "volumeUsd": 0.6716459999999997,
+            "trustedUserUsageRatio": 0.001549,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-20T00:11:49.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://api.jarvisclaw.ai",
+          "title": "JarvisClaw API",
+          "description": "AI API Gateway with smart routing, pay per call via x402. OpenAI-compatible. Settled in USDC on Base & Solana.",
+          "favicon": "https://api.jarvisclaw.ai/favicon.ico",
+          "x402OriginId": "e26bd614-0441-4af5-83db-53ab301e85d6",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/v1/tools/extract-metadata",
+        "summary": "Extract Open Graph tags, word count, and links from a given URL or text content, paid via USDC micropayment on Base.",
+        "semanticDescription": "Origin URL: https://x402helper.xyz\nOrigin hostname: x402helper.xyz\nOrigin brand: x402 Helper API\nProvider aliases: x402 Helper, x402helper\nFamily key: x402helper.xyz::x402-helper\nEndpoint: POST /v1/tools/extract-metadata\nSummary: Extract Open Graph tags, word count, and links from a given URL or text content, paid via USDC micropayment on Base.\nKeyword: OG tags\nKeyword: metadata extraction\nKeyword: word count\nKeyword: link extraction\nKeyword: web scraping\nKeyword: USDC micropayment\nKeyword: x402\nUse case: extract OG tags from a webpage\nUse case: get word count from a URL\nUse case: scrape links from a page\nUse case: pull metadata from a website\nUse case: extract open graph title and description\nUse case: analyze page content structure\nUse case: get link list from a URL\nUse case: check metadata for a web page\nSource description: \"Extract OG tags, word count, links from text or URLs - 0.013000 USDC\"",
+        "score": 0.34,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.564009,
+            "rank": 21
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 1057,
+            "uniqueUserCount": 151,
+            "uniqueWalletCount": 154,
+            "volumeUsd": 29.945100000000032,
+            "trustedUserUsageRatio": 0.015598,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-19T01:54:05.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://x402helper.xyz",
+          "title": "x402 Helper API",
+          "description": "Professional API aggregator with X402 micropayments",
+          "favicon": "",
+          "x402OriginId": "23cd0267-0ff1-4f24-878d-cda0637cd4b4",
+          "mppOriginId": "04231603573cfebd38ee829b1a1bc919a829a2ab7b4fb2c5d9d211c79956c6bc",
+          "protocols": [
+            "mpp",
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/v1/meta-extract",
+        "summary": "Fetches and parses the <head> of any public URL to return title, description, Open Graph tags, Twitter Card tags, favicon, canonical URL, and feed links — no JS rendering required.",
+        "semanticDescription": "Origin URL: https://402utils.com\nOrigin hostname: 402utils.com\nOrigin brand: 402utils — pay-per-call API utilities\nProvider aliases: 402utils\nFamily key: 402utils.com::402utils\nEndpoint: GET /v1/meta-extract\nSummary: Fetches and parses the <head> of any public URL to return title, description, Open Graph tags, Twitter Card tags, favicon, canonical URL, and feed links — no JS rendering required.\nKeyword: link preview\nKeyword: meta tags\nKeyword: Open Graph\nKeyword: Twitter Card\nKeyword: favicon\nKeyword: RSS feed\nKeyword: head parsing\nKeyword: SEO metadata\nUse case: get link preview metadata for a URL\nUse case: extract Open Graph tags from a webpage\nUse case: fetch og:title and og:image for a social share card\nUse case: parse Twitter Card tags from any page\nUse case: discover RSS or Atom feed links on a site\nUse case: get the favicon URL for a domain\nUse case: extract meta description from a webpage\nUse case: build a link unfurler without running a browser\nUse case: check canonical URL and language of a page\nUse case: pull structured head metadata for SEO analysis\nSource description: Link preview for any web page: fetches a URL and parses only the <head> (no JS, no rendering). Returns title, meta description, canonical URL, language, an always-absolute favicon, all Open Graph and Twitter Card tags, and RSS/Atom/JSON-feed links. Tolerant of messy real-world HTML and non-UTF-8 charsets. The caller-supplied URL is SSRF-checked; the fetch is capped at 5 MB and 8 s.\nAuth mode: paid\nPrice: 0.003 USD",
+        "authMode": "paid",
+        "price": "0.003 USD",
+        "score": 0.34,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.566163,
+            "rank": 17
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 224,
+            "uniqueUserCount": 17,
+            "uniqueWalletCount": 17,
+            "volumeUsd": 0.4610000000000002,
+            "trustedUserUsageRatio": 0.001756,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-06T20:53:03.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://402utils.com",
+          "title": "402utils — pay-per-call API utilities",
+          "description": "Micro API utilities for AI agents and apps, priced per call and paid in USDC over the x402 protocol. Every endpoint returns HTTP 402 with x402 payment requirements; pay and retry to get the result. No signup, no API keys.",
+          "favicon": "https://402utils.com/favicon.ico",
+          "x402OriginId": "21f349e0-2aab-4024-8d1d-e404d06c4eea",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      }
+    ],
+    "query": "web metadata extractor",
+    "page": 1,
+    "totalResults": 54
+  }
+}
+exit=0
+
+=== AgentCash :: website change detector ===
+{
+  "success": true,
+  "results": {
+    "version": 1,
+    "results": [
+      {
+        "method": "GET",
+        "path": "/api/change-detect",
+        "summary": "Detects whether a webpage's content has changed since the last snapshot by comparing current content against a stored baseline.",
+        "semanticDescription": "Origin URL: https://engedi.digi-life17.workers.dev\nOrigin hostname: engedi.digi-life17.workers.dev\nOrigin brand: Engedi\nFamily key: engedi.digi-life17.workers.dev::change-detect\nEndpoint: GET /api/change-detect\nSummary: Detects whether a webpage's content has changed since the last snapshot by comparing current content against a stored baseline.\nKeyword: page change detection\nKeyword: website monitoring\nKeyword: content diff\nKeyword: snapshot comparison\nKeyword: change tracking\nUse case: check if a website has changed since I last looked\nUse case: monitor a competitor's pricing page for updates\nUse case: detect when a government policy page is modified\nUse case: alert me when a product page updates its content\nUse case: track changes on a terms of service or privacy policy page\nUse case: watch for updates on a news article or blog post\nUse case: verify if a landing page has been edited recently\nSource description: Use this tool when a user asks if a website content has changed since last check or wants monitoring. Compares current page content against stored snapshots to detect modifications. Essential for monitoring competitors, tracking policy changes, or watching for updates.\nAuth mode: paid",
+        "authMode": "paid",
+        "score": 0.369,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.615054,
+            "rank": 1
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 50,
+            "uniqueUserCount": 4,
+            "uniqueWalletCount": 13,
+            "volumeUsd": 0.8350000000000001,
+            "trustedUserUsageRatio": 0.000413,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-24T21:40:10.911Z"
+          }
+        },
+        "origin": {
+          "url": "https://engedi.digi-life17.workers.dev",
+          "title": "Engedi",
+          "description": "Live data API for AI agents. 28 free endpoints + 66 paid endpoints (94 total) covering finance, travel, weather, location, news, commerce, knowledge, content, seo, property, education, utilities, and work.",
+          "favicon": "",
+          "x402OriginId": "afd8b2c3-a5c9-4563-8318-a5de894390e0",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/cap/web-change-monitor",
+        "summary": "Detects content changes on any public URL using HTTP HEAD cache markers or SHA-256 hashing of page content as a fallback.",
+        "semanticDescription": "Origin URL: https://the-stall.intuitek.ai\nOrigin hostname: the-stall.intuitek.ai\nOrigin brand: The Stall\nFamily key: the-stall.intuitek.ai::cap\nEndpoint: GET /cap/web-change-monitor\nSummary: Detects content changes on any public URL using HTTP HEAD cache markers or SHA-256 hashing of page content as a fallback.\nKeyword: web monitoring\nKeyword: content change\nKeyword: page diff\nKeyword: ETag check\nKeyword: URL polling\nKeyword: change detection\nKeyword: website tracking\nUse case: monitor a competitor's pricing page for changes\nUse case: detect when a regulatory filing page is updated\nUse case: track changes to a news article or press release\nUse case: alert when a public product page is modified\nUse case: check if a website's content has changed since last visit\nUse case: poll a job listing page for new postings\nUse case: monitor a government or legal document page for updates\nUse case: watch a SaaS changelog page for new releases\nSource description: Returns content-change signals for any public URL: ETag, Last-Modified, Content-Length, and Content-Type via HTTP HEAD. Falls back to GET + SHA-256 of the first 32 KB when the server returns no cache markers. Store the snapshot and re-call periodically to detect changes. Useful for monitoring competitor pricing, news, regulatory filings, or any public page.\nAuth mode: paid\nPrice: 0.059 USD",
+        "authMode": "paid",
+        "price": "0.059 USD",
+        "score": 0.328,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.546684,
+            "rank": 4
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 346,
+            "uniqueUserCount": 31,
+            "uniqueWalletCount": 104,
+            "volumeUsd": 16.010000000000037,
+            "trustedUserUsageRatio": 0.003202,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-30T02:26:25.460Z"
+          }
+        },
+        "origin": {
+          "url": "https://the-stall.intuitek.ai",
+          "title": "The Stall",
+          "description": "Domain-agnostic x402 capability chassis by IntuiTek¹. 301 AI-callable data services — pay USDC on Base mainnet. No accounts or API keys required.",
+          "favicon": "",
+          "x402OriginId": "88f01bdb-d8de-4611-867e-a206cd12b512",
+          "mppOriginId": null,
+          "protocols": [
+            "internal-credit",
+            "mpp",
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/proxy/website-change-monitor-api-5f7dad",
+        "summary": "Monitor a website URL for content changes and receive change detection results via a single pay-per-call API.",
+        "semanticDescription": "Origin URL: https://orbisapi.com\nOrigin hostname: orbisapi.com\nOrigin brand: Orbis — Thousands of APIs. All x402. Pay per call in USDC.\nFamily key: orbisapi.com::proxy\nEndpoint: POST /proxy/website-change-monitor-api-5f7dad\nSummary: Monitor a website URL for content changes and receive change detection results via a single pay-per-call API.\nKeyword: website monitoring\nKeyword: change detection\nKeyword: page diff\nKeyword: content tracking\nKeyword: web scraping\nUse case: check if a webpage has changed since last visit\nUse case: detect content updates on a competitor's site\nUse case: monitor a product page for price or availability changes\nUse case: alert when a news article or blog post is updated\nUse case: track changes to a government or regulatory page\nUse case: verify if a landing page was modified after deployment\nUse case: poll a URL for any HTML or text differences\nAuth mode: paid\nPrice: 0.01",
+        "authMode": "paid",
+        "price": "0.01",
+        "score": 0.328,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.545111,
+            "rank": 5
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 1230,
+            "uniqueUserCount": 73,
+            "uniqueWalletCount": 73,
+            "volumeUsd": 6.917099999999999,
+            "trustedUserUsageRatio": 0.007541,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-06-28T12:02:11.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://orbisapi.com",
+          "title": "Orbis — Thousands of APIs. All x402. Pay per call in USDC.",
+          "description": "The API marketplace for the agent era. Thousands of x402-enabled APIs on Base and Solana. No subscriptions required — agents pay per call in USDC.",
+          "favicon": "https://orbisapi.com/logo.png",
+          "x402OriginId": "0857c19e-8b08-462c-aa8a-f47a32f3c311",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/monitor",
+        "summary": "Detects changes on a web page and returns a changed/unchanged status with a diff, paid via USDC micropayment.",
+        "semanticDescription": "Origin URL: https://x402helper.xyz\nOrigin hostname: x402helper.xyz\nOrigin brand: x402 Helper API\nProvider aliases: x402, x402helper\nFamily key: x402helper.xyz::x402\nEndpoint: GET /monitor\nSummary: Detects changes on a web page and returns a changed/unchanged status with a diff, paid via USDC micropayment.\nKeyword: page change detection\nKeyword: web monitor\nKeyword: content diff\nKeyword: website changes\nKeyword: USDC micropayment\nKeyword: x402 payment\nUse case: monitor a webpage for content changes\nUse case: detect if a website has been updated since last check\nUse case: get a diff of what changed on a page\nUse case: track page changes automatically with micropayment per check\nUse case: check if a URL's content has changed\nUse case: poll a site for updates and retrieve the difference\nUse case: use an AI agent to watch a page for changes\nUse case: verify page content stability over time\nSource description: \"Page change detection — returns changed/unchanged with diff - 0.004000 USDC\"",
+        "score": 0.327,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.541586,
+            "rank": 6
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 1057,
+            "uniqueUserCount": 151,
+            "uniqueWalletCount": 154,
+            "volumeUsd": 29.945100000000032,
+            "trustedUserUsageRatio": 0.015598,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-19T01:54:05.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://x402helper.xyz",
+          "title": "x402 Helper API",
+          "description": "Professional API aggregator with X402 micropayments",
+          "favicon": "",
+          "x402OriginId": "23cd0267-0ff1-4f24-878d-cda0637cd4b4",
+          "mppOriginId": "04231603573cfebd38ee829b1a1bc919a829a2ab7b4fb2c5d9d211c79956c6bc",
+          "protocols": [
+            "mpp",
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/skills/website-change-monitor-v1",
+        "summary": "Monitors a website for changes and returns structured results, paid via USDC micropayment on Base or Solana.",
+        "semanticDescription": "Origin URL: https://x402helper.xyz\nOrigin hostname: x402helper.xyz\nOrigin brand: x402 Helper API\nProvider aliases: x402, x402helper, x402 Protocol\nFamily key: x402helper.xyz::x402\nEndpoint: GET /api/skills/website-change-monitor-v1\nSummary: Monitors a website for changes and returns structured results, paid via USDC micropayment on Base or Solana.\nKeyword: website change detection\nKeyword: webpage monitor\nKeyword: URL diff\nKeyword: content change\nKeyword: site watcher\nKeyword: micropayment API\nKeyword: USDC payment\nUse case: monitor a website for content changes\nUse case: detect when a webpage has been updated\nUse case: track changes on a URL over time\nUse case: get notified when a site's content changes\nUse case: check if a web page has been modified\nUse case: watch a URL for updates\nUse case: scrape and diff a website periodically\nUse case: alert me when a website changes\nSource description: \"https - 0.013000 USDC\"",
+        "score": 0.322,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.534041,
+            "rank": 7
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 1057,
+            "uniqueUserCount": 151,
+            "uniqueWalletCount": 154,
+            "volumeUsd": 29.945100000000032,
+            "trustedUserUsageRatio": 0.015598,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-19T01:54:05.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://x402helper.xyz",
+          "title": "x402 Helper API",
+          "description": "Professional API aggregator with X402 micropayments",
+          "favicon": "",
+          "x402OriginId": "23cd0267-0ff1-4f24-878d-cda0637cd4b4",
+          "mppOriginId": "04231603573cfebd38ee829b1a1bc919a829a2ab7b4fb2c5d9d211c79956c6bc",
+          "protocols": [
+            "mpp",
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/diff",
+        "summary": "Compares a web page against its last stored state or two supplied HTML documents and returns only the meaningful content changes.",
+        "semanticDescription": "Origin URL: https://fetch.netzhandwerker.de\nOrigin hostname: fetch.netzhandwerker.de\nOrigin brand: Agent Fetch Hub\nProvider aliases: Agent Fetch Hub, Netzhandwerker, halowerk\nFamily key: fetch.netzhandwerker.de::agent-fetch-hub\nEndpoint: POST /diff\nSummary: Compares a web page against its last stored state or two supplied HTML documents and returns only the meaningful content changes.\nKeyword: page diff\nKeyword: content changes\nKeyword: web monitoring\nKeyword: change detection\nKeyword: price change\nKeyword: availability update\nUse case: detect changes on a product page since a specific date\nUse case: monitor a webpage for price or availability updates\nUse case: diff two versions of an HTML document to find content changes\nUse case: check if a news article has been updated or corrected\nUse case: track when a job listing changes status or details\nUse case: compare a page before and after a deployment for content regressions\nUse case: watch a landing page for copy or offer changes\nUse case: get a structured report of what changed on a page over time\nSource description: Compare a page against its last stored state, or two supplied documents, and report only the content changes.",
+        "score": 0.306,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.51047,
+            "rank": 13
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 9,
+            "uniqueUserCount": 2,
+            "uniqueWalletCount": 2,
+            "volumeUsd": 0.019,
+            "trustedUserUsageRatio": 0.000207,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-07T08:00:25.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://fetch.netzhandwerker.de",
+          "title": "Agent Fetch Hub",
+          "description": "Pay-per-call web extraction for autonomous agents. No signup, no API key, no dashboard. Every call is settled in USDC over the x402 protocol.",
+          "favicon": "https://fetch.netzhandwerker.de/favicon.svg",
+          "x402OriginId": "1e764650-d1f4-432a-94a3-353a893a4b61",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/functions/v1/api-gateway/company/intel/changes",
+        "summary": "Detect changes on a company's web pages by monitoring specified URLs for content updates over time.",
+        "semanticDescription": "Origin URL: https://agents.bytemine.ai\nOrigin hostname: agents.bytemine.ai\nOrigin brand: Bytemine\nProvider aliases: Bytemine\nFamily key: agents.bytemine.ai::bytemine\nEndpoint: POST /functions/v1/api-gateway/company/intel/changes\nSummary: Detect changes on a company's web pages by monitoring specified URLs for content updates over time.\nKeyword: web page monitoring\nKeyword: company web changes\nKeyword: site content change\nKeyword: web intelligence\nKeyword: company tracking\nUse case: detect when a company's website content has changed\nUse case: monitor competitor web pages for updates\nUse case: track changes to a target account's homepage or product pages\nUse case: alert on new content appearing on a prospect's site\nUse case: check if a company's pricing or messaging has shifted\nUse case: identify when a company updates its about or leadership pages\nUse case: monitor vendor sites for policy or terms changes\nUse case: track web presence changes as a buying signal\nSource description: Detect page changes\nAuth mode: apiKey+paid\nPrice: from 0.010000 USD",
+        "authMode": "apiKey+paid",
+        "price": "from 0.010000 USD",
+        "score": 0.3,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.500613,
+            "rank": 15
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 1,
+            "uniqueUserCount": 1,
+            "uniqueWalletCount": 1,
+            "volumeUsd": 0.31,
+            "trustedUserUsageRatio": 0.000103,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-08-28T16:17:23.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://agents.bytemine.ai",
+          "title": "Bytemine",
+          "description": "Bytemine is a B2B data platform for sales and go to market teams. It covers contact and company search across 135M professionals and 10M companies, contact and company enrichment, LinkedIn profile search and enrichment, live company intelligence read from a company's own web presence, technographics, buying intent scoring, and hiring, funding, job posting, and job change signals. Search results bill per record returned, enrichment bills only on a successful match, and count queries are free. This server is a pay-per-use, transparent proxy in front of Bytemine's own API: it handles identity, payment, and proxying. Agents can purchase autonomously or with their human's approval. The complete verified paid surface is listed at /openapi.json, the source of truth for available operations. Each operation here carries its live price in x-payment-info. Use the operations and details here when they meet your needs. Filtered specs contain only matching operations; if you cannot find what you need here, use search or the service catalog. The live catalog at /manifest.json is authoritative for prices and any free included units (prices[].includedUnits) - some meters include free usage per account before any charge, reserved for agents claimed by a human with a verified email.",
+          "favicon": "https://agents.bytemine.ai/favicon.ico",
+          "x402OriginId": "8abd3e9d-03d8-43d7-9a74-dbf53ef41f09",
+          "mppOriginId": "c5314a8f2e52a89aa548458fd156ed8de205438bd4b26220fc59b594d1353970",
+          "protocols": [
+            "mpp",
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/v1/change-check",
+        "summary": "Fetches a URL and compares its content fingerprint against a prior stored observation to detect changes.",
+        "semanticDescription": "Origin URL: https://preflight.lorensaisolutions.com\nOrigin hostname: preflight.lorensaisolutions.com\nOrigin brand: Agent Preflight Edge Paywall\nFamily key: preflight.lorensaisolutions.com::change-check\nEndpoint: POST /v1/change-check\nSummary: Fetches a URL and compares its content fingerprint against a prior stored observation to detect changes.\nKeyword: content change detection\nKeyword: page monitoring\nKeyword: content fingerprint\nKeyword: URL diff\nKeyword: change tracking\nUse case: detect if a webpage has changed since I last checked it\nUse case: monitor a URL for content updates\nUse case: check if a product page has been modified\nUse case: track changes to a competitor's website\nUse case: compare current page content against a cached fingerprint\nUse case: alert me when a URL's content fingerprint differs from before\nUse case: verify whether a webpage was recently updated\nUse case: watch for price or availability changes on a URL\nSource description: Change Check\nAuth mode: paid\nPrice: $0.10 USD",
+        "authMode": "paid",
+        "price": "$0.10 USD",
+        "score": 0.299,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.499072,
+            "rank": 17
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 5,
+            "uniqueUserCount": 1,
+            "uniqueWalletCount": 1,
+            "volumeUsd": 0.25,
+            "trustedUserUsageRatio": 0.000103,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-07-23T02:04:37.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://preflight.lorensaisolutions.com",
+          "title": "Agent Preflight Edge Paywall",
+          "description": "Seven paid URL-intelligence tools for autonomous agents using x402 v2.",
+          "favicon": "https://preflight.lorensaisolutions.com/favicon.svg",
+          "x402OriginId": "44a5d9fd-ecec-44f0-a478-8b04e936fd82",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/proxy/website-change-monitoring-brief-api-6bec69",
+        "summary": "Monitors a target website and returns a brief summary of any detected changes since the last check.",
+        "semanticDescription": "Origin URL: https://orbisapi.com\nOrigin hostname: orbisapi.com\nOrigin brand: Orbis — Thousands of APIs. All x402. Pay per call in USDC.\nFamily key: orbisapi.com::proxy\nEndpoint: POST /proxy/website-change-monitoring-brief-api-6bec69\nSummary: Monitors a target website and returns a brief summary of any detected changes since the last check.\nKeyword: website monitoring\nKeyword: change detection\nKeyword: page diff\nKeyword: content tracking\nKeyword: web scraping\nUse case: monitor a competitor's website for content changes\nUse case: get notified when a product page updates its pricing or availability\nUse case: track changes to a government or regulatory page\nUse case: detect when a job listing page adds or removes postings\nUse case: watch a news page for new article additions\nUse case: audit whether a client's website has been altered\nUse case: check if a landing page has been modified after a deploy\nUse case: alert when terms of service or privacy policy pages change\nAuth mode: paid\nPrice: 0.01",
+        "authMode": "paid",
+        "price": "0.01",
+        "score": 0.298,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.495925,
+            "rank": 19
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 1230,
+            "uniqueUserCount": 73,
+            "uniqueWalletCount": 73,
+            "volumeUsd": 6.917099999999999,
+            "trustedUserUsageRatio": 0.007541,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-06-28T12:02:11.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://orbisapi.com",
+          "title": "Orbis — Thousands of APIs. All x402. Pay per call in USDC.",
+          "description": "The API marketplace for the agent era. Thousands of x402-enabled APIs on Base and Solana. No subscriptions required — agents pay per call in USDC.",
+          "favicon": "https://orbisapi.com/logo.png",
+          "x402OriginId": "0857c19e-8b08-462c-aa8a-f47a32f3c311",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/v1/marketplace/api/webpage-change-report",
+        "summary": "Detect and report changes between two versions of a webpage's content.",
+        "semanticDescription": "Origin URL: https://uat.jarvisclaw.ai\nOrigin hostname: uat.jarvisclaw.ai\nOrigin brand: JarvisClaw API\nFamily key: uat.jarvisclaw.ai::marketplace\nEndpoint: POST /v1/marketplace/api/webpage-change-report\nSummary: Detect and report changes between two versions of a webpage's content.\nKeyword: webpage change\nKeyword: content diff\nKeyword: website monitoring\nKeyword: page comparison\nKeyword: change detection\nUse case: monitor a website for content changes over time\nUse case: compare two snapshots of a webpage to find what changed\nUse case: track competitor website updates automatically\nUse case: alert when a product page changes its pricing or availability\nUse case: detect when a news article has been edited or updated\nUse case: audit webpage modifications for compliance or archiving\nUse case: check if a landing page has been altered since last crawl\nUse case: identify added or removed text on a web page\nSource description: Webpage Change Report\nAuth mode: paid\nPrice: 0.046000 USD",
+        "authMode": "paid",
+        "price": "0.046000 USD",
+        "score": 0.293,
+        "signals": {
+          "vectorSimilarity": {
+            "score": 0.488199,
+            "rank": 24
+          },
+          "resourceUsage": {
+            "transactionCount": 0,
+            "uniqueUserCount": 0,
+            "uniqueWalletCount": 0,
+            "volumeUsd": 0,
+            "trustedUserUsageRatio": 0,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": null
+          },
+          "originUsage": {
+            "transactionCount": 21,
+            "uniqueUserCount": 14,
+            "uniqueWalletCount": 14,
+            "volumeUsd": 0.08449900000000002,
+            "trustedUserUsageRatio": 0.001446,
+            "totalTrustedUsers": 9681,
+            "lastSeenAt": "2026-09-20T00:11:49.000Z"
+          }
+        },
+        "origin": {
+          "url": "https://uat.jarvisclaw.ai",
+          "title": "JarvisClaw API",
+          "description": "AI API Gateway with smart routing, pay per call via x402. OpenAI-compatible. Settled in USDC on Base & Solana.",
+          "favicon": "",
+          "x402OriginId": "21c12ef6-9c99-4094-bcac-d147e14f519a",
+          "mppOriginId": null,
+          "protocols": [
+            "x402"
+          ]
+        }
+      }
+    ],
+    "query": "website change detector",
+    "page": 1,
+    "totalResults": 43
+  }
+}
+exit=0
+
