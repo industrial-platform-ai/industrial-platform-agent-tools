@@ -37,5 +37,33 @@ jobs:
               body
             }, null, 2));
             if (!r.ok) process.exitCode = 1;
+
+            const routeResponse = await fetch('https://agent402.tools/api/route', {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json',
+                'user-agent': 'industrial-platform-agent-tools/1.0'
+              },
+              body: JSON.stringify({ query: q, top: 20, include: 'external' })
+            });
+            const routeText = await routeResponse.text();
+            let routeBody;
+            try { routeBody = JSON.parse(routeText); } catch { routeBody = { raw: routeText }; }
+
+            const rows = Array.isArray(routeBody.results) ? routeBody.results : [];
+            const relevant = rows.filter(row => {
+              const hay = JSON.stringify(row).toLowerCase();
+              return hay.includes('industrial_platform') || hay.includes('apify.com') || hay.includes('apify');
+            });
+
+            console.log(JSON.stringify({
+              query: q,
+              routeHttp: routeResponse.status,
+              totalRouteResults: rows.length,
+              industrialPlatformOrApifyRows: relevant,
+              topFive: rows.slice(0, 5)
+            }, null, 2));
+
+            if (!routeResponse.ok) process.exitCode = 1;
           }
           NODE
