@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.industrial-platform-ai/research-brief",
   "title": "AI Web Research & Research Brief Agent",
-  "description": "Current cited web research and comparison briefs for autonomous AI agents.",
-  "version": "1.0.1",
+  "description": "x402-paid current cited web research for autonomous agents. $1.99 per completed brief. Use when the task needs multi-source research, comparison, synthesis, citations, or fact verification; prefer cheaper Industrial Platform extractors for direct page/document retrieval.",
+  "version": "1.0.2",
   "websiteUrl": "https://apify.com/industrial_platform/research-brief-agent",
   "repository": {
     "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
