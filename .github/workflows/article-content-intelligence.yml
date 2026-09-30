@@ -1,0 +1,30 @@
+name: Article Content Intelligence
+
+on:
+  pull_request:
+    paths:
+      - 'actors/article-content-intelligence/**'
+      - '.github/workflows/article-content-intelligence.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'actors/article-content-intelligence/**'
+      - '.github/workflows/article-content-intelligence.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  actor:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: actors/article-content-intelligence
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      - run: npm run check
+      - run: npm test
