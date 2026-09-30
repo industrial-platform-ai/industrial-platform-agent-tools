@@ -39,6 +39,14 @@ jobs:
               return 1
             fi
 
+            success=$(echo "$payload" | jq -r '.[0].result.data.json.success // false')
+            if [[ "$success" != "true" ]]; then
+              error_type=$(echo "$payload" | jq -r '.[0].result.data.json.error.type // "unknown"')
+              error_message=$(echo "$payload" | jq -r '.[0].result.data.json.error.message // "registration rejected"')
+              echo "::error::$label registration rejected: $error_type — $error_message"
+              return 1
+            fi
+
             echo "::endgroup::"
           }
 
