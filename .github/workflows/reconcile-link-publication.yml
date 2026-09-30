@@ -7,7 +7,7 @@ on:
     paths:
       - '.github/workflows/reconcile-link-publication.yml'
   schedule:
-    - cron: '47 3 * * *'
+    - cron: '17 4 * * *'
 
 permissions:
   contents: read
