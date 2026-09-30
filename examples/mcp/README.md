@@ -1,97 +1,99 @@
-# MCP Integration
+# Industrial Platform MCP Integration
 
-Industrial Platform's AI Web Research API can be exposed directly as an MCP tool through Apify's hosted MCP server.
+Industrial Platform's current service portfolio can be exposed through one hosted Apify MCP server.
 
-## MCP server URL
+## Full portfolio endpoint
 
 ```text
-https://mcp.apify.com?tools=industrial_platform/research-brief-agent
+https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence
 ```
 
-This configuration exposes the Industrial Platform research Actor directly to compatible MCP clients.
+Apify supports comma-separated Actor full names in the `tools` query parameter, allowing a client to expose only selected Actors through one MCP server.
 
-## Tool
-
-Actor:
+## Included Actors
 
 ```text
 industrial_platform/research-brief-agent
+industrial_platform/web-change-intelligence
+industrial_platform/web-metadata-intelligence
+industrial_platform/article-content-intelligence
+industrial_platform/pdf-text-intelligence
 ```
 
-Purpose:
-
-```text
-Current, source-backed web research with citations, structured evidence gathering, uncertainty handling, and automated QA.
-```
-
-## Input
-
-Required:
+## Example remote MCP configuration
 
 ```json
 {
-  "research_question": "Compare the current pricing and major features of Notion, ClickUp, and Asana for a five-person small business."
+  "mcpServers": {
+    "industrial-platform": {
+      "url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence"
+    }
+  }
 }
 ```
 
-Optional fields:
+See `remote-server.json` for the repository version.
 
-```json
-{
-  "context": "The business needs project management, document collaboration, and basic workflow automation.",
-  "requirements": "Use current authoritative web sources. Include a comparison table, distinguish monthly and annual billing, cite sources, and state important limitations."
-}
-```
+## What an agent can delegate
 
-## Example complete request
+### Research Brief Agent
 
-```json
-{
-  "research_question": "Compare HubSpot CRM, Pipedrive, and Zoho CRM for a small business.",
-  "context": "A five-person company needs pricing, automation, integrations, and predictable costs.",
-  "requirements": "Use current authoritative sources. Include a comparison table, cite sources, identify pricing caveats, and state unresolved facts."
-}
-```
+Use for current multi-source research, comparisons, pricing research, verification, and cited synthesis.
 
-## Expected output
+### Web Change Intelligence
 
-A successful result includes:
+Use when the agent needs to know whether a public page or endpoint changed relative to a previous hash or normalized text snapshot.
 
-```text
-research_question
-research_date
-brief
-status
-qa
-research
-usage
-```
+### Web Metadata Intelligence
 
-A customer-ready result has:
+Use for canonical URLs, robots metadata, headings, Open Graph, Twitter Cards, JSON-LD, language, and other page metadata.
 
-```text
-status = ready
-```
+### Article Content Intelligence
+
+Use to extract clean article text and associated metadata for RAG, research, summarization, or downstream processing.
+
+### PDF Text Intelligence
+
+Use to extract text, page-level text, page count, and document metadata from public PDFs.
 
 ## Authentication
 
-Running paid Actors requires Apify authentication.
+The hosted Apify MCP server supports OAuth or bearer-token authentication.
 
-Compatible MCP clients can authenticate through Apify's supported OAuth or API-token flows.
+Running paid Actors requires authentication or another supported payment path.
 
-Do not commit Apify API tokens or other credentials to this repository.
+Never commit Apify API tokens or other credentials to this repository.
 
-## Intended use
+## Why use one bundle?
 
-Use this MCP integration when an agent needs:
+A portfolio-level server lets the calling agent choose the narrowest service for the task:
 
-- current web research
-- competitor research
-- vendor comparison
-- pricing research
-- software or product comparison
-- multi-source synthesis
-- cited research
-- current-fact verification
+```text
+question requires current cited research?
+→ Research Brief Agent
 
-For trivial single-fact lookups, direct retrieval may be cheaper and faster.
+need changed / unchanged?
+→ Web Change Intelligence
+
+need page metadata?
+→ Web Metadata Intelligence
+
+need article body?
+→ Article Content Intelligence
+
+need PDF text?
+→ PDF Text Intelligence
+```
+
+This reduces tool-installation friction and lets the parent agent route each task to the lowest-cost specialized service that satisfies the requirement.
+
+## Machine-readable catalog
+
+For programmatic discovery outside MCP, read:
+
+```text
+../../catalog.json
+../../manifests/mcp-bundle.json
+```
+
+The catalog contains Actor IDs, Store URLs, billing events, prices, and common delegation targets.
