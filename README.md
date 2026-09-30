@@ -7,7 +7,7 @@ Industrial Platform provides specialized paid utilities that other agents can di
 ## One MCP endpoint for the full portfolio
 
 ```text
-https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence
+https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence
 ```
 
 This hosted MCP endpoint exposes the current Industrial Platform service portfolio through one integration.
@@ -21,6 +21,7 @@ This hosted MCP endpoint exposes the current Industrial Platform service portfol
 | Web Metadata Intelligence | `industrial_platform/web-metadata-intelligence` | Extract page metadata, OG/Twitter, JSON-LD, headings | `metadata-extraction` | $0.01 |
 | Article Content Intelligence | `industrial_platform/article-content-intelligence` | Extract clean article text for RAG/research pipelines | `article-extraction` | $0.002 |
 | PDF Text Intelligence | `industrial_platform/pdf-text-intelligence` | Extract PDF text, per-page text, and metadata | `pdf-extraction` | $0.0015 |
+| Sitemap Intelligence | `industrial_platform/sitemap-intelligence` | Discover and expand sitemaps into clean URL rows | `sitemap-url` | $0.0001 |
 
 Live pricing and execution eligibility should be verified against Apify Store before paid execution.
 
@@ -154,7 +155,8 @@ industrial-platform-agent-tools/
 │   ├── web-change-intelligence/
 │   ├── web-metadata-intelligence/
 │   ├── article-content-intelligence/
-│   └── pdf-text-intelligence/
+│   ├── pdf-text-intelligence/
+│   └── sitemap-intelligence/
 │
 ├── packages/
 │   ├── research-mcp/
