@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "description": "Ordered queue of built Actors awaiting or requiring public/PPE reconciliation. The workflow stops cleanly when Apify's daily publication quota is exhausted.",
+  "services": [
+    {
+      "actor": "industrial_platform~link-intelligence",
+      "actor_store_id": "industrial_platform/link-intelligence",
+      "title": "Link Extractor for AI Agents",
+      "description": "Extract links, anchors, rel flags and link class. Price: $0.0005 per successful page.",
+      "categories": [
+        "AI",
+        "DEVELOPER_TOOLS",
+        "SEO_TOOLS"
+      ],
+      "timeout_secs": 180,
+      "memory_mbytes": 512,
+      "billing_event": "link-extraction",
+      "event_title": "Link extraction",
+      "event_description": "One successfully processed source page.",
+      "event_price_usd": 0.0005,
+      "smoke_input": {
+        "urls": [
+          "https://example.com/"
+        ],
+        "max_links_per_page": 25
+      },
+      "smoke_required_field": "links"
+    },
+    {
+      "actor": "industrial_platform~robots-policy-intelligence",
+      "actor_store_id": "industrial_platform/robots-policy-intelligence",
+      "title": "Robots.txt Policy Analyzer for AI Agents",
+      "description": "Parse robots.txt and test crawler rules. Price: $0.0005 per successfully analyzed site.",
+      "categories": [
+        "AI",
+        "DEVELOPER_TOOLS",
+        "SEO_TOOLS"
+      ],
+      "timeout_secs": 180,
+      "memory_mbytes": 512,
+      "billing_event": "robots-analysis",
+      "event_title": "Robots policy analysis",
+      "event_description": "One successfully analyzed site.",
+      "event_price_usd": 0.0005,
+      "smoke_input": {
+        "sites": [
+          "https://example.com/"
+        ],
+        "user_agents": [
+          "*"
+        ],
+        "test_paths": [
+          "/"
+        ]
+      },
+      "smoke_required_field": "decisions"
+    }
+  ]
+}
