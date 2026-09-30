@@ -1,22 +1,24 @@
-# PDF Text Intelligence
+# PDF Text Extractor for AI Agents
 
-Deterministic PDF text extraction for AI agents, RAG pipelines, research workflows, and automated systems.
+Deterministic PDF text extraction for AI agents, RAG pipelines, research workflows, and document automation.
 
-## Input
+**Actor:** `industrial_platform/pdf-text-intelligence`
 
-```json
-{
-  "urls": [
-    "https://example.com/document.pdf"
-  ]
-}
-```
+## Price
 
-Up to 50 public PDFs can be processed per run.
+**$0.0015 per successful PDF extraction** using the `pdf-extraction` pay-per-event billing event.
 
-## Successful output
+Failed PDFs and image-only PDFs with no extractable text are not billed as successful PDF extractions.
 
-Each successful PDF can include:
+Examples:
+
+- 1 PDF: $0.0015
+- 100 PDFs: $0.15
+- 1,000 PDFs: $1.50
+
+## Output
+
+A successful PDF result can include:
 
 - full retained text
 - per-page text
@@ -31,12 +33,28 @@ Each successful PDF can include:
 - HTTP status
 - latency
 
-The Actor uses PDF.js and does not call an LLM.
+## Input
 
-## Pricing event
-
-```text
-pdf-extraction
+```json
+{
+  "urls": [
+    "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+  ]
+}
 ```
 
-One successful PDF extraction produces one event. Failed or image-only PDFs that return no substantial text are not billed.
+Up to 50 public PDFs can be processed per run.
+
+## When to use it
+
+Use this Actor for **PDF text extraction**, PDF-to-text workflows, RAG ingestion, document indexing, and page-level PDF text needed by downstream agents.
+
+## Runtime model and limitations
+
+The Actor uses PDF.js and does not call an LLM. It does **not** perform OCR, so scanned image-only PDFs without embedded text may return no successful extraction.
+
+PDF downloads are size-bounded and only public HTTP/HTTPS targets are accepted.
+
+## MCP
+
+The required MCP/API input is `urls`.
