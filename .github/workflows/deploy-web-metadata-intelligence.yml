@@ -54,7 +54,7 @@ jobs:
 
           const payload = {
             title: 'Web Metadata Extractor for AI Agents',
-            description: 'Use to extract machine-readable page metadata: title, description, canonical, robots, Open Graph, Twitter Cards, JSON-LD, headings, language, and charset.',
+            description: 'Use for Open Graph, JSON-LD, canonical, robots, headings, language, and page metadata. Input: urls[]. $0.01 per successful URL; failed URLs are not billed.',
             categories: ['AI','DEVELOPER_TOOLS','SEO_TOOLS'],
             isPublic: true,
             defaultRunOptions: {
