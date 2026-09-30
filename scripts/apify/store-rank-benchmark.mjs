@@ -5,7 +5,8 @@ const cases = [
   ['web metadata extractor', 'web-metadata-intelligence'],
   ['article content extractor', 'article-content-intelligence'],
   ['pdf text extractor', 'pdf-text-intelligence'],
-  ['sitemap extractor', 'sitemap-intelligence']
+  ['sitemap extractor', 'sitemap-intelligence'],
+  ['link extractor', 'link-intelligence']
 ];
 
 const rows = [];

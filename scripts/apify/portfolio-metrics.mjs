@@ -7,7 +7,8 @@ const services = [
   ['web-metadata-intelligence', 'metadata-extraction'],
   ['article-content-intelligence', 'article-extraction'],
   ['pdf-text-intelligence', 'pdf-extraction'],
-  ['sitemap-intelligence', 'sitemap-url']
+  ['sitemap-intelligence', 'sitemap-url'],
+  ['link-intelligence', 'link-extraction']
 ];
 
 const base = 'https://api.apify.com/v2';

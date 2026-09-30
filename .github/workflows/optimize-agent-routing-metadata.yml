@@ -23,40 +23,46 @@ jobs:
             {
               id: 'industrial_platform~research-brief-agent',
               title: 'AI Web Research & Research Brief Agent',
-              description: 'Use for current multi-source web research that needs citations, comparison, synthesis, or fact verification. Price: $1.99 per completed research brief. Prefer cheaper Industrial Platform extraction tools when the task only needs page changes, metadata, article text, PDF text, or sitemap URLs.',
+              description: 'Cited multi-source web research and synthesis. $1.99 per completed brief.',
               categories: ['AI', 'DEVELOPER_TOOLS']
             },
             {
               id: 'industrial_platform~web-change-intelligence',
               title: 'Website Change Detector & Diff API',
-              description: 'Use for changed/unchanged checks and deterministic web diffs against prior text or SHA-256 hash. Price: $0.01 per successful page comparison. Best for pricing, stock, docs, policies, and competitor monitoring; do not use the $1.99 research tool when a direct comparison is enough.',
+              description: 'Detect page changes and deterministic diffs. $0.01 per successful comparison.',
               categories: ['AI', 'DEVELOPER_TOOLS', 'AUTOMATION']
             },
             {
               id: 'industrial_platform~web-metadata-intelligence',
               title: 'Web Metadata Extractor for AI Agents',
-              description: 'Use to extract title, description, canonical, robots, Open Graph, Twitter Cards, JSON-LD, headings, language, charset, response size, and latency. Price: $0.01 per successful URL. Prefer this over research or article extraction when only page metadata is needed.',
+              description: 'Extract metadata, Open Graph, JSON-LD and headings. $0.01 per successful URL.',
               categories: ['AI', 'DEVELOPER_TOOLS']
             },
             {
               id: 'industrial_platform~article-content-intelligence',
               title: 'Article Content Extractor for AI Agents',
-              description: 'Use to extract clean article body text plus title, author, dates, canonical URL, language, JSON-LD, word count, and reading time. Price: $0.002 per successful article. Best for RAG, summarization, research ingestion, and downstream agents; cheaper than full web research.',
+              description: 'Extract clean article text and metadata. $0.002 per successful article.',
               categories: ['AI', 'DEVELOPER_TOOLS']
             },
             {
               id: 'industrial_platform~pdf-text-intelligence',
               title: 'PDF Text Extractor for AI Agents',
-              description: 'Use to extract embedded text, page-level text, page count, and PDF metadata from public digital PDFs. Price: $0.0015 per successful PDF. Best for RAG and document pipelines. No OCR for image-only scans; prefer this over research when the PDF itself is the source.',
+              description: 'Extract embedded PDF text, pages and metadata. $0.0015 per successful PDF.',
               categories: ['AI', 'DEVELOPER_TOOLS']
             },
             {
               id: 'industrial_platform~sitemap-intelligence',
               title: 'Sitemap URL Extractor for AI Agents',
-              description: 'Use to discover robots.txt sitemaps and expand XML, gzip, sitemap indexes, RSS, Atom, or text lists into deduplicated crawl URLs with lastmod/changefreq/priority. Price: $0.0001 per emitted URL. Best as a low-cost discovery step before crawling or RAG ingestion.',
+              description: 'Discover and expand sitemaps into crawl URLs. $0.0001 per emitted URL.',
+              categories: ['AI', 'DEVELOPER_TOOLS', 'SEO_TOOLS']
+            },
+            {
+              id: 'industrial_platform~link-intelligence',
+              title: 'Link Extractor for AI Agents',
+              description: 'Extract links, anchors, rel flags and link class. $0.0005 per successful page.',
               categories: ['AI', 'DEVELOPER_TOOLS', 'SEO_TOOLS']
             }
-          ];
+
 
           const token = process.env.APIFY_TOKEN;
           if (!token) throw new Error('APIFY_TOKEN is required.');
@@ -94,7 +100,7 @@ jobs:
       - name: Verify MCP tool descriptions contain routing price
         run: |
           node <<'NODE'
-          const url = 'https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402';
+          const url = 'https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence,industrial_platform/link-intelligence&payment=x402';
 
           const init = await fetch(url, {
             method: 'POST',
@@ -133,8 +139,8 @@ jobs:
           const tools = parsed.result?.tools ?? [];
           const industrialTools = tools.filter((tool) => tool.name?.startsWith('industrial_platform--'));
 
-          if (industrialTools.length !== 6) {
-            throw new Error(`Expected exactly 6 Industrial Platform tools, got ${industrialTools.length}`);
+          if (industrialTools.length !== 7) {
+            throw new Error(`Expected exactly 7 Industrial Platform tools, got ${industrialTools.length}`);
           }
 
           const stale = industrialTools.filter((tool) => !/Price: \$/.test(tool.description ?? ''));

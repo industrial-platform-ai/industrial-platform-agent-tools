@@ -7,7 +7,7 @@ Industrial Platform provides specialized paid utilities that other agents can di
 ## One MCP endpoint for the full portfolio
 
 ```text
-https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence
+https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence,industrial_platform/link-intelligence
 ```
 
 This hosted MCP endpoint exposes the current Industrial Platform service portfolio through one integration.
@@ -22,6 +22,7 @@ This hosted MCP endpoint exposes the current Industrial Platform service portfol
 | Article Content Intelligence | `industrial_platform/article-content-intelligence` | Extract clean article text for RAG/research pipelines | `article-extraction` | $0.002 |
 | PDF Text Intelligence | `industrial_platform/pdf-text-intelligence` | Extract PDF text, per-page text, and metadata | `pdf-extraction` | $0.0015 |
 | Sitemap Intelligence | `industrial_platform/sitemap-intelligence` | Discover and expand sitemaps into clean URL rows | `sitemap-url` | $0.0001 |
+| Link Intelligence | `industrial_platform/link-intelligence` | Extract structured page links, anchor text, rel flags, and internal/external classification | `link-extraction` | $0.0005 |
 
 Live pricing and execution eligibility should be verified against Apify Store before paid execution.
 
@@ -33,9 +34,9 @@ Industrial Platform is published in the official MCP Registry as:
 io.github.industrial-platform-ai/industrial-platform
 ```
 
-Registry version: `1.0.0` — status: `active`.
+Registry version: `1.0.1` — publication automated on merge.
 
-The Registry listing points to the same hosted six-service Apify MCP bundle used by this repository.
+The Registry listing points to the same hosted seven-service Apify MCP bundle used by this repository.
 
 ## Individual MCP Registry entries
 
@@ -49,6 +50,7 @@ For search-oriented discovery, each paid service also has its own active MCP Reg
 | Article Extractor | `io.github.industrial-platform-ai/article-extractor` |
 | PDF Text | `io.github.industrial-platform-ai/pdf-text` |
 | Sitemap | `io.github.industrial-platform-ai/sitemap` |
+| Link Extractor | `io.github.industrial-platform-ai/link-extractor` |
 
 These individual entries point to the same Apify-hosted Actor tools as the portfolio bundle and improve discovery for capability-specific MCP searches.
 
@@ -141,6 +143,11 @@ Need text and metadata from a public PDF
 → pdf-text-intelligence
 ```
 
+```text
+Need structured links, anchor text, and internal/external classification
+→ link-intelligence
+```
+
 ## Portfolio architecture
 
 ```text
@@ -183,7 +190,8 @@ industrial-platform-agent-tools/
 │   ├── web-metadata-intelligence/
 │   ├── article-content-intelligence/
 │   ├── pdf-text-intelligence/
-│   └── sitemap-intelligence/
+│   ├── sitemap-intelligence/
+│   └── link-intelligence/
 │
 ├── packages/
 │   ├── research-mcp/
