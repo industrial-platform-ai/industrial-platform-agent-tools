@@ -2,6 +2,10 @@ name: Verify Article Content Store Eligibility
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-article-content-store.yml'
   schedule:
     - cron: '49 * * * *'
 
