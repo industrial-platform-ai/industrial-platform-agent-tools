@@ -47,7 +47,7 @@
       "store_url": "https://apify.com/industrial_platform/web-change-intelligence",
       "pricing_model": "PAY_PER_EVENT",
       "billing_event": "page-comparison",
-      "current_event_price_usd": 0.01,
+      "current_event_price_usd": 0.001,
       "agentic_payment_eligible": true,
       "best_for": [
         "pricing page changes",
@@ -69,7 +69,7 @@
       "store_url": "https://apify.com/industrial_platform/web-metadata-intelligence",
       "pricing_model": "PAY_PER_EVENT",
       "billing_event": "metadata-extraction",
-      "current_event_price_usd": 0.01,
+      "current_event_price_usd": 0.001,
       "agentic_payment_eligible": true,
       "best_for": [
         "page metadata extraction",
