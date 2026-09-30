@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "recommended_bundle": "fast-web",
+  "bundles": {
+    "fast-web": {
+      "reason": "Lowest-friction recurring developer bundle: top Apify search visibility, ~3s median runtime, deterministic outputs.",
+      "endpoint": "https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence,industrial_platform/web-change-intelligence&payment=x402",
+      "services": [
+        {
+          "actor": "industrial_platform/web-metadata-intelligence",
+          "price_usd": 0.01,
+          "billing_event": "metadata-extraction"
+        },
+        {
+          "actor": "industrial_platform/web-change-intelligence",
+          "price_usd": 0.01,
+          "billing_event": "page-comparison"
+        }
+      ],
+      "installers": {
+        "cursor_deeplink": "cursor://anysphere.cursor-deeplink/mcp/install?name=industrial-platform-fast-web&config=eyJ0eXBlIjoiaHR0cCIsInVybCI6Imh0dHBzOi8vbWNwLmFwaWZ5LmNvbT90b29scz1pbmR1c3RyaWFsX3BsYXRmb3JtL3dlYi1tZXRhZGF0YS1pbnRlbGxpZ2VuY2UsaW5kdXN0cmlhbF9wbGF0Zm9ybS93ZWItY2hhbmdlLWludGVsbGlnZW5jZSZwYXltZW50PXg0MDIifQ%3D%3D",
+        "vscode_deeplink": "vscode:mcp/install?%7B%22name%22%3A%22industrial-platform-fast-web%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.apify.com%3Ftools%3Dindustrial_platform%2Fweb-metadata-intelligence%2Cindustrial_platform%2Fweb-change-intelligence%26payment%3Dx402%22%7D",
+        "github_copilot_cli": "copilot mcp add --transport http industrial-platform-fast-web 'https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence,industrial_platform/web-change-intelligence&payment=x402'",
+        "claude_code": "claude mcp add --transport http industrial-platform-fast-web 'https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence,industrial_platform/web-change-intelligence&payment=x402'",
+        "cline": "cline mcp install industrial-platform-fast-web --transport http 'https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence,industrial_platform/web-change-intelligence&payment=x402'",
+        "mcpc": [
+          "npm install -g @apify/mcpc",
+          "mcpc x402 init",
+          "mcpc connect \"https://mcp.apify.com?tools=industrial_platform/web-metadata-intelligence,industrial_platform/web-change-intelligence&payment=x402\" @industrial-platform-fast-web --x402",
+          "mcpc @industrial-platform-fast-web tools-list"
+        ]
+      }
+    },
+    "portfolio": {
+      "endpoint": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402"
+    }
+  }
+}
