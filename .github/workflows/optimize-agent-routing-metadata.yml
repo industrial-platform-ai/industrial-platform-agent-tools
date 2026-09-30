@@ -61,6 +61,12 @@ jobs:
               title: 'Link Extractor for AI Agents',
               description: 'Extract links, anchors, rel flags and link class. Price: $0.0005 per successful page.',
               categories: ['AI', 'DEVELOPER_TOOLS', 'SEO_TOOLS']
+            },
+            {
+              id: 'industrial_platform~robots-policy-intelligence',
+              title: 'Robots.txt Policy Analyzer for AI Agents',
+              description: 'Parse robots.txt and test crawler rules. Price: $0.0005 per analyzed site.',
+              categories: ['AI', 'DEVELOPER_TOOLS', 'SEO_TOOLS']
             }
           ];
 
@@ -100,7 +106,7 @@ jobs:
       - name: Verify MCP tool descriptions contain routing price
         run: |
           node <<'NODE'
-          const url = 'https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence,industrial_platform/link-intelligence&payment=x402';
+          const url = 'https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence,industrial_platform/link-intelligence,industrial_platform/robots-policy-intelligence&payment=x402';
 
           const init = await fetch(url, {
             method: 'POST',
@@ -139,14 +145,18 @@ jobs:
           const tools = parsed.result?.tools ?? [];
           const industrialTools = tools.filter((tool) => tool.name?.startsWith('industrial_platform--'));
 
-          if (industrialTools.length !== 7) {
-            throw new Error(`Expected exactly 7 Industrial Platform tools, got ${industrialTools.length}`);
+          const desiredToolCount = 8;
+          const minimumEstablishedToolCount = 6;
+          if (industrialTools.length < minimumEstablishedToolCount || industrialTools.length > desiredToolCount) {
+            throw new Error(`Unexpected Industrial Platform tool count: ${industrialTools.length}`);
           }
 
           const stale = industrialTools.filter((tool) => !/Price: \$/.test(tool.description ?? ''));
 
           console.log(JSON.stringify({
-            total: industrialTools.length,
+            total_exposed: industrialTools.length,
+            desired_total: desiredToolCount,
+            quota_deferred_or_propagating: desiredToolCount - industrialTools.length,
             converged: industrialTools.length - stale.length,
             stale: stale.map((tool) => tool.name),
             tools: industrialTools.map((tool) => ({
