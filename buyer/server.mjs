@@ -78,6 +78,7 @@ async function registerX402scanOnce() {
     completedAt: new Date().toISOString(),
   };
   state.status = response.ok ? 'registered' : 'failed';
+  console.log('x402scan registration result:', JSON.stringify(state.result));
   if (!response.ok) throw new Error('x402scan registration returned HTTP ' + response.status + ': ' + text.slice(0, 4000));
 }
 
