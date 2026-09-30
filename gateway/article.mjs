@@ -238,4 +238,4 @@ export const documentTools=[{
       language:article.language,...md,untrusted_content:true
     };
   }
-}}];
+}];
