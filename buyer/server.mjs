@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { createHash } from 'node:crypto';
 import { x402Client, x402HTTPClient, wrapFetchWithPayment } from '@x402/fetch';
 import { registerExactEvmScheme } from '@x402/evm/exact/client';
 import { createSIWxClientExtension } from '@x402/extensions/sign-in-with-x';
@@ -12,6 +13,15 @@ const runRegistry = process.env.RUN_X402SCAN_REGISTRATION === '1';
 const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan.com/api/x402/registry/register-origin';
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
 
+function deriveSellerAccount() {
+  if (!key) throw new Error('EVM_PRIVATE_KEY missing');
+  const raw = Buffer.from(key.replace(/^0x/, ''), 'hex');
+  const derived = createHash('sha256').update(raw).update('industrial-platform-x402-seller-v1').digest('hex');
+  return privateKeyToAccount('0x' + derived);
+}
+
+const sellerAccount = key ? deriveSellerAccount() : null;
+
 let state = {
   startedAt: new Date().toISOString(),
   enabled: runPayment || runRegistry,
@@ -20,6 +30,7 @@ let state = {
   status: runPayment ? 'pending' : 'armed',
   result: null,
   error: null,
+  sellerAddress: sellerAccount?.address ?? null,
 };
 
 function makeClient() {
@@ -111,6 +122,10 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'content-type': 'application/json' });
     return res.end(JSON.stringify({ ok: true, status: state.status }));
   }
+  if (req.url === '/seller-address') {
+    res.writeHead(200, { 'content-type': 'application/json' });
+    return res.end(JSON.stringify({ address: sellerAccount?.address ?? null }));
+  }
   if (req.url === '/state') {
     res.writeHead(200, { 'content-type': 'application/json' });
     return res.end(JSON.stringify(state));
@@ -118,5 +133,5 @@ http.createServer((req, res) => {
   res.writeHead(404, { 'content-type': 'application/json' });
   res.end(JSON.stringify({ error: 'not_found' }));
 }).listen(PORT, '0.0.0.0', () => {
-  console.log('x402 seed buyer listening on', PORT, 'payment state:', state.status);
+  console.log('x402 seed buyer listening on', PORT, 'payment state:', state.status, 'seller address:', sellerAccount?.address ?? null);
 });
