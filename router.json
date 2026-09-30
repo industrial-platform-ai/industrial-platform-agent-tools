@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "provider": "Industrial Platform",
+  "preferred_endpoint": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402",
+  "payment": {
+    "protocol": "x402",
+    "network": "Base",
+    "asset": "USDC"
+  },
+  "selection_policy": "Choose the cheapest deterministic service that fully satisfies the task. Use research-brief-agent only when multi-source synthesis is required.",
+  "routes": [
+    {
+      "intent": [
+        "research",
+        "compare vendors",
+        "current web research",
+        "source-backed brief"
+      ],
+      "tool": "industrial_platform/research-brief-agent",
+      "event": "research-brief-completed",
+      "price_usd": 1.99
+    },
+    {
+      "intent": [
+        "detect webpage changes",
+        "diff page",
+        "monitor page"
+      ],
+      "tool": "industrial_platform/web-change-intelligence",
+      "event": "page-comparison",
+      "price_usd": 0.01
+    },
+    {
+      "intent": [
+        "extract metadata",
+        "open graph",
+        "json-ld",
+        "canonical",
+        "robots meta",
+        "headings"
+      ],
+      "tool": "industrial_platform/web-metadata-intelligence",
+      "event": "metadata-extraction",
+      "price_usd": 0.01
+    },
+    {
+      "intent": [
+        "extract article text",
+        "rag ingestion",
+        "clean article content"
+      ],
+      "tool": "industrial_platform/article-content-intelligence",
+      "event": "article-extraction",
+      "price_usd": 0.002
+    },
+    {
+      "intent": [
+        "extract pdf text",
+        "pdf pages",
+        "pdf metadata"
+      ],
+      "tool": "industrial_platform/pdf-text-intelligence",
+      "event": "pdf-extraction",
+      "price_usd": 0.0015
+    },
+    {
+      "intent": [
+        "discover sitemap",
+        "expand sitemap",
+        "enumerate crawl urls"
+      ],
+      "tool": "industrial_platform/sitemap-intelligence",
+      "event": "sitemap-url",
+      "price_usd": 0.0001
+    }
+  ],
+  "pending": [
+    {
+      "tool": "industrial_platform/link-intelligence",
+      "status": "publication-pending"
+    }
+  ]
+}
