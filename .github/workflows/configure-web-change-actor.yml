@@ -21,7 +21,9 @@ jobs:
           cat > payload.json <<'JSON'
           {
             "title": "Web Change Intelligence",
-            "description": "Deterministic web change detection for AI agents and automated workflows. Capture a baseline, compare a prior SHA-256 fingerprint or normalized text snapshot, and detect changes in pricing, availability, documentation, policies, and competitor pages without per-run LLM cost.",
+            "description": "Website change detector and deterministic diff API for AI agents. Monitor pricing, availability, documentation, policies, and competitor pages. $0.001 per successful comparison.",
+            "seoTitle": "Website Change Detector & Diff API for AI Agents",
+            "seoDescription": "Detect webpage changes with hashes and deterministic diffs for monitoring workflows. $0.001 per successful comparison; failed fetches are not billed.",
             "categories": ["AI"],
             "defaultRunOptions": {
               "build": "latest",
