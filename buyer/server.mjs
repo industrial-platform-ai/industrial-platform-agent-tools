@@ -213,6 +213,39 @@ async function fetchAgent402Wishes() {
   }
 }
 
+async function runExternalRouteDiagnostics() {
+  const queries = [
+    'cryptographic hash sha256 sha512 text',
+    'base64 encode text',
+    'extract article clean text',
+    'read webpage text for RAG',
+    'crypto price BTC',
+    'crypto 24h stats volume high low',
+    'dns lookup MX TXT',
+    'http security headers status',
+    'robots.txt crawl allowed path',
+    'crypto market snapshot dashboard',
+    'web intelligence dossier RAG research'
+  ];
+  for (const q of queries) {
+    try {
+      const url = 'https://agent402.tools/api/route?q=' + encodeURIComponent(q) + '&include=external';
+      const response = await fetch(url, { headers: { accept: 'application/json' } });
+      const body = await response.text();
+      console.log('Agent402 external route diagnostic:', JSON.stringify({
+        q,
+        httpStatus:response.status,
+        ok:response.ok,
+        body:body.slice(0,12000),
+        completedAt:new Date().toISOString()
+      }));
+      await new Promise(resolve => setTimeout(resolve, 2300));
+    } catch (error) {
+      console.error('Agent402 external route diagnostic failed:', q, String(error?.message || error));
+    }
+  }
+}
+
 async function runFindDiagnostics() {
   for (const q of marketQueries) {
     try {
@@ -253,7 +286,8 @@ async function registerAgent402OriginOnce({scheduleRetry=true}={}) {
   const rereadSeconds = Number(parsed?.reverify?.nextRereadInSeconds);
   const toolCount = Number(parsed?.seller?.toolCount);
 
-  if (response.ok && Number.isFinite(toolCount) && toolCount >= 34) {
+  if (response.ok && Number.isFinite(toolCount) && toolCount >= 33) {
+    await runExternalRouteDiagnostics();
     await runFindDiagnostics();
     return;
   }
@@ -262,7 +296,7 @@ async function registerAgent402OriginOnce({scheduleRetry=true}={}) {
     const delayMs = (rereadSeconds + 5) * 1000;
     console.log('Agent402 re-index retry scheduled in', Math.round(delayMs / 1000), 'seconds');
     setTimeout(() => {
-      registerAgent402OriginOnce({scheduleRetry:false}).then(runFindDiagnostics).catch((error) => {
+      registerAgent402OriginOnce({scheduleRetry:false}).then(async()=>{ await runExternalRouteDiagnostics(); await runFindDiagnostics(); }).catch((error) => {
         console.error('Agent402 scheduled re-index failed:', String(error?.stack || error));
       });
     }, delayMs);
