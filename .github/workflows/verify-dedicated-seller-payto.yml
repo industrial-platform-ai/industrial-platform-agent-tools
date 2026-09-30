@@ -1,0 +1,45 @@
+name: Verify Dedicated Seller PayTo
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-dedicated-seller-payto.yml'
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify payTo
+        run: |
+          set -euo pipefail
+          BASE='https://x402-gateway-production-1f21.up.railway.app'
+          curl -sS -D /tmp/h -o /tmp/b -X POST "$BASE/metadata"             -H 'content-type: application/json'             --data '{"urls":["https://example.com/"]}' || true
+          python - <<'PY'
+          import base64,json,pathlib
+          headers=pathlib.Path('/tmp/h').read_text()
+          pr=None
+          for line in headers.splitlines():
+              if line.lower().startswith('payment-required:'):
+                  pr=line.split(':',1)[1].strip()
+          if not pr:
+              raise SystemExit('missing payment-required')
+          obj=json.loads(base64.b64decode(pr))
+          out={
+            'payTo':obj['accepts'][0]['payTo'],
+            'amount':obj['accepts'][0]['amount'],
+            'network':obj['accepts'][0]['network'],
+            'resource':obj['resource']['url']
+          }
+          pathlib.Path('observability/dedicated-seller-payto.json').write_text(json.dumps(out,indent=2)+'\n')
+          print(json.dumps(out,indent=2))
+          PY
+      - name: Persist
+        run: |
+          git config user.name "industrial-platform-bot"
+          git config user.email "art@naturalist.gallery"
+          git add observability/dedicated-seller-payto.json
+          git commit -m "Record dedicated seller payTo" || exit 0
+          git pull --rebase origin main
+          git push
