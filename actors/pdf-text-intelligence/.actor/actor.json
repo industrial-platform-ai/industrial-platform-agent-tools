@@ -1,0 +1,11 @@
+{
+  "actorSpecification": 1,
+  "name": "pdf-text-intelligence",
+  "title": "PDF Text Intelligence",
+  "description": "Extract full text, page text, and document metadata from public PDFs for AI agents and automated workflows.",
+  "version": "0.1",
+  "buildTag": "latest",
+  "input": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": { "dataset": "./dataset_schema.json" }
+}
