@@ -1,0 +1,41 @@
+name: Audit Agent402 Routing
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-agent402-routing.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query Agent402 live router
+        run: |
+          node <<'NODE'
+          const queries = [
+            'web metadata extractor',
+            'website change detector'
+          ];
+
+          for (const q of queries) {
+            const url = new URL('https://agent402.tools/api/find');
+            url.searchParams.set('q', q);
+            const r = await fetch(url, {
+              headers: { 'user-agent': 'industrial-platform-agent-tools/1.0' }
+            });
+            const text = await r.text();
+            let body;
+            try { body = JSON.parse(text); } catch { body = { raw: text }; }
+            console.log(JSON.stringify({
+              query: q,
+              http: r.status,
+              body
+            }, null, 2));
+            if (!r.ok) process.exitCode = 1;
+          }
+          NODE
