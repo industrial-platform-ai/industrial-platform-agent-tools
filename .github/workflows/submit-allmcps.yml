@@ -1,0 +1,83 @@
+name: Submit Industrial Platform to AllMCPs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/submit-allmcps.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discover live schema and submit
+        run: |
+          node <<'NODE'
+          const endpoint = 'https://allmcps.com/api/mcp';
+
+          async function rpc(method, params) {
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json',
+                'user-agent': 'industrial-platform-agent-tools/1.0'
+              },
+              body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: Math.floor(Math.random() * 1e9),
+                method,
+                params
+              })
+            });
+            const text = await response.text();
+            let body;
+            try { body = JSON.parse(text); } catch { throw new Error('Non-JSON AllMCPs response: ' + text.slice(0,1000)); }
+            if (!response.ok || body.error) {
+              throw new Error('AllMCPs RPC failed: HTTP ' + response.status + ' ' + JSON.stringify(body.error ?? body));
+            }
+            return body.result;
+          }
+
+          const listed = await rpc('tools/list');
+          const tool = (listed.tools ?? []).find(t => t.name === 'submit_mcp_server');
+          if (!tool) throw new Error('submit_mcp_server tool not found.');
+
+          console.log('submit_schema=' + JSON.stringify(tool.inputSchema));
+
+          const props = tool.inputSchema?.properties ?? {};
+          const args = {};
+          const setIf = (key, value) => { if (Object.prototype.hasOwnProperty.call(props, key)) args[key] = value; };
+
+          setIf('name', 'Industrial Platform');
+          setIf('url', 'https://github.com/industrial-platform-ai/industrial-platform-agent-tools');
+          setIf('email', 'art@naturalist.gallery');
+          setIf('description', 'Six production MCP tools for autonomous web research, change detection, metadata, article extraction, PDF text, and sitemap discovery. Paid tool calls use Apify x402.');
+          setIf('category', 'Developer Tools');
+          setIf('sku', 'industrial-platform-agent-tools');
+          setIf('method', 'remote');
+          setIf('repository_url', 'https://github.com/industrial-platform-ai/industrial-platform-agent-tools');
+          setIf('repo_url', 'https://github.com/industrial-platform-ai/industrial-platform-agent-tools');
+          setIf('github_url', 'https://github.com/industrial-platform-ai/industrial-platform-agent-tools');
+          setIf('endpoint_url', 'https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402');
+          setIf('mcp_url', 'https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402');
+
+          for (const required of tool.inputSchema?.required ?? []) {
+            if (!(required in args)) {
+              throw new Error('Unhandled required AllMCPs field: ' + required + ' schema=' + JSON.stringify(tool.inputSchema));
+            }
+          }
+
+          const result = await rpc('tools/call', {
+            name: 'submit_mcp_server',
+            arguments: args
+          });
+
+          console.log('submission_result=' + JSON.stringify(result));
+
+          const texts = (result.content ?? []).filter(x => x.type === 'text').map(x => x.text).join('\n');
+          console.log(texts);
+          NODE
