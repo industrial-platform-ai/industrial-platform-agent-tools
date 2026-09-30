@@ -44,6 +44,33 @@ jobs:
               description: t.description
             }))));
 
+            const validationTargets = [
+              {
+                name: 'web-metadata-intelligence',
+                url: 'https://api.apify.com/v2/acts/industrial_platform~web-metadata-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
+              },
+              {
+                name: 'web-change-intelligence',
+                url: 'https://api.apify.com/v2/acts/industrial_platform~web-change-intelligence/run-sync-get-dataset-items?maxTotalChargeUsd=0.05'
+              }
+            ];
+
+            for (const target of validationTargets) {
+              const validation = await client.callTool({
+                name: 'validate_endpoint',
+                arguments: { url: target.url }
+              });
+              const text = (validation.content ?? [])
+                .filter(x => x.type === 'text')
+                .map(x => x.text)
+                .join('\n');
+
+              console.log(JSON.stringify({
+                validationTarget: target,
+                response: text.slice(0, 16000)
+              }, null, 2));
+            }
+
             const queries = [
               'web metadata extractor JSON-LD Open Graph canonical robots',
               'website change detector monitor page changes deterministic diff',
