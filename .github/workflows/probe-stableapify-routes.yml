@@ -1,0 +1,38 @@
+name: Probe StableApify Typed Routes
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/probe-stableapify-routes.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe Industrial Platform Actor routes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          probe() {
+            local label="$1"
+            local url="$2"
+            local body="$3"
+
+            echo "::group::$label"
+            code=$(curl --silent --show-error               -D headers.txt               -o body.txt               -w '%{http_code}'               -X POST               -H 'content-type: application/json'               --data "$body"               "$url")
+            echo "HTTP $code"
+            grep -iE '^(payment-required|x-payment|content-type):' headers.txt || true
+            head -c 5000 body.txt || true
+            echo
+            echo "::endgroup::"
+          }
+
+          probe             'StableApify Metadata'             'https://stableapify.dev/api/actors/industrial_platform/web-metadata-intelligence/call'             '{"input":{"urls":["https://example.com/"]}}'
+
+          probe             'StableApify Change'             'https://stableapify.dev/api/actors/industrial_platform/web-change-intelligence/call'             '{"input":{"url":"https://example.com/","include_current_text":false}}'
