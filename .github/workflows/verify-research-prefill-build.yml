@@ -1,0 +1,87 @@
+name: Verify Research Prefill Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-research-prefill-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify latest Research build and MCP schema
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          for i in 1 2 3 4 5; do
+            curl --fail-with-body --silent --show-error               --header "Authorization: Bearer $APIFY_TOKEN"               "https://api.apify.com/v2/actors/industrial_platform~research-brief-agent"               > actor.json
+
+            BUILD_ID=$(node -e "const a=require('./actor.json').data; console.log(a.taggedBuilds?.latest?.buildId || '')")
+            BUILD_NUMBER=$(node -e "const a=require('./actor.json').data; console.log(a.taggedBuilds?.latest?.buildNumber || '')")
+            echo "latest build: $BUILD_NUMBER $BUILD_ID"
+
+            if [ "$BUILD_NUMBER" = "0.0.25" ] && [ -n "$BUILD_ID" ]; then
+              curl --fail-with-body --silent --show-error                 --header "Authorization: Bearer $APIFY_TOKEN"                 "https://api.apify.com/v2/actor-builds/$BUILD_ID?waitForFinish=60" > build.json
+              STATUS=$(node -e "console.log(require('./build.json').data.status)")
+              echo "status: $STATUS"
+              if [ "$STATUS" = "SUCCEEDED" ]; then break; fi
+              if [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "ABORTED" ] || [ "$STATUS" = "TIMED-OUT" ]; then
+                cat build.json
+                exit 1
+              fi
+            fi
+          done
+
+          node <<'NODE'
+          const fs = require('fs');
+          const actor = JSON.parse(fs.readFileSync('actor.json','utf8')).data;
+          const version = actor.versions?.find(v => v.versionNumber === '0.0');
+          const input = version?.sourceFiles?.find(f => f.name === '.actor/input_schema.json');
+          const schema = JSON.parse(input.content);
+          console.log(JSON.stringify({
+            required: schema.required,
+            research_question: schema.properties?.research_question
+          }, null, 2));
+          if (!schema.required?.includes('research_question')) throw new Error('research_question not required.');
+          if (!schema.properties?.research_question?.prefill) throw new Error('research_question prefill missing.');
+          if ('default' in schema.properties.research_question) throw new Error('research_question default must remain absent.');
+          NODE
+
+      - name: Verify hosted MCP still requires research_question
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          npm install --no-save @modelcontextprotocol/sdk
+          node <<'NODE'
+          const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
+          const { StreamableHTTPClientTransport } = await import('@modelcontextprotocol/sdk/client/streamableHttp.js');
+          const client = new Client({ name: 'research-prefill-verifier', version: '1.0.0' }, {});
+          const transport = new StreamableHTTPClientTransport(
+            new URL('https://mcp.apify.com/?tools=industrial_platform/research-brief-agent'),
+            { requestInit: { headers: { Authorization: 'Bearer ' + process.env.APIFY_TOKEN } } }
+          );
+          try {
+            await client.connect(transport);
+            const { tools } = await client.listTools();
+            const tool = tools.find(t => t.name.includes('research-brief-agent'));
+            if (!tool) throw new Error('Research tool missing.');
+            console.log(JSON.stringify({
+              required: tool.inputSchema?.required ?? [],
+              research_question: tool.inputSchema?.properties?.research_question
+            }, null, 2));
+            if (!(tool.inputSchema?.required ?? []).includes('research_question')) {
+              throw new Error('Hosted MCP no longer marks research_question required.');
+            }
+          } finally {
+            await client.close().catch(() => {});
+          }
+          NODE
