@@ -49,10 +49,15 @@ async function payOnce() {
       response.headers.get('payment-response') ||
       response.headers.get('x-payment-response') ||
       null,
+    extensionResponses:
+      response.headers.get('extension-responses') ||
+      response.headers.get('x-extension-responses') ||
+      null,
     body: text.slice(0, 20000),
     completedAt: new Date().toISOString(),
   };
   state.status = response.ok ? 'paid' : 'failed';
+  console.log('x402 payment result:', JSON.stringify(state.result));
   if (!response.ok) throw new Error('Paid request returned HTTP ' + response.status);
 }
 
