@@ -134,3 +134,5 @@ jobs:
           git push
 
 # rerun after validator compatibility deploy
+
+# post-schema-deploy validation
