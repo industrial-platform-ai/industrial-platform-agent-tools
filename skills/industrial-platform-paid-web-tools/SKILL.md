@@ -16,14 +16,14 @@ Use this skill when a task needs one of these two fast deterministic web utiliti
 
 1. **Web Metadata Intelligence**
    - Actor: `industrial_platform/web-metadata-intelligence`
-   - Price: **$0.01 per successful URL**
+   - Price: **$0.001 per successful URL**
    - Typical runtime from recent production runs: about 3 seconds
    - Use for Open Graph, JSON-LD, canonical URL, robots directives, headings, language, charset, page title/description, and related page metadata.
    - Required input: `urls` array.
 
 2. **Web Change Intelligence**
    - Actor: `industrial_platform/web-change-intelligence`
-   - Price: **$0.01 per successful comparison**
+   - Price: **$0.001 per successful comparison**
    - Typical runtime from recent production runs: about 3 seconds
    - Use for baseline capture, changed/unchanged checks, SHA-256 comparison, deterministic text diffs, selectors, and volatile-region ignore rules.
    - Required input: `url`.
