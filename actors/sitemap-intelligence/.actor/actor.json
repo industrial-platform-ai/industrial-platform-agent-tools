@@ -1,11 +1,13 @@
 {
   "actorSpecification": 1,
   "name": "sitemap-intelligence",
-  "title": "Sitemap Intelligence",
-  "description": "Discover sitemaps and extract clean URL rows for AI agents, crawlers, RAG pipelines, and automated workflows.",
+  "title": "Sitemap URL Extractor for AI Agents",
+  "description": "Discover and expand sitemaps into deduplicated crawl URLs with sitemap metadata.",
   "version": "0.1",
   "buildTag": "latest",
   "input": "./input_schema.json",
   "output": "./output_schema.json",
-  "storages": { "dataset": "./dataset_schema.json" }
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
 }
