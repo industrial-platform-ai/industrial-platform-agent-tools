@@ -14,7 +14,7 @@ jobs:
   optimize:
     runs-on: ubuntu-latest
     steps:
-      - name: Lower acquisition prices while preserving Apify pricing metadata
+      - name: Append lower acquisition pricing
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
         run: |
@@ -30,27 +30,54 @@ jobs:
           const fs = require('fs');
           const eventName = process.argv[2];
           const actor = JSON.parse(fs.readFileSync('current.json','utf8')).data;
-          const pricingInfos = structuredClone(actor.pricingInfos ?? []);
-          if (!pricingInfos.length) throw new Error('No pricingInfos found');
+          const existing = structuredClone(actor.pricingInfos ?? []);
+          if (!existing.length) throw new Error('No pricingInfos found');
 
-          const current = pricingInfos[pricingInfos.length - 1];
+          const current = existing[existing.length - 1];
           if (current.pricingModel !== 'PAY_PER_EVENT') {
             throw new Error('Current pricing model is not PAY_PER_EVENT');
           }
 
-          const charge = current.pricingPerEvent?.actorChargeEvents?.[eventName];
-          if (!charge) throw new Error('Billing event not found: ' + eventName);
+          const currentCharge = current.pricingPerEvent?.actorChargeEvents?.[eventName];
+          if (!currentCharge) throw new Error('Billing event not found: ' + eventName);
 
-          charge.eventPriceUsd = 0.001;
+          if (currentCharge.eventPriceUsd === 0.001) {
+            fs.writeFileSync('already.txt','true');
+            fs.writeFileSync('payload.json', JSON.stringify({ pricingInfos: existing }));
+            console.log('Already priced at $0.001; no new record required.');
+            process.exit(0);
+          }
 
-          fs.writeFileSync('payload.json', JSON.stringify({ pricingInfos }));
+          const newPricing = {
+            pricingModel: 'PAY_PER_EVENT',
+            pricingPerEvent: {
+              actorChargeEvents: {
+                [eventName]: {
+                  eventTitle: currentCharge.eventTitle,
+                  eventDescription: currentCharge.eventDescription,
+                  eventPriceUsd: 0.001,
+                  isPrimaryEvent: currentCharge.isPrimaryEvent ?? true,
+                  isOneTimeEvent: currentCharge.isOneTimeEvent ?? false
+                }
+              }
+            }
+          };
+
+          fs.writeFileSync('already.txt','false');
+          fs.writeFileSync('payload.json', JSON.stringify({
+            pricingInfos: [...existing, newPricing]
+          }));
           console.log(JSON.stringify({
-            pricingModel: current.pricingModel,
             event: eventName,
-            oldRecordCreatedAt: current.createdAt,
-            newEventPriceUsd: charge.eventPriceUsd
+            previousPriceUsd: currentCharge.eventPriceUsd,
+            appendedPriceUsd: 0.001,
+            existingPricingRecords: existing.length
           }, null, 2));
           NODE
+
+            if [[ "$(cat already.txt)" == "true" ]]; then
+              return 0
+            fi
 
             code=$(curl --silent --show-error               -o response.json               -w '%{http_code}'               --request PUT               --header "Authorization: Bearer $APIFY_TOKEN"               --header "Content-Type: application/json"               --data @payload.json               "https://api.apify.com/v2/actors/$actor")
 
