@@ -1,0 +1,36 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "status": { "type": "string" },
+      "url": { "type": "string" },
+      "lastmod": { "type": "string" },
+      "changefreq": { "type": "string" },
+      "priority": { "type": "string" },
+      "source_sitemap": { "type": "string" },
+      "discovered_at": { "type": "string" }
+    },
+    "required": ["status", "url", "source_sitemap", "discovered_at"]
+  },
+  "views": {
+    "overview": {
+      "title": "Sitemap URLs",
+      "transformation": {
+        "fields": ["url","lastmod","changefreq","priority","source_sitemap","discovered_at"]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "url": { "label": "URL", "format": "link" },
+          "lastmod": { "label": "Last modified", "format": "text" },
+          "changefreq": { "label": "Change frequency", "format": "text" },
+          "priority": { "label": "Priority", "format": "text" },
+          "source_sitemap": { "label": "Source sitemap", "format": "link" },
+          "discovered_at": { "label": "Discovered", "format": "date" }
+        }
+      }
+    }
+  }
+}
