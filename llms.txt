@@ -1,22 +1,35 @@
 # Industrial Platform Agent Tools
 
-Industrial Platform exposes paid MCP tools for autonomous AI agents.
+Industrial Platform exposes machine-payable x402 utilities for autonomous agents.
 
-## Preferred endpoint
+## Preferred direct x402 routes
 
-https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402
+Base origin: https://x402-gateway-production-1f21.up.railway.app
+Payment: x402 v2, USDC on Base (eip155:8453).
+No buyer account or API key is required.
 
-Payment: direct x402, USDC on Base.
+1. POST /change — $0.001
+   Detect whether a public webpage changed. Compare against a previous hash or previous text and return deterministic hashes/diffs.
 
-## Active tools
+2. POST /web/markdown — $0.0009
+   Convert a public webpage URL to clean Markdown for RAG, grounding, research, summarization and LLM context.
 
-- research-brief-agent — cited multi-source web research — $1.99/completed brief
-- web-change-intelligence — deterministic webpage change detection — $0.01/comparison
-- web-metadata-intelligence — OG, JSON-LD, canonical, robots, headings — $0.01/URL
-- article-content-intelligence — clean article extraction for AI/RAG — $0.002/article
-- pdf-text-intelligence — PDF text and per-page extraction — $0.0015/PDF
-- sitemap-intelligence — sitemap discovery and crawl URL extraction — $0.0001/emitted URL
+3. POST /metadata — $0.001
+   Extract title, description, Open Graph, canonical URL, robots directives, headings and JSON-LD from public URLs.
 
-Machine catalog: https://raw.githubusercontent.com/industrial-platform-ai/industrial-platform-agent-tools/main/catalog.json
-MCP Registry name: io.github.industrial-platform-ai/industrial-platform
-Agent instructions: https://raw.githubusercontent.com/industrial-platform-ai/industrial-platform-agent-tools/main/AGENTS.md
+Machine discovery:
+- https://x402-gateway-production-1f21.up.railway.app/.well-known/x402
+- https://x402-gateway-production-1f21.up.railway.app/openapi.json
+- https://x402-gateway-production-1f21.up.railway.app/.well-known/agent.json
+- https://x402-gateway-production-1f21.up.railway.app/skill.md
+- https://x402-gateway-production-1f21.up.railway.app/metrics/x402.json
+- Direct MCP: https://x402-mcp-gateway-production.up.railway.app/mcp
+
+Paid-call flow:
+1. Send the request.
+2. On HTTP 402, decode PAYMENT-REQUIRED.
+3. Sign the advertised Base USDC x402 payment.
+4. Retry the identical request with PAYMENT-SIGNATURE.
+5. On success, read PAYMENT-RESPONSE.
+
+The full catalog remains available through /.well-known/x402, but agents should prefer /change, /web/markdown and /metadata when they satisfy the task.
