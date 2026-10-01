@@ -264,11 +264,12 @@ export const agenticTools=[
   },
   {
     name:'sitemap-urls',
-    route:'/sitemap/urls',
+    route:'/web/sitemap-urls',
     price:'$0.001',priceUsd:0.001,
-    description:'Extract sitemap XML URLs: fetch and parse a public sitemap or sitemap index into structured URLs for crawlers and autonomous agents. Recursively expands child sitemap indexes up to two levels, returns loc and lastmod, deduplicates results, and caps output for predictable agent costs.',
-    tags:['sitemap','xml','urls','crawl','seo','discovery','agent','web'],
+    description:'Sitemap URL extractor for crawlers and autonomous agents. Fetch and parse a public sitemap.xml or sitemap index, recursively expand child sitemap indexes up to two levels, and return deduplicated page URLs with loc, lastmod, changefreq and priority.',
+    tags:['sitemap','sitemap.xml','xml','urls','crawl','crawler','seo','discovery','agent','web'],
     inputSchema:{type:'object',properties:{url:{type:'string',format:'uri'},limit:{type:'integer',minimum:1,maximum:2000},max_depth:{type:'integer',minimum:0,maximum:2}},required:['url'],additionalProperties:false},
+    outputSchema:{type:'object',properties:{status:{type:'string'},root_url:{type:'string'},count:{type:'integer'},truncated:{type:'boolean'},sitemaps:{type:'array',items:{type:'object',properties:{url:{type:'string'},final_url:{type:'string'},http_status:{type:'integer'},depth:{type:'integer'},type:{type:'string'}}}},urls:{type:'array',items:{type:'object',properties:{loc:{type:'string'},lastmod:{},changefreq:{},priority:{}},required:['loc']}},fetched_at:{type:'string'}},required:['status','root_url','count','truncated','sitemaps','urls','fetched_at']},
     example:{url:'https://example.com/sitemap.xml',limit:500,max_depth:2},
     run:async input=>{
       const rootUrl=bounded(input?.url,'url',8192);
