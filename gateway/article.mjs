@@ -180,7 +180,7 @@ export const documentTools=[{
   route:'/article',
   price:'$0.002',
   priceUsd:0.002,
-  description:'Extract the main article or document content from a public HTML URL into clean text. Returns title, description, author, publish/modified dates, canonical URL, language, word count, reading time, JSON-LD and article text. Static public pages only; no JavaScript rendering.',
+  description:'Extract clean text from a public HTML article or document URL. Returns main content plus title, description, author, publish/modified dates, canonical URL, language, word count, reading time and JSON-LD for document parsing, summarization, research and RAG. Static public HTML only; no JavaScript rendering.',
   tags:['article','extract','web','documents','text','rag','content','research'],
   inputSchema:{
     type:'object',
@@ -208,7 +208,7 @@ export const documentTools=[{
   route:'/web/markdown',
   price:'$0.0009',
   priceUsd:0.0009,
-  description:'Convert a public webpage URL into clean agent-ready Markdown for web reading, grounding, RAG ingestion, content extraction, article parsing, research and LLM context. Static public HTML pages only; strips navigation, scripts and boilerplate. Ultra-low-cost x402 alternative for agents that need URL-to-Markdown.',
+  description:'Convert a public webpage URL to clean agent-ready Markdown for web reading, document extraction, grounding, RAG ingestion, article parsing, research and LLM context. Strips navigation, scripts and boilerplate from static public HTML; designed for URL-to-Markdown agent workflows.',
   tags:['web','url-to-markdown','markdown','web-reading','content-extraction','rag','grounding','research','agents'],
   inputSchema:{
     type:'object',
