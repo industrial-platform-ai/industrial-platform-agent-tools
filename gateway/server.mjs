@@ -15,10 +15,10 @@ import { agenticTools } from './agentic.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
-const PAY_TO = process.env.X402_PAY_TO || '0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744';
+const PAY_TO = process.env.X402_PAY_TO || '0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E';
 const PRICE = '$0.001';
 const NETWORK = 'eip155:8453';
-const NETWORKS = ['eip155:8453','eip155:137','eip155:42161'];
+const NETWORKS = ['eip155:8453'];
 const NETWORK_ASSETS = {
   'eip155:8453':'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   'eip155:137':'0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
@@ -264,9 +264,7 @@ const agentInstallManifest = {
   payments:{
     x402:{
       networks:[
-        {network:'base',asset:'USDC',contract:NETWORK_ASSETS['eip155:8453']},
-        {network:'polygon',asset:'USDC',contract:NETWORK_ASSETS['eip155:137']},
-        {network:'arbitrum',asset:'USDC',contract:NETWORK_ASSETS['eip155:42161']}
+        {network:'base',asset:'USDC',contract:NETWORK_ASSETS['eip155:8453']}
       ]
     }
   },
@@ -300,7 +298,7 @@ description: Low-cost x402 metadata extraction and deterministic page-change det
 ## Metadata
 POST ${ORIGIN}/metadata
 
-Price: $0.001 USDC on Base, Polygon, or Arbitrum.
+Price: $0.001 USDC on Base.
 
 Use for title/meta description, canonical URL, robots, Open Graph, Twitter cards, JSON-LD, headings, SEO, RAG ingestion, link previews and content QA.
 
@@ -430,7 +428,7 @@ app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
   '- '+ORIGIN+'/.well-known/agent.json',
   '- '+ORIGIN+'/.well-known/agent-card.json',
   '',
-  'All paid routes use x402 USDC on Base, Polygon, and Arbitrum. Utility routes are $0.0005; web metadata and change detection are $0.001.',
+  'All paid routes use x402 USDC on Base. Utility routes are $0.0005; web metadata and change detection are $0.001.',
   '',
   ...manifest.tools.map(t=>'- '+t.method+' '+ORIGIN+t.route+' - $'+t.priceUsd+' - '+t.description)
 ].join('\n')));
