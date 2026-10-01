@@ -205,8 +205,8 @@ export const utilityTools = [
   },
   {
     name:'html-metadata', route:'/html/meta', price:'$0.0005', priceUsd:0.0005,
-    description:'Extract title, meta description, canonical URL, robots directives, Open Graph fields and JSON-LD from supplied HTML.',
-    tags:['html','metadata','open-graph','json-ld','web'],
+    description:'Parse metadata from caller-supplied raw HTML without fetching a webpage URL. Returns title, canonical URL, meta tags and JSON-LD for local HTML-processing workflows.'
+    tags:['html','raw-html','parse','metadata','json-ld'],
     inputSchema:{
       type:'object',
       properties:{html:{type:'string',maxLength:500000},base_url:{type:'string',maxLength:8192}},
