@@ -218,3 +218,27 @@ On the first new independent X402_SETTLED event, record:
 - which product/task wording won
 
 Then immediately optimize and clone the winning distribution/product pattern.
+
+## First genuine independent paid call — ACHIEVED
+
+On 2026-10-01, vet402 independently purchased Industrial Platform's `POST /change` route from its own L1 observatory wallet.
+
+Evidence:
+- payer: `0xc9c7b38C0942914fC8EA12063BC92dcd3b581670`
+- transaction: `0x56f372a367c6337f7be43c5206a1b378f3d7314e95468702a685296d8195baff`
+- network: Base / eip155:8453
+- amount: $0.001 USDC
+- payTo: `0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744`
+- unpaid request: POST /change -> HTTP 402
+- paid retry: POST /change -> HTTP 200
+- user agent: `vet402-observatory-l1/1.0 (+https://vet402.com/observatory/methodology)`
+- source IP observed by Railway: 44.192.63.101
+- settledAt: 2026-10-01T12:00:44.706Z
+
+This is distinct from:
+- the controlled seed/test payer `0x0e66A3F909D3473E2517709e713B7afc0D767C42`; and
+- the earlier Agent402 validation payer `0x77065d81e18ad403BCD6e9A0616b288e16744121`.
+
+This satisfies the project's definition of a first real external paid call: an independent third-party machine buyer discovered the seller, paid a live x402 route, and received a successful result.
+
+Next objective: convert one independent buyer into 10+ independent settlements and clear external router settlement floors using genuine third-party demand, not self-funded loops.
