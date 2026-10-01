@@ -33,6 +33,28 @@ const acceptsFor = (price) => NETWORKS.map(network=>({
   maxTimeoutSeconds:90
 }));
 const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools];
+const PRIORITY_ROUTES = ['/change','/web/markdown','/metadata'];
+const PRIORITY_ROUTE_SET = new Set(PRIORITY_ROUTES);
+const INTERNAL_PAYER_ADDRESSES = new Set(
+  String(process.env.X402_INTERNAL_PAYER_ADDRESSES || '')
+    .split(',')
+    .map(v=>v.trim().toLowerCase())
+    .filter(Boolean)
+);
+const funnelState = {
+  startedAt:new Date().toISOString(),
+  challenges:0,
+  paymentRetries:0,
+  paidCompletions:0,
+  settlements:0,
+  settledAtomic:0,
+  distinctPayers:new Set(),
+  distinctExternalPayers:new Set(),
+  byRoute:{}
+};
+function routeFunnel(path) {
+  return funnelState.byRoute[path] ||= {challenges:0,paymentRetries:0,paidCompletions:0};
+}
 
 const paymentRequiredHeader = {
   description:'Base64-encoded x402 v2 PaymentRequired object. Decode this header, sign the selected requirement with a caller-controlled wallet, and retry the same request with PAYMENT-SIGNATURE.',
@@ -154,7 +176,7 @@ const manifest = {
       method:'POST',
       route:'/metadata',
       priceUsd:0.001,
-      description:'Extract webpage metadata for agent pipelines: title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings and JSON-LD. Use for web metadata extraction, SEO parsing, structured-data reads and RAG ingestion.',
+      description:'Extract webpage metadata, Open Graph, Twitter cards, canonical URL, robots directives, headings and JSON-LD from one or more public URLs. Use when an agent needs webpage metadata, SEO fields, link-preview data, structured data or RAG ingestion metadata.',
       inputSchema:metadataInputSchema
     },
     {
@@ -162,7 +184,7 @@ const manifest = {
       method:'POST',
       route:'/change',
       priceUsd:0.001,
-      description:'Website change detector and deterministic diff monitor for public webpages. Compare content hashes or previous text to detect changes in prices, documentation, policies, availability, inventory and competitor pages.',
+      description:'Detect whether a public webpage changed. Compare the current page against a previous hash or previous text and return deterministic hashes and diffs for price, inventory, availability, documentation, policy and competitor monitoring.',
       inputSchema:changeInputSchema
     },
     {
@@ -185,6 +207,21 @@ const manifest = {
 };
 
 manifest.version = 1;
+manifest.priorityRoutes = PRIORITY_ROUTES.map((route,index)=>{
+  const tool=manifest.tools.find(t=>t.route===route);
+  return tool ? {
+    rank:index+1,
+    route,
+    name:tool.name,
+    priceUsd:tool.priceUsd,
+    description:tool.description
+  } : {rank:index+1,route};
+});
+manifest.tools = manifest.tools.map(t=>({
+  ...t,
+  recommended:PRIORITY_ROUTE_SET.has(t.route),
+  priority:PRIORITY_ROUTE_SET.has(t.route) ? PRIORITY_ROUTES.indexOf(t.route)+1 : null
+}));
 manifest.resources = manifest.tools.map(t=>ORIGIN+t.route);
 
 const openapi = {
@@ -377,6 +414,18 @@ Example:
 {"urls":["https://example.com/"]}
 \`\`\`
 
+## URL to clean Markdown
+POST ${ORIGIN}/web/markdown
+
+Price: $0.0009 USDC on Base.
+
+Use when an agent needs to convert a public webpage URL to clean Markdown for RAG, grounding, research, summarization or LLM context.
+
+Example:
+\`\`\`json
+{"url":"https://example.com/","max_chars":100000}
+\`\`\`
+
 ## Change detection
 POST ${ORIGIN}/change
 
@@ -398,8 +447,16 @@ for (const network of NETWORKS) resourceServer.register(network, new ExactEvmSch
 resourceServer
   .registerExtension(bazaarResourceServerExtension)
   .onAfterSettle(async (context) => {
+    const payer=String(context.result?.payer || '').toLowerCase() || null;
+    const amount=Number(context.requirements?.amount || 0);
+    funnelState.settlements += 1;
+    if (Number.isFinite(amount)) funnelState.settledAtomic += amount;
+    if (payer) {
+      funnelState.distinctPayers.add(payer);
+      if (!INTERNAL_PAYER_ADDRESSES.has(payer)) funnelState.distinctExternalPayers.add(payer);
+    }
     console.log('X402_SETTLED', JSON.stringify({
-      payer: context.result?.payer ?? null,
+      payer,
       transaction: context.result?.transaction ?? null,
       amount: context.requirements?.amount ?? null,
       network: context.requirements?.network ?? null,
@@ -465,9 +522,23 @@ app.use((req,res,next)=>{
         path:req.path,
         status:res.statusCode,
         hasPayment,
+        priority:PRIORITY_ROUTE_SET.has(req.path),
         userAgent:req.get('user-agent')||null,
         at:new Date().toISOString()
       };
+      const route=routeFunnel(req.path);
+      if (hasPayment) {
+        funnelState.paymentRetries += 1;
+        route.paymentRetries += 1;
+      }
+      if (res.statusCode===402) {
+        funnelState.challenges += 1;
+        route.challenges += 1;
+      }
+      if (hasPayment && res.statusCode>=200 && res.statusCode<300) {
+        funnelState.paidCompletions += 1;
+        route.paidCompletions += 1;
+      }
       console.log('X402_REQUEST_FLOW',JSON.stringify(event));
       if (res.statusCode===402) {
         console.log('X402_CHALLENGE',JSON.stringify({
@@ -495,7 +566,23 @@ app.get('/', (_req,res)=>res.json({
   }
 }));
 
-app.get('/health', (_req,res)=>res.json({ok:true,version:'2.0.0',payment:'coinbase-cdp'}));
+app.get('/health', (_req,res)=>res.json({ok:true,version:'2.1.0',payment:'coinbase-cdp',network:NETWORK,priorityRoutes:PRIORITY_ROUTES}));
+app.get('/metrics/x402.json', (_req,res)=>res.json({
+  startedAt:funnelState.startedAt,
+  network:NETWORK,
+  asset:'USDC',
+  priorityRoutes:PRIORITY_ROUTES,
+  challenges:funnelState.challenges,
+  paymentRetries:funnelState.paymentRetries,
+  paidCompletions:funnelState.paidCompletions,
+  settlements:funnelState.settlements,
+  settledAtomic:funnelState.settledAtomic,
+  settledUsdc:funnelState.settledAtomic/1_000_000,
+  distinctPayerCount:funnelState.distinctPayers.size,
+  distinctExternalPayerCount:INTERNAL_PAYER_ADDRESSES.size ? funnelState.distinctExternalPayers.size : null,
+  internalPayerExclusionConfigured:INTERNAL_PAYER_ADDRESSES.size>0,
+  byRoute:funnelState.byRoute
+}));
 app.get('/facilitator-health', async (_req,res)=>{
   try {
     const supported = await facilitator.getSupported();
