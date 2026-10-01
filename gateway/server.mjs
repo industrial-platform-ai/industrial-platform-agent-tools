@@ -417,7 +417,7 @@ Example:
 ## URL to clean Markdown
 POST ${ORIGIN}/web/markdown
 
-Price: $0.0009 USDC on Base.
+Price: $0.001 USDC on Base.
 
 Use when an agent needs to convert a public webpage URL to clean Markdown for RAG, grounding, research, summarization or LLM context.
 
@@ -663,7 +663,7 @@ app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
   'Network: Base (eip155:8453)',
   'Asset: USDC (6 decimals; x402 amounts are atomic units, so amount "1" = $0.000001 USDC)',
   '',
-  'Economic canary: POST '+ORIGIN+'/hash is temporarily priced at 1 atomic USDC unit ($0.000001) to measure autonomous payment conversion without changing the rest of the catalog.',
+  'Minimum payable route price: $0.001 USDC (1000 atomic units), matching the Coinbase CDP facilitator floor observed in production.',
   '',
   'Paid-call flow:',
   '1. Call the POST route normally.',
