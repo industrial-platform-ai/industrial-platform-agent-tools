@@ -212,7 +212,7 @@ jobs:
             fi
 
             echo "Deploying $slug"
-            (cd ".generated/$slug" && APIFY_TOKEN="$APIFY_TOKEN" apify push --version=1.0)
+            (cd ".generated/$slug" && APIFY_TOKEN="$APIFY_TOKEN" apify push --version=1.0 </dev/null)
 
             actor="industrial_platform~$slug"
             ACTOR="$actor" TITLE="$title" DESC="$description" PRICE="$price" EVENT="$event" CATEGORIES="$categories" node <<'NODE' > payload.json
