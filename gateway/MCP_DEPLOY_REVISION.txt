@@ -1,0 +1,2 @@
+Direct MCP deployment marker.
+Includes atomic x402 price preservation from commit 5faac8e977c06eb13dc46cd6dc47598e7c6be25b.
