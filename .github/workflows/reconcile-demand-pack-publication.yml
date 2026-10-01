@@ -1,0 +1,116 @@
+name: Reconcile Agentic Apify 8-12 Publication
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '37 5 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: industrial-platform-demand-pack-publication
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    env:
+      APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish built products when quota permits
+        run: |
+          node <<'NODE'
+          const products=require('./actors/demand-pack/products.json');
+          const wanted=new Set([
+            'website-content-crawler-agent',
+            'url-to-markdown-agent',
+            'google-news-intelligence',
+            'smart-article-extractor',
+            'ecommerce-product-intelligence'
+          ]);
+          const ps=products.filter(p=>wanted.has(p.slug));
+          const token=process.env.APIFY_TOKEN;
+          if(!token) throw new Error('APIFY_TOKEN is required.');
+
+          const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+          const desired=p=>({
+            title:p.title,
+            description:p.description,
+            categories:p.categories.filter(x=>['AI','DEVELOPER_TOOLS','SEO_TOOLS','ECOMMERCE','MARKETING','SOCIAL_MEDIA','LEAD_GENERATION'].includes(x)),
+            isPublic:true,
+            defaultRunOptions:{
+              build:'latest',
+              timeoutSecs:300,
+              memoryMbytes:512,
+              restartOnError:false,
+              forcePermissionLevel:'LIMITED_PERMISSIONS'
+            },
+            actorStandby:{isEnabled:false},
+            pricingInfos:[{
+              pricingModel:'PAY_PER_EVENT',
+              pricingPerEvent:{actorChargeEvents:{
+                [p.event]:{
+                  eventTitle:'Successful result',
+                  eventDescription:'Charged only when the requested item is successfully processed and emitted.',
+                  eventPriceUsd:Number(p.price),
+                  isPrimaryEvent:true,
+                  isOneTimeEvent:false
+                }
+              }}
+            }]
+          });
+
+          async function read(slug){
+            const r=await fetch('https://api.apify.com/v2/actors/industrial_platform~'+slug,{
+              headers:{Authorization:'Bearer '+token,Accept:'application/json'}
+            });
+            const text=await r.text();
+            if(!r.ok) return {missing:true,status:r.status,text};
+            return JSON.parse(text).data;
+          }
+
+          function configured(a,p){
+            const current=a?.pricingInfos?.[a.pricingInfos.length-1];
+            const ev=current?.pricingPerEvent?.actorChargeEvents?.[p.event];
+            return a?.isPublic===true &&
+              current?.pricingModel==='PAY_PER_EVENT' &&
+              ev?.eventPriceUsd===Number(p.price) &&
+              ev?.isPrimaryEvent===true &&
+              a?.defaultRunOptions?.forcePermissionLevel==='LIMITED_PERMISSIONS' &&
+              a?.actorStandby?.isEnabled!==true;
+          }
+
+          (async()=>{
+            for(const p of ps){
+              const before=await read(p.slug);
+              if(before?.missing){
+                console.log(JSON.stringify({slug:p.slug,state:'not-built',status:before.status}));
+                continue;
+              }
+              if(configured(before,p)){
+                console.log(JSON.stringify({slug:p.slug,state:'already-ready'}));
+                continue;
+              }
+
+              const r=await fetch('https://api.apify.com/v2/actors/industrial_platform~'+p.slug,{
+                method:'PUT',
+                headers:{Authorization:'Bearer '+token,'Content-Type':'application/json',Accept:'application/json'},
+                body:JSON.stringify(desired(p))
+              });
+              const text=await r.text();
+              let parsed=null; try{parsed=JSON.parse(text)}catch{}
+              const type=parsed?.error?.type||null;
+              console.log(JSON.stringify({slug:p.slug,status:r.status,ok:r.ok,errorType:type,message:parsed?.error?.message||null}));
+              if(type==='daily-publication-limit-exceeded'){
+                console.log('Daily publication quota reached; stopping until next scheduled run.');
+                break;
+              }
+              if(!r.ok) throw new Error('Publication failed for '+p.slug+': '+r.status+' '+text.slice(0,1000));
+              await sleep(1000);
+            }
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
