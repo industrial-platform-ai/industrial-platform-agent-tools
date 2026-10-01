@@ -261,5 +261,113 @@ export const agenticTools=[
       if(!parsed.count) throw Object.assign(new Error('No RSS/Atom items were found. Retry with a direct feed URL.'),{statusCode:422});
       return {status:'ready',url,final_url:fetched.current.href,http_status:fetched.response.status,redirects:fetched.redirects,latency_ms:fetched.latencyMs,fetched_at:new Date().toISOString(),...parsed};
     }
+  },
+  {
+    name:'sitemap-urls',
+    route:'/sitemap/urls',
+    price:'$0.001',priceUsd:0.001,
+    description:'Fetch and parse a public XML sitemap or sitemap index into structured URLs for crawlers and autonomous agents. Recursively expands child sitemap indexes up to two levels, returns loc and lastmod, deduplicates results, and caps output for predictable agent costs.',
+    tags:['sitemap','xml','urls','crawl','seo','discovery','agent','web'],
+    inputSchema:{type:'object',properties:{url:{type:'string',format:'uri'},limit:{type:'integer',minimum:1,maximum:2000},max_depth:{type:'integer',minimum:0,maximum:2}},required:['url'],additionalProperties:false},
+    example:{url:'https://example.com/sitemap.xml',limit:500,max_depth:2},
+    run:async input=>{
+      const rootUrl=bounded(input?.url,'url',8192);
+      const limit=Number.isInteger(input?.limit)?input.limit:500;
+      const maxDepth=Number.isInteger(input?.max_depth)?input.max_depth:2;
+      const seenSitemaps=new Set(), seenUrls=new Set(), urls=[], sitemaps=[];
+      const walk=async (url,depth)=>{
+        if(seenSitemaps.has(url)||depth>maxDepth||urls.length>=limit) return;
+        seenSitemaps.add(url);
+        const fetched=await fetchPublic(url,{method:'GET',timeoutMs:10000,maxBytes:2000000});
+        if(!fetched.response.ok) throw Object.assign(new Error('Sitemap returned HTTP '+fetched.response.status+'. Retry with a reachable sitemap URL.'),{statusCode:502});
+        const $=cheerio.load(fetched.body,{xmlMode:true});
+        const index=$('sitemapindex').length>0;
+        sitemaps.push({url,final_url:fetched.current.href,http_status:fetched.response.status,depth,type:index?'index':'urlset'});
+        if(index){
+          const children=$('sitemap > loc').toArray().map(el=>clean($(el).text())).filter(Boolean).slice(0,1000);
+          for(const child of children){
+            if(urls.length>=limit) break;
+            let resolved; try{resolved=new URL(child,fetched.current).href;}catch{continue;}
+            await walk(resolved,depth+1);
+          }
+          return;
+        }
+        $('url').each((_,el)=>{
+          if(urls.length>=limit) return false;
+          const node=$(el),loc=clean(node.find('loc').first().text());
+          if(!loc||seenUrls.has(loc)) return;
+          seenUrls.add(loc);
+          urls.push({loc,lastmod:clean(node.find('lastmod').first().text())||null,changefreq:clean(node.find('changefreq').first().text())||null,priority:clean(node.find('priority').first().text())||null});
+        });
+      };
+      await walk(rootUrl,0);
+      return {status:'ready',root_url:rootUrl,count:urls.length,truncated:urls.length>=limit,sitemaps,urls,fetched_at:new Date().toISOString()};
+    }
+  },
+  {
+    name:'webpage-links',
+    route:'/web/links',
+    price:'$0.001',priceUsd:0.001,
+    description:'Fetch one public webpage and extract normalized absolute hyperlinks with anchor text, rel, domain and internal/external classification. Single required URL, deterministic JSON, deduplicated results, and optional same-domain filtering for crawler planning and agent navigation.',
+    tags:['links','webpage','crawl','outlinks','navigation','url','agent','web'],
+    inputSchema:{type:'object',properties:{url:{type:'string',format:'uri'},scope:{type:'string',enum:['all','internal','external']},limit:{type:'integer',minimum:1,maximum:2000}},required:['url'],additionalProperties:false},
+    example:{url:'https://example.com/',scope:'all',limit:500},
+    run:async input=>{
+      const url=bounded(input?.url,'url',8192),scope=input?.scope||'all',limit=Number.isInteger(input?.limit)?input.limit:500;
+      const fetched=await fetchPublic(url,{method:'GET',timeoutMs:10000,maxBytes:2000000});
+      if(!fetched.response.ok) throw Object.assign(new Error('Page returned HTTP '+fetched.response.status+'. Retry with a reachable public HTML URL.'),{statusCode:502});
+      const type=(fetched.response.headers.get('content-type')||'').toLowerCase();
+      if(type&&!type.includes('html')&&!type.includes('xhtml')) throw Object.assign(new Error('Target is not an HTML page. Retry with a public webpage URL.'),{statusCode:422});
+      const $=cheerio.load(fetched.body);
+      const origin=fetched.current.origin,seen=new Set(),links=[];
+      $('a[href]').each((_,el)=>{
+        if(links.length>=limit) return false;
+        const raw=$(el).attr('href'); if(!raw||/^(?:javascript:|data:|mailto:|tel:)/i.test(raw)) return;
+        let href; try{href=new URL(raw,fetched.current).href;}catch{return;}
+        const u=new URL(href); if(!['http:','https:'].includes(u.protocol)) return;
+        u.hash=''; href=u.href;
+        if(seen.has(href)) return;
+        const external=u.origin!==origin;
+        if(scope==='internal'&&external) return;
+        if(scope==='external'&&!external) return;
+        seen.add(href);
+        links.push({href,text:clean($(el).text()).slice(0,500)||null,rel:clean($(el).attr('rel'))||null,domain:u.hostname,is_external:external});
+      });
+      return {status:'ready',url,final_url:fetched.current.href,title:clean($('title').first().text())||null,scope,count:links.length,truncated:links.length>=limit,links,fetched_at:new Date().toISOString()};
+    }
+  },
+  {
+    name:'json-repair',
+    route:'/json/repair',
+    price:'$0.0005',priceUsd:0.0005,
+    description:'Repair common malformed or LLM-generated JSON into valid structured JSON. Removes Markdown-style fences and prose wrappers, trailing commas, normalizes Python True/False/None and smart quotes, and repairs common single-quoted keys and values. Returns the parsed result plus applied repair steps.',
+    tags:['json','repair','llm','structured-output','malformed','parse','agent','recovery'],
+    inputSchema:{type:'object',properties:{text:{type:'string',maxLength:250000}},required:['text'],additionalProperties:false},
+    example:{text:"~~~json\n{'ok': True, 'items': [1,2,],}\n~~~"},
+    run:async input=>{
+      let text=bounded(input?.text,'text',250000).trim(),parsed;
+      try{parsed=JSON.parse(text);return{repaired:false,result:parsed,steps:[]};}catch{}
+      const steps=[];
+      const fenced=text.match(/^~~~(?:json)?\s*([\s\S]*?)\s*~~~$/i);
+      if(fenced){text=fenced[1];steps.push('removed_markdown_fence');}
+      const starts=[text.indexOf('{'),text.indexOf('[')].filter(i=>i>=0);
+      const first=starts.length?Math.min(...starts):-1;
+      const last=Math.max(text.lastIndexOf('}'),text.lastIndexOf(']'));
+      if(first>0&&last>=first){text=text.slice(first,last+1);steps.push('trimmed_prose_wrapper');}
+      const smart=text.replace(/[“”]/g,'"').replace(/[‘’]/g,"'");
+      if(smart!==text){text=smart;steps.push('normalized_smart_quotes');}
+      const py=text.replace(/\bTrue\b/g,'true').replace(/\bFalse\b/g,'false').replace(/\bNone\b/g,'null');
+      if(py!==text){text=py;steps.push('converted_python_literals');}
+      const trailing=text.replace(/,\s*([}\]])/g,'$1');
+      if(trailing!==text){text=trailing;steps.push('removed_trailing_commas');}
+      const keys=text.replace(/([{,]\s*)'([^'\\]*(?:\\.[^'\\]*)*)'\s*:/g,'$1"$2":');
+      if(keys!==text){text=keys;steps.push('normalized_single_quoted_keys');}
+      const vals=text.replace(/:\s*'([^'\\]*(?:\\.[^'\\]*)*)'(?=\s*[,}])/g,(_,v)=>': '+JSON.stringify(v.replace(/\\'/g,"'")));
+      if(vals!==text){text=vals;steps.push('normalized_single_quoted_values');}
+      try{parsed=JSON.parse(text);}catch(error){
+        throw Object.assign(new Error('Unable to repair JSON automatically. Retry with only the JSON object or array and matching string quotes. Parser: '+String(error?.message||error)),{statusCode:422});
+      }
+      return {repaired:true,result:parsed,steps};
+    }
   }
 ];
