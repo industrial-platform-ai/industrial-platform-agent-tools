@@ -1,0 +1,4 @@
+llama-index-core
+x402
+httpx
+eth-account
