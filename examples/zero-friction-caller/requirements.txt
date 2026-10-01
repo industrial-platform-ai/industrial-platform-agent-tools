@@ -1,0 +1,3 @@
+x402[requests]
+eth-account
+requests
