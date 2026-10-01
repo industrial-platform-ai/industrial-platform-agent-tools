@@ -53,20 +53,49 @@ def main() -> None:
             f"above hard ceiling {EXPECTED_MAX_ATOMIC}."
         )
 
+    request_body = {
+        "text": "industrial-platform-clean-room-canary",
+        "algo": "sha256",
+    }
+
+    # Dry-run intentionally requires no wallet or private key. Validate the live
+    # x402 challenge over plain HTTP first, and only construct AgentKit wallet
+    # machinery when --pay is explicitly supplied.
+    initial = requests.post(HASH_URL, json=request_body, timeout=20)
+    print(
+        "INITIAL_HTTP",
+        json.dumps(
+            {
+                "status_code": initial.status_code,
+                "payment_required": bool(initial.headers.get("PAYMENT-REQUIRED")),
+            },
+            sort_keys=True,
+        ),
+    )
+    if initial.status_code != 402:
+        raise RuntimeError(f"Expected live HTTP 402 from /hash, got {initial.status_code}.")
+    if not initial.headers.get("PAYMENT-REQUIRED"):
+        raise RuntimeError("Live 402 omitted PAYMENT-REQUIRED.")
+
+    if not args.pay:
+        print(
+            "DRY_RUN_PASS: live x402 402 is present and machine-readable; "
+            "no wallet was loaded and no payment was signed or submitted."
+        )
+        return
+
     wallet = build_wallet_provider()
     provider = build_x402_provider(max_payment_usdc=0.000001)
-
     request_args = {
         "url": HASH_URL,
         "method": "POST",
-        "body": {"text": "industrial-platform-clean-room-canary", "algo": "sha256"},
+        "body": request_body,
     }
-
     first = json.loads(provider.make_http_request(wallet, request_args))
-    print("INITIAL_REQUEST", json.dumps(first, indent=2, sort_keys=True))
+    print("AGENTKIT_INITIAL_REQUEST", json.dumps(first, indent=2, sort_keys=True))
 
     if first.get("status") != "error_402_payment_required":
-        raise RuntimeError("Expected a live HTTP 402 from /hash before payment.")
+        raise RuntimeError("AgentKit did not recognize the live HTTP 402.")
 
     options = first.get("acceptablePaymentOptions") or []
     if not options:
@@ -83,14 +112,6 @@ def main() -> None:
         raise RuntimeError(
             f"Refusing payment: challenge requests {required_atomic} atomic USDC."
         )
-
-    if not args.pay:
-        print(
-            "DRY_RUN_PASS: valid AgentKit-readable 402 received; "
-            "no payment was signed or submitted."
-        )
-        print("Run again with --pay only when a funded Base wallet is intentionally authorized.")
-        return
 
     selected = PaymentOptionSchema.model_validate(option)
     paid_args = {
