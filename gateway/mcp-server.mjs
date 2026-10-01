@@ -71,24 +71,37 @@ const readResult = async (body) => {
   };
 };
 
+const markdownTool = dynamicTools.find(t=>t.route==='/web/markdown');
+const remainingDynamicTools = dynamicTools.filter(t=>t.route!=='/web/markdown');
+
 const tools = [
-  {
-    name:'web-metadata-intelligence',
-    route:'/metadata',
-    priceUsd:0.001,
-    description:'Extract webpage metadata for agent pipelines: title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings and JSON-LD.',
-    inputSchema:metadataInputSchema,
-    example:{urls:['https://example.com/']},
-    run:runMetadata
-  },
   {
     name:'web-change-intelligence',
     route:'/change',
     priceUsd:0.001,
-    description:'Website change detector and deterministic diff monitor for public webpages.',
+    description:'Detect whether a public webpage changed by comparing current content against a previous hash or previous text; returns deterministic hashes and diffs for monitoring.',
     inputSchema:changeInputSchema,
     example:{url:'https://example.com/',include_current_text:false},
     run:runChange
+  },
+  ...(markdownTool ? [{
+    name:markdownTool.name,
+    route:markdownTool.route,
+    priceUsd:markdownTool.priceUsd,
+    price:markdownTool.price,
+    description:markdownTool.description,
+    inputSchema:markdownTool.inputSchema,
+    example:markdownTool.example,
+    run:markdownTool.run
+  }] : []),
+  {
+    name:'web-metadata-intelligence',
+    route:'/metadata',
+    priceUsd:0.001,
+    description:'Extract webpage metadata, Open Graph, canonical URL, robots directives, headings and JSON-LD from public URLs for SEO, link previews, structured-data reads and RAG ingestion.',
+    inputSchema:metadataInputSchema,
+    example:{urls:['https://example.com/']},
+    run:runMetadata
   },
   {
     name:'web-reader',
@@ -99,7 +112,7 @@ const tools = [
     example:{url:'https://example.com/'},
     run:readResult
   },
-  ...dynamicTools.map(t=>({
+  ...remainingDynamicTools.map(t=>({
     name:t.name,
     route:t.route,
     priceUsd:t.priceUsd,
