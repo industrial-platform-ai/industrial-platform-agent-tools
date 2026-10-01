@@ -17,6 +17,19 @@ const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
 const PAY_TO = process.env.X402_PAY_TO || '0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744';
 const PRICE = '$0.001';
 const NETWORK = 'eip155:8453';
+const NETWORKS = ['eip155:8453','eip155:137','eip155:42161'];
+const NETWORK_ASSETS = {
+  'eip155:8453':'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  'eip155:137':'0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
+  'eip155:42161':'0xaf88d065e77c8cC2239327C5EDb3A432268e5831'
+};
+const acceptsFor = (price) => NETWORKS.map(network=>({
+  scheme:'exact',
+  price,
+  network,
+  payTo:PAY_TO,
+  maxTimeoutSeconds:90
+}));
 const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools];
 
 const metadataInputSchema = {
@@ -83,7 +96,7 @@ const changeDiscovery = declareDiscoveryExtension({
 const manifest = {
   name:'Industrial Platform Agent Utility Market',
   description:'Low-cost machine utilities, web metadata extraction and deterministic webpage change detection for autonomous agents.',
-  payment:{protocol:'x402',network:NETWORK,asset:'USDC',priceUsd:0.001,payTo:PAY_TO},
+  payment:{protocol:'x402',network:NETWORK,networks:NETWORKS,asset:'USDC',priceUsd:0.001,payTo:PAY_TO},
   tools:[
     {
       name:'web-metadata-intelligence',
@@ -221,7 +234,7 @@ const agentCard = {
   capabilities:manifest.tools.map(t=>({
     name:t.name,method:t.method,path:t.route,priceUsd:t.priceUsd,description:t.description
   })),
-  payment:{protocol:'x402',network:NETWORK,asset:'USDC',priceUsd:0.001},
+  payment:{protocol:'x402',network:NETWORK,networks:NETWORKS,asset:'USDC',priceUsd:0.001},
   openapi:ORIGIN+'/openapi.json',
   skill:ORIGIN+'/skill.md'
 };
@@ -249,11 +262,11 @@ const agentInstallManifest = {
   payout_address:PAY_TO,
   payments:{
     x402:{
-      networks:[{
-        network:'base',
-        asset:'USDC',
-        contract:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
-      }]
+      networks:[
+        {network:'base',asset:'USDC',contract:NETWORK_ASSETS['eip155:8453']},
+        {network:'polygon',asset:'USDC',contract:NETWORK_ASSETS['eip155:137']},
+        {network:'arbitrum',asset:'USDC',contract:NETWORK_ASSETS['eip155:42161']}
+      ]
     }
   },
   intents:manifest.tools.map(t=>({
@@ -272,7 +285,7 @@ const agentInstallManifest = {
     endpoint:ORIGIN+t.route,
     method:t.method,
     priceUsd:t.priceUsd,
-    payment:{protocol:'x402',network:NETWORK,asset:'USDC'}
+    payment:{protocol:'x402',network:NETWORK,networks:NETWORKS,asset:'USDC'}
   }))
 };
 
@@ -286,7 +299,7 @@ description: Low-cost x402 metadata extraction and deterministic page-change det
 ## Metadata
 POST ${ORIGIN}/metadata
 
-Price: $0.001 USDC on Base.
+Price: $0.001 USDC on Base, Polygon, or Arbitrum.
 
 Use for title/meta description, canonical URL, robots, Open Graph, Twitter cards, JSON-LD, headings, SEO, RAG ingestion, link previews and content QA.
 
@@ -311,8 +324,9 @@ No buyer API key or account is required. Read the HTTP 402 payment requirements,
 `;
 
 const facilitator = createCdpFacilitatorClient();
-const resourceServer = new x402ResourceServer(facilitator)
-  .register(NETWORK, new ExactEvmScheme())
+const resourceServer = new x402ResourceServer(facilitator);
+for (const network of NETWORKS) resourceServer.register(network, new ExactEvmScheme());
+resourceServer
   .registerExtension(bazaarResourceServerExtension)
   .onAfterSettle(async (context) => {
     console.log('X402_SETTLED', JSON.stringify({
@@ -328,13 +342,7 @@ const resourceServer = new x402ResourceServer(facilitator)
 
 const routes = {
   'POST /metadata': {
-    accepts:[{
-      scheme:'exact',
-      price:PRICE,
-      network:NETWORK,
-      payTo:PAY_TO,
-      maxTimeoutSeconds:90
-    }],
+    accepts:acceptsFor(PRICE),
     resource:ORIGIN+'/metadata',
     description:manifest.tools[0].description,
     mimeType:'application/json',
@@ -343,13 +351,7 @@ const routes = {
     extensions:{...metadataDiscovery}
   },
   'POST /change': {
-    accepts:[{
-      scheme:'exact',
-      price:PRICE,
-      network:NETWORK,
-      payTo:PAY_TO,
-      maxTimeoutSeconds:90
-    }],
+    accepts:acceptsFor(PRICE),
     resource:ORIGIN+'/change',
     description:manifest.tools[1].description,
     mimeType:'application/json',
@@ -358,13 +360,7 @@ const routes = {
     extensions:{...changeDiscovery}
   },
   'POST /read': {
-    accepts:[{
-      scheme:'exact',
-      price:PRICE,
-      network:NETWORK,
-      payTo:PAY_TO,
-      maxTimeoutSeconds:90
-    }],
+    accepts:acceptsFor(PRICE),
     resource:ORIGIN+'/read',
     description:manifest.tools[2].description,
     mimeType:'application/json',
@@ -376,13 +372,7 @@ const routes = {
 
 for (const tool of dynamicTools) {
   routes[`POST ${tool.route}`] = {
-    accepts:[{
-      scheme:'exact',
-      price:tool.price,
-      network:NETWORK,
-      payTo:PAY_TO,
-      maxTimeoutSeconds:90
-    }],
+    accepts:acceptsFor(tool.price),
     resource:ORIGIN+tool.route,
     description:tool.description,
     mimeType:'application/json',
@@ -439,7 +429,7 @@ app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
   '- '+ORIGIN+'/.well-known/agent.json',
   '- '+ORIGIN+'/.well-known/agent-card.json',
   '',
-  'All paid routes use x402 on Base USDC. Utility routes are $0.0005; web metadata and change detection are $0.001.',
+  'All paid routes use x402 USDC on Base, Polygon, and Arbitrum. Utility routes are $0.0005; web metadata and change detection are $0.001.',
   '',
   ...manifest.tools.map(t=>'- '+t.method+' '+ORIGIN+t.route+' - $'+t.priceUsd+' - '+t.description)
 ].join('\n')));
