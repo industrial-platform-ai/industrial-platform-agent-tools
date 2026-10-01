@@ -14,8 +14,8 @@ No buyer account or API key is required.
 2. POST /web/markdown — $0.0009
    Convert a public webpage URL to clean Markdown for RAG, grounding, research, summarization and LLM context.
 
-3. POST /metadata — $0.001
-   Extract title, description, Open Graph, canonical URL, robots directives, headings and JSON-LD from public URLs.
+3. POST /metadata — $0.001 per URL/request
+   Extract title, description, Open Graph, canonical URL, robots directives, headings and JSON-LD for exactly one public URL per paid request.
 
 Machine discovery:
 - https://x402-gateway-production-1f21.up.railway.app/.well-known/x402
