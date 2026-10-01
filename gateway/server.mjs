@@ -15,6 +15,7 @@ import { agenticTools } from './agentic.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
+const DIRECT_MCP = 'https://x402-mcp-gateway-production.up.railway.app/mcp';
 const PAY_TO = process.env.X402_PAY_TO || '0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E';
 const PRICE = '$0.001';
 const NETWORK = 'eip155:8453';
@@ -171,6 +172,22 @@ const openapi = {
     }
   },
   servers:[{url:ORIGIN}],
+  'x-x402':{
+    version:2,
+    transport:'http',
+    network:NETWORK,
+    asset:'USDC',
+    challengeHeader:'PAYMENT-REQUIRED',
+    paymentHeader:'PAYMENT-SIGNATURE',
+    settlementHeader:'PAYMENT-RESPONSE',
+    directMcp:DIRECT_MCP,
+    flow:[
+      'Send the POST request without payment.',
+      'On HTTP 402, decode PAYMENT-REQUIRED and select an advertised requirement.',
+      'Sign the payment with the caller wallet and retry the identical request with PAYMENT-SIGNATURE.',
+      'On success, consume the resource and PAYMENT-RESPONSE settlement metadata.'
+    ]
+  },
   paths:{
     '/metadata':{
       post:{
@@ -203,7 +220,7 @@ const openapi = {
         responses:{
           '200':paidSuccess('Change comparison result'),
           '400':{description:'Invalid input'},
-          '402':{description:'x402 payment required'},
+          '402':paymentRequired,
           '502':{description:'Target fetch failed'}
         }
       }
@@ -221,7 +238,7 @@ const openapi = {
         responses:{
           '200':paidSuccess('Normalized readable content'),
           '400':{description:'Invalid input'},
-          '402':{description:'x402 payment required'},
+          '402':paymentRequired,
           '502':{description:'Target fetch failed'}
         }
       }
@@ -260,6 +277,7 @@ const agentCard = {
   })),
   payment:{protocol:'x402',network:NETWORK,networks:NETWORKS,asset:'USDC',priceUsd:0.001},
   openapi:ORIGIN+'/openapi.json',
+  mcp:DIRECT_MCP,
   skill:ORIGIN+'/skill.md'
 };
 
@@ -301,6 +319,7 @@ const agentInstallManifest = {
   homepage:ORIGIN,
   openapi:ORIGIN+'/openapi.json',
   x402:ORIGIN+'/.well-known/x402',
+  mcp:DIRECT_MCP,
   tools:manifest.tools.map(t=>({
     name:t.name,
     description:t.description,
@@ -418,6 +437,7 @@ app.use((req,res,next)=>{
         path:req.path,
         status:res.statusCode,
         hasPayment,
+        userAgent:req.get('user-agent')||null,
         at:new Date().toISOString()
       }));
     });
@@ -434,6 +454,7 @@ app.get('/', (_req,res)=>res.json({
     x402:'/.well-known/x402',
     openapi:'/openapi.json',
     agentCard:'/.well-known/agent-card.json',
+    directMcp:DIRECT_MCP,
     skill:'/skill.md'
   }
 }));
@@ -467,6 +488,7 @@ app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
   '- '+ORIGIN+'/openapi.json',
   '- '+ORIGIN+'/.well-known/agent.json',
   '- '+ORIGIN+'/.well-known/agent-card.json',
+  '- Direct x402 MCP: '+DIRECT_MCP,
   '',
   'Payment protocol: x402 v2',
   'Network: Base (eip155:8453)',
