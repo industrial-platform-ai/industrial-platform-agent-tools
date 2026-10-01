@@ -1,0 +1,4 @@
+coinbase-agentkit>=0.7.4,<0.8
+coinbase-agentkit-langchain>=0.2
+eth-account>=0.13
+requests>=2.31
