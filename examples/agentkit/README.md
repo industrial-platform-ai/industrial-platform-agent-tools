@@ -27,7 +27,7 @@ python clean_room_hash_canary.py
 The dry run:
 
 1. fetches `/pricing.json`,
-2. requires `/hash` to be priced at no more than **1 atomic USDC unit**,
+2. requires `/hash` to be priced at no more than **1000 atomic USDC units ($0.001)**,
 3. sends the unpaid POST,
 4. lets AgentKit parse the live x402 v2 challenge,
 5. verifies AgentKit sees an acceptable Base/USDC payment option,
@@ -43,10 +43,10 @@ python clean_room_hash_canary.py --pay
 
 The script has two independent hard ceilings:
 
-- live `/pricing.json` must advertise no more than 1 atomic unit;
-- the actual 402 challenge must request no more than 1 atomic unit.
+- live `/pricing.json` must advertise no more than 1000 atomic units;
+- the actual 402 challenge must request no more than 1000 atomic units.
 
-The AgentKit x402 provider is also configured with a per-request ceiling of `0.000001` USDC.
+The AgentKit x402 provider is also configured with a per-request ceiling of `0.001` USDC.
 
 A successful run proves this independent buyer path:
 
