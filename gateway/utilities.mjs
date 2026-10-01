@@ -29,7 +29,7 @@ function canonicalize(value) {
 
 export const utilityTools = [
   {
-    name:'hash', route:'/hash', price:'$0.0005', priceUsd:0.0005,
+    name:'hash', route:'/hash', price:'$0.000001', priceUsd:0.000001,
     description:'Compute SHA-256, SHA-512, SHA-1 or MD5 checksum for UTF-8 text and return hex plus Base64 digests. Use for compute sha256 checksum, integrity verification, content fingerprints, cache keys, deduplication and agent pipelines.',
     tags:['hash','sha256','sha512','sha1','md5','checksum','encoding','crypto','utility'],
     inputSchema:{
