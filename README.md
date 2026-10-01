@@ -101,7 +101,16 @@ Machine-readable discovery:
 ```text
 https://x402-gateway-production-1f21.up.railway.app/.well-known/x402
 https://x402-gateway-production-1f21.up.railway.app/openapi.json
+https://x402-gateway-production-1f21.up.railway.app/llms.txt
 ```
+
+Direct x402-native MCP:
+
+```text
+https://x402-mcp-gateway-production.up.railway.app/mcp
+```
+
+The MCP server exposes the same paid tool catalog over Streamable HTTP and performs x402 negotiation at tool-call time. Tool discovery is free; a caller wallet signs the advertised Base USDC requirement when it invokes a paid tool.
 
 Ready-to-copy adapters and workflows are included for:
 
