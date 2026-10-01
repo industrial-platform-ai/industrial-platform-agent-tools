@@ -76,29 +76,29 @@ const remainingDynamicTools = dynamicTools.filter(t=>t.route!=='/web/markdown');
 
 const tools = [
   {
-    name:'web-change-intelligence',
+    name:'detectWebpageChange',
     route:'/change',
     priceUsd:0.001,
-    description:'Detect whether a public webpage changed. Website change detector and webpage diff for monitoring webpage changes; compare current content against a previous hash or previous text and return deterministic hashes and diffs.',
+    description:'Detect whether a webpage changed. Compare current content against a previous hash or previous text and return deterministic hashes and diffs.',
     inputSchema:changeInputSchema,
     example:{url:'https://example.com/',include_current_text:false},
     run:runChange
   },
   ...(markdownTool ? [{
-    name:markdownTool.name,
+    name:'convertUrlToMarkdown',
     route:markdownTool.route,
     priceUsd:markdownTool.priceUsd,
     price:markdownTool.price,
-    description:markdownTool.description,
+    description:'Convert URL to clean Markdown for RAG. Convert a public webpage URL into clean agent-ready Markdown for grounding, research, summarization and LLM context.',
     inputSchema:markdownTool.inputSchema,
     example:markdownTool.example,
     run:markdownTool.run
   }] : []),
   {
-    name:'web-metadata-intelligence',
+    name:'extractWebpageMetadata',
     route:'/metadata',
     priceUsd:0.001,
-    description:'Extract webpage metadata, Open Graph, canonical URL, robots directives, headings and JSON-LD for one public URL per paid request; use for SEO, link previews, structured-data reads and RAG ingestion.',
+    description:'Extract webpage metadata, OpenGraph and JSON-LD. Returns title, description, canonical URL, robots directives, headings, Open Graph, Twitter cards and structured data for one public URL per paid request.',
     inputSchema:metadataInputSchema,
     example:{urls:['https://example.com/']},
     run:runMetadata

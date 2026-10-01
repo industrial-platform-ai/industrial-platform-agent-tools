@@ -4,6 +4,11 @@ Industrial Platform exposes machine-payable x402 utilities for autonomous agents
 
 ## Preferred direct x402 routes
 
+Machine task identifiers:
+- `detectWebpageChange` — Detect whether a webpage changed
+- `convertUrlToMarkdown` — Convert URL to clean Markdown for RAG
+- `extractWebpageMetadata` — Extract webpage metadata, OpenGraph and JSON-LD
+
 Base origin: https://x402-gateway-production-1f21.up.railway.app
 Payment: x402 v2, USDC on Base (eip155:8453).
 No buyer account or API key is required.

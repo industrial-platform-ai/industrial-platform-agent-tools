@@ -60,9 +60,9 @@ const BASE_BLOCKSCOUT = 'https://base.blockscout.com/api/v2';
 const X402_SETTLEMENT_METHOD = '0xe3ee160e';
 const AGENT402_ROUTE_API = 'https://agent402.tools/api/route';
 const ROUTING_QUERIES = [
-  {route:'/change',query:'detect whether a public webpage changed'},
+  {route:'/change',query:'detect whether a webpage changed'},
   {route:'/web/markdown',query:'convert URL to clean Markdown for RAG'},
-  {route:'/metadata',query:'extract webpage metadata Open Graph JSON-LD'}
+  {route:'/metadata',query:'extract webpage metadata OpenGraph JSON-LD'}
 ];
 
 function normalizeAddress(value) {
@@ -300,19 +300,19 @@ const manifest = {
   payment:{protocol:'x402',network:NETWORK,networks:NETWORKS,asset:'USDC',priceUsd:0.001,payTo:PAY_TO},
   tools:[
     {
-      name:'web-metadata-intelligence',
+      name:'extractWebpageMetadata',
       method:'POST',
       route:'/metadata',
       priceUsd:0.001,
-      description:'Extract webpage metadata, Open Graph, Twitter cards, canonical URL, robots directives, headings and JSON-LD for one public URL per paid request. Use when an agent needs SEO fields, link-preview data, structured data or RAG ingestion metadata.',
+      description:'Extract webpage metadata, OpenGraph and JSON-LD. Returns title, description, canonical URL, robots directives, headings, Open Graph, Twitter cards and structured data for one public URL per paid request.',
       inputSchema:metadataInputSchema
     },
     {
-      name:'web-change-intelligence',
+      name:'detectWebpageChange',
       method:'POST',
       route:'/change',
       priceUsd:0.001,
-      description:'Detect whether a public webpage changed. Website change detector and webpage diff for monitoring webpage changes: compare current content against a previous hash or previous text and return deterministic hashes and diffs for price, inventory, availability, documentation, policy and competitor monitoring.',
+      description:'Detect whether a webpage changed. Compare current content against a previous hash or previous text and return deterministic hashes and diffs for price, inventory, availability, documentation, policy and competitor monitoring.',
       inputSchema:changeInputSchema
     },
     {
@@ -324,11 +324,13 @@ const manifest = {
       inputSchema:changeInputSchema
     },
     ...dynamicTools.map(t=>({
-      name:t.name,
+      name:t.route==='/web/markdown' ? 'convertUrlToMarkdown' : t.name,
       method:'POST',
       route:t.route,
       priceUsd:t.priceUsd,
-      description:t.description,
+      description:t.route==='/web/markdown'
+        ? 'Convert URL to clean Markdown for RAG. Convert a public webpage URL into clean agent-ready Markdown for grounding, research, summarization and LLM context.'
+        : t.description,
       inputSchema:t.inputSchema
     }))
   ]
@@ -384,12 +386,12 @@ const openapi = {
   paths:{
     '/metadata':{
       post:{
-        operationId:'extractWebpageMetadataOpenGraphJsonLd',
+        operationId:'extractWebpageMetadata',
         'x-payment-info':{
           protocols:['x402'],
           price:{mode:'fixed',currency:'USD',amount:String(manifest.tools[0].priceUsd)}
         },
-        summary:'Extract webpage metadata, Open Graph, JSON-LD and canonical URL',
+        summary:'Extract webpage metadata, OpenGraph and JSON-LD',
         description:manifest.tools[0].description,
         requestBody:{required:true,content:{'application/json':{schema:metadataInputSchema}}},
         responses:{
@@ -402,12 +404,12 @@ const openapi = {
     },
     '/change':{
       post:{
-        operationId:'checkWhetherWebpageChanged',
+        operationId:'detectWebpageChange',
         'x-payment-info':{
           protocols:['x402'],
           price:{mode:'fixed',currency:'USD',amount:String(manifest.tools[1].priceUsd)}
         },
-        summary:'Check whether a public webpage changed',
+        summary:'Detect whether a webpage changed',
         description:manifest.tools[1].description,
         requestBody:{required:true,content:{'application/json':{schema:changeInputSchema}}},
         responses:{
@@ -442,13 +444,17 @@ const openapi = {
 for (const tool of dynamicTools) {
   openapi.paths[tool.route] = {
     post:{
-      operationId:tool.name.replace(/[^a-zA-Z0-9]+(.)/g,(_,ch)=>ch.toUpperCase()),
+      operationId:tool.route==='/web/markdown'
+        ? 'convertUrlToMarkdown'
+        : tool.name.replace(/[^a-zA-Z0-9]+(.)/g,(_,ch)=>ch.toUpperCase()),
       'x-payment-info':{
         protocols:['x402'],
         price:{mode:'fixed',currency:'USD',amount:String(tool.priceUsd)}
       },
-      summary:tool.description,
-      description:tool.description,
+      summary:tool.route==='/web/markdown' ? 'Convert URL to clean Markdown for RAG' : tool.description,
+      description:tool.route==='/web/markdown'
+        ? 'Convert URL to clean Markdown for RAG. Convert a public webpage URL into clean agent-ready Markdown for grounding, research, summarization and LLM context.'
+        : tool.description,
       requestBody:{required:true,content:{'application/json':{schema:tool.inputSchema}}},
       responses:{
         '200':tool.outputSchema
@@ -755,6 +761,14 @@ app.get('/metrics/x402-24h.json', async (_req,res)=>{
     : {error:String(routing.reason?.message||routing.reason)};
   res.json({
     generatedAt:new Date().toISOString(),
+    volumeObjective:{
+      paymentRetries:funnelState.paymentRetries,
+      paidCompletions:funnelState.paidCompletions,
+      distinctExternalPayerCount24h:Number.isFinite(onchain?.distinctExternalPayerCount) ? onchain.distinctExternalPayerCount : null,
+      routerDispatchEligible:typeof agent402?.anyRouterDispatchEligible==='boolean' ? agent402.anyRouterDispatchEligible : null,
+      targetDistinctExternalPayers:3,
+      currentPayTo:PAY_TO
+    },
     classification:{
       knownInternalPayers:[...INTERNAL_PAYER_ADDRESSES],
       externalDefinition:'Base USDC transfers to the current payout wallet using the observed x402 settlement method, excluding known internal/self payer addresses.',
