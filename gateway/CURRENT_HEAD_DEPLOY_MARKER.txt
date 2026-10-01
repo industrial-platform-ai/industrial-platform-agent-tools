@@ -1,3 +1,5 @@
-Trigger file for x402-mcp-gateway after Railway watchPatterns repair.
-Build current main, including atomic-price preservation in mcp-server.mjs.
-Trigger after MCP syntax repair commit 22c2ba4.
+Industrial Platform gateway current-head deployment marker.
+
+Target main commit before marker: 3911bf82e86a240f10f55be2a0b778c19479634e
+Purpose: force Railway /gateway services to rebuild after utility syntax repair and watch-path stabilization.
+Base x402 payment semantics unchanged.
