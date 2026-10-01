@@ -55,6 +55,34 @@ const paymentRequired = {
   headers:{'PAYMENT-REQUIRED':paymentRequiredHeader}
 };
 
+function summarizePaymentRequiredHeader(value) {
+  if (!value) return null;
+  try {
+    const raw=Array.isArray(value)?value[0]:String(value);
+    const decoded=JSON.parse(Buffer.from(raw,'base64').toString('utf8'));
+    return {
+      x402Version:decoded.x402Version ?? decoded.version ?? null,
+      resource:decoded.resource ? {
+        url:decoded.resource.url ?? null,
+        description:decoded.resource.description ?? null,
+        mimeType:decoded.resource.mimeType ?? null
+      } : null,
+      accepts:Array.isArray(decoded.accepts) ? decoded.accepts.map(x=>({
+        scheme:x.scheme ?? null,
+        network:x.network ?? null,
+        amount:x.amount ?? null,
+        asset:x.asset ?? null,
+        payTo:x.payTo ?? null,
+        maxTimeoutSeconds:x.maxTimeoutSeconds ?? null,
+        extraKeys:x.extra && typeof x.extra==='object' ? Object.keys(x.extra) : []
+      })) : [],
+      extensionKeys:decoded.extensions && typeof decoded.extensions==='object' ? Object.keys(decoded.extensions) : []
+    };
+  } catch (error) {
+    return {decodeError:String(error?.message||error)};
+  }
+}
+
 const metadataInputSchema = {
   type:'object',
   properties:{
@@ -432,14 +460,21 @@ app.use((req,res,next)=>{
   if (Object.prototype.hasOwnProperty.call(routes,key)) {
     const hasPayment=Boolean(req.get('PAYMENT-SIGNATURE') || req.get('X-PAYMENT'));
     res.on('finish',()=>{
-      console.log('X402_REQUEST_FLOW',JSON.stringify({
+      const event={
         method:req.method,
         path:req.path,
         status:res.statusCode,
         hasPayment,
         userAgent:req.get('user-agent')||null,
         at:new Date().toISOString()
-      }));
+      };
+      console.log('X402_REQUEST_FLOW',JSON.stringify(event));
+      if (res.statusCode===402) {
+        console.log('X402_CHALLENGE',JSON.stringify({
+          ...event,
+          challenge:summarizePaymentRequiredHeader(res.getHeader('PAYMENT-REQUIRED'))
+        }));
+      }
     });
   }
   next();
