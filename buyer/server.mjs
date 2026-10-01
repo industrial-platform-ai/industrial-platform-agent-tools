@@ -81,6 +81,7 @@ const marketQueries = [
 ];
 const requestMethod = (process.env.X402_METHOD || 'POST').toUpperCase();
 const requestBodyOverride = process.env.X402_REQUEST_BODY || '';
+const payAsSeller = process.env.X402_PAY_AS_SELLER === '1';
 
 function deriveSellerAccount() {
   if (!key) throw new Error('EVM_PRIVATE_KEY missing');
@@ -104,7 +105,8 @@ let state = {
 
 function makeClient() {
   if (!key) throw new Error('EVM_PRIVATE_KEY missing');
-  const signer = privateKeyToAccount(key);
+  const signer = payAsSeller ? sellerAccount : privateKeyToAccount(key);
+  if (!signer) throw new Error('Payment signer unavailable');
   const client = new x402Client();
   registerExactEvmScheme(client, { signer });
   client.registerExtension(createSIWxClientExtension({ signers: [signer] }));
