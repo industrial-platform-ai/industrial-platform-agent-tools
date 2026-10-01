@@ -1,0 +1,234 @@
+[
+  {
+    "slug": "website-content-crawler-agent",
+    "title": "Website Content Crawler for AI Agents",
+    "mode": "web-content",
+    "event": "page-content",
+    "price": 0.0015,
+    "categories": [
+      "AI",
+      "DEVELOPER_TOOLS",
+      "SEO_TOOLS"
+    ],
+    "market": {
+      "reference": "apify/website-content-crawler",
+      "users30d": 12172
+    },
+    "description": "Batch crawl public webpages into clean text, Markdown, headings and links for RAG and agents. Array-first input, deterministic output, no login. $0.0015 per successful page.",
+    "inputKind": "urls"
+  },
+  {
+    "slug": "url-to-markdown-agent",
+    "title": "URL to Markdown API for AI Agents",
+    "mode": "url-markdown",
+    "event": "markdown-page",
+    "price": 0.001,
+    "categories": [
+      "AI",
+      "DEVELOPER_TOOLS"
+    ],
+    "market": {
+      "reference": "apify/website-content-crawler",
+      "users30d": 12172
+    },
+    "description": "Convert public URLs to compact LLM-ready Markdown with title, canonical URL and clean text. Batch urls[]; no login or browser session. $0.001 per successful page.",
+    "inputKind": "urls"
+  },
+  {
+    "slug": "google-trends-intelligence",
+    "title": "Google Trends Intelligence for AI Agents",
+    "mode": "google-trends",
+    "event": "trend-query",
+    "price": 0.002,
+    "categories": [
+      "AI",
+      "SEO_TOOLS",
+      "MARKETING"
+    ],
+    "market": {
+      "reference": "apify/google-trends-scraper",
+      "users30d": 1754
+    },
+    "description": "Batch Google Trends keywords into interest-over-time and related trend data for market research. Agent-ready queries[], structured JSON. $0.002 per successful keyword.",
+    "inputKind": "queries"
+  },
+  {
+    "slug": "google-news-intelligence",
+    "title": "Google News Search for AI Agents",
+    "mode": "google-news",
+    "event": "news-query",
+    "price": 0.001,
+    "categories": [
+      "AI",
+      "NEWS",
+      "DEVELOPER_TOOLS"
+    ],
+    "market": {
+      "reference": "easyapi/google-news-scraper",
+      "users30d": 238
+    },
+    "description": "Search Google News RSS in batches and return structured headlines, publishers, dates and source URLs. No API key. queries[] input. $0.001 per successful query.",
+    "inputKind": "queries"
+  },
+  {
+    "slug": "smart-article-extractor",
+    "title": "Smart Article Extractor for RAG & AI Agents",
+    "mode": "article",
+    "event": "article",
+    "price": 0.0015,
+    "categories": [
+      "AI",
+      "DEVELOPER_TOOLS"
+    ],
+    "market": {
+      "reference": "lukaskrivka/article-extractor-smart",
+      "users30d": 233
+    },
+    "description": "Extract clean article text, Markdown, author, date, canonical URL and JSON-LD from public URLs. Batch urls[] and agent-ready output. $0.0015 per successful article.",
+    "inputKind": "urls"
+  },
+  {
+    "slug": "youtube-transcript-intelligence",
+    "title": "YouTube Transcript Extractor for AI Agents",
+    "mode": "youtube-transcript",
+    "event": "transcript",
+    "price": 0.002,
+    "categories": [
+      "AI",
+      "SOCIAL_MEDIA",
+      "DEVELOPER_TOOLS"
+    ],
+    "market": {
+      "reference": "pintostudio/youtube-transcript-scraper",
+      "users30d": 2347
+    },
+    "description": "Batch YouTube video URLs or IDs into transcript segments, text, language and video metadata for RAG and summarization. No cookies required. $0.002 per successful video.",
+    "inputKind": "videos"
+  },
+  {
+    "slug": "youtube-video-intelligence",
+    "title": "YouTube Video Data Scraper for AI Agents",
+    "mode": "youtube-video",
+    "event": "video",
+    "price": 0.0015,
+    "categories": [
+      "AI",
+      "SOCIAL_MEDIA",
+      "DEVELOPER_TOOLS"
+    ],
+    "market": {
+      "reference": "streamers/youtube-scraper",
+      "users30d": 11736
+    },
+    "description": "Batch YouTube video URLs or IDs into title, channel, description, duration, views, likes, publish date, thumbnails and chapters. $0.0015 per successful video.",
+    "inputKind": "videos"
+  },
+  {
+    "slug": "youtube-search-intelligence",
+    "title": "YouTube Search API for AI Agents",
+    "mode": "youtube-search",
+    "event": "youtube-search",
+    "price": 0.0015,
+    "categories": [
+      "AI",
+      "SOCIAL_MEDIA",
+      "SEO_TOOLS"
+    ],
+    "market": {
+      "reference": "maximedupre/youtube-channel-search-scraper",
+      "users30d": 272
+    },
+    "description": "Batch YouTube search queries and return normalized videos, channels and playlists for discovery agents. No API key or cookies. $0.0015 per successful query.",
+    "inputKind": "queries"
+  },
+  {
+    "slug": "youtube-comments-intelligence",
+    "title": "YouTube Comments Scraper for AI Agents",
+    "mode": "youtube-comments",
+    "event": "comments",
+    "price": 0.002,
+    "categories": [
+      "AI",
+      "SOCIAL_MEDIA",
+      "DEVELOPER_TOOLS"
+    ],
+    "market": {
+      "reference": "streamers/youtube-comments-scraper",
+      "users30d": 2375
+    },
+    "description": "Batch YouTube videos into structured comments, authors, likes, timestamps and reply counts for sentiment and research agents. $0.002 per successful video.",
+    "inputKind": "videos"
+  },
+  {
+    "slug": "youtube-channel-intelligence",
+    "title": "YouTube Channel Intelligence for AI Agents",
+    "mode": "youtube-channel",
+    "event": "channel",
+    "price": 0.002,
+    "categories": [
+      "AI",
+      "SOCIAL_MEDIA",
+      "LEAD_GENERATION"
+    ],
+    "market": {
+      "reference": "dataovercoffee/Youtube-Channel-Business-Email-Scraper",
+      "users30d": 300
+    },
+    "description": "Batch public YouTube channels into title, handle, description, subscribers, views, video count, recent videos and public links. No login. $0.002 per successful channel.",
+    "inputKind": "channels"
+  },
+  {
+    "slug": "ecommerce-product-intelligence",
+    "title": "E-commerce Product Extractor for AI Agents",
+    "mode": "ecommerce",
+    "event": "product",
+    "price": 0.0015,
+    "categories": [
+      "ECOMMERCE",
+      "AI",
+      "DEVELOPER_TOOLS"
+    ],
+    "market": {
+      "reference": "apify/e-commerce-scraping-tool",
+      "users30d": 774
+    },
+    "description": "Batch public product URLs into name, price, currency, availability, SKU, brand, images and schema.org Product data. Store-agnostic and login-free. $0.0015 per product.",
+    "inputKind": "urls"
+  },
+  {
+    "slug": "google-search-intelligence",
+    "title": "Google Search Results API for AI Agents",
+    "mode": "google-search",
+    "event": "search-query",
+    "price": 0.0005,
+    "categories": [
+      "SEO_TOOLS",
+      "AI",
+      "LEAD_GENERATION"
+    ],
+    "market": {
+      "reference": "apify/google-search-scraper",
+      "users30d": 20776
+    },
+    "description": "Batch Google Search queries into normalized organic results, titles, snippets and URLs with no API key. Failed/blocked queries are not billed. $0.0005 per successful query.",
+    "inputKind": "queries"
+  },
+  {
+    "slug": "reddit-intelligence",
+    "title": "Reddit Search & Thread Scraper for AI Agents",
+    "mode": "reddit",
+    "event": "reddit-query",
+    "price": 0.001,
+    "categories": [
+      "SOCIAL_MEDIA",
+      "AI",
+      "DEVELOPER_TOOLS"
+    ],
+    "market": {
+      "reference": "trudax/reddit-scraper-lite",
+      "users30d": 7584
+    },
+    "description": "Batch Reddit search queries, subreddit URLs or post URLs into structured posts/comments for research and sentiment agents. Public data only. $0.001 per successful input.",
+    "inputKind": "inputs"
+  }
+]
