@@ -1,2 +1,3 @@
 Trigger file for x402-mcp-gateway after Railway watchPatterns repair.
 Build current main, including atomic-price preservation in mcp-server.mjs.
+Trigger after MCP syntax repair commit 22c2ba4.
