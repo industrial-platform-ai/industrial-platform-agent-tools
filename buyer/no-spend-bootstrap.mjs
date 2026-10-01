@@ -81,9 +81,14 @@ export async function submitX402ListNoSpend({ sellerOrigin }) {
       '/text/chunk',
       '/html/text',
       '/html/links',
-      '/html/meta'
+      '/html/meta',
+      '/json/schema/validate',
+      '/html/markdown',
+      '/text/entities',
+      '/http/status',
+      '/rss/json'
     ],
-    notes: 'Durable Railway origin. Base USDC x402. Public machine-readable discovery at /.well-known/x402 and /openapi.json.'
+    notes: 'Durable Railway origin. Base, Polygon, and Arbitrum USDC x402. Public machine-readable discovery at /.well-known/x402 and /openapi.json.'
   };
 
   const response = await fetch('https://x402-list.com/api/v1/submit', {
