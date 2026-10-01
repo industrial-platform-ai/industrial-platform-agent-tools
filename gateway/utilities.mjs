@@ -30,7 +30,7 @@ function canonicalize(value) {
 export const utilityTools = [
   {
     name:'hash', route:'/hash', price:'$0.0005', priceUsd:0.0005,
-    description:'Cryptographic hash of UTF-8 text. Supports SHA-256, SHA-512, SHA-1 and MD5 and returns both hex and Base64 digests for integrity checks, cache keys and agent workflows.',
+    description:'Compute SHA-256, SHA-512, SHA-1 or MD5 checksum for UTF-8 text and return hex plus Base64 digests. Use for compute sha256 checksum, integrity verification, content fingerprints, cache keys, deduplication and agent pipelines.',
     tags:['hash','sha256','sha512','sha1','md5','checksum','encoding','crypto','utility'],
     inputSchema:{
       type:'object',
@@ -52,7 +52,7 @@ export const utilityTools = [
   },
   {
     name:'base64-encode', route:'/base64/encode', price:'$0.0005', priceUsd:0.0005,
-    description:'Encode UTF-8 text as Base64.',
+    description:'Base64 encode UTF-8 text into a standard Base64 string for API payloads, binary-safe transport, data conversion and agent workflows.',
     tags:['base64','encode','conversion','utility'],
     inputSchema:textSchema,
     example:{text:'hello world'},
@@ -60,7 +60,7 @@ export const utilityTools = [
   },
   {
     name:'base64-decode', route:'/base64/decode', price:'$0.0005', priceUsd:0.0005,
-    description:'Decode Base64 into UTF-8 text.',
+    description:'Base64 decode a standard Base64 string into UTF-8 text for API payload recovery, data conversion and agent workflows.',
     tags:['base64','decode','conversion','utility'],
     inputSchema:{
       type:'object',properties:{value:{type:'string',maxLength:400000}},required:['value'],additionalProperties:false
@@ -162,7 +162,7 @@ export const utilityTools = [
   },
   {
     name:'html-to-text', route:'/html/text', price:'$0.0005', priceUsd:0.0005,
-    description:'Convert supplied HTML into clean normalized text without network access.',
+    description:'Extract clean normalized text from a raw HTML document without network access. Use for HTML-to-text conversion, document text extraction, LLM context preparation and RAG ingestion.',
     tags:['html','text','extract','documents'],
     inputSchema:{type:'object',properties:{html:{type:'string',maxLength:500000}},required:['html'],additionalProperties:false},
     example:{html:'<article><h1>Hello</h1><p>World</p></article>'},
@@ -284,7 +284,7 @@ export const utilityTools = [
   },
   {
     name:'hex-encode', route:'/hex/encode', price:'$0.0005', priceUsd:0.0005,
-    description:'Encode UTF-8 text as hexadecimal.',
+    description:'Convert UTF-8 text to a hexadecimal string. Use as a hex string encoder or text-to-hex converter in deterministic agent pipelines.',
     tags:['hex','encode','conversion','utility'],
     inputSchema:textSchema,
     example:{text:'hello'},
@@ -292,7 +292,7 @@ export const utilityTools = [
   },
   {
     name:'hex-decode', route:'/hex/decode', price:'$0.0005', priceUsd:0.0005,
-    description:'Decode hexadecimal bytes into UTF-8 text.',
+    description:'Convert a hexadecimal string back into UTF-8 text. Use as a hex string decoder or hex-to-text converter in deterministic agent pipelines.',
     tags:['hex','decode','conversion','utility'],
     inputSchema:{type:'object',properties:{value:{type:'string',maxLength:500000}},required:['value'],additionalProperties:false},
     example:{value:'68656c6c6f'},
@@ -350,7 +350,7 @@ export const utilityTools = [
   },
   {
     name:'multi-digest-checksum', route:'/checksum', price:'$0.0005', priceUsd:0.0005,
-    description:'Compute MD5, SHA-1, SHA-256 and SHA-512 checksums of one UTF-8 string in a single call.',
+    description:'Compute MD5, SHA-1, SHA-256 and SHA-512 checksums for one UTF-8 string in a single call. Use for multi-hash verification, content fingerprints, integrity checks and deduplication.',
     tags:['checksum','hash','md5','sha1','sha256','sha512','integrity','utility'],
     inputSchema:{type:'object',properties:{data:{type:'string',maxLength:250000}},required:['data'],additionalProperties:false},
     example:{data:'hello world'},
@@ -361,7 +361,7 @@ export const utilityTools = [
   },
   {
     name:'text-chunk', route:'/text/chunk', price:'$0.0005', priceUsd:0.0005,
-    description:'Split text deterministically into overlapping character chunks for RAG ingestion, embeddings and agent context windows.',
+    description:'Split document or text content into deterministic overlapping chunks for RAG ingestion, embeddings, vector indexing, retrieval pipelines and LLM context windows.',
     tags:['text','chunk','rag','embeddings','split','utility'],
     inputSchema:{
       type:'object',
