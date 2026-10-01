@@ -194,7 +194,7 @@ export const agenticTools=[
   {
     name:'json-schema-validate',
     route:'/json/schema/validate',
-    price:'$0.0005',priceUsd:0.0005,
+    price:'$0.001',priceUsd:0.001,
     description:'JSON Schema Validate: validate a JSON value against a deterministic schema subset for agent payload checking and structured-output verification. Supports type, properties, required, enum, const, numeric/string/array bounds, pattern, items and additionalProperties=false. Returns machine-readable error paths plus retry guidance.',
     tags:['json','json-schema','validate','validation','payload','agent','structured-output'],
     inputSchema:{type:'object',properties:{value:{},schema:{type:'object'}},required:['value','schema'],additionalProperties:false},
@@ -208,7 +208,7 @@ export const agenticTools=[
   {
     name:'html-to-markdown',
     route:'/html/markdown',
-    price:'$0.0005',priceUsd:0.0005,
+    price:'$0.001',priceUsd:0.001,
     description:'Convert HTML to Markdown: transform supplied HTML into clean deterministic Markdown for LLM context, RAG, tool chaining and agent memory. Preserves headings, paragraphs, lists, blockquotes, links, code blocks and simple tables; no network fetch required.',
     tags:['html','markdown','convert','rag','llm','content','agent','transformation'],
     inputSchema:{type:'object',properties:{html:{type:'string',maxLength:500000},max_chars:{type:'integer',minimum:100,maximum:250000}},required:['html'],additionalProperties:false},
@@ -218,7 +218,7 @@ export const agenticTools=[
   {
     name:'extract-entities',
     route:'/text/entities',
-    price:'$0.0005',priceUsd:0.0005,
+    price:'$0.001',priceUsd:0.001,
     description:'Extract entities from text: emails, HTTP(S) URLs, phone-like numbers, @mentions, #hashtags and IPv4 addresses. Deterministic, no LLM or network call, with stable JSON output for crawlers and autonomous agent pipelines.',
     tags:['entities','extract','email','url','phone','hashtag','mention','ipv4','text','agent'],
     inputSchema:{type:'object',properties:{text:{type:'string',maxLength:500000}},required:['text'],additionalProperties:false},
@@ -228,7 +228,7 @@ export const agenticTools=[
   {
     name:'http-status',
     route:'/http/status',
-    price:'$0.0009',priceUsd:0.0009,
+    price:'$0.001',priceUsd:0.001,
     description:'HTTP status check for a public URL: return reachability, status code, redirect count, final URL, latency, content type, server and cache headers. One required url field for uptime checks, fallback routing and autonomous web-agent health tests.',
     tags:['http','status','url','uptime','latency','redirect','health','web','agent'],
     inputSchema:{type:'object',properties:{url:{type:'string',format:'uri'}},required:['url'],additionalProperties:false},
@@ -340,7 +340,7 @@ export const agenticTools=[
   {
     name:'json-repair',
     route:'/json/repair',
-    price:'$0.0005',priceUsd:0.0005,
+    price:'$0.001',priceUsd:0.001,
     description:'Repair malformed JSON / LLM output: convert common broken JSON into valid structured JSON. Removes Markdown-style fences and prose wrappers, trailing commas, normalizes Python True/False/None and smart quotes, and repairs common single-quoted keys and values. Returns the parsed result plus applied repair steps.',
     tags:['json','repair','llm','structured-output','malformed','parse','agent','recovery'],
     inputSchema:{type:'object',properties:{text:{type:'string',maxLength:250000}},required:['text'],additionalProperties:false},
