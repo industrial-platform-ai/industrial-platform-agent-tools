@@ -89,9 +89,9 @@ jobs:
                 max_results:{title:'Maximum results',description:'Maximum number of structured results to return for each input.',type:'integer',default:25,minimum:1,maximum:100},
                 max_chars:{title:'Maximum characters',description:'Maximum text or Markdown characters to retain for each processed document.',type:'integer',default:120000,minimum:1000,maximum:500000},
                 timeout_seconds:{title:'Timeout seconds',description:'Maximum network time allowed per input before returning a structured error.',type:'integer',default:30,minimum:5,maximum:60},
-                geo:{title:'Country code',description:'Two-letter country code used by products that support geographic context.',type:'string',default:'US',minLength:2,maxLength:5},
+                geo:{title:'Country code',description:'Two-letter country code used by products that support geographic context.',type:'string',editor:'textfield',default:'US',minLength:2,maxLength:5},
                 days:{title:'Trend lookback days',description:'Lookback window in days for products that support time-series trend queries.',type:'integer',default:90,minimum:7,maximum:1825},
-                language:{title:'Language preference',description:'HTTP language preference for products that support localized responses.',type:'string',default:'en-US,en;q=0.9'}
+                language:{title:'Language preference',description:'HTTP language preference for products that support localized responses.',type:'string',editor:'textfield',default:'en-US,en;q=0.9'}
               },
               required:[key]
             };
