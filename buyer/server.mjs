@@ -16,7 +16,7 @@ const runRegistry = process.env.RUN_X402SCAN_REGISTRATION === '1';
 const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan.com/api/x402/registry/register-origin';
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
 const agent402IndexTarget = 'https://agent402.tools/api/index/register';
-const expectedAgent402ToolCount = 39;
+const expectedAgent402ToolCount = 42;
 const agent402FindTarget = 'https://agent402.tools/api/find';
 const agent402WishesTarget = 'https://agent402.tools/api/wishes?limit=50&qualifiedOnly=true&sort=count';
 const agent402SellerIndexTarget = 'https://agent402.tools/api/index?seller=' + encodeURIComponent(new URL(sellerOrigin || 'https://x402-gateway-production-1f21.up.railway.app').host);
@@ -37,7 +37,10 @@ const externalRouteQueries = [
   'convert html to markdown for llm rag',
   'extract emails urls entities from text',
   'check http status url latency redirects',
-  'parse rss atom feed to json'
+  'parse rss atom feed to json',
+  'extract sitemap xml urls',
+  'extract links from webpage url',
+  'repair malformed json llm output'
 ];
 const marketQueries = [
   'cryptographic hash sha256 sha512 text',
@@ -383,7 +386,10 @@ async function runExternalRouteDiagnostics() {
     'convert html to markdown for llm rag',
     'extract emails urls entities from text',
     'check http status url latency redirects',
-    'parse rss atom feed to json'
+    'parse rss atom feed to json',
+    'extract sitemap xml urls',
+    'extract links from webpage url',
+    'repair malformed json llm output'
   ];
   for (const q of queries) {
     try {
