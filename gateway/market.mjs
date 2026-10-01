@@ -47,8 +47,8 @@ export const marketTools = [
   {
     name:'crypto-price',
     route:'/crypto/price',
-    price:'$0.0005',
-    priceUsd:0.0005,
+    price:'$0.001',
+    priceUsd:0.001,
     description:'Fetch realtime crypto ticker pricing from Coinbase Exchange for a trading pair: last price, bid, ask, size, 24h volume, trade id and timestamp. Public market data for trading agents, market monitors and financial-data pipelines; no exchange account required.',
     tags:['crypto','price','ticker','market-data','bitcoin','ethereum','coinbase','live'],
     inputSchema:productSchema,
