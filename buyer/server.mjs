@@ -16,7 +16,7 @@ const runRegistry = process.env.RUN_X402SCAN_REGISTRATION === '1';
 const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan.com/api/x402/registry/register-origin';
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
 const agent402IndexTarget = 'https://agent402.tools/api/index/register';
-const expectedAgent402ToolCount = 35;
+const expectedAgent402ToolCount = 39;
 const agent402FindTarget = 'https://agent402.tools/api/find';
 const agent402WishesTarget = 'https://agent402.tools/api/wishes?limit=50&qualifiedOnly=true&sort=count';
 const agent402SellerIndexTarget = 'https://agent402.tools/api/index?seller=' + encodeURIComponent(new URL(sellerOrigin || 'https://x402-gateway-production-1f21.up.railway.app').host);
@@ -32,7 +32,12 @@ const externalRouteQueries = [
   'Coinbase crypto market snapshot bid ask OHLCV recent trades',
   'public webpage dossier metadata article security headers robots RAG chunks',
   'extract clean article text from a public webpage',
-  'webpage metadata Open Graph JSON-LD canonical URL'
+  'webpage metadata Open Graph JSON-LD canonical URL',
+  'validate json schema agent payload',
+  'convert html to markdown for llm rag',
+  'extract emails urls entities from text',
+  'check http status url latency redirects',
+  'parse rss atom feed to json'
 ];
 const marketQueries = [
   'cryptographic hash sha256 sha512 text',
@@ -64,7 +69,12 @@ const marketQueries = [
   'http security headers status',
   'robots.txt crawl allowed path',
   'crypto market snapshot dashboard',
-  'web intelligence dossier RAG research'
+  'web intelligence dossier RAG research',
+  'validate json schema agent payload',
+  'convert html to markdown for llm rag',
+  'extract emails urls entities from text',
+  'check http status url latency redirects',
+  'parse rss atom feed to json'
 ];
 const requestMethod = (process.env.X402_METHOD || 'POST').toUpperCase();
 const requestBodyOverride = process.env.X402_REQUEST_BODY || '';
@@ -368,7 +378,12 @@ async function runExternalRouteDiagnostics() {
     'http security headers status',
     'robots.txt crawl allowed path',
     'crypto market snapshot dashboard',
-    'web intelligence dossier RAG research'
+    'web intelligence dossier RAG research',
+    'validate json schema agent payload',
+    'convert html to markdown for llm rag',
+    'extract emails urls entities from text',
+    'check http status url latency redirects',
+    'parse rss atom feed to json'
   ];
   for (const q of queries) {
     try {
