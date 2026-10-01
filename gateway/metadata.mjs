@@ -212,7 +212,7 @@ export async function runMetadata(input = {}) {
   )];
 
   if (!urls.length) throw Object.assign(new Error('urls must contain at least one URL.'), { statusCode: 400 });
-  if (urls.length > 100) throw Object.assign(new Error('A maximum of 100 URLs is supported per request.'), { statusCode: 400 });
+  if (urls.length > 1) throw Object.assign(new Error('Exactly one URL is supported per paid request. Submit additional URLs as separate requests.'), { statusCode: 400 });
 
   const timeoutSeconds = Number.isInteger(input.timeout_seconds)
     ? Math.min(60, Math.max(5, input.timeout_seconds))
