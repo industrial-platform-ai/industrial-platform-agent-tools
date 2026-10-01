@@ -184,7 +184,7 @@ const manifest = {
       method:'POST',
       route:'/change',
       priceUsd:0.001,
-      description:'Detect whether a public webpage changed. Compare the current page against a previous hash or previous text and return deterministic hashes and diffs for price, inventory, availability, documentation, policy and competitor monitoring.',
+      description:'Detect whether a public webpage changed. Website change detector and webpage diff for monitoring webpage changes: compare current content against a previous hash or previous text and return deterministic hashes and diffs for price, inventory, availability, documentation, policy and competitor monitoring.',
       inputSchema:changeInputSchema
     },
     {
