@@ -256,12 +256,12 @@ const openapi = {
   paths:{
     '/metadata':{
       post:{
-        operationId:'webMetadataIntelligence',
+        operationId:'extractWebpageMetadataOpenGraphJsonLd',
         'x-payment-info':{
           protocols:['x402'],
           price:{mode:'fixed',currency:'USD',amount:String(manifest.tools[0].priceUsd)}
         },
-        summary:'Extract webpage metadata',
+        summary:'Extract webpage metadata, Open Graph, JSON-LD and canonical URL',
         description:manifest.tools[0].description,
         requestBody:{required:true,content:{'application/json':{schema:metadataInputSchema}}},
         responses:{
@@ -274,12 +274,12 @@ const openapi = {
     },
     '/change':{
       post:{
-        operationId:'webChangeIntelligence',
+        operationId:'checkWhetherWebpageChanged',
         'x-payment-info':{
           protocols:['x402'],
           price:{mode:'fixed',currency:'USD',amount:String(manifest.tools[1].priceUsd)}
         },
-        summary:'Detect webpage changes',
+        summary:'Check whether a public webpage changed',
         description:manifest.tools[1].description,
         requestBody:{required:true,content:{'application/json':{schema:changeInputSchema}}},
         responses:{
