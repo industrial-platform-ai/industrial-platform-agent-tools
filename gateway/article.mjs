@@ -206,8 +206,8 @@ export const documentTools=[{
 },{
   name:'url-to-markdown',
   route:'/web/markdown',
-  price:'$0.0009',
-  priceUsd:0.0009,
+  price:'$0.001',
+  priceUsd:0.001,
   description:'Convert a public webpage URL to clean Markdown for RAG, grounding, research, summarization and LLM context. Returns agent-ready Markdown plus page metadata while stripping navigation, scripts and boilerplate from static public HTML.',
   tags:['web','url-to-markdown','markdown','web-reading','content-extraction','rag','grounding','research','agents'],
   inputSchema:{
