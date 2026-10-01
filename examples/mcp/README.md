@@ -1,5 +1,24 @@
 # Industrial Platform MCP Integration
 
+## Direct 43-tool x402 MCP gateway
+
+For the full direct utility catalog, use the production Streamable HTTP MCP endpoint:
+
+```text
+https://x402-mcp-gateway-production.up.railway.app/mcp
+```
+
+This server exposes **43 paid tools** directly over MCP with x402 v2 settlement on **Base (eip155:8453) / USDC**. Payment requirements are returned in the x402 MCP structured payment shape, and compatible x402 MCP clients can enforce spend policies, sign with a caller-controlled wallet, retry automatically, and receive the tool result.
+
+Machine-readable service status:
+
+```text
+https://x402-mcp-gateway-production.up.railway.app/
+https://x402-mcp-gateway-production.up.railway.app/health
+```
+
+The direct MCP gateway is separate from the Apify-hosted portfolio bundle below. Use the direct endpoint for the low-cost 43-tool utility catalog; use the Apify bundle for the larger Actor-backed research/extraction products.
+
 Industrial Platform's current service portfolio can be exposed through one hosted Apify MCP server.
 
 ## Full portfolio endpoint
