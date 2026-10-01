@@ -490,6 +490,7 @@ app.get('/', (_req,res)=>res.json({
     openapi:'/openapi.json',
     agentCard:'/.well-known/agent-card.json',
     directMcp:DIRECT_MCP,
+    pricing:'/pricing.json',
     skill:'/skill.md'
   }
 }));
@@ -512,6 +513,22 @@ app.get('/.well-known/x402', (_req,res)=>res.json(manifest));
 app.get('/.well-known/x402.json', (_req,res)=>res.json(manifest));
 app.get('/.well-known/x402-service.json', (_req,res)=>res.json(true402ServiceManifest));
 app.get('/openapi.json', (_req,res)=>res.json(openapi));
+app.get('/pricing.json', (_req,res)=>res.json({
+  protocol:'x402',
+  network:NETWORK,
+  asset:{
+    symbol:'USDC',
+    address:NETWORK_ASSETS[NETWORK],
+    decimals:6,
+    atomicUnitUsd:0.000001
+  },
+  tools:manifest.tools.map(t=>({
+    method:t.method,
+    route:t.route,
+    priceUsd:t.priceUsd,
+    amountAtomic:String(Math.round(Number(t.priceUsd)*1_000_000))
+  }))
+}));
 app.get('/.well-known/agent-card.json', (_req,res)=>res.json(agentCard));
 app.get('/.well-known/agent.json', (_req,res)=>res.json(agentInstallManifest));
 app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
@@ -527,7 +544,9 @@ app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
   '',
   'Payment protocol: x402 v2',
   'Network: Base (eip155:8453)',
-  'Asset: USDC',
+  'Asset: USDC (6 decimals; x402 amounts are atomic units, so amount "1" = $0.000001 USDC)',
+  '',
+  'Economic canary: POST '+ORIGIN+'/hash is temporarily priced at 1 atomic USDC unit ($0.000001) to measure autonomous payment conversion without changing the rest of the catalog.',
   '',
   'Paid-call flow:',
   '1. Call the POST route normally.',
