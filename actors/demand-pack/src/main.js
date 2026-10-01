@@ -82,7 +82,7 @@ async function processOne(value,input){
     const p=findProduct(d.json_ld);
     const offers=p?.offers;
     const offer=Array.isArray(offers)?offers[0]:offers;
-    return {status:'ready',url,final_url:f.finalUrl,name:p?.name||d.title,description:p?.description||d.description,sku:p?.sku||p?.mpn||null,brand:typeof p?.brand==='string'?p.brand:p?.brand?.name||null,price:offer?.price??offer?.lowPrice??null,currency:offer?.priceCurrency||null,availability:offer?.availability||null,images:uniq([...(Array.isArray(p?.image)?p.image:[p?.image]),$('meta[property="og:image"]').attr('content')]).filter(Boolean),canonical:d.canonical,json_ld:p||null};
+    return {status:'ready',url,final_url:f.finalUrl,name:p?.name||d.title,description:p?.description||d.description,sku:p?.sku||p?.mpn||null,brand:typeof p?.brand==='string'?p.brand:p?.brand?.name||null,price:offer?.price??offer?.lowPrice??null,currency:offer?.priceCurrency||null,availability:offer?.availability||null,images:uniq(Array.isArray(p?.image)?p.image:[p?.image]).filter(Boolean),canonical:d.canonical,json_ld:p||null};
   }
 
   if(MODE==='google-news'){
