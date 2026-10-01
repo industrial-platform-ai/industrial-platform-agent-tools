@@ -1,0 +1,267 @@
+name: Demand Pack Validate and Publish
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'actors/demand-pack/**'
+      - '.github/workflows/deploy-demand-pack.yml'
+  schedule:
+    - cron: '43 5 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: industrial-platform-demand-pack
+  cancel-in-progress: false
+
+jobs:
+  validate-and-publish:
+    runs-on: ubuntu-latest
+    env:
+      APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify zero-overage Apify headroom
+        id: budget
+        run: |
+          set -euo pipefail
+          test -n "$APIFY_TOKEN" || { echo "APIFY_TOKEN missing"; exit 1; }
+
+          curl --fail-with-body --silent --show-error             -H "Authorization: Bearer $APIFY_TOKEN"             https://api.apify.com/v2/users/me > me.json
+
+          curl --fail-with-body --silent --show-error             -H "Authorization: Bearer $APIFY_TOKEN"             https://api.apify.com/v2/users/me/limits > limits.json
+
+          node <<'NODE'
+          const fs=require('fs');
+          const me=JSON.parse(fs.readFileSync('me.json','utf8')).data||{};
+          const limits=JSON.parse(fs.readFileSync('limits.json','utf8')).data||{};
+          const credits=Number(me.monthlyUsageCreditsUsd ?? me.monthlyUsageCredits ?? 0);
+          const used=Number(limits.current?.monthlyUsageUsd ?? 0);
+          const headroom=credits-used;
+          console.log(JSON.stringify({credits,used,headroom,maxMonthlyUsageUsd:limits.limits?.maxMonthlyUsageUsd},null,2));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'credits='+credits+'\n');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'used='+used+'\n');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'headroom='+headroom+'\n');
+          if(!Number.isFinite(credits)||credits<=0){
+            fs.appendFileSync(process.env.GITHUB_OUTPUT,'allow=false\n');
+            console.log('No included monthly credits detected; deployment disabled.');
+            process.exit(0);
+          }
+          const allow=headroom>=5;
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'allow='+(allow?'true':'false')+'\n');
+          if(!allow) console.log('Less than $5 included-credit headroom; deployment disabled.');
+          NODE
+
+      - name: Install and validate shared engine
+        working-directory: actors/demand-pack
+        run: |
+          npm install
+          npm run check
+
+      - name: Generate Actor packages
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const root='actors/demand-pack';
+          const products=JSON.parse(fs.readFileSync(root+'/products.json','utf8'));
+          const packageJson=fs.readFileSync(root+'/package.json','utf8');
+          const dockerfile=fs.readFileSync(root+'/Dockerfile','utf8');
+          const main=fs.readFileSync(root+'/src/main.js','utf8');
+
+          function schemaFor(p){
+            const key=p.inputKind;
+            return {
+              title:p.title+' input',
+              type:'object',
+              schemaVersion:1,
+              additionalProperties:false,
+              properties:{
+                [key]:{
+                  title:key,
+                  type:'array',
+                  description:'Batch input, up to 100 values per run.',
+                  editor:'stringList',
+                  items:{type:'string',maxLength:4096},
+                  minItems:1,
+                  maxItems:100
+                },
+                max_results:{title:'Maximum results',type:'integer',default:25,minimum:1,maximum:100},
+                max_chars:{title:'Maximum characters',type:'integer',default:120000,minimum:1000,maximum:500000},
+                timeout_seconds:{title:'Timeout seconds',type:'integer',default:30,minimum:5,maximum:60},
+                geo:{title:'Country code',type:'string',default:'US',minLength:2,maxLength:5},
+                days:{title:'Trend lookback days',type:'integer',default:90,minimum:7,maximum:1825},
+                language:{title:'Language preference',type:'string',default:'en-US,en;q=0.9'}
+              },
+              required:[key]
+            };
+          }
+
+          for(const p of products){
+            const dir='.generated/'+p.slug;
+            fs.mkdirSync(dir+'/.actor',{recursive:true});
+            fs.mkdirSync(dir+'/src',{recursive:true});
+            fs.writeFileSync(dir+'/package.json',packageJson);
+            fs.writeFileSync(dir+'/Dockerfile',dockerfile);
+            fs.writeFileSync(dir+'/src/main.js',main);
+            fs.writeFileSync(dir+'/.actor/actor.json',JSON.stringify({
+              actorSpecification:1,
+              name:p.slug,
+              title:p.title,
+              description:p.description,
+              version:'1.0',
+              buildTag:'latest',
+              input:'./input_schema.json',
+              output:'./output_schema.json',
+              storages:{dataset:'./dataset_schema.json'},
+              environmentVariables:{PRODUCT_MODE:p.mode,PRODUCT_EVENT:p.event}
+            },null,2));
+            fs.writeFileSync(dir+'/.actor/input_schema.json',JSON.stringify(schemaFor(p),null,2));
+            fs.writeFileSync(dir+'/.actor/output_schema.json',JSON.stringify({
+              actorOutputSchemaVersion:1,
+              title:p.title+' output',
+              properties:{
+                results:{type:'string',title:'Dataset results',template:'{{links.apiDefaultDatasetUrl}}/items'},
+                summary:{type:'string',title:'Run summary',template:'{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT'}
+              }
+            },null,2));
+            fs.writeFileSync(dir+'/.actor/dataset_schema.json',JSON.stringify({
+              actorSpecification:1,
+              fields:{
+                $schema:'http://json-schema.org/draft-07/schema#',
+                type:'object',
+                properties:{
+                  status:{type:'string'},
+                  input:{type:'string'},
+                  url:{type:'string'},
+                  query:{type:'string'},
+                  title:{type:['string','null']},
+                  fetched_at:{type:'string'},
+                  error:{type:'string'},
+                  results:{type:'array'},
+                  text:{type:'string'},
+                  markdown:{type:'string'}
+                },
+                required:['status']
+              }
+            },null,2));
+            fs.writeFileSync(dir+'/README.md',
+              '# '+p.title+'\n\n'+p.description+'\n\n'+
+              'Reference demand: '+p.market.reference+' had '+p.market.users30d+' users in the last 30 days when researched through the public Apify Store API on 2026-10-01.\n');
+          }
+          console.log('Generated '+products.length+' actors');
+          NODE
+
+      - name: Local zero-cost smoke tests
+        id: smoke
+        working-directory: actors/demand-pack
+        run: |
+          set -euo pipefail
+          run_mode () {
+            mode="$1"
+            key="$2"
+            value="$3"
+            event="$4"
+            rm -rf storage
+            mkdir -p storage/key_value_stores/default
+            KEY="$key" VALUE="$value" node <<'NODE'
+          const fs=require('fs');
+          const obj={max_results:3,max_chars:5000,timeout_seconds:20,days:30,geo:'US'};
+          obj[process.env.KEY]=[process.env.VALUE];
+          fs.writeFileSync('storage/key_value_stores/default/INPUT.json',JSON.stringify(obj));
+          NODE
+            echo "Testing $mode"
+            PRODUCT_MODE="$mode" PRODUCT_EVENT="$event" APIFY_LOCAL_STORAGE_DIR="./storage" node src/main.js
+            node <<'NODE'
+          const fs=require('fs');
+          const o=JSON.parse(fs.readFileSync('storage/key_value_stores/default/OUTPUT.json','utf8'));
+          if(!o.summary||o.summary.succeeded<1) process.exit(2);
+          console.log(o.summary);
+          NODE
+          }
+
+          run_mode web-content urls https://example.com page-content
+          run_mode url-markdown urls https://example.com markdown-page
+          run_mode article urls https://www.iana.org/help/example-domains article
+          run_mode ecommerce urls https://schema.org/Product product
+          run_mode google-news queries OpenAI news-query
+
+          echo "safe=website-content-crawler-agent url-to-markdown-agent smart-article-extractor ecommerce-product-intelligence google-news-intelligence" >> "$GITHUB_OUTPUT"
+
+      - name: Install Apify CLI
+        if: steps.budget.outputs.allow == 'true'
+        run: npm install -g apify-cli
+
+      - name: Deploy safe demand products using included credits only
+        if: steps.budget.outputs.allow == 'true'
+        run: |
+          set -euo pipefail
+          SAFE="website-content-crawler-agent url-to-markdown-agent smart-article-extractor ecommerce-product-intelligence google-news-intelligence"
+
+          node <<'NODE' > products.tsv
+          const ps=require('./actors/demand-pack/products.json');
+          for(const p of ps) console.log([p.slug,p.event,p.price,p.title,p.description,p.categories.join(',')].join('\t'));
+          NODE
+
+          while IFS=$'\t' read -r slug event price title description categories; do
+            if ! echo " $SAFE " | grep -q " $slug "; then
+              echo "Withholding $slug until its zero-cost smoke gate passes."
+              continue
+            fi
+
+            echo "Deploying $slug"
+            (cd ".generated/$slug" && APIFY_TOKEN="$APIFY_TOKEN" apify push --version=1.0)
+
+            actor="industrial_platform~$slug"
+            ACTOR="$actor" TITLE="$title" DESC="$description" PRICE="$price" EVENT="$event" CATEGORIES="$categories" node <<'NODE' > payload.json
+          const body={
+            title:process.env.TITLE,
+            description:process.env.DESC,
+            categories:process.env.CATEGORIES.split(',').filter(Boolean),
+            isPublic:true,
+            defaultRunOptions:{build:'latest',timeoutSecs:300,memoryMbytes:512,restartOnError:false,forcePermissionLevel:'LIMITED_PERMISSIONS'},
+            actorStandby:{isEnabled:false},
+            pricingInfos:[{
+              pricingModel:'PAY_PER_EVENT',
+              pricingPerEvent:{actorChargeEvents:{
+                [process.env.EVENT]:{
+                  eventTitle:'Successful result',
+                  eventDescription:'Charged only when a requested item is successfully processed and emitted.',
+                  eventPriceUsd:Number(process.env.PRICE),
+                  isPrimaryEvent:true,
+                  isOneTimeEvent:false
+                }
+              }}
+            }]
+          };
+          process.stdout.write(JSON.stringify(body));
+          NODE
+
+            set +e
+            response=$(curl --silent --show-error --write-out "\n%{http_code}"               --request PUT               --header "Authorization: Bearer $APIFY_TOKEN"               --header "Content-Type: application/json"               --data @payload.json               "https://api.apify.com/v2/actors/$actor")
+            code=$(echo "$response" | tail -n1)
+            body=$(echo "$response" | sed '$d')
+            set -e
+
+            echo "$body" | head -c 2000
+            echo
+            if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then
+              echo "$slug published."
+            elif echo "$body" | grep -q "daily-publication-limit-exceeded"; then
+              echo "$slug built; publication deferred by daily quota."
+            else
+              echo "$slug publication HTTP $code; build remains private for scheduled retry."
+            fi
+          done < products.tsv
+
+      - name: Summary
+        run: |
+          echo "Demand-pack validation complete."
+          echo "No paid upstream API, residential proxy, or explicit payment action was used."
