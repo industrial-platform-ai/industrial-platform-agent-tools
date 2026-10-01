@@ -94,7 +94,7 @@ function robotsDecision(groups,path){
 
 export const networkTools=[
   {
-    name:'dns-lookup',route:'/dns',price:'$0.0005',priceUsd:0.0005,
+    name:'dns-lookup',route:'/dns',price:'$0.001',priceUsd:0.001,
     description:'Resolve public DNS records for a hostname. Supports A, AAAA, MX, TXT, NS, CNAME, SOA, CAA and SRV using the system resolver.',
     tags:['dns','domain','network','mx','txt','cname','lookup'],
     inputSchema:{type:'object',properties:{host:{type:'string'},type:{type:'string',enum:['A','AAAA','MX','TXT','NS','CNAME','SOA','CAA','SRV']}},required:['host'],additionalProperties:false},
@@ -126,7 +126,7 @@ export const networkTools=[
     }
   },
   {
-    name:'robots-check',route:'/web/robots-check',price:'$0.0005',priceUsd:0.0005,
+    name:'robots-check',route:'/web/robots-check',price:'$0.001',priceUsd:0.001,
     description:'Robots.txt compliance check for crawlers and AI agents. Fetch a public site robots.txt and determine whether a user-agent may crawl a path; return the matched allow/disallow rule, crawl policy, HTTP status and declared sitemap URLs.',
     tags:['robots','robots.txt','crawl','crawler','seo','web','policy','sitemap','agent'],
     inputSchema:{type:'object',properties:{url:{type:'string',format:'uri'},path:{type:'string'},user_agent:{type:'string'}},required:['url'],additionalProperties:false},
