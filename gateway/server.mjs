@@ -96,7 +96,7 @@ const changeDiscovery = declareDiscoveryExtension({
 
 const manifest = {
   name:'Industrial Platform Agent Utility Market',
-  description:'Low-cost machine utilities, web metadata extraction and deterministic webpage change detection for autonomous agents.',
+  description:'Low-cost x402 machine utilities for autonomous agents: SHA-256 checksums, Base64/hex conversion, realtime crypto market data, webpage and document text extraction, URL-to-Markdown, metadata, RAG preparation and deterministic website change detection.',
   payment:{protocol:'x402',network:NETWORK,networks:NETWORKS,asset:'USDC',priceUsd:0.001,payTo:PAY_TO},
   tools:[
     {
@@ -104,7 +104,7 @@ const manifest = {
       method:'POST',
       route:'/metadata',
       priceUsd:0.001,
-      description:'Extract title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings, JSON-LD and other page metadata.',
+      description:'Extract webpage metadata for agent pipelines: title, description, Open Graph, Twitter cards, canonical URL, robots directives, headings and JSON-LD. Use for web metadata extraction, SEO parsing, structured-data reads and RAG ingestion.',
       inputSchema:metadataInputSchema
     },
     {
@@ -112,7 +112,7 @@ const manifest = {
       method:'POST',
       route:'/change',
       priceUsd:0.001,
-      description:'Detect meaningful webpage changes with deterministic hashes and diffs for prices, docs, policies, availability and competitor monitoring.',
+      description:'Website change detector and deterministic diff monitor for public webpages. Compare content hashes or previous text to detect changes in prices, documentation, policies, availability, inventory and competitor pages.',
       inputSchema:changeInputSchema
     },
     {
@@ -120,7 +120,7 @@ const manifest = {
       method:'POST',
       route:'/read',
       priceUsd:0.001,
-      description:'Fetch a public HTTP or HTTPS URL and return normalized readable text from HTML, JSON, XML, CSV, JavaScript or plain-text responses for RAG, summarization and research.',
+      description:'Fetch a public URL and extract clean normalized readable text from HTML, JSON, XML, CSV, JavaScript or plain-text responses. Use for web reading, document text extraction, RAG ingestion, summarization, research and LLM context.',
       inputSchema:changeInputSchema
     },
     ...dynamicTools.map(t=>({
@@ -142,7 +142,7 @@ const openapi = {
   info:{
     title:'Industrial Platform Web Tools',
     version:'2.0.0',
-    description:'Machine-payable metadata extraction and deterministic webpage change detection for autonomous agents.',
+    description:'Machine-payable x402 utilities for checksums and encoding, realtime crypto market data, webpage/document extraction, URL-to-Markdown, metadata, RAG ingestion and deterministic website change detection.',
     contact:{
       name:'Industrial Platform',
       email:'art@naturalist.gallery',
@@ -290,7 +290,7 @@ const agentInstallManifest = {
 
 const skillMd = `---
 name: industrial-platform-web-tools
-description: Low-cost x402 metadata extraction and deterministic page-change detection for autonomous agents.
+description: Low-cost x402 checksums, encoding, crypto market data, document/web extraction, RAG utilities and deterministic page-change detection for autonomous agents.
 ---
 
 # Industrial Platform Web Tools
