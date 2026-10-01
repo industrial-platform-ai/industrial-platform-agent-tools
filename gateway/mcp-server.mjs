@@ -24,7 +24,7 @@ const NETWORK = 'eip155:8453';
 const metadataInputSchema = {
   type:'object',
   properties:{
-    urls:{type:'array',items:{type:'string',format:'uri'},minItems:1,maxItems:100},
+    urls:{type:'array',items:{type:'string',format:'uri'},minItems:1,maxItems:1,description:'Exactly one public URL per paid request.'},
     timeout_seconds:{type:'integer',minimum:5,maximum:60},
     concurrency:{type:'integer',minimum:1,maximum:20}
   },
@@ -98,7 +98,7 @@ const tools = [
     name:'web-metadata-intelligence',
     route:'/metadata',
     priceUsd:0.001,
-    description:'Extract webpage metadata, Open Graph, canonical URL, robots directives, headings and JSON-LD from public URLs for SEO, link previews, structured-data reads and RAG ingestion.',
+    description:'Extract webpage metadata, Open Graph, canonical URL, robots directives, headings and JSON-LD for one public URL per paid request; use for SEO, link previews, structured-data reads and RAG ingestion.',
     inputSchema:metadataInputSchema,
     example:{urls:['https://example.com/']},
     run:runMetadata
