@@ -56,6 +56,134 @@ function routeFunnel(path) {
   return funnelState.byRoute[path] ||= {challenges:0,paymentRetries:0,paidCompletions:0};
 }
 
+const BASE_BLOCKSCOUT = 'https://base.blockscout.com/api/v2';
+const X402_SETTLEMENT_METHOD = '0xe3ee160e';
+const AGENT402_ROUTE_API = 'https://agent402.tools/api/route';
+const ROUTING_QUERIES = [
+  {route:'/change',query:'detect whether a public webpage changed'},
+  {route:'/web/markdown',query:'convert URL to clean Markdown for RAG'},
+  {route:'/metadata',query:'extract webpage metadata Open Graph JSON-LD'}
+];
+
+function normalizeAddress(value) {
+  return typeof value === 'string' ? value.toLowerCase() : '';
+}
+
+async function fetchJson(url,{timeoutMs=15000}={}) {
+  const response = await fetch(url,{
+    headers:{accept:'application/json','user-agent':'IndustrialPlatform-Observability/1.0'},
+    signal:AbortSignal.timeout(timeoutMs)
+  });
+  if (!response.ok) throw new Error('HTTP '+response.status+' from '+new URL(url).host);
+  return response.json();
+}
+
+async function readOnchainSettlementWindow(hours=24) {
+  const end = new Date();
+  const start = new Date(end.getTime() - hours*60*60*1000);
+  const payTo = normalizeAddress(PAY_TO);
+  const usdc = normalizeAddress(NETWORK_ASSETS[NETWORK]);
+  const url = BASE_BLOCKSCOUT+'/addresses/'+encodeURIComponent(PAY_TO)+'/token-transfers?type=ERC-20';
+  const data = await fetchJson(url);
+  const rows = Array.isArray(data?.items) ? data.items : [];
+
+  const facilitated = rows.filter(row=>{
+    const timestamp = Date.parse(row?.timestamp || '');
+    const token = normalizeAddress(row?.token?.address_hash);
+    const to = normalizeAddress(row?.to?.hash);
+    const method = String(row?.method || '').toLowerCase();
+    return Number.isFinite(timestamp)
+      && timestamp >= start.getTime()
+      && timestamp <= end.getTime()
+      && token === usdc
+      && to === payTo
+      && method === X402_SETTLEMENT_METHOD;
+  });
+
+  const transfers = facilitated.map(row=>{
+    const payer = normalizeAddress(row?.from?.hash);
+    const atomic = Number(row?.total?.value || 0);
+    const internal = Boolean(payer && INTERNAL_PAYER_ADDRESSES.has(payer));
+    return {
+      timestamp:row.timestamp,
+      payer,
+      internal,
+      amountAtomic:Number.isFinite(atomic)?atomic:0,
+      amountUsdc:Number.isFinite(atomic)?atomic/1_000_000:0,
+      transaction:row.transaction_hash || null
+    };
+  });
+
+  const external = transfers.filter(row=>!row.internal);
+  const externalPayers = [...new Set(external.map(row=>row.payer).filter(Boolean))];
+  const externalAtomic = external.reduce((sum,row)=>sum+row.amountAtomic,0);
+  const allAtomic = transfers.reduce((sum,row)=>sum+row.amountAtomic,0);
+
+  return {
+    source:'Base Blockscout public ERC-20 transfer index',
+    windowHours:hours,
+    windowStart:start.toISOString(),
+    windowEnd:end.toISOString(),
+    network:NETWORK,
+    asset:'USDC',
+    assetAddress:NETWORK_ASSETS[NETWORK],
+    payTo:PAY_TO,
+    methodFilter:X402_SETTLEMENT_METHOD,
+    settlementTransferCount:transfers.length,
+    excludedInternalTransferCount:transfers.length-external.length,
+    externalFacilitatedTransferCount:external.length,
+    distinctExternalPayerCount:externalPayers.length,
+    externalPayers,
+    receivedAtomic:allAtomic,
+    receivedUsdc:allAtomic/1_000_000,
+    externalAtomic,
+    externalUsdc:externalAtomic/1_000_000,
+    transfers
+  };
+}
+
+async function readAgent402Routing() {
+  const results = [];
+  for (const target of ROUTING_QUERIES) {
+    try {
+      const url=AGENT402_ROUTE_API+'?include=external&q='+encodeURIComponent(target.query);
+      const body=await fetchJson(url);
+      const matches=Array.isArray(body?.results)?body.results:[];
+      const index=matches.findIndex(row=>row?.seller===ORIGIN && row?.route===target.route);
+      const row=index>=0?matches[index]:null;
+      results.push({
+        route:target.route,
+        query:target.query,
+        rank:index>=0?index+1:null,
+        returned:body?.returned ?? matches.length,
+        found:Boolean(row),
+        priceUsd:row?.priceUsd ?? row?.price ?? null,
+        score:row?.score ?? null,
+        routerDispatchEligible:row?.routerDispatchEligible ?? null,
+        routerDispatchReason:row?.routerDispatchReason ?? null,
+        routerDispatchByChain:row?.routerDispatchByChain ?? null,
+        executeViaCallableNow:row?.executeViaCallableNow ?? null,
+        marketplaceCalls30d:row?.bazaar?.calls30d ?? null,
+        marketplaceReportedPayers30d:row?.bazaar?.payers30d ?? null,
+        lastCalledAt:row?.bazaar?.lastCalledAt ?? null
+      });
+    } catch(error) {
+      results.push({
+        route:target.route,
+        query:target.query,
+        found:false,
+        error:String(error?.message||error)
+      });
+    }
+  }
+  return {
+    source:'Agent402 public route API',
+    warning:'marketplaceReportedPayers30d is not an organic-payer count; controlled/internal wallets may be included.',
+    routes:results,
+    anyRouterDispatchEligible:results.some(row=>row.routerDispatchEligible===true)
+  };
+}
+
 const paymentRequiredHeader = {
   description:'Base64-encoded x402 v2 PaymentRequired object. Decode this header, sign the selected requirement with a caller-controlled wallet, and retry the same request with PAYMENT-SIGNATURE.',
   schema:{type:'string'}
@@ -613,6 +741,29 @@ app.get('/metrics/x402.json', (_req,res)=>res.json({
   internalPayerExclusionConfigured:INTERNAL_PAYER_ADDRESSES.size>0,
   byRoute:funnelState.byRoute
 }));
+
+app.get('/metrics/x402-24h.json', async (_req,res)=>{
+  const [settlements,routing] = await Promise.allSettled([
+    readOnchainSettlementWindow(24),
+    readAgent402Routing()
+  ]);
+  const onchain = settlements.status==='fulfilled'
+    ? settlements.value
+    : {error:String(settlements.reason?.message||settlements.reason)};
+  const agent402 = routing.status==='fulfilled'
+    ? routing.value
+    : {error:String(routing.reason?.message||routing.reason)};
+  res.json({
+    generatedAt:new Date().toISOString(),
+    classification:{
+      knownInternalPayers:[...INTERNAL_PAYER_ADDRESSES],
+      externalDefinition:'Base USDC transfers to the current payout wallet using the observed x402 settlement method, excluding known internal/self payer addresses.',
+      note:'External facilitated transfers are strong settlement evidence but are labeled separately from marketplace-reported payer counts.'
+    },
+    onchain,
+    agent402
+  });
+});
 app.get('/facilitator-health', async (_req,res)=>{
   try {
     const supported = await facilitator.getSupported();
