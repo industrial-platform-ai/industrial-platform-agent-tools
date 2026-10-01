@@ -408,6 +408,23 @@ const app = express();
 app.disable('x-powered-by');
 app.use(express.json({limit:'256kb'}));
 
+app.use((req,res,next)=>{
+  const key=req.method.toUpperCase()+' '+req.path;
+  if (Object.prototype.hasOwnProperty.call(routes,key)) {
+    const hasPayment=Boolean(req.get('PAYMENT-SIGNATURE') || req.get('X-PAYMENT'));
+    res.on('finish',()=>{
+      console.log('X402_REQUEST_FLOW',JSON.stringify({
+        method:req.method,
+        path:req.path,
+        status:res.statusCode,
+        hasPayment,
+        at:new Date().toISOString()
+      }));
+    });
+  }
+  next();
+});
+
 app.get('/', (_req,res)=>res.json({
   name:manifest.name,
   description:manifest.description,
