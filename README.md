@@ -115,6 +115,8 @@ The MCP server exposes the same paid tool catalog over Streamable HTTP and perfo
 Ready-to-copy adapters and workflows are included for:
 
 - [Minimal official x402 caller](./examples/zero-friction-caller/) — official x402 client, automatic 402 → payment → retry, with a hard per-payment ceiling
+- [Coinbase AgentKit](./examples/agentkit/) — Base wallet + AgentKit's native x402 provider, including a dry-run-by-default 1-atomic-USDC clean-room canary
+- [ElizaOS](./examples/elizaos/) — native @elizaos/plugin-wallet x402 client with explicit budget controls and payment disabled by default
 - [LangChain / LangGraph](./examples/langchain/)
 - [CrewAI](./examples/crewai/)
 - [LlamaIndex](./examples/llamaindex/)
