@@ -1,0 +1,8 @@
+[build]
+builder = "RAILPACK"
+buildCommand = "pip install -r requirements.txt"
+
+[deploy]
+startCommand = "sh -lc '/app/.venv/bin/python run_controlled_canary.py && /app/.venv/bin/python -m http.server ${PORT:-3000}'"
+healthcheckPath = "/"
+restartPolicyType = "NEVER"
