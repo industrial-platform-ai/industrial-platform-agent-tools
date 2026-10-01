@@ -453,9 +453,19 @@ async function registerAgent402OriginOnce({scheduleRetry=true, attempt=0}={}) {
   let parsed = null;
   try { parsed = JSON.parse(body); } catch {}
   const rereadSeconds = Number(parsed?.reverify?.nextRereadInSeconds);
+  const recheckSeconds = Number(parsed?.reverify?.nextRecheckInSeconds);
   const toolCount = Number(parsed?.seller?.toolCount);
+  const observedNetworks = Array.isArray(parsed?.seller?.networks) ? parsed.seller.networks : [];
+  const baseOnly = observedNetworks.length === 1 && observedNetworks[0] === 'eip155:8453';
+  const routesProbed = Number(parsed?.reverify?.routesProbed || 0);
 
-  if (response.ok && Number.isFinite(toolCount) && toolCount >= expectedAgent402ToolCount) {
+  if (
+    response.ok &&
+    Number.isFinite(toolCount) &&
+    toolCount >= expectedAgent402ToolCount &&
+    baseOnly &&
+    (routesProbed >= expectedAgent402ToolCount || parsed?.reverify?.routesRechecked === true)
+  ) {
     await runExternalRouteDiagnostics();
     await runFindDiagnostics();
     return;
@@ -465,11 +475,28 @@ async function registerAgent402OriginOnce({scheduleRetry=true, attempt=0}={}) {
   if (mayRetry) {
     let retrySeconds = null;
 
-    if (response.ok && Number.isFinite(rereadSeconds) && rereadSeconds > 0 && rereadSeconds <= 3600) {
+    if (response.ok && !baseOnly && Number.isFinite(rereadSeconds) && rereadSeconds > 0 && rereadSeconds <= 3600) {
+      // Stale discovery documents can retain retired payment rails. Ask for another
+      // document reread after cooldown until the seller summary is Base-only.
+      retrySeconds = rereadSeconds + 5;
+    } else if (
+      response.ok &&
+      toolCount >= expectedAgent402ToolCount &&
+      baseOnly &&
+      routesProbed < expectedAgent402ToolCount &&
+      Number.isFinite(recheckSeconds) &&
+      recheckSeconds > 0 &&
+      recheckSeconds <= 3600
+    ) {
+      // The catalog is current but not every route has been live-probed yet.
+      retrySeconds = recheckSeconds + 5;
+    } else if (response.ok && Number.isFinite(rereadSeconds) && rereadSeconds > 0 && rereadSeconds <= 3600) {
       retrySeconds = rereadSeconds + 5;
     } else if (response.ok && Number.isFinite(toolCount) && toolCount < expectedAgent402ToolCount) {
       // The crawler may have completed a re-read just before a new deployment became visible.
       // Wait one full document cooldown, then ask it to re-read once more.
+      retrySeconds = agent402FallbackRetrySeconds;
+    } else if (response.ok && !baseOnly) {
       retrySeconds = agent402FallbackRetrySeconds;
     } else if (response.status === 429) {
       const headerSeconds = Number(response.headers.get('retry-after'));
@@ -484,6 +511,9 @@ async function registerAgent402OriginOnce({scheduleRetry=true, attempt=0}={}) {
         nextAttempt:attempt+1,
         expectedToolCount:expectedAgent402ToolCount,
         observedToolCount:Number.isFinite(toolCount)?toolCount:null,
+        observedNetworks,
+        baseOnly,
+        routesProbed,
         httpStatus:response.status
       }));
       setTimeout(() => {
