@@ -126,10 +126,11 @@ export const networkTools=[
     }
   },
   {
-    name:'robots-check',route:'/robots/check',price:'$0.0005',priceUsd:0.0005,
-    description:'Fetch a public site robots.txt and answer whether a user-agent may crawl a path; also returns matching allow/disallow rules and declared sitemap URLs.',
-    tags:['robots','crawl','seo','web','policy','sitemap'],
+    name:'robots-check',route:'/web/robots-check',price:'$0.0005',priceUsd:0.0005,
+    description:'Robots.txt compliance check for crawlers and AI agents. Fetch a public site robots.txt and determine whether a user-agent may crawl a path; return the matched allow/disallow rule, crawl policy, HTTP status and declared sitemap URLs.',
+    tags:['robots','robots.txt','crawl','crawler','seo','web','policy','sitemap','agent'],
     inputSchema:{type:'object',properties:{url:{type:'string',format:'uri'},path:{type:'string'},user_agent:{type:'string'}},required:['url'],additionalProperties:false},
+    outputSchema:{type:'object',properties:{origin:{type:'string'},robots_url:{type:'string'},http_status:{type:'integer'},user_agent:{type:'string'},path:{type:'string'},allowed:{type:'boolean'},matched_rule:{},rules:{type:'array',items:{type:'object'}},sitemaps:{type:'array',items:{type:'string'}},fetched_at:{type:'string'}},required:['origin','robots_url','http_status','user_agent','path','allowed','rules','sitemaps','fetched_at']},
     example:{url:'https://example.com/',path:'/',user_agent:'*'},
     run:async input=>{
       const u=await validatePublicUrl(input?.url);
