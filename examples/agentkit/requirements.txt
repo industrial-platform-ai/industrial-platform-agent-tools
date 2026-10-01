@@ -1,5 +1,4 @@
-coinbase-agentkit>=0.7.4,<0.8
-coinbase-agentkit-langchain>=0.2
+coinbase-agentkit @ https://github.com/coinbase/agentkit/archive/2e6dbaf725b9ec5f3b53003278100b0e655c214d.zip#subdirectory=python/coinbase-agentkit
 eth-account>=0.13
 requests>=2.31
 solana==0.36.9
