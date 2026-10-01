@@ -1,0 +1,5 @@
+crewai>=1.15
+x402
+httpx
+eth-account
+pydantic>=2
