@@ -1,4 +1,4 @@
-name: Demand Pack Validate and Publish
+name: Human Demand Pack - Validation Only
 
 on:
   workflow_dispatch:
@@ -7,8 +7,6 @@ on:
     paths:
       - 'actors/demand-pack/**'
       - '.github/workflows/deploy-demand-pack.yml'
-  schedule:
-    - cron: '43 5 * * *'
 
 permissions:
   contents: read
@@ -200,7 +198,7 @@ jobs:
         run: npm install -g apify-cli
 
       - name: Deploy safe demand products using included credits only
-        if: steps.budget.outputs.allow == 'true'
+        if: false # superseded by agentic-demand portfolio; intentionally disabled
         run: |
           set -euo pipefail
           SAFE="website-content-crawler-agent url-to-markdown-agent smart-article-extractor ecommerce-product-intelligence google-news-intelligence"
@@ -263,5 +261,5 @@ jobs:
 
       - name: Summary
         run: |
-          echo "Demand-pack validation complete."
+          echo "Human-demand pack validation complete; publication intentionally disabled in favor of agentic-demand products."
           echo "No paid upstream API, residential proxy, or explicit payment action was used."
