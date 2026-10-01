@@ -17,7 +17,7 @@ import { bundleTools } from './bundles.mjs';
 import { agenticTools } from './agentic.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
-const ORIGIN = process.env.MCP_PUBLIC_ORIGIN || 'https://industrial-platform-x402-mcp-production.up.railway.app';
+const ORIGIN = process.env.MCP_PUBLIC_ORIGIN || 'https://x402-mcp-gateway-production.up.railway.app';
 const PAY_TO = process.env.X402_PAY_TO || '0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E';
 const NETWORK = 'eip155:8453';
 
