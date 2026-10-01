@@ -17,6 +17,8 @@ const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
 const agent402IndexTarget = 'https://agent402.tools/api/index/register';
 const expectedAgent402ToolCount = 43;
+const agent402MaxRegisterAttempts = 4;
+const agent402FallbackRetrySeconds = 905;
 const agent402FindTarget = 'https://agent402.tools/api/find';
 const agent402WishesTarget = 'https://agent402.tools/api/wishes?limit=50&qualifiedOnly=true&sort=count';
 const agent402SellerIndexTarget = 'https://agent402.tools/api/index?seller=' + encodeURIComponent(new URL(sellerOrigin || 'https://x402-gateway-production-1f21.up.railway.app').host);
@@ -432,7 +434,7 @@ async function runFindDiagnostics() {
   }
 }
 
-async function registerAgent402OriginOnce({scheduleRetry=true}={}) {
+async function registerAgent402OriginOnce({scheduleRetry=true, attempt=0}={}) {
   const response = await fetch(agent402IndexTarget, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -443,6 +445,7 @@ async function registerAgent402OriginOnce({scheduleRetry=true}={}) {
     httpStatus: response.status,
     ok: response.ok,
     origin: sellerOrigin,
+    attempt,
     body: body.slice(0, 4000),
     completedAt: new Date().toISOString(),
   }));
@@ -458,17 +461,41 @@ async function registerAgent402OriginOnce({scheduleRetry=true}={}) {
     return;
   }
 
-  if (response.ok && scheduleRetry && Number.isFinite(rereadSeconds) && rereadSeconds > 0 && rereadSeconds <= 3600) {
-    const delayMs = (rereadSeconds + 5) * 1000;
-    console.log('Agent402 re-index retry scheduled in', Math.round(delayMs / 1000), 'seconds');
-    setTimeout(() => {
-      registerAgent402OriginOnce({scheduleRetry:false}).then(async()=>{ await runExternalRouteDiagnostics(); await runFindDiagnostics(); }).catch((error) => {
-        console.error('Agent402 scheduled re-index failed:', String(error?.stack || error));
-      });
-    }, delayMs);
-  } else if (response.ok) {
-    await runFindDiagnostics();
+  const mayRetry = scheduleRetry && attempt + 1 < agent402MaxRegisterAttempts;
+  if (mayRetry) {
+    let retrySeconds = null;
+
+    if (response.ok && Number.isFinite(rereadSeconds) && rereadSeconds > 0 && rereadSeconds <= 3600) {
+      retrySeconds = rereadSeconds + 5;
+    } else if (response.ok && Number.isFinite(toolCount) && toolCount < expectedAgent402ToolCount) {
+      // The crawler may have completed a re-read just before a new deployment became visible.
+      // Wait one full document cooldown, then ask it to re-read once more.
+      retrySeconds = agent402FallbackRetrySeconds;
+    } else if (response.status === 429) {
+      const headerSeconds = Number(response.headers.get('retry-after'));
+      retrySeconds = Number.isFinite(headerSeconds) && headerSeconds > 0
+        ? Math.max(headerSeconds + 5, 60)
+        : agent402FallbackRetrySeconds;
+    }
+
+    if (Number.isFinite(retrySeconds) && retrySeconds > 0) {
+      console.log('Agent402 re-index retry scheduled:', JSON.stringify({
+        inSeconds:retrySeconds,
+        nextAttempt:attempt+1,
+        expectedToolCount:expectedAgent402ToolCount,
+        observedToolCount:Number.isFinite(toolCount)?toolCount:null,
+        httpStatus:response.status
+      }));
+      setTimeout(() => {
+        registerAgent402OriginOnce({scheduleRetry:true,attempt:attempt+1}).catch((error) => {
+          console.error('Agent402 scheduled re-index failed:', String(error?.stack || error));
+        });
+      }, retrySeconds * 1000);
+      return;
+    }
   }
+
+  if (response.ok) await runFindDiagnostics();
 }
 
 async function registerX402scanOnce() {
