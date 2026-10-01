@@ -105,6 +105,7 @@ https://x402-gateway-production-1f21.up.railway.app/openapi.json
 
 Ready-to-copy adapters and workflows are included for:
 
+- [Minimal official x402 caller](./examples/zero-friction-caller/) — official x402 client, automatic 402 → payment → retry, with a hard per-payment ceiling
 - [LangChain / LangGraph](./examples/langchain/)
 - [CrewAI](./examples/crewai/)
 - [LlamaIndex](./examples/llamaindex/)
