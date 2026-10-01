@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install --omit=dev
 COPY server.mjs ./
+COPY mcp-server.mjs ./
 COPY metadata.mjs ./
 COPY change.mjs ./
 COPY utilities.mjs ./
