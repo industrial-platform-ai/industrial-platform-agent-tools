@@ -11,6 +11,7 @@ import { marketTools } from './market.mjs';
 import { documentTools } from './article.mjs';
 import { networkTools } from './network.mjs';
 import { bundleTools } from './bundles.mjs';
+import { agenticTools } from './agentic.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
@@ -30,7 +31,7 @@ const acceptsFor = (price) => NETWORKS.map(network=>({
   payTo:PAY_TO,
   maxTimeoutSeconds:90
 }));
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools];
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools];
 
 const metadataInputSchema = {
   type:'object',
