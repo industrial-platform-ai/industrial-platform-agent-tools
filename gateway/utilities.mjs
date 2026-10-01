@@ -205,7 +205,7 @@ export const utilityTools = [
   },
   {
     name:'html-metadata', route:'/html/meta', price:'$0.0005', priceUsd:0.0005,
-    description:'Parse metadata from caller-supplied raw HTML without fetching a webpage URL. Returns title, canonical URL, meta tags and JSON-LD for local HTML-processing workflows.'
+    description:'Parse metadata from caller-supplied raw HTML without fetching a webpage URL. Returns title, canonical URL, meta tags and JSON-LD for local HTML-processing workflows.',
     tags:['html','raw-html','parse','metadata','json-ld'],
     inputSchema:{
       type:'object',
