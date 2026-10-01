@@ -220,7 +220,9 @@ for (const tool of dynamicTools) {
       description:tool.description,
       requestBody:{required:true,content:{'application/json':{schema:tool.inputSchema}}},
       responses:{
-        '200':{description:'Utility result'},
+        '200':tool.outputSchema
+          ? {description:'Utility result',content:{'application/json':{schema:tool.outputSchema}}}
+          : {description:'Utility result'},
         '400':{description:'Invalid input'},
         '402':{description:'x402 payment required'}
       }
