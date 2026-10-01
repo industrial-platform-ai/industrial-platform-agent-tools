@@ -79,7 +79,7 @@ const tools = [
     name:'web-change-intelligence',
     route:'/change',
     priceUsd:0.001,
-    description:'Detect whether a public webpage changed by comparing current content against a previous hash or previous text; returns deterministic hashes and diffs for monitoring.',
+    description:'Detect whether a public webpage changed. Website change detector and webpage diff for monitoring webpage changes; compare current content against a previous hash or previous text and return deterministic hashes and diffs.',
     inputSchema:changeInputSchema,
     example:{url:'https://example.com/',include_current_text:false},
     run:runChange
