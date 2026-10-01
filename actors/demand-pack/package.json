@@ -1,0 +1,22 @@
+{
+  "name": "industrial-platform-demand-pack",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node ./src/main.js",
+    "check": "node --check ./src/main.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "apify": "^3.7.2",
+    "cheerio": "^1.2.0",
+    "turndown": "^7.2.1",
+    "fast-xml-parser": "^5.2.5",
+    "ipaddr.js": "^2.5.0",
+    "youtubei.js": "^15.0.1",
+    "google-trends-api": "^4.9.2"
+  }
+}
