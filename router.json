@@ -1,83 +1,62 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "provider": "Industrial Platform",
-  "preferred_endpoint": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402",
+  "preferred_origin": "https://x402-gateway-production-1f21.up.railway.app",
+  "direct_mcp": "https://x402-mcp-gateway-production.up.railway.app/mcp",
   "payment": {
     "protocol": "x402",
+    "version": 2,
     "network": "Base",
+    "caip2": "eip155:8453",
     "asset": "USDC"
   },
-  "selection_policy": "Choose the cheapest deterministic service that fully satisfies the task. Use research-brief-agent only when multi-source synthesis is required.",
-  "routes": [
+  "selection_policy": "Prefer the highest-ranked route that fully satisfies the task. All preferred routes are direct x402 Base USDC services with exact machine-readable schemas.",
+  "priority_routes": [
     {
+      "rank": 1,
       "intent": [
-        "research",
-        "compare vendors",
-        "current web research",
-        "source-backed brief"
+        "detect whether webpage changed",
+        "monitor webpage",
+        "website change detection",
+        "compare page hash",
+        "page diff"
       ],
-      "tool": "industrial_platform/research-brief-agent",
-      "event": "research-brief-completed",
-      "price_usd": 1.99
+      "method": "POST",
+      "route": "/change",
+      "price_usd": 0.001
     },
     {
+      "rank": 2,
       "intent": [
-        "detect webpage changes",
-        "diff page",
-        "monitor page"
+        "convert URL to markdown",
+        "webpage to markdown",
+        "RAG web reading",
+        "clean webpage text",
+        "LLM context from URL"
       ],
-      "tool": "industrial_platform/web-change-intelligence",
-      "event": "page-comparison",
-      "price_usd": 0.01
+      "method": "POST",
+      "route": "/web/markdown",
+      "price_usd": 0.0009
     },
     {
+      "rank": 3,
       "intent": [
-        "extract metadata",
-        "open graph",
-        "json-ld",
-        "canonical",
-        "robots meta",
-        "headings"
+        "extract webpage metadata",
+        "Open Graph",
+        "JSON-LD",
+        "canonical URL",
+        "robots metadata",
+        "SEO metadata"
       ],
-      "tool": "industrial_platform/web-metadata-intelligence",
-      "event": "metadata-extraction",
-      "price_usd": 0.01
-    },
-    {
-      "intent": [
-        "extract article text",
-        "rag ingestion",
-        "clean article content"
-      ],
-      "tool": "industrial_platform/article-content-intelligence",
-      "event": "article-extraction",
-      "price_usd": 0.002
-    },
-    {
-      "intent": [
-        "extract pdf text",
-        "pdf pages",
-        "pdf metadata"
-      ],
-      "tool": "industrial_platform/pdf-text-intelligence",
-      "event": "pdf-extraction",
-      "price_usd": 0.0015
-    },
-    {
-      "intent": [
-        "discover sitemap",
-        "expand sitemap",
-        "enumerate crawl urls"
-      ],
-      "tool": "industrial_platform/sitemap-intelligence",
-      "event": "sitemap-url",
-      "price_usd": 0.0001
+      "method": "POST",
+      "route": "/metadata",
+      "price_usd": 0.001
     }
   ],
-  "pending": [
-    {
-      "tool": "industrial_platform/link-intelligence",
-      "status": "publication-pending"
-    }
-  ]
+  "discovery": {
+    "x402": "https://x402-gateway-production-1f21.up.railway.app/.well-known/x402",
+    "openapi": "https://x402-gateway-production-1f21.up.railway.app/openapi.json",
+    "agent": "https://x402-gateway-production-1f21.up.railway.app/.well-known/agent.json",
+    "metrics": "https://x402-gateway-production-1f21.up.railway.app/metrics/x402.json"
+  }
 }
