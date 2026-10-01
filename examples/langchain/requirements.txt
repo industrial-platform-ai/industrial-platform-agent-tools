@@ -1,0 +1,4 @@
+langchain-core>=0.3
+x402
+httpx
+eth-account
