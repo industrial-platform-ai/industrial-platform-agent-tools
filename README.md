@@ -88,6 +88,31 @@ examples/mcp/remote-server.json
 
 `examples/mcp/remote-server.json` can be used as a starting point for MCP clients that accept remote server configuration.
 
+## Direct x402 framework integrations
+
+Industrial Platform also exposes a direct Base x402 gateway for autonomous callers that do not need the Apify MCP layer:
+
+```text
+https://x402-gateway-production-1f21.up.railway.app
+```
+
+Machine-readable discovery:
+
+```text
+https://x402-gateway-production-1f21.up.railway.app/.well-known/x402
+https://x402-gateway-production-1f21.up.railway.app/openapi.json
+```
+
+Ready-to-copy adapters and workflows are included for:
+
+- [LangChain / LangGraph](./examples/langchain/)
+- [CrewAI](./examples/crewai/)
+- [LlamaIndex](./examples/llamaindex/)
+- [SEO crawler workflow](./examples/workflows/seo_auditor.py)
+- [Crypto intelligence workflow](./examples/workflows/crypto_intelligence.py)
+
+The examples use the caller's own funded Base wallet, negotiate x402 automatically, and preserve framework-level tool choice rather than forcing Industrial Platform calls.
+
 ## Agent-to-agent paid quick start
 
 ```bash
