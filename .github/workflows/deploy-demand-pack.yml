@@ -1,4 +1,4 @@
-name: Human Demand Pack - Validation Only
+name: Agentic Apify Launch 8-12
 
 on:
   workflow_dispatch:
@@ -27,35 +27,30 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Verify zero-overage Apify headroom
+      - name: Verify bounded Apify spend
         id: budget
+        env:
+          MAX_MONTHLY_APIFY_USAGE_USD: "3.00"
         run: |
           set -euo pipefail
           test -n "$APIFY_TOKEN" || { echo "APIFY_TOKEN missing"; exit 1; }
 
-          curl --fail-with-body --silent --show-error             -H "Authorization: Bearer $APIFY_TOKEN"             https://api.apify.com/v2/users/me > me.json
-
-          curl --fail-with-body --silent --show-error             -H "Authorization: Bearer $APIFY_TOKEN"             https://api.apify.com/v2/users/me/limits > limits.json
+          curl --fail-with-body --silent --show-error \
+            -H "Authorization: Bearer $APIFY_TOKEN" \
+            https://api.apify.com/v2/users/me/limits > limits.json
 
           node <<'NODE'
           const fs=require('fs');
-          const me=JSON.parse(fs.readFileSync('me.json','utf8')).data||{};
           const limits=JSON.parse(fs.readFileSync('limits.json','utf8')).data||{};
-          const credits=Number(me.monthlyUsageCreditsUsd ?? me.monthlyUsageCredits ?? 0);
           const used=Number(limits.current?.monthlyUsageUsd ?? 0);
-          const headroom=credits-used;
-          console.log(JSON.stringify({credits,used,headroom,maxMonthlyUsageUsd:limits.limits?.maxMonthlyUsageUsd},null,2));
-          fs.appendFileSync(process.env.GITHUB_OUTPUT,'credits='+credits+'\n');
+          const cap=Number(process.env.MAX_MONTHLY_APIFY_USAGE_USD||3);
+          const remaining=Math.max(0,cap-used);
+          console.log(JSON.stringify({used,cap,remaining,accountMaxMonthlyUsageUsd:limits.limits?.maxMonthlyUsageUsd},null,2));
           fs.appendFileSync(process.env.GITHUB_OUTPUT,'used='+used+'\n');
-          fs.appendFileSync(process.env.GITHUB_OUTPUT,'headroom='+headroom+'\n');
-          if(!Number.isFinite(credits)||credits<=0){
-            fs.appendFileSync(process.env.GITHUB_OUTPUT,'allow=false\n');
-            console.log('No included monthly credits detected; deployment disabled.');
-            process.exit(0);
-          }
-          const allow=headroom>=5;
-          fs.appendFileSync(process.env.GITHUB_OUTPUT,'allow='+(allow?'true':'false')+'\n');
-          if(!allow) console.log('Less than $5 included-credit headroom; deployment disabled.');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'cap='+cap+'\n');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'remaining='+remaining+'\n');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'allow='+(remaining>0.10?'true':'false')+'\n');
+          if(remaining<=0.10) console.log('Industrial Platform Apify cap reached; deployment disabled.');
           NODE
 
       - name: Install and validate shared engine
@@ -197,8 +192,10 @@ jobs:
         if: steps.budget.outputs.allow == 'true'
         run: npm install -g apify-cli
 
-      - name: Deploy safe demand products using included credits only
-        if: false # superseded by agentic-demand portfolio; intentionally disabled
+      - name: Deploy smoke-tested agentic products 8-12
+        if: steps.budget.outputs.allow == 'true'
+        env:
+          MAX_MONTHLY_APIFY_USAGE_USD: "3.00"
         run: |
           set -euo pipefail
           SAFE="website-content-crawler-agent url-to-markdown-agent smart-article-extractor ecommerce-product-intelligence google-news-intelligence"
@@ -208,7 +205,73 @@ jobs:
           for(const p of ps) console.log([p.slug,p.event,p.price,p.title,p.description,p.categories.join(',')].join('\t'));
           NODE
 
-          while IFS=$'\t' read -r slug event price title description categories; do
+          while IFS=
+              echo "Withholding $slug until its zero-cost smoke gate passes."
+              continue
+            fi
+
+            # Enforce the bounded monthly Apify spend before every build.
+            curl --fail-with-body --silent --show-error \
+              -H "Authorization: Bearer $APIFY_TOKEN" \
+              https://api.apify.com/v2/users/me/limits > current-limits.json
+            CURRENT_USED=$(node -e "const j=require('./current-limits.json').data||{};process.stdout.write(String(Number(j.current?.monthlyUsageUsd||0)))")
+            ALLOW=$(CURRENT_USED="$CURRENT_USED" CAP="$MAX_MONTHLY_APIFY_USAGE_USD" node -e "process.stdout.write(Number(process.env.CURRENT_USED)<Number(process.env.CAP)?'yes':'no')")
+            if [ "$ALLOW" != "yes" ]; then
+              echo "Apify spend cap reached at \\$CURRENT_USED; stopping before $slug."
+              break
+            fi
+
+            echo "Deploying $slug (current monthly usage: \\$CURRENT_USED; Industrial Platform cap: \\$MAX_MONTHLY_APIFY_USAGE_USD)"
+            (cd ".generated/$slug" && APIFY_TOKEN="$APIFY_TOKEN" apify push --version=1.0)
+
+            actor="industrial_platform~$slug"
+            ACTOR="$actor" TITLE="$title" DESC="$description" PRICE="$price" EVENT="$event" CATEGORIES="$categories" node <<'NODE' > payload.json
+          const body={
+            title:process.env.TITLE,
+            description:process.env.DESC,
+            categories:process.env.CATEGORIES.split(',').filter(Boolean),
+            isPublic:true,
+            defaultRunOptions:{build:'latest',timeoutSecs:300,memoryMbytes:512,restartOnError:false,forcePermissionLevel:'LIMITED_PERMISSIONS'},
+            actorStandby:{isEnabled:false},
+            pricingInfos:[{
+              pricingModel:'PAY_PER_EVENT',
+              pricingPerEvent:{actorChargeEvents:{
+                [process.env.EVENT]:{
+                  eventTitle:'Successful result',
+                  eventDescription:'Charged only when a requested item is successfully processed and emitted.',
+                  eventPriceUsd:Number(process.env.PRICE),
+                  isPrimaryEvent:true,
+                  isOneTimeEvent:false
+                }
+              }}
+            }]
+          };
+          process.stdout.write(JSON.stringify(body));
+          NODE
+
+            set +e
+            response=$(curl --silent --show-error --write-out "\n%{http_code}"               --request PUT               --header "Authorization: Bearer $APIFY_TOKEN"               --header "Content-Type: application/json"               --data @payload.json               "https://api.apify.com/v2/actors/$actor")
+            code=$(echo "$response" | tail -n1)
+            body=$(echo "$response" | sed '$d')
+            set -e
+
+            echo "$body" | head -c 2000
+            echo
+            if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then
+              echo "$slug published."
+            elif echo "$body" | grep -q "daily-publication-limit-exceeded"; then
+              echo "$slug built; publication deferred by daily quota."
+            else
+              echo "$slug publication HTTP $code; build remains private for scheduled retry."
+            fi
+          done < products.tsv
+
+      - name: Summary
+        run: |
+          echo "Agentic Apify 8-12 deployment cycle complete."
+          echo "Monthly Apify usage is bounded by MAX_MONTHLY_APIFY_USAGE_USD=3.00."
+          echo "No paid upstream scraping API or residential proxy was introduced."
+\t' read -r slug event price title description categories; do
             if ! echo " $SAFE " | grep -q " $slug "; then
               echo "Withholding $slug until its zero-cost smoke gate passes."
               continue
