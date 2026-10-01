@@ -33,6 +33,27 @@ const acceptsFor = (price) => NETWORKS.map(network=>({
 }));
 const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools];
 
+const paymentRequiredHeader = {
+  description:'Base64-encoded x402 v2 PaymentRequired object. Decode this header, sign the selected requirement with a caller-controlled wallet, and retry the same request with PAYMENT-SIGNATURE.',
+  schema:{type:'string'}
+};
+
+const paymentResponseHeader = {
+  description:'Base64-encoded x402 v2 settlement response returned after a successful paid request.',
+  schema:{type:'string'}
+};
+
+const paidSuccess = (description, content) => ({
+  description,
+  headers:{'PAYMENT-RESPONSE':paymentResponseHeader},
+  ...(content ? {content} : {})
+});
+
+const paymentRequired = {
+  description:'x402 v2 payment required. Protocol details are carried in the PAYMENT-REQUIRED response header.',
+  headers:{'PAYMENT-REQUIRED':paymentRequiredHeader}
+};
+
 const metadataInputSchema = {
   type:'object',
   properties:{
@@ -162,9 +183,9 @@ const openapi = {
         description:manifest.tools[0].description,
         requestBody:{required:true,content:{'application/json':{schema:metadataInputSchema}}},
         responses:{
-          '200':{description:'Metadata result'},
+          '200':paidSuccess('Metadata result'),
           '400':{description:'Invalid input'},
-          '402':{description:'x402 payment required'},
+          '402':paymentRequired,
           '502':{description:'Target fetch failed'}
         }
       }
@@ -180,7 +201,7 @@ const openapi = {
         description:manifest.tools[1].description,
         requestBody:{required:true,content:{'application/json':{schema:changeInputSchema}}},
         responses:{
-          '200':{description:'Change comparison result'},
+          '200':paidSuccess('Change comparison result'),
           '400':{description:'Invalid input'},
           '402':{description:'x402 payment required'},
           '502':{description:'Target fetch failed'}
@@ -198,7 +219,7 @@ const openapi = {
         description:manifest.tools[2].description,
         requestBody:{required:true,content:{'application/json':{schema:changeInputSchema}}},
         responses:{
-          '200':{description:'Normalized readable content'},
+          '200':paidSuccess('Normalized readable content'),
           '400':{description:'Invalid input'},
           '402':{description:'x402 payment required'},
           '502':{description:'Target fetch failed'}
@@ -221,8 +242,8 @@ for (const tool of dynamicTools) {
       requestBody:{required:true,content:{'application/json':{schema:tool.inputSchema}}},
       responses:{
         '200':tool.outputSchema
-          ? {description:'Utility result',content:{'application/json':{schema:tool.outputSchema}}}
-          : {description:'Utility result'},
+          ? paidSuccess('Utility result',{'application/json':{schema:tool.outputSchema}})
+          : paidSuccess('Utility result'),
         '400':{description:'Invalid input'},
         '402':{description:'x402 payment required'}
       }
@@ -430,7 +451,22 @@ app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
   '- '+ORIGIN+'/.well-known/agent.json',
   '- '+ORIGIN+'/.well-known/agent-card.json',
   '',
-  'All paid routes use x402 USDC on Base. Utility routes are $0.0005; web metadata and change detection are $0.001.',
+  'Payment protocol: x402 v2',
+  'Network: Base (eip155:8453)',
+  'Asset: USDC',
+  '',
+  'Paid-call flow:',
+  '1. Call the POST route normally.',
+  '2. On HTTP 402, decode the PAYMENT-REQUIRED header.',
+  '3. Create and sign an x402 payment with a caller-controlled wallet.',
+  '4. Retry the same request with PAYMENT-SIGNATURE.',
+  '5. Read PAYMENT-RESPONSE from the successful response.',
+  '',
+  'Recommended clients:',
+  '- Python: x402_requests(...) or x402HttpxClient(...)',
+  '- TypeScript: wrapFetchWithPayment(...) or wrapAxiosWithPayment(...)',
+  '',
+  'All paid routes use x402 USDC on Base. Current route prices are declared individually below.', 
   '',
   ...manifest.tools.map(t=>'- '+t.method+' '+ORIGIN+t.route+' - $'+t.priceUsd+' - '+t.description)
 ].join('\n')));
