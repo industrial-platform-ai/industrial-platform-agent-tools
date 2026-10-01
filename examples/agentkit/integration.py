@@ -22,9 +22,9 @@ GATEWAY = os.getenv(
 
 def build_wallet_provider() -> EthAccountWalletProvider:
     """Create a Base mainnet wallet provider from EVM_PRIVATE_KEY."""
-    private_key = os.getenv("EVM_PRIVATE_KEY")
+    private_key = os.getenv("EVM_PRIVATE_KEY") or os.getenv("WALLET_KEY_REF")
     if not private_key:
-        raise RuntimeError("EVM_PRIVATE_KEY is required.")
+        raise RuntimeError("EVM_PRIVATE_KEY or WALLET_KEY_REF is required.")
     if not private_key.startswith("0x"):
         raise RuntimeError("EVM_PRIVATE_KEY must use the 0x-prefixed EVM format.")
 
