@@ -188,9 +188,11 @@ jobs:
 
           echo "safe=website-content-crawler-agent url-to-markdown-agent smart-article-extractor ecommerce-product-intelligence google-news-intelligence" >> "$GITHUB_OUTPUT"
 
-      - name: Install Apify CLI
+      - name: Install and authenticate Apify CLI
         if: steps.budget.outputs.allow == 'true'
-        run: npm install -g apify-cli
+        run: |
+          npm install -g apify-cli
+          apify login --token "$APIFY_TOKEN"
 
       - name: Deploy smoke-tested agentic products 8-12
         if: steps.budget.outputs.allow == 'true'
