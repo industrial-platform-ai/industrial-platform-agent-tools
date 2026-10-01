@@ -446,6 +446,36 @@ const resourceServer = new x402ResourceServer(facilitator);
 for (const network of NETWORKS) resourceServer.register(network, new ExactEvmScheme());
 resourceServer
   .registerExtension(bazaarResourceServerExtension)
+  .onAfterVerify(async (context) => {
+    console.log('X402_VERIFY_RESULT', JSON.stringify({
+      isValid: context.result?.isValid ?? null,
+      invalidReason: context.result?.invalidReason ?? null,
+      invalidMessage: context.result?.invalidMessage ?? null,
+      network: context.requirements?.network ?? null,
+      scheme: context.requirements?.scheme ?? null,
+      amount: context.requirements?.amount ?? null,
+      at: new Date().toISOString()
+    }));
+  })
+  .onVerifyFailure(async (context) => {
+    console.log('X402_VERIFY_FAILURE', JSON.stringify({
+      error: String(context.error?.message || context.error || 'unknown'),
+      network: context.requirements?.network ?? null,
+      scheme: context.requirements?.scheme ?? null,
+      amount: context.requirements?.amount ?? null,
+      at: new Date().toISOString()
+    }));
+  })
+  .onSettleFailure(async (context) => {
+    console.log('X402_SETTLE_FAILURE', JSON.stringify({
+      error: String(context.error?.message || context.error || 'unknown'),
+      network: context.requirements?.network ?? null,
+      scheme: context.requirements?.scheme ?? null,
+      amount: context.requirements?.amount ?? null,
+      phase: context.phase ?? null,
+      at: new Date().toISOString()
+    }));
+  })
   .onAfterSettle(async (context) => {
     const payer=String(context.result?.payer || '').toLowerCase() || null;
     const amount=Number(context.requirements?.amount || 0);
