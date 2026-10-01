@@ -86,7 +86,10 @@ export async function submitX402ListNoSpend({ sellerOrigin }) {
       '/html/markdown',
       '/text/entities',
       '/http/status',
-      '/rss/json'
+      '/rss/json',
+      '/sitemap/urls',
+      '/web/links',
+      '/json/repair'
     ],
     notes: 'Durable Railway origin. Base, Polygon, and Arbitrum USDC x402. Public machine-readable discovery at /.well-known/x402 and /openapi.json.'
   };
