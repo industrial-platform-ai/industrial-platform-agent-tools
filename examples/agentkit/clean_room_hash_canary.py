@@ -18,7 +18,7 @@ from coinbase_agentkit.action_providers.x402.schemas import PaymentOptionSchema
 from integration import GATEWAY, build_wallet_provider, build_x402_provider
 
 HASH_URL = f"{GATEWAY}/hash"
-EXPECTED_MAX_ATOMIC = 1
+EXPECTED_MAX_ATOMIC = 1000
 
 
 def public_canary_price() -> dict:
@@ -85,7 +85,7 @@ def main() -> None:
         return
 
     wallet = build_wallet_provider()
-    provider = build_x402_provider(max_payment_usdc=0.000001)
+    provider = build_x402_provider(max_payment_usdc=0.001)
     request_args = {
         "url": HASH_URL,
         "method": "POST",
