@@ -108,7 +108,7 @@ function summarizePaymentRequiredHeader(value) {
 const metadataInputSchema = {
   type:'object',
   properties:{
-    urls:{type:'array',items:{type:'string',format:'uri'},minItems:1,maxItems:100},
+    urls:{type:'array',items:{type:'string',format:'uri'},minItems:1,maxItems:1,description:'Exactly one public URL per paid request.'},
     timeout_seconds:{type:'integer',minimum:5,maximum:60},
     concurrency:{type:'integer',minimum:1,maximum:20}
   },
@@ -176,7 +176,7 @@ const manifest = {
       method:'POST',
       route:'/metadata',
       priceUsd:0.001,
-      description:'Extract webpage metadata, Open Graph, Twitter cards, canonical URL, robots directives, headings and JSON-LD from one or more public URLs. Use when an agent needs webpage metadata, SEO fields, link-preview data, structured data or RAG ingestion metadata.',
+      description:'Extract webpage metadata, Open Graph, Twitter cards, canonical URL, robots directives, headings and JSON-LD for one public URL per paid request. Use when an agent needs SEO fields, link-preview data, structured data or RAG ingestion metadata.',
       inputSchema:metadataInputSchema
     },
     {
