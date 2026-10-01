@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check metadata.mjs && node --check change.mjs && node --check utilities.mjs && node --check market.mjs && node --check article.mjs && node --check network.mjs && node --check bundles.mjs && node --check agentic.mjs"
+    "check": "node --check server.mjs && node --check metadata.mjs && node --check change.mjs && node --check utilities.mjs && node --check market.mjs && node --check article.mjs && node --check network.mjs && node --check bundles.mjs && node --check agentic.mjs && node --check mcp-server.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -20,6 +20,9 @@
     "diff": "^9.0.0",
     "express": "^5.1.0",
     "ipaddr.js": "^2.5.0",
-    "@x402/svm": "^2.25.0"
+    "@x402/svm": "^2.25.0",
+    "@x402/mcp": "^2.25.0",
+    "@modelcontextprotocol/sdk": "^1.17.4",
+    "zod": "^3.25.76"
   }
 }
