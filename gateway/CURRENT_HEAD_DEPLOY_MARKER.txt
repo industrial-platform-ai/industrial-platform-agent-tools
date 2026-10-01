@@ -1,5 +1,5 @@
 Industrial Platform gateway current-head deployment marker.
 
-Target main commit before marker: 3911bf82e86a240f10f55be2a0b778c19479634e
-Purpose: force Railway /gateway services to rebuild after utility syntax repair and watch-path stabilization.
-Base x402 payment semantics unchanged.
+Target main commit before marker: 240e03938b07ceebefd1b71a985bbe2721782403
+Purpose: deploy expanded semantic discovery for /change after production hardening.
+Base x402 payment semantics unchanged: x402 v2 USDC on Base using the existing payout configuration.
