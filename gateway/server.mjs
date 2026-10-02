@@ -783,21 +783,21 @@ code{background:#f5f5f5;padding:2px 5px;border-radius:5px}
 <div class="card">
 <form method="GET" action="/try/metadata">
 <label>Web Metadata</label>
-<input name="url" type="url" required value="https://www.nasa.gov/" placeholder="https://example.com/">
+<input name="url" type="url" required value="https://example.com/" placeholder="https://example.com/">
 <button type="submit">Run metadata — $0.001</button>
 </form>
 </div>
 <div class="card">
 <form method="GET" action="/try/change">
 <label>Page Change / Content Hash</label>
-<input name="url" type="url" required value="https://www.nasa.gov/" placeholder="https://example.com/">
+<input name="url" type="url" required value="https://example.com/" placeholder="https://example.com/">
 <button type="submit">Run change check — $0.001</button>
 </form>
 </div>
 <div class="card">
 <form method="GET" action="/try/markdown">
 <label>URL → Markdown</label>
-<input name="url" type="url" required value="https://www.nasa.gov/" placeholder="https://example.com/">
+<input name="url" type="url" required value="https://example.com/" placeholder="https://example.com/">
 <button type="submit">Convert to Markdown — $0.001</button>
 </form>
 </div>
@@ -953,17 +953,18 @@ app.use(paymentMiddleware(
 
 app.get('/try/metadata', async (req,res)=>{
   try {
-    const url=typeof req.query.url==='string' && req.query.url.trim() ? req.query.url.trim() : 'https://www.nasa.gov/';
+    const url=typeof req.query.url==='string' && req.query.url.trim() ? req.query.url.trim() : 'https://example.com/';
     res.json(await runMetadata({urls:[url]}));
   } catch (error) {
     const code=Number(error?.statusCode)||502;
+    console.error('TRY_METADATA_ERROR', JSON.stringify({code,error:String(error?.message||error),payload:error?.payload||null,at:new Date().toISOString()}));
     res.status(code).json(error?.payload||{error:String(error?.message||error)});
   }
 });
 
 app.get('/try/change', async (req,res)=>{
   try {
-    const url=typeof req.query.url==='string' && req.query.url.trim() ? req.query.url.trim() : 'https://www.nasa.gov/';
+    const url=typeof req.query.url==='string' && req.query.url.trim() ? req.query.url.trim() : 'https://example.com/';
     res.json(await runChange({url,include_current_text:false}));
   } catch (error) {
     const code=Number(error?.statusCode)||502;
@@ -973,7 +974,7 @@ app.get('/try/change', async (req,res)=>{
 
 app.get('/try/markdown', async (req,res)=>{
   try {
-    const url=typeof req.query.url==='string' && req.query.url.trim() ? req.query.url.trim() : 'https://www.nasa.gov/';
+    const url=typeof req.query.url==='string' && req.query.url.trim() ? req.query.url.trim() : 'https://example.com/';
     const tool=dynamicTools.find(t=>t.route==='/web/markdown');
     if(!tool) return res.status(500).json({error:'markdown tool unavailable'});
     res.json(await tool.run({url,max_chars:100000}));
