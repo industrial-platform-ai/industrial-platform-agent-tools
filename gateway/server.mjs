@@ -953,8 +953,7 @@ app.use(paymentMiddleware(
 
 app.get('/try/metadata', async (req,res)=>{
   try {
-    const url=typeof req.query.url==='string'?req.query.url.trim():'';
-    if(!url) return res.status(400).json({error:'url is required'});
+    const url=typeof req.query.url==='string' && req.query.url.trim() ? req.query.url.trim() : 'https://www.nasa.gov/';
     res.json(await runMetadata({urls:[url]}));
   } catch (error) {
     const code=Number(error?.statusCode)||502;
@@ -964,8 +963,7 @@ app.get('/try/metadata', async (req,res)=>{
 
 app.get('/try/change', async (req,res)=>{
   try {
-    const url=typeof req.query.url==='string'?req.query.url.trim():'';
-    if(!url) return res.status(400).json({error:'url is required'});
+    const url=typeof req.query.url==='string' && req.query.url.trim() ? req.query.url.trim() : 'https://www.nasa.gov/';
     res.json(await runChange({url,include_current_text:false}));
   } catch (error) {
     const code=Number(error?.statusCode)||502;
@@ -975,8 +973,7 @@ app.get('/try/change', async (req,res)=>{
 
 app.get('/try/markdown', async (req,res)=>{
   try {
-    const url=typeof req.query.url==='string'?req.query.url.trim():'';
-    if(!url) return res.status(400).json({error:'url is required'});
+    const url=typeof req.query.url==='string' && req.query.url.trim() ? req.query.url.trim() : 'https://www.nasa.gov/';
     const tool=dynamicTools.find(t=>t.route==='/web/markdown');
     if(!tool) return res.status(500).json({error:'markdown tool unavailable'});
     res.json(await tool.run({url,max_chars:100000}));
