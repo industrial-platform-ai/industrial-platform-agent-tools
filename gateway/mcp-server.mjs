@@ -219,7 +219,7 @@ function createServer() {
     server.tool(
       tool.name,
       tool.description+' Costs '+(tool.price || ('$'+Number(tool.priceUsd).toFixed(6).replace(/0+$/,'').replace(/\.$/,'')))+' USDC on Base via x402.',
-      schemaToZod(tool.inputSchema),
+      schemaToZod(tool.inputSchema).shape,
       paid(async (args) => {
         const data = await tool.run(args);
         return {
