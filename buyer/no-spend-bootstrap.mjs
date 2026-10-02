@@ -1,6 +1,10 @@
-export async function verifyVet402PayeeNoSpend({ sellerAccount, sellerOrigin }) {
-  if (!sellerAccount) throw new Error('sellerAccount unavailable');
-  const wallet = sellerAccount.address;
+export async function verifyVet402PayeeNoSpend({ sellerAccount, sellerOrigin, payoutAddress }) {
+  if (!sellerAccount) return;
+  if (!payoutAddress || sellerAccount.address.toLowerCase() !== payoutAddress.toLowerCase()) {
+    console.log('vet402 payee verification skipped: registry signer does not match the Coinbase payout address; no legacy wallet verification attempted.');
+    return;
+  }
+  const wallet = payoutAddress;
   const name = 'Industrial Platform Agent Utility Market';
   const url = sellerOrigin;
   const q = new URLSearchParams({ wallet, name, url });
@@ -91,7 +95,7 @@ export async function submitX402ListNoSpend({ sellerOrigin }) {
       '/web/links',
       '/json/repair'
     ],
-    notes: 'Durable Railway origin. Base, Polygon, and Arbitrum USDC x402. Public machine-readable discovery at /.well-known/x402 and /openapi.json.'
+    notes: 'Durable Railway origin. Base USDC x402 on eip155:8453. Public machine-readable discovery at /.well-known/x402 and /openapi.json.'
   };
 
   const response = await fetch('https://x402-list.com/api/v1/submit', {
