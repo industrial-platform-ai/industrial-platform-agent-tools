@@ -11,6 +11,8 @@ import { verifyVet402PayeeNoSpend, submitX402ListNoSpend } from './no-spend-boot
 const PORT = Number(process.env.PORT || 3000);
 const TARGET = process.env.X402_TARGET || 'https://x402-gateway-production-1f21.up.railway.app/metadata';
 const key = process.env.EVM_PRIVATE_KEY;
+const PAYOUT_ADDRESS = (process.env.X402_PAY_TO || '0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E').trim();
+if (!/^0x[a-fA-F0-9]{40}$/.test(PAYOUT_ADDRESS)) throw new Error('X402_PAY_TO must be a valid EVM address');
 const runPayment = process.env.RUN_PAYMENT === '1';
 const runRegistry = process.env.RUN_X402SCAN_REGISTRATION === '1';
 const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan.com/api/x402/registry/register-origin';
@@ -102,7 +104,8 @@ let state = {
   status: runPayment ? 'pending' : 'armed',
   result: null,
   error: null,
-  sellerAddress: sellerAccount?.address ?? null,
+  payoutAddress: PAYOUT_ADDRESS,
+  registrySignerAddress: sellerAccount?.address ?? null,
 };
 
 function makeClient() {
@@ -185,7 +188,7 @@ async function registerX402scanAuthenticatedNoSpend() {
   console.log('x402scan SIWX registration:', JSON.stringify({
     httpStatus:response.status,
     ok:response.ok,
-    wallet:sellerAccount.address,
+    signerAddress:sellerAccount.address,
     body:body.slice(0,5000),
     completedAt:new Date().toISOString()
   }));
@@ -298,7 +301,7 @@ async function registerX402ArenaNoSpend() {
   ];
   for (const listing of listings) {
     try {
-      const payload={...listing,walletAddress:sellerAccount.address,resourceType:'http'};
+      const payload={...listing,walletAddress:PAYOUT_ADDRESS,resourceType:'http'};
       const response=await fetch(x402ArenaRegisterTarget,{
         method:'POST',
         headers:{'content-type':'application/json','accept':'application/json'},
@@ -322,7 +325,7 @@ async function registerX402ArenaNoSpend() {
 
 async function registerAgentExchangePassport() {
   try {
-    const wallet = sellerAccount?.address || account?.address || null;
+    const wallet = PAYOUT_ADDRESS;
     const payload = {
       id: 'industrial-platform-x402',
       name: 'Industrial Platform x402 Tools',
@@ -542,7 +545,7 @@ async function registerX402scanOnce() {
   state.result = {
     httpStatus: response.status,
     ok: response.ok,
-    wallet: signer.address,
+    signerAddress: signer.address,
     registryTarget,
     sellerOrigin,
     body: parsed ?? text.slice(0, 20000),
@@ -554,7 +557,7 @@ async function registerX402scanOnce() {
 }
 
 registerTrue402Free();
-verifyVet402PayeeNoSpend({ sellerAccount, sellerOrigin }).catch(error => console.error('vet402 payee verification failed:', String(error?.message || error)));
+verifyVet402PayeeNoSpend({ sellerAccount, sellerOrigin, payoutAddress: PAYOUT_ADDRESS }).catch(error => console.error('vet402 payee verification failed:', String(error?.message || error)));
 submitX402ListNoSpend({ sellerOrigin }).catch(error => console.error('x402 List submission failed:', String(error?.message || error)));
 fetchAgent402Wishes();
 runExternalEarningDiagnostics();
@@ -587,7 +590,7 @@ http.createServer((req, res) => {
   }
   if (req.url === '/seller-address') {
     res.writeHead(200, { 'content-type': 'application/json' });
-    return res.end(JSON.stringify({ address: sellerAccount?.address ?? null }));
+    return res.end(JSON.stringify({ address: PAYOUT_ADDRESS, payoutAddress: PAYOUT_ADDRESS, registrySignerAddress: sellerAccount?.address ?? null }));
   }
   if (req.url === '/state') {
     res.writeHead(200, { 'content-type': 'application/json' });
@@ -596,5 +599,5 @@ http.createServer((req, res) => {
   res.writeHead(404, { 'content-type': 'application/json' });
   res.end(JSON.stringify({ error: 'not_found' }));
 }).listen(PORT, '0.0.0.0', () => {
-  console.log('x402 seed buyer listening on', PORT, 'payment state:', state.status, 'seller address:', sellerAccount?.address ?? null);
+  console.log('x402 seed buyer listening on', PORT, 'payment state:', state.status, 'payout address:', PAYOUT_ADDRESS, 'registry signer address:', sellerAccount?.address ?? null);
 });
