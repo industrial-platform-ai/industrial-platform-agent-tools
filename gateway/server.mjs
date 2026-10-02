@@ -59,7 +59,7 @@ function routeFunnel(path) {
 }
 
 const BASE_BLOCKSCOUT = 'https://base.blockscout.com/api/v2';
-const X402_SETTLEMENT_METHOD = '0xe3ee160e';
+const X402_SETTLEMENT_METHODS = new Set(['0xe3ee160e','0xcf092995','transferwithauthorization']);
 const AGENT402_ROUTE_API = 'https://agent402.tools/api/route';
 const ROUTING_QUERIES = [
   {route:'/change',query:'detect whether a webpage changed'},
@@ -99,7 +99,7 @@ async function readOnchainSettlementWindow(hours=24) {
       && timestamp <= end.getTime()
       && token === usdc
       && to === payTo
-      && method === X402_SETTLEMENT_METHOD;
+      && X402_SETTLEMENT_METHODS.has(method);
   });
 
   const transfers = facilitated.map(row=>{
@@ -130,7 +130,7 @@ async function readOnchainSettlementWindow(hours=24) {
     asset:'USDC',
     assetAddress:NETWORK_ASSETS[NETWORK],
     payTo:PAY_TO,
-    methodFilter:X402_SETTLEMENT_METHOD,
+    methodFilter:[...X402_SETTLEMENT_METHODS],
     settlementTransferCount:transfers.length,
     excludedInternalTransferCount:transfers.length-external.length,
     externalFacilitatedTransferCount:external.length,
