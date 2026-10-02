@@ -672,6 +672,30 @@ for (const tool of dynamicTools) {
   };
 }
 
+const tryRoutes = {
+  'GET /try/metadata': {
+    accepts:acceptsFor(PRICE),
+    resource:ORIGIN+'/try/metadata',
+    description:'Human browser test: extract metadata, OpenGraph and JSON-LD for one public URL.',
+    mimeType:'application/json',
+    serviceName:'Industrial Platform Browser Test'
+  },
+  'GET /try/change': {
+    accepts:acceptsFor(PRICE),
+    resource:ORIGIN+'/try/change',
+    description:'Human browser test: fetch a public URL and return its current deterministic content hash.',
+    mimeType:'application/json',
+    serviceName:'Industrial Platform Browser Test'
+  },
+  'GET /try/markdown': {
+    accepts:acceptsFor(PRICE),
+    resource:ORIGIN+'/try/markdown',
+    description:'Human browser test: convert one public webpage URL to clean Markdown.',
+    mimeType:'application/json',
+    serviceName:'Industrial Platform Browser Test'
+  }
+};
+
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json({limit:'256kb'}));
@@ -730,7 +754,51 @@ app.get('/', (_req,res)=>res.json({
   }
 }));
 
-app.get('/health', (_req,res)=>res.json({ok:true,version:'2.1.0',payment:'coinbase-cdp',network:NETWORK,priorityRoutes:PRIORITY_ROUTES}));
+app.get('/try', (_req,res)=>res.type('html').send(`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Try Industrial Platform</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:760px;margin:48px auto;padding:0 20px;color:#111}
+h1{font-size:32px;margin-bottom:8px}.sub{color:#555;margin-bottom:28px}
+.card{border:1px solid #ddd;border-radius:14px;padding:20px;margin:16px 0}
+label{display:block;font-weight:600;margin-bottom:8px}input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #bbb;border-radius:9px;font-size:16px}
+button{margin-top:12px;padding:11px 16px;border:0;border-radius:9px;background:#111;color:#fff;font-weight:700;cursor:pointer}
+.small{font-size:13px;color:#666}.price{font-weight:700}
+code{background:#f5f5f5;padding:2px 5px;border-radius:5px}
+</style>
+</head>
+<body>
+<h1>Try Industrial Platform</h1>
+<p class="sub">Direct browser testing. No Perplexity, Grok, API key, or terminal required.</p>
+<p>Each successful request costs <span class="price">$0.001 USDC on Base</span> and settles through x402 to <code>${PAY_TO}</code>.</p>
+<div class="card">
+<form method="GET" action="/try/metadata">
+<label>Web Metadata</label>
+<input name="url" type="url" required value="https://www.nasa.gov/" placeholder="https://example.com/">
+<button type="submit">Run metadata — $0.001</button>
+</form>
+</div>
+<div class="card">
+<form method="GET" action="/try/change">
+<label>Page Change / Content Hash</label>
+<input name="url" type="url" required value="https://www.nasa.gov/" placeholder="https://example.com/">
+<button type="submit">Run change check — $0.001</button>
+</form>
+</div>
+<div class="card">
+<form method="GET" action="/try/markdown">
+<label>URL → Markdown</label>
+<input name="url" type="url" required value="https://www.nasa.gov/" placeholder="https://example.com/">
+<button type="submit">Convert to Markdown — $0.001</button>
+</form>
+</div>
+<p class="small">Your wallet signs the payment in your browser. Industrial Platform does not receive your private key.</p>
+</body></html>`));
+
+app.get('/health', (_req,res)=>res.json({ok:true,version:'2.2.0',payment:'coinbase-cdp',network:NETWORK,priorityRoutes:PRIORITY_ROUTES,browserTest:'/try'}));
 app.get('/metrics/x402.json', (_req,res)=>res.json({
   startedAt:funnelState.startedAt,
   network:NETWORK,
@@ -869,6 +937,47 @@ for (const tool of dynamicTools) {
     example:tool.example
   }));
 }
+
+app.use(paymentMiddleware(
+  tryRoutes,
+  resourceServer,
+  {appName:'Industrial Platform',testnet:false}
+));
+
+app.get('/try/metadata', async (req,res)=>{
+  try {
+    const url=typeof req.query.url==='string'?req.query.url.trim():'';
+    if(!url) return res.status(400).json({error:'url is required'});
+    res.json(await runMetadata({urls:[url]}));
+  } catch (error) {
+    const code=Number(error?.statusCode)||502;
+    res.status(code).json(error?.payload||{error:String(error?.message||error)});
+  }
+});
+
+app.get('/try/change', async (req,res)=>{
+  try {
+    const url=typeof req.query.url==='string'?req.query.url.trim():'';
+    if(!url) return res.status(400).json({error:'url is required'});
+    res.json(await runChange({url,include_current_text:false}));
+  } catch (error) {
+    const code=Number(error?.statusCode)||502;
+    res.status(code).json({error:String(error?.message||error)});
+  }
+});
+
+app.get('/try/markdown', async (req,res)=>{
+  try {
+    const url=typeof req.query.url==='string'?req.query.url.trim():'';
+    if(!url) return res.status(400).json({error:'url is required'});
+    const tool=dynamicTools.find(t=>t.route==='/web/markdown');
+    if(!tool) return res.status(500).json({error:'markdown tool unavailable'});
+    res.json(await tool.run({url,max_chars:100000}));
+  } catch (error) {
+    const code=Number(error?.statusCode)||502;
+    res.status(code).json({error:String(error?.message||error)});
+  }
+});
 
 app.use(paymentMiddleware(routes, resourceServer));
 
