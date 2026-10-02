@@ -4,6 +4,8 @@ import { x402ResourceServer } from '@x402/core/server';
 import { ExactEvmScheme } from '@x402/evm/exact/server';
 import { declareDiscoveryExtension, bazaarResourceServerExtension } from '@x402/extensions/bazaar';
 import { createCdpFacilitatorClient } from '@coinbase/cdp-sdk/x402';
+import { createPaywall } from '@x402/paywall';
+import { evmPaywall } from '@x402/paywall/evm';
 import { runMetadata } from './metadata.mjs';
 import { runChange } from './change.mjs';
 import { utilityTools } from './utilities.mjs';
@@ -576,6 +578,10 @@ No buyer API key or account is required. Read the HTTP 402 payment requirements,
 `;
 
 const facilitator = createCdpFacilitatorClient();
+const browserPaywall = createPaywall()
+  .withNetwork(evmPaywall)
+  .withConfig({appName:'Industrial Platform',testnet:false})
+  .build();
 const resourceServer = new x402ResourceServer(facilitator);
 for (const network of NETWORKS) resourceServer.register(network, new ExactEvmScheme());
 resourceServer
@@ -941,7 +947,8 @@ for (const tool of dynamicTools) {
 app.use(paymentMiddleware(
   tryRoutes,
   resourceServer,
-  {appName:'Industrial Platform',testnet:false}
+  {appName:'Industrial Platform',testnet:false},
+  browserPaywall
 ));
 
 app.get('/try/metadata', async (req,res)=>{
