@@ -303,6 +303,60 @@ const changeDiscovery = declareDiscoveryExtension({
   }
 });
 
+
+const GET_CHAIN_ALIASES = [
+  {
+    route:'/v1/block-number',
+    sourceRoute:'/chain/block-number',
+    operationId:'block-number',
+    description:'Latest EVM block number on Base or Ethereum. GET-compatible alias for recurring chain-tip polling, indexers, synchronization and autonomous blockchain monitoring.',
+    querySchema:{type:'object',properties:{network:{type:'string',enum:['base','ethereum'],default:'base'}},additionalProperties:false},
+    example:{network:'base'}
+  },
+  {
+    route:'/wallet-balance',
+    sourceRoute:'/chain/native-balance',
+    operationId:'wallet-balance',
+    description:'Wallet balance: return the live native ETH balance for any EVM wallet on Base or Ethereum. GET-compatible alias for portfolio agents and recurring treasury monitoring.',
+    querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['address'],additionalProperties:false},
+    example:{address:'0x0000000000000000000000000000000000000000',network:'base'}
+  },
+  {
+    route:'/erc20-balance',
+    sourceRoute:'/chain/erc20-balance',
+    operationId:'erc20-balance',
+    description:'ERC20 balance: return one wallet token balance for any ERC-20 contract on Base or Ethereum. GET-compatible alias for USDC, USDT, DAI and arbitrary token balance checks.',
+    querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},contract:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['address','contract'],additionalProperties:false},
+    example:{address:'0x0000000000000000000000000000000000000000',contract:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',network:'base'}
+  },
+  {
+    route:'/crypto-wallet-balance',
+    sourceRoute:'/chain/live-balance',
+    operationId:'crypto-wallet-balance',
+    description:'Crypto wallet balance: return native ETH plus optional ERC-20 balances for one wallet on Base or Ethereum. GET-compatible alias for portfolio, treasury and wallet-monitoring agents.',
+    querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'string',description:'Optional comma-separated ERC-20 contract addresses.'}},required:['address'],additionalProperties:false},
+    example:{address:'0x0000000000000000000000000000000000000000',network:'base',tokens:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}
+  }
+];
+
+const getAliasDiscovery = (alias) => declareDiscoveryExtension({
+  input:alias.example,
+  inputSchema:alias.querySchema,
+  output:{example:{status:'ready'}}
+});
+
+function aliasQueryInput(alias, query) {
+  const input={};
+  for (const key of Object.keys(alias.querySchema.properties||{})) {
+    const value=query[key];
+    if (typeof value==='string' && value.trim()!=='') input[key]=value.trim();
+  }
+  if (alias.operationId==='crypto-wallet-balance' && typeof input.tokens==='string') {
+    input.tokens=input.tokens.split(',').map(v=>v.trim()).filter(Boolean).slice(0,20);
+  }
+  return input;
+}
+
 const manifest = {
   name:'Industrial Platform Agent Utility Market',
   description:'Low-cost x402 machine utilities for autonomous agents: SHA-256 hashing, Base64/hex conversion, UUID generation, unit conversion, timezone conversion, realtime crypto market data, webpage/document extraction, URL-to-Markdown, metadata, RAG preparation and deterministic website change detection.',
@@ -364,6 +418,17 @@ manifest.tools = manifest.tools.map(t=>({
   recommended:PRIORITY_ROUTE_SET.has(t.route),
   priority:PRIORITY_ROUTE_SET.has(t.route) ? PRIORITY_ROUTES.indexOf(t.route)+1 : null
 }));
+manifest.tools.push(...GET_CHAIN_ALIASES.map(alias=>({
+  name:alias.operationId,
+  method:'GET',
+  route:alias.route,
+  priceUsd:0.001,
+  summary:alias.description,
+  description:alias.description,
+  inputSchema:alias.querySchema,
+  recommended:false,
+  priority:null
+})));
 manifest.resources = manifest.tools.map(t=>ORIGIN+t.route);
 
 const openapi = {
@@ -474,6 +539,34 @@ for (const tool of dynamicTools) {
           : paidSuccess('Utility result'),
         '400':{description:'Invalid input'},
         '402':{description:'x402 payment required'}
+      }
+    }
+  };
+}
+
+
+for (const alias of GET_CHAIN_ALIASES) {
+  const parameters=Object.entries(alias.querySchema.properties||{}).map(([name,schema])=>({
+    name,
+    in:'query',
+    required:Array.isArray(alias.querySchema.required) && alias.querySchema.required.includes(name),
+    schema
+  }));
+  openapi.paths[alias.route] = {
+    get:{
+      operationId:alias.operationId,
+      'x-payment-info':{
+        protocols:['x402'],
+        price:{mode:'fixed',currency:'USD',amount:'0.001'}
+      },
+      summary:alias.description,
+      description:alias.description,
+      parameters,
+      responses:{
+        '200':paidSuccess('Chain read result'),
+        '400':{description:'Invalid input'},
+        '402':paymentRequired,
+        '502':{description:'RPC request failed'}
       }
     }
   };
@@ -685,6 +778,19 @@ for (const tool of dynamicTools) {
     serviceName:'Industrial Platform Agent Utility Market',
     tags:tool.tags,
     extensions:{...utilityDiscovery(tool)}
+  };
+}
+
+
+for (const alias of GET_CHAIN_ALIASES) {
+  routes[`GET ${alias.route}`] = {
+    accepts:acceptsFor('$0.001'),
+    resource:ORIGIN+alias.route,
+    description:alias.description,
+    mimeType:'application/json',
+    serviceName:'Industrial Platform Agent Utility Market',
+    tags:['blockchain','evm','wallet','balance','erc20','base','ethereum','agents'],
+    extensions:{...getAliasDiscovery(alias)}
   };
 }
 
@@ -1045,6 +1151,20 @@ for (const tool of dynamicTools) {
   app.post(tool.route, async (req,res)=>{
     try {
       res.json(await tool.run(req.body));
+    } catch (error) {
+      const code=Number(error?.statusCode)||400;
+      res.status(code).json({error:String(error?.message||error)});
+    }
+  });
+}
+
+
+for (const alias of GET_CHAIN_ALIASES) {
+  app.get(alias.route, async (req,res)=>{
+    try {
+      const tool=dynamicTools.find(t=>t.route===alias.sourceRoute);
+      if(!tool) return res.status(500).json({error:'source tool unavailable'});
+      res.json(await tool.run(aliasQueryInput(alias,req.query)));
     } catch (error) {
       const code=Number(error?.statusCode)||400;
       res.status(code).json({error:String(error?.message||error)});
