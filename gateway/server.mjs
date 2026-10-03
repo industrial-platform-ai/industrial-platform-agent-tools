@@ -458,7 +458,7 @@ for (const tool of dynamicTools) {
     post:{
       operationId:tool.route==='/web/markdown'
         ? 'convertUrlToMarkdown'
-        : tool.name.replace(/[^a-zA-Z0-9]+(.)/g,(_,ch)=>ch.toUpperCase()),
+        : (tool.operationId || tool.name.replace(/[^a-zA-Z0-9]+(.)/g,(_,ch)=>ch.toUpperCase())),
       'x-payment-info':{
         protocols:['x402'],
         price:{mode:'fixed',currency:'USD',amount:String(tool.priceUsd)}
