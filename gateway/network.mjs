@@ -55,6 +55,24 @@ function balanceOfData(address){
 function hexToDecimal(value){
   try{return BigInt(value||'0x0').toString(10);}catch{return null;}
 }
+function hexToNumber(value){
+  try{return Number(BigInt(value||'0x0'));}catch{return null;}
+}
+function topicAddress(address){
+  return '0x'+evmAddress(address).slice(2).toLowerCase().padStart(64,'0');
+}
+function allowanceData(owner,spender){
+  return '0xdd62ed3e'+owner.slice(2).toLowerCase().padStart(64,'0')+spender.slice(2).toLowerCase().padStart(64,'0');
+}
+function topicToAddress(topic){
+  const value=String(topic||'');
+  return /^0x[a-fA-F0-9]{64}$/.test(value) ? '0x'+value.slice(-40) : null;
+}
+const TRANSFER_TOPIC='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+const DEFAULT_USDC={
+  base:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  ethereum:'0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+};
 
 function hostInput(input){
   const host=String(input?.host||input?.name||'').trim().toLowerCase().replace(/\.$/,'');
@@ -216,7 +234,9 @@ export const networkTools=[
     name:'chain-live-balance',route:'/chain/live-balance',price:'$0.001',priceUsd:0.001,
     description:'Live wallet balance in one call: native ETH plus up to 20 caller-supplied ERC-20 token balances on Base or Ethereum. Built for portfolio agents, treasury monitors, wallet intelligence and recurring balance polling.',
     tags:['blockchain','wallet','balance','erc20','portfolio','treasury','base','ethereum','rpc'],
-    inputSchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'array',items:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},maxItems:20}},required:['address'],additionalProperties:false},
+    inputSchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}
+},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'array',items:{type:'string',pattern:'^0x[a-fA-F0-9]{40}
+},maxItems:20}},required:['address'],additionalProperties:false},
     example:{address:'0x0000000000000000000000000000000000000000',network:'base',tokens:['0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913']},
     run:async input=>{
       const network=chainInput(input),address=evmAddress(input?.address);
@@ -231,6 +251,122 @@ export const networkTools=[
         tokens:tokenRows.map(row=>({contract:row.contract,balance_raw:hexToDecimal(row.raw),balance_hex:row.raw})),
         fetched_at:new Date().toISOString()
       };
+    }
+  },
+  {
+    name:'chain-transaction-status',route:'/chain/transaction-status',price:'$0.001',priceUsd:0.001,
+    summary:'Check whether an EVM transaction is confirmed',
+    description:'Check whether a transaction is pending, confirmed or reverted on Base or Ethereum. Returns receipt status, block number, confirmations, gas used and effective gas price. Use for transaction confirmation polling, payment settlement checks and autonomous execution monitoring.',
+    tags:['transaction status','transaction receipt','transaction confirmation','confirmed','pending','reverted','base','ethereum','evm','monitoring','agents'],
+    inputSchema:{type:'object',properties:{tx_hash:{type:'string',pattern:'^0x[a-fA-F0-9]{64}
+},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['tx_hash'],additionalProperties:false},
+    example:{tx_hash:'0x0000000000000000000000000000000000000000000000000000000000000000',network:'base'},
+    run:async input=>{
+      const network=chainInput(input),txHash=String(input?.tx_hash||'').trim();
+      if(!/^0x[a-fA-F0-9]{64}$/.test(txHash)) throw Object.assign(new Error('tx_hash must be a 32-byte EVM transaction hash.'),{statusCode:400});
+      const [receipt,tipRaw]=await Promise.all([
+        rpcCall(network,'eth_getTransactionReceipt',[txHash]).catch(error=>{
+          if(error?.upstream?.code===-32000) return null;
+          throw error;
+        }),
+        rpcCall(network,'eth_blockNumber',[])
+      ]);
+      const tip=hexToNumber(tipRaw);
+      if(!receipt) return {network,tx_hash:txHash,status:'pending_or_unknown',confirmed:false,reverted:false,confirmations:0,chain_tip:tip,checked_at:new Date().toISOString()};
+      const block=hexToNumber(receipt.blockNumber);
+      const ok=receipt.status==='0x1';
+      return {
+        network,tx_hash:txHash,status:ok?'confirmed':'reverted',confirmed:ok,reverted:!ok,
+        block_number:block,chain_tip:tip,confirmations:Number.isFinite(block)&&Number.isFinite(tip)?Math.max(0,tip-block+1):null,
+        transaction_index:hexToNumber(receipt.transactionIndex),
+        gas_used:hexToDecimal(receipt.gasUsed),
+        effective_gas_price_wei:hexToDecimal(receipt.effectiveGasPrice),
+        contract_address:receipt.contractAddress||null,
+        checked_at:new Date().toISOString()
+      };
+    }
+  },
+  {
+    name:'chain-gas-state',route:'/chain/gas-state',price:'$0.001',priceUsd:0.001,
+    summary:'Get current EVM gas price and base fee',
+    description:'Get current gas conditions on Base or Ethereum: chain tip, legacy gas price, latest block base fee and gas utilization. Use for transaction timing, fee checks, pre-trade context and autonomous transaction execution.',
+    tags:['gas price','base fee','transaction fee','base','ethereum','evm','pretrade','trading','agents'],
+    inputSchema:{type:'object',properties:{network:{type:'string',enum:['base','ethereum'],default:'base'}},additionalProperties:false},
+    example:{network:'base'},
+    run:async input=>{
+      const network=chainInput(input);
+      const [gasPrice,block]=await Promise.all([
+        rpcCall(network,'eth_gasPrice',[]),
+        rpcCall(network,'eth_getBlockByNumber',['latest',false])
+      ]);
+      const used=hexToNumber(block?.gasUsed),limit=hexToNumber(block?.gasLimit);
+      return {
+        network,block_number:hexToNumber(block?.number),
+        gas_price_wei:hexToDecimal(gasPrice),
+        base_fee_per_gas_wei:hexToDecimal(block?.baseFeePerGas),
+        gas_used:used,gas_limit:limit,
+        gas_utilization_percent:Number.isFinite(used)&&Number.isFinite(limit)&&limit>0?Number((used/limit*100).toFixed(4)):null,
+        fetched_at:new Date().toISOString()
+      };
+    }
+  },
+  {
+    name:'chain-erc20-allowance',route:'/chain/erc20-allowance',price:'$0.001',priceUsd:0.001,
+    summary:'Check ERC-20 token allowance',
+    description:'Check the current ERC-20 allowance from an owner wallet to a spender contract on Base or Ethereum. Returns the exact raw allowance for USDC and arbitrary ERC-20 tokens. Use before swaps, recurring payments and autonomous contract execution.',
+    tags:['erc20 allowance','token allowance','approval','usdc','spender','wallet','base','ethereum','pretrade','agents'],
+    inputSchema:{type:'object',properties:{owner:{type:'string',pattern:'^0x[a-fA-F0-9]{40}
+},spender:{type:'string',pattern:'^0x[a-fA-F0-9]{40}
+},contract:{type:'string',pattern:'^0x[a-fA-F0-9]{40}
+},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['owner','spender','contract'],additionalProperties:false},
+    example:{owner:'0x0000000000000000000000000000000000000000',spender:'0x0000000000000000000000000000000000000000',contract:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',network:'base'},
+    run:async input=>{
+      const network=chainInput(input),owner=evmAddress(input?.owner,'owner'),spender=evmAddress(input?.spender,'spender'),contract=evmAddress(input?.contract,'contract');
+      const raw=await rpcCall(network,'eth_call',[{to:contract,data:allowanceData(owner,spender)},'latest']);
+      return{network,owner,spender,contract,allowance_raw:hexToDecimal(raw),allowance_hex:raw,fetched_at:new Date().toISOString()};
+    }
+  },
+  {
+    name:'chain-wallet-activity',route:'/chain/wallet-activity',price:'$0.002',priceUsd:0.002,
+    summary:'Monitor a wallet for recent USDC or ERC-20 transfers',
+    description:'Monitor recent ERC-20 transfer activity for one wallet on Base or Ethereum, defaulting to USDC. Returns incoming and outgoing transfers, latest block and next_cursor so an agent can poll repeatedly without rescanning old blocks. Use for stablecoin treasury monitoring, payment detection, wallet activity alerts and autonomous accounting.',
+    tags:['wallet activity','recent transfers','usdc transfers','stablecoin monitoring','payment detection','wallet monitor','erc20','base','ethereum','cursor','agents'],
+    inputSchema:{type:'object',properties:{
+      address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}
+},
+      contract:{type:'string',pattern:'^0x[a-fA-F0-9]{40}
+,description:'ERC-20 contract; defaults to USDC on the selected network.'},
+      network:{type:'string',enum:['base','ethereum'],default:'base'},
+      cursor:{type:'integer',minimum:0,description:'Previous next_cursor block number. When supplied, scan starts at cursor+1.'},
+      lookback_blocks:{type:'integer',minimum:1,maximum:5000,default:1000}
+    },required:['address'],additionalProperties:false},
+    example:{address:'0x0000000000000000000000000000000000000000',network:'base',lookback_blocks:500},
+    run:async input=>{
+      const network=chainInput(input),address=evmAddress(input?.address),contract=evmAddress(input?.contract||DEFAULT_USDC[network],'contract');
+      const tipRaw=await rpcCall(network,'eth_blockNumber',[]),tip=hexToNumber(tipRaw);
+      const lookback=Math.min(5000,Math.max(1,Number(input?.lookback_blocks||1000)));
+      const cursor=Number.isInteger(input?.cursor)?input.cursor:null;
+      const from=Math.max(0,cursor!==null?cursor+1:tip-lookback+1);
+      if(from>tip) return {network,address,contract,from_block:from,to_block:tip,count:0,transfers:[],next_cursor:tip,checked_at:new Date().toISOString()};
+      const fromHex='0x'+BigInt(from).toString(16),toHex='0x'+BigInt(tip).toString(16),walletTopic=topicAddress(address);
+      const [outgoing,incoming]=await Promise.all([
+        rpcCall(network,'eth_getLogs',[{address:contract,fromBlock:fromHex,toBlock:toHex,topics:[TRANSFER_TOPIC,walletTopic]}]),
+        rpcCall(network,'eth_getLogs',[{address:contract,fromBlock:fromHex,toBlock:toHex,topics:[TRANSFER_TOPIC,null,walletTopic]}])
+      ]);
+      const seen=new Set(),rows=[];
+      for(const log of [...outgoing,...incoming]){
+        const id=String(log.transactionHash||'')+':'+String(log.logIndex||'');
+        if(seen.has(id)) continue; seen.add(id);
+        const fromAddr=topicToAddress(log.topics?.[1]),toAddr=topicToAddress(log.topics?.[2]);
+        rows.push({
+          direction:String(fromAddr||'').toLowerCase()===address.toLowerCase()?'out':'in',
+          from:fromAddr,to:toAddr,amount_raw:hexToDecimal(log.data),
+          block_number:hexToNumber(log.blockNumber),
+          transaction_hash:log.transactionHash||null,log_index:hexToNumber(log.logIndex)
+        });
+      }
+      rows.sort((a,b)=>(a.block_number-b.block_number)||(a.log_index-b.log_index));
+      return{network,address,contract,from_block:from,to_block:tip,count:rows.length,transfers:rows.slice(-200),next_cursor:tip,checked_at:new Date().toISOString()};
     }
   }
 ];
