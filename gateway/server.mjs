@@ -62,10 +62,15 @@ const funnelState = {
   settledAtomic:0,
   distinctPayers:new Set(),
   distinctExternalPayers:new Set(),
-  byRoute:{}
+  byRoute:{},
+  byUserAgent:{}
 };
 function routeFunnel(path) {
   return funnelState.byRoute[path] ||= {challenges:0,paymentRetries:0,paidCompletions:0};
+}
+function userAgentFunnel(userAgent) {
+  const key=String(userAgent||'unknown').slice(0,200);
+  return funnelState.byUserAgent[key] ||= {challenges:0,paymentRetries:0,paidCompletions:0,routes:{}};
 }
 
 const BASE_BLOCKSCOUT = 'https://base.blockscout.com/api/v2';
@@ -145,6 +150,19 @@ async function readOnchainSettlementWindow(hours=24) {
   const externalPayers = [...new Set(external.map(row=>row.payer).filter(Boolean))];
   const externalAtomic = external.reduce((sum,row)=>sum+row.amountAtomic,0);
   const allAtomic = transfers.reduce((sum,row)=>sum+row.amountAtomic,0);
+  const payerMap=new Map();
+  for (const row of external) {
+    if(!row.payer) continue;
+    const item=payerMap.get(row.payer)||{payer:row.payer,callCount:0,amountAtomic:0,amountUsdc:0,firstSeenAt:null,lastSeenAt:null};
+    item.callCount+=1;
+    item.amountAtomic+=row.amountAtomic;
+    item.amountUsdc=Number((item.amountAtomic/1_000_000).toFixed(6));
+    if(!item.firstSeenAt||row.timestamp<item.firstSeenAt)item.firstSeenAt=row.timestamp;
+    if(!item.lastSeenAt||row.timestamp>item.lastSeenAt)item.lastSeenAt=row.timestamp;
+    payerMap.set(row.payer,item);
+  }
+  const externalPayerBreakdown=[...payerMap.values()].sort((a,b)=>b.callCount-a.callCount||b.amountAtomic-a.amountAtomic);
+  const repeatExternalPayers=externalPayerBreakdown.filter(row=>row.callCount>=2);
 
   return {
     source:'Base Blockscout public ERC-20 transfer index',
@@ -160,7 +178,9 @@ async function readOnchainSettlementWindow(hours=24) {
     excludedInternalTransferCount:transfers.length-external.length,
     externalFacilitatedTransferCount:external.length,
     distinctExternalPayerCount:externalPayers.length,
+    repeatExternalPayerCount:repeatExternalPayers.length,
     externalPayers,
+    externalPayerBreakdown,
     receivedAtomic:allAtomic,
     receivedUsdc:allAtomic/1_000_000,
     externalAtomic,
@@ -858,17 +878,25 @@ app.use((req,res,next)=>{
         at:new Date().toISOString()
       };
       const route=routeFunnel(req.path);
+      const ua=userAgentFunnel(event.userAgent);
+      ua.routes[req.path] ||= {challenges:0,paymentRetries:0,paidCompletions:0};
       if (hasPayment) {
         funnelState.paymentRetries += 1;
         route.paymentRetries += 1;
+        ua.paymentRetries += 1;
+        ua.routes[req.path].paymentRetries += 1;
       }
       if (res.statusCode===402) {
         funnelState.challenges += 1;
         route.challenges += 1;
+        ua.challenges += 1;
+        ua.routes[req.path].challenges += 1;
       }
       if (hasPayment && res.statusCode>=200 && res.statusCode<300) {
         funnelState.paidCompletions += 1;
         route.paidCompletions += 1;
+        ua.paidCompletions += 1;
+        ua.routes[req.path].paidCompletions += 1;
       }
       console.log('X402_REQUEST_FLOW',JSON.stringify(event));
       if (res.statusCode===402) {
@@ -956,7 +984,8 @@ app.get('/metrics/x402.json', (_req,res)=>res.json({
   distinctPayerCount:funnelState.distinctPayers.size,
   distinctExternalPayerCount:INTERNAL_PAYER_ADDRESSES.size ? funnelState.distinctExternalPayers.size : null,
   internalPayerExclusionConfigured:INTERNAL_PAYER_ADDRESSES.size>0,
-  byRoute:funnelState.byRoute
+  byRoute:funnelState.byRoute,
+  byUserAgent:funnelState.byUserAgent
 }));
 
 app.get('/metrics/x402-24h.json', async (_req,res)=>{
@@ -976,6 +1005,7 @@ app.get('/metrics/x402-24h.json', async (_req,res)=>{
       paymentRetries:funnelState.paymentRetries,
       paidCompletions:funnelState.paidCompletions,
       distinctExternalPayerCount24h:Number.isFinite(onchain?.distinctExternalPayerCount) ? onchain.distinctExternalPayerCount : null,
+      repeatExternalPayerCount24h:Number.isFinite(onchain?.repeatExternalPayerCount) ? onchain.repeatExternalPayerCount : null,
       routerDispatchEligible:typeof agent402?.anyRouterDispatchEligible==='boolean' ? agent402.anyRouterDispatchEligible : null,
       targetDistinctExternalPayers:3,
       currentPayTo:PAY_TO
