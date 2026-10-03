@@ -139,7 +139,7 @@ export const cryptoAgentTools=[
       address:'0x0000000000000000000000000000000000000000',
       spender:'0x0000000000000000000000000000000000000000',
       token_contract:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-      network:'base',product_id:'ETH-USDC'
+      network:'base',product_id:'BTC-USD'
     },
     run:async input=>{
       const base={product_id:input.product_id};
