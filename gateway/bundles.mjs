@@ -1,4 +1,5 @@
 import { runMetadata } from './metadata.mjs';
+import { runChange } from './change.mjs';
 import { marketTools } from './market.mjs';
 import { documentTools } from './article.mjs';
 import { networkTools } from './network.mjs';
@@ -30,6 +31,19 @@ const cryptoSchema = {
     trade_limit:{type:'integer',minimum:1,maximum:100}
   },
   required:['product_id'],
+  additionalProperties:false
+};
+
+const monitorSchema = {
+  type:'object',
+  properties:{
+    url:{type:'string',format:'uri'},
+    previous_hash:{type:'string',pattern:'^[a-fA-F0-9]{64}$'},
+    selector:{type:'string',maxLength:1000},
+    ignore_selectors:{type:'array',items:{type:'string',maxLength:1000},maxItems:50},
+    timeout_seconds:{type:'integer',minimum:5,maximum:60}
+  },
+  required:['url'],
   additionalProperties:false
 };
 
@@ -90,6 +104,57 @@ export const bundleTools = [
         top_of_book:{best_bid:book.best_bid,best_ask:book.best_ask,sequence:book.sequence},
         recent_trades:trades.trades,
         candles:{granularity_seconds:candles.granularity_seconds,count:candles.count,rows:candles.candles}
+      };
+    }
+  },
+  {
+    name:'web-monitoring-snapshot',
+    route:'/web/monitor',
+    price:'$0.005',
+    priceUsd:0.005,
+    description:'Monitor a webpage for changes in one recurring agent call. Returns deterministic changed/unchanged status against a previous SHA-256 hash, the new content hash, HTTP status and latency, title/canonical/OpenGraph/JSON-LD metadata, and security headers. Use for price monitoring, inventory and availability checks, documentation/policy monitoring, competitor tracking, website uptime and scheduled autonomous monitoring loops.',
+    tags:['monitoring','website-monitoring','change-detection','uptime','price-monitoring','inventory','availability','competitor-monitoring','metadata','agents'],
+    inputSchema:monitorSchema,
+    example:{url:'https://example.com/',previous_hash:'0000000000000000000000000000000000000000000000000000000000000000'},
+    run:async input=>{
+      const url=input.url;
+      const [changeResult,metaResult,headerResult]=await Promise.all([
+        runChange({
+          url,
+          previous_hash:input.previous_hash,
+          selector:input.selector,
+          ignore_selectors:input.ignore_selectors,
+          include_current_text:false,
+          timeout_seconds:input.timeout_seconds||30
+        }),
+        runMetadata({urls:[url],timeout_seconds:input.timeout_seconds||30,concurrency:1})
+          .catch(error=>({summary:{status:'error'},results:[],error:String(error?.message||error)})),
+        headers.run({url,method:'HEAD'})
+          .catch(error=>({status:'error',error:String(error?.message||error)}))
+      ]);
+      const meta=metaResult.results?.[0]||null;
+      return {
+        status:'ready',
+        url,
+        checked_at:changeResult.checked_at,
+        monitoring:{
+          comparison_status:changeResult.comparison_status,
+          changed:changeResult.changed ?? null,
+          previous_hash:changeResult.previous_hash ?? null,
+          current_hash:changeResult.current_hash,
+          selector:changeResult.selector ?? null
+        },
+        page:{
+          final_url:changeResult.final_url,
+          http_status:changeResult.http_status,
+          content_type:changeResult.content_type,
+          title:changeResult.title,
+          text_length:changeResult.text_length,
+          fetch:changeResult.fetch
+        },
+        metadata:meta,
+        http:headerResult,
+        next_check:{previous_hash:changeResult.current_hash}
       };
     }
   },
