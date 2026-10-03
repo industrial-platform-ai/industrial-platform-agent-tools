@@ -297,6 +297,42 @@ async function registerX402ArenaNoSpend() {
       method:'POST',
       inputSchema:{type:'object',properties:{product_id:{type:'string'}},required:['product_id']},
       outputSchema:{type:'object',properties:{status:{type:'string'},product_id:{type:'string'}}}
+    },
+    {
+      name:'industrial-platform-chain-block-number',
+      endpoint:sellerOrigin + '/chain/block-number',
+      description:'Latest Base or Ethereum block height for recurring chain-tip checks, synchronization and autonomous blockchain monitoring.',
+      niche:'crypto-finance',
+      method:'POST',
+      inputSchema:{type:'object',properties:{network:{type:'string',enum:['base','ethereum']}},additionalProperties:false},
+      outputSchema:{type:'object',properties:{network:{type:'string'},block_number:{type:'integer'},block_number_hex:{type:'string'}}}
+    },
+    {
+      name:'industrial-platform-chain-native-balance',
+      endpoint:sellerOrigin + '/chain/native-balance',
+      description:'Read a live native ETH wallet balance on Base or Ethereum for portfolio agents and recurring treasury monitoring.',
+      niche:'crypto-finance',
+      method:'POST',
+      inputSchema:{type:'object',properties:{address:{type:'string'},network:{type:'string',enum:['base','ethereum']}},required:['address']},
+      outputSchema:{type:'object',properties:{network:{type:'string'},address:{type:'string'},balance_wei:{type:'string'}}}
+    },
+    {
+      name:'industrial-platform-chain-erc20-balance',
+      endpoint:sellerOrigin + '/chain/erc20-balance',
+      description:'Read any ERC-20 token balance by wallet and contract on Base or Ethereum for USDC, USDT, DAI and agent treasury workflows.',
+      niche:'crypto-finance',
+      method:'POST',
+      inputSchema:{type:'object',properties:{address:{type:'string'},contract:{type:'string'},network:{type:'string',enum:['base','ethereum']}},required:['address','contract']},
+      outputSchema:{type:'object',properties:{network:{type:'string'},address:{type:'string'},contract:{type:'string'},balance_raw:{type:'string'}}}
+    },
+    {
+      name:'industrial-platform-chain-live-balance',
+      endpoint:sellerOrigin + '/chain/live-balance',
+      description:'Read native ETH plus up to 20 ERC-20 balances in one call for wallet intelligence, portfolio agents and recurring balance polling.',
+      niche:'crypto-finance',
+      method:'POST',
+      inputSchema:{type:'object',properties:{address:{type:'string'},network:{type:'string',enum:['base','ethereum']},tokens:{type:'array',items:{type:'string'},maxItems:20}},required:['address']},
+      outputSchema:{type:'object',properties:{network:{type:'string'},address:{type:'string'},native:{type:'object'},tokens:{type:'array'}}}
     }
   ];
   for (const listing of listings) {
@@ -329,7 +365,7 @@ async function registerAgentExchangePassport() {
     const payload = {
       id: 'industrial-platform-x402',
       name: 'Industrial Platform x402 Tools',
-      skills: ['x402','web','url-to-markdown','metadata','change-detection','rag','crypto-market-data','dns','sec-data'],
+      skills: ['x402','web','url-to-markdown','metadata','change-detection','rag','crypto-market-data','dns','sec-data','blockchain','evm','wallet-balance','erc20','chain-data'],
       wallet,
       endpoint: sellerOrigin
     };
