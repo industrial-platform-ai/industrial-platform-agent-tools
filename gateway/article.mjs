@@ -2,6 +2,7 @@ import { lookup } from 'node:dns/promises';
 import net from 'node:net';
 import * as cheerio from 'cheerio';
 import ipaddr from 'ipaddr.js';
+import { runMetadata } from './metadata.mjs';
 
 const MAX_RESPONSE_BYTES = 5_000_000;
 const MAX_REDIRECTS = 5;
@@ -176,6 +177,29 @@ function extractMarkdown(html,finalUrl,{maxChars=150000}={}) {
 }
 
 export const documentTools=[{
+  name:'metadata-single',
+  route:'/metadata-single',
+  price:'$0.001',
+  priceUsd:0.001,
+  description:'Extract webpage metadata, OpenGraph and JSON-LD for one public URL. Scalar single-URL contract for MCP and autonomous buyer runtimes.',
+  tags:['metadata','seo','structured-data','web','agents','mcp'],
+  inputSchema:{
+    type:'object',
+    properties:{
+      url:{type:'string',format:'uri',description:'Public http(s) webpage URL.'},
+      timeout_seconds:{type:'integer',minimum:5,maximum:60}
+    },
+    required:['url'],
+    additionalProperties:false
+  },
+  example:{url:'https://example.com/'},
+  run:async input=>{
+    const url=typeof input?.url==='string'?input.url.trim():'';
+    if(!url) throw Object.assign(new Error('url is required.'),{statusCode:400});
+    const timeoutSeconds=Number.isInteger(input?.timeout_seconds)?Math.min(60,Math.max(5,input.timeout_seconds)):30;
+    return runMetadata({urls:[url],timeout_seconds:timeoutSeconds});
+  }
+},{
   name:'extract-article',
   route:'/article',
   price:'$0.002',
