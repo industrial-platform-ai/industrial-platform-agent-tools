@@ -1,4 +1,5 @@
 import { runMetadata } from './metadata.mjs';
+import { runChange } from './change.mjs';
 import { marketTools } from './market.mjs';
 import { documentTools } from './article.mjs';
 import { networkTools } from './network.mjs';
@@ -30,6 +31,163 @@ const cryptoSchema = {
     trade_limit:{type:'integer',minimum:1,maximum:100}
   },
   required:['product_id'],
+  additionalProperties:false
+};
+
+const monitorSchema = {
+  type:'object',
+  properties:{
+    url:{type:'string',format:'uri'},
+    previous_hash:{type:'string',pattern:'^[a-fA-F0-9]{64}
+  type:'object',
+  properties:{
+    url:{type:'string',format:'uri'},
+    user_agent:{type:'string',maxLength:200},
+    max_text_chars:{type:'integer',minimum:1000,maximum:150000},
+    chunk_size:{type:'integer',minimum:100,maximum:10000},
+    chunk_overlap:{type:'integer',minimum:0,maximum:5000}
+  },
+  required:['url'],
+  additionalProperties:false
+};
+
+function pctChange(open, last) {
+  const a=Number(open), b=Number(last);
+  return Number.isFinite(a)&&a!==0&&Number.isFinite(b) ? Number((((b-a)/a)*100).toFixed(4)) : null;
+}
+
+export const bundleTools = [
+  {
+    name:'crypto-market-snapshot',
+    route:'/crypto/snapshot',
+    price:'$0.008',
+    priceUsd:0.008,
+    description:'One-call realtime crypto market snapshot from Coinbase Exchange: price, bid/ask, 24h open/high/low/volume and percent change, top-of-book spread, recent trades and OHLCV candles. Built for trading agents, financial-data pipelines, market monitoring, research and dashboards.',
+    tags:['crypto','market-data','snapshot','dashboard','trading','ohlcv','order-book','trades','coinbase','agents'],
+    inputSchema:cryptoSchema,
+    example:{product_id:'BTC-USD',candle_granularity:3600,candle_limit:24,trade_limit:20},
+    run:async input=>{
+      const base={product_id:input.product_id};
+      const [ticker,stats,book,trades,candles]=await Promise.all([
+        cryptoPrice.run(base),
+        cryptoStats.run(base),
+        cryptoBook.run(base),
+        cryptoTrades.run({...base,limit:input.trade_limit||20}),
+        cryptoCandles.run({...base,granularity:input.candle_granularity||3600,limit:input.candle_limit||24})
+      ]);
+      const bid=book.best_bid?.price??ticker.bid;
+      const ask=book.best_ask?.price??ticker.ask;
+      const mid=Number.isFinite(bid)&&Number.isFinite(ask)?(bid+ask)/2:null;
+      const spread=Number.isFinite(bid)&&Number.isFinite(ask)?ask-bid:null;
+      const spreadBps=Number.isFinite(spread)&&Number.isFinite(mid)&&mid!==0?Number((spread/mid*10000).toFixed(4)):null;
+      return {
+        status:'ready',
+        source:'Coinbase Exchange public market data',
+        product_id:input.product_id.toUpperCase(),
+        fetched_at:new Date().toISOString(),
+        market:{
+          price:ticker.price,bid:ticker.bid,ask:ticker.ask,
+          spread,spread_bps:spreadBps,
+          open_24h:stats.open,high_24h:stats.high,low_24h:stats.low,last:stats.last,
+          change_24h_percent:pctChange(stats.open,stats.last),
+          volume_24h:stats.volume
+        },
+        top_of_book:{best_bid:book.best_bid,best_ask:book.best_ask,sequence:book.sequence},
+        recent_trades:trades.trades,
+        candles:{granularity_seconds:candles.granularity_seconds,count:candles.count,rows:candles.candles}
+      };
+    }
+  },
+  {
+    name:'web-monitoring-snapshot',
+    route:'/web/monitor',
+    price:'$0.005',
+    priceUsd:0.005,
+    description:'Monitor a webpage for changes in one recurring agent call. Returns deterministic changed/unchanged status against a previous SHA-256 hash, the new content hash, HTTP status and latency, title/canonical/OpenGraph/JSON-LD metadata, and security headers. Use for price monitoring, inventory and availability checks, documentation/policy monitoring, competitor tracking, website uptime and scheduled autonomous monitoring loops.',
+    tags:['monitoring','website-monitoring','change-detection','uptime','price-monitoring','inventory','availability','competitor-monitoring','metadata','agents'],
+    inputSchema:monitorSchema,
+    example:{url:'https://example.com/',previous_hash:'0000000000000000000000000000000000000000000000000000000000000000'},
+    run:async input=>{
+      const url=input.url;
+      const [changeResult,metaResult,headerResult]=await Promise.all([
+        runChange({
+          url,
+          previous_hash:input.previous_hash,
+          selector:input.selector,
+          ignore_selectors:input.ignore_selectors,
+          include_current_text:false,
+          timeout_seconds:input.timeout_seconds||30
+        }),
+        runMetadata({urls:[url],timeout_seconds:input.timeout_seconds||30,concurrency:1})
+          .catch(error=>({summary:{status:'error'},results:[],error:String(error?.message||error)})),
+        headers.run({url,method:'HEAD'})
+          .catch(error=>({status:'error',error:String(error?.message||error)}))
+      ]);
+      const meta=metaResult.results?.[0]||null;
+      return {
+        status:'ready',
+        url,
+        checked_at:changeResult.checked_at,
+        monitoring:{
+          comparison_status:changeResult.comparison_status,
+          changed:changeResult.changed ?? null,
+          previous_hash:changeResult.previous_hash ?? null,
+          current_hash:changeResult.current_hash,
+          selector:changeResult.selector ?? null
+        },
+        page:{
+          final_url:changeResult.final_url,
+          http_status:changeResult.http_status,
+          content_type:changeResult.content_type,
+          title:changeResult.title,
+          text_length:changeResult.text_length,
+          fetch:changeResult.fetch
+        },
+        metadata:meta,
+        http:headerResult,
+        next_check:{previous_hash:changeResult.current_hash}
+      };
+    }
+  },
+  {
+    name:'web-intelligence-dossier',
+    route:'/web/dossier',
+    price:'$0.008',
+    priceUsd:0.008,
+    description:'One-call webpage intelligence dossier for AI agents: metadata and structured data, clean article/document text, HTTP/security headers, robots crawl policy, SHA-256 content hash and RAG-ready chunks. Use for web research, document extraction, due diligence, ingestion, monitoring and retrieval pipelines.',
+    tags:['web','research','dossier','rag','article','metadata','security','robots','chunks','agents'],
+    inputSchema:urlSchema,
+    example:{url:'https://example.com/',chunk_size:1200,chunk_overlap:100},
+    run:async input=>{
+      const url=input.url;
+      const [metaResult,articleResult,headerResult,robotsResult]=await Promise.all([
+        runMetadata({urls:[url],timeout_seconds:30,concurrency:1}),
+        article.run({url,max_text_chars:input.max_text_chars||100000,timeout_seconds:30}).catch(error=>({status:'error',error:String(error?.message||error)})),
+        headers.run({url,method:'HEAD'}).catch(error=>({status:'error',error:String(error?.message||error)})),
+        robots.run({url,path:new URL(url).pathname||'/',user_agent:input.user_agent||'*'}).catch(error=>({status:'error',error:String(error?.message||error)}))
+      ]);
+      const meta=metaResult.results?.[0]||null;
+      const text=articleResult?.status==='ready'?articleResult.text:'';
+      const chunks=text ? await chunker.run({text,size:input.chunk_size||1200,overlap:input.chunk_overlap||100}) : {count:0,chunks:[]};
+      return {
+        status:'ready',
+        url,
+        fetched_at:new Date().toISOString(),
+        metadata:meta,
+        content:articleResult,
+        http:headerResult,
+        robots:robotsResult,
+        rag:{chunk_size:chunks.size||input.chunk_size||1200,overlap:chunks.overlap||input.chunk_overlap||100,count:chunks.count,chunks:chunks.chunks}
+      };
+    }
+  }
+];
+},
+    selector:{type:'string',maxLength:1000},
+    ignore_selectors:{type:'array',items:{type:'string',maxLength:1000},maxItems:50},
+    timeout_seconds:{type:'integer',minimum:5,maximum:60}
+  },
+  required:['url'],
   additionalProperties:false
 };
 
