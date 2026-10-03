@@ -9,7 +9,8 @@ const ORIGIN='https://x402-gateway-production-1f21.up.railway.app';
 const PAY_TO=process.env.X402_PAY_TO || '0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E';
 const NETWORK='eip155:8453';
 const PRICE='$0.001';
-const FACILITATOR_MODE=String(process.env.X402_WALLET_FACILITATOR || 'coinbase').toLowerCase();
+const FACILITATOR_MODE=String(process.env.X402_WALLET_FACILITATOR || 'roundhouse').toLowerCase();
+const COINBASE_ALIAS='/wallet-balance/cdp';
 
 const CHAIN_CONFIG={
   'eip155:8453':{
@@ -132,6 +133,29 @@ walletResourceServer
   .register(NETWORK,new ExactEvmScheme())
   .registerExtension(bazaarResourceServerExtension);
 
+const coinbaseResourceServer=new x402ResourceServer(createCdpFacilitatorClient());
+coinbaseResourceServer
+  .register(NETWORK,new ExactEvmScheme())
+  .registerExtension(bazaarResourceServerExtension);
+
+const coinbaseWalletPayment=paymentMiddleware({
+  ['GET '+COINBASE_ALIAS]:{
+    accepts:[{
+      scheme:'exact',
+      price:PRICE,
+      network:NETWORK,
+      payTo:PAY_TO,
+      maxTimeoutSeconds:90
+    }],
+    resource:ORIGIN+COINBASE_ALIAS,
+    description:canonicalDescription,
+    mimeType:'application/json',
+    serviceName:'Industrial Platform',
+    tags:['wallet-balance','onchain-data','base','ethereum','agents'],
+    extensions:{...walletDiscovery}
+  }
+},coinbaseResourceServer);
+
 const walletPayment=paymentMiddleware({
   'GET /wallet-balance':{
     accepts:[{
@@ -161,6 +185,20 @@ function patchManifest(body){
     tool.summary=canonicalDescription;
     tool.inputSchema=canonicalInputSchema;
   }
+  if(!clone.tools.some(t=>t?.route===COINBASE_ALIAS)){
+    clone.tools.push({
+      name:'wallet-balance-cdp',
+      method:'GET',
+      route:COINBASE_ALIAS,
+      priceUsd:0.001,
+      summary:canonicalDescription,
+      description:canonicalDescription,
+      inputSchema:canonicalInputSchema,
+      recommended:false,
+      priority:null
+    });
+  }
+  clone.resources=clone.tools.map(t=>ORIGIN+t.route);
   return clone;
 }
 function patchOpenApi(body){
@@ -179,6 +217,25 @@ function patchOpenApi(body){
     operation.responses['200']={
       description:'Wallet balances',
       content:{'application/json':{schema:canonicalOutputSchema}}
+    };
+  }
+  if(!clone.paths[COINBASE_ALIAS]){
+    clone.paths[COINBASE_ALIAS]={
+      get:{
+        operationId:'wallet-balance-cdp',
+        'x-payment-info':{protocols:['x402'],price:{mode:'fixed',currency:'USD',amount:'0.001'}},
+        summary:canonicalDescription,
+        description:canonicalDescription,
+        parameters:[
+          {name:'address',in:'query',required:true,schema:canonicalInputSchema.properties.address},
+          {name:'chain',in:'query',required:false,schema:canonicalInputSchema.properties.chain}
+        ],
+        responses:{
+          '200':{description:'Wallet balances',content:{'application/json':{schema:canonicalOutputSchema}}},
+          '400':{description:'Invalid input'},
+          '402':{description:'x402 payment required'}
+        }
+      }
     };
   }
   return clone;
@@ -212,8 +269,12 @@ const originalInit=express.application.init;
 express.application.init=function(...args){
   const result=originalInit.apply(this,args);
   this.use((req,res,next)=>{
-    if(req.method!=='GET' || req.path!=='/wallet-balance') return next();
-    return walletPayment(req,res,async err=>{
+    if(req.method!=='GET') return next();
+    const active=req.path==='/wallet-balance'
+      ? walletPayment
+      : (req.path===COINBASE_ALIAS ? coinbaseWalletPayment : null);
+    if(!active) return next();
+    return active(req,res,async err=>{
       if(err) return next(err);
       try{
         const result=await readCanonicalWallet(req);
@@ -249,5 +310,6 @@ express.application.get=function(path,...handlers){
 console.log('Industrial Platform wallet-balance preload active',JSON.stringify({
   facilitator:FACILITATOR_MODE,
   route:'/wallet-balance',
+  coinbaseAlias:COINBASE_ALIAS,
   price:PRICE
 }));
