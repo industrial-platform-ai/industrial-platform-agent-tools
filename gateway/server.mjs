@@ -35,7 +35,7 @@ const acceptsFor = (price) => NETWORKS.map(network=>({
   maxTimeoutSeconds:90
 }));
 const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools];
-const PRIORITY_ROUTES = ['/change','/web/markdown','/metadata'];
+const PRIORITY_ROUTES = ['/change','/web/markdown','/metadata','/web/monitor'];
 const PRIORITY_ROUTE_SET = new Set(PRIORITY_ROUTES);
 const INTERNAL_PAYER_ADDRESSES = new Set(
   String(process.env.X402_INTERNAL_PAYER_ADDRESSES || '')
@@ -64,7 +64,8 @@ const AGENT402_ROUTE_API = 'https://agent402.tools/api/route';
 const ROUTING_QUERIES = [
   {route:'/change',query:'detect whether a webpage changed'},
   {route:'/web/markdown',query:'convert URL to clean Markdown for RAG'},
-  {route:'/metadata',query:'extract webpage metadata OpenGraph JSON-LD'}
+  {route:'/metadata',query:'extract webpage metadata OpenGraph JSON-LD'},
+  {route:'/web/monitor',query:'monitor a webpage for changes price inventory availability'}
 ];
 
 function normalizeAddress(value) {
