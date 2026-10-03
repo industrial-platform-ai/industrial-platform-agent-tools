@@ -177,7 +177,7 @@ export const networkTools=[
     }
   },
   {
-    name:'chain-block-number',operationId:'block-number',route:'/chain/block-number',price:'$0.001',priceUsd:0.001,
+    name:'chain-block-number',route:'/chain/block-number',price:'$0.001',priceUsd:0.001,
     description:'Latest EVM block height for Base or Ethereum via eth_blockNumber. Use for chain-tip checks, block polling, synchronization, indexers, trading agents and recurring blockchain monitoring.',
     tags:['blockchain','block-number','block-height','base','ethereum','rpc','evm','monitoring'],
     inputSchema:{type:'object',properties:{network:{type:'string',enum:['base','ethereum'],default:'base'}},additionalProperties:false},
@@ -189,7 +189,7 @@ export const networkTools=[
     }
   },
   {
-    name:'chain-native-balance',operationId:'wallet-balance',route:'/chain/native-balance',price:'$0.001',priceUsd:0.001,
+    name:'chain-native-balance',route:'/chain/native-balance',price:'$0.001',priceUsd:0.001,
     description:'Live native ETH balance for any public EVM wallet on Base or Ethereum via eth_getBalance. Returns exact wei as a decimal string for agents, portfolio monitors and blockchain automation.',
     tags:['blockchain','wallet','balance','eth','base','ethereum','rpc','evm'],
     inputSchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['address'],additionalProperties:false},
@@ -201,7 +201,7 @@ export const networkTools=[
     }
   },
   {
-    name:'chain-erc20-balance',operationId:'erc20-balance',route:'/chain/erc20-balance',price:'$0.001',priceUsd:0.001,
+    name:'chain-erc20-balance',route:'/chain/erc20-balance',price:'$0.001',priceUsd:0.001,
     description:'ERC-20 token balance for any EVM wallet and token contract on Base or Ethereum via balanceOf eth_call. Returns the exact raw integer balance for USDC, USDT, DAI and arbitrary ERC-20 tokens.',
     tags:['blockchain','erc20','token','balance','wallet','usdc','base','ethereum','rpc'],
     inputSchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},contract:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['address','contract'],additionalProperties:false},
@@ -213,7 +213,7 @@ export const networkTools=[
     }
   },
   {
-    name:'chain-live-balance',operationId:'crypto-wallet-balance',route:'/chain/live-balance',price:'$0.001',priceUsd:0.001,
+    name:'chain-live-balance',route:'/chain/live-balance',price:'$0.001',priceUsd:0.001,
     description:'Live wallet balance in one call: native ETH plus up to 20 caller-supplied ERC-20 token balances on Base or Ethereum. Built for portfolio agents, treasury monitors, wallet intelligence and recurring balance polling.',
     tags:['blockchain','wallet','balance','erc20','portfolio','treasury','base','ethereum','rpc'],
     inputSchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'array',items:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},maxItems:20}},required:['address'],additionalProperties:false},
