@@ -254,6 +254,7 @@ jobs:
               echo "$slug built; publication deferred by daily quota."
             else
               echo "$slug publication HTTP $code; build remains private for scheduled retry."
+              exit 1
             fi
           done < products.tsv
 
