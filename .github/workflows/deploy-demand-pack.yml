@@ -69,8 +69,15 @@ jobs:
           const dockerfile=fs.readFileSync(root+'/Dockerfile','utf8');
           const main=fs.readFileSync(root+'/src/main.js','utf8');
 
+          const qaPrefillBySlug = {
+            'url-to-markdown-agent': ['https://example.com/'],
+            'smart-article-extractor': ['https://www.iana.org/help/example-domains'],
+            'google-news-intelligence': ['OpenAI']
+          };
+
           function schemaFor(p){
             const key=p.inputKind;
+            const prefill=qaPrefillBySlug[p.slug];
             return {
               title:p.title+' input',
               type:'object',
@@ -84,7 +91,8 @@ jobs:
                   editor:'stringList',
                   items:{type:'string',maxLength:4096},
                   minItems:1,
-                  maxItems:100
+                  maxItems:100,
+                  ...(prefill ? {prefill,example:prefill} : {})
                 },
                 max_results:{title:'Maximum results',description:'Maximum number of structured results to return for each input.',type:'integer',default:25,minimum:1,maximum:100},
                 max_chars:{title:'Maximum characters',description:'Maximum text or Markdown characters to retain for each processed document.',type:'integer',default:120000,minimum:1000,maximum:500000},
@@ -116,7 +124,12 @@ jobs:
               storages:{dataset:'./dataset_schema.json'},
               environmentVariables:{PRODUCT_MODE:p.mode,PRODUCT_EVENT:p.event}
             },null,2));
-            fs.writeFileSync(dir+'/.actor/input_schema.json',JSON.stringify(schemaFor(p),null,2));
+            const inputSchema=schemaFor(p);
+            if(qaPrefillBySlug[p.slug]
+              && !inputSchema.properties[p.inputKind]?.prefill?.length) {
+              throw new Error('Missing Apify QA prefill for '+p.slug);
+            }
+            fs.writeFileSync(dir+'/.actor/input_schema.json',JSON.stringify(inputSchema,null,2));
             fs.writeFileSync(dir+'/.actor/output_schema.json',JSON.stringify({
               actorOutputSchemaVersion:1,
               title:p.title+' output',
