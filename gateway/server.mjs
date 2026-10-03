@@ -375,7 +375,7 @@ const manifest = {
       method:'POST',
       route:'/change',
       priceUsd:0.001,
-      description:'Detect whether a webpage changed. Compare current content against a previous hash or previous text and return deterministic hashes and diffs for price, inventory, availability, documentation, policy and competitor monitoring.',
+      description:'Detect whether a webpage changed. Website change detection and recurring webpage monitoring for price changes, inventory changes, availability changes, documentation updates, policy updates and competitor monitoring. Compare current content with previous_hash or previous_text and return current_hash plus deterministic change status and diffs.',
       inputSchema:changeInputSchema
     },
     {
@@ -670,7 +670,7 @@ POST ${ORIGIN}/change
 
 Price: $0.001 USDC on Base.
 
-Use for recurring monitoring of prices, inventory, availability, policies, documentation and competitor pages.
+Use to detect whether a webpage changed and for recurring website change detection: monitor webpage changes, prices, inventory, availability, policies, documentation and competitor pages. Persist current_hash and send it back as previous_hash on the next scheduled run.
 
 Example:
 \`\`\`json
@@ -754,8 +754,8 @@ const routes = {
     resource:ORIGIN+'/change',
     description:manifest.tools[1].description,
     mimeType:'application/json',
-    serviceName:'Industrial Platform Web Tools',
-    tags:['monitoring','web-change','diff','web','agents'],
+    serviceName:'Industrial Platform Website Change Detection',
+    tags:['detect webpage changed','website change detection','webpage monitoring','monitor webpage changes','price monitoring','inventory monitoring','availability monitoring','web-change','diff','agents'],
     extensions:{...changeDiscovery}
   },
   'POST /read': {
