@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install --omit=dev
 COPY server.mjs ./
+COPY roundhouse-preload.mjs ./
 COPY mcp-server.mjs ./
 COPY metadata.mjs ./
 COPY change.mjs ./
@@ -15,4 +16,4 @@ COPY agentic.mjs ./
 RUN npm run check
 ENV NODE_ENV=production
 EXPOSE 3000
-CMD ["node","server.mjs"]
+CMD ["node","--import","./roundhouse-preload.mjs","server.mjs"]
