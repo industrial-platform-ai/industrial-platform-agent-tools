@@ -1,0 +1,55 @@
+{
+  "version":"1.0",
+  "seller":"Industrial Platform",
+  "origin":"https://x402-gateway-production-1f21.up.railway.app",
+  "network":"eip155:8453",
+  "asset":"USDC",
+  "selectionPolicy":{
+    "affinityKey":"capability+normalized-workload",
+    "reuseHealthySeller":true,
+    "reselectOn":[
+      "delivery_failure",
+      "budget_conflict",
+      "health_degradation",
+      "route_ineligible",
+      "materially_better_route"
+    ],
+    "requirements":[
+      "buyer permits funded external execution",
+      "route remains payable",
+      "seller remains healthy",
+      "per-call and session budgets remain satisfied"
+    ]
+  },
+  "workflows":[
+    {
+      "capability":"url_to_markdown",
+      "intents":["convert URL to Markdown","RAG ingestion","webpage grounding","known URL content extraction"],
+      "route":{"method":"POST","path":"/web/markdown","priceUsd":0.001},
+      "input":{"url":"string","max_chars":"optional integer","timeout_seconds":"optional integer"},
+      "repeat":"reuse for each subsequent URL in the same crawl or ingestion queue while healthy"
+    },
+    {
+      "capability":"monitor_webpage",
+      "intents":["monitor webpage changes","price monitoring","inventory monitoring","availability monitoring","documentation monitoring","policy monitoring","competitor monitoring"],
+      "route":{"method":"POST","path":"/change","priceUsd":0.001},
+      "input":{"url":"string","previous_hash":"optional string","previous_text":"optional string"},
+      "state":{"persist":"current_hash","nextInput":"previous_hash"},
+      "repeat":"execute again on the buyer's requested schedule while healthy"
+    },
+    {
+      "capability":"extract_web_metadata",
+      "intents":["metadata enrichment","OpenGraph extraction","JSON-LD extraction","canonical URL extraction","robots metadata enrichment"],
+      "route":{"method":"POST","path":"/metadata-single","priceUsd":0.001},
+      "input":{"url":"string","timeout_seconds":"optional integer"},
+      "repeat":"one paid execution per URL in an enrichment queue while healthy"
+    },
+    {
+      "capability":"wallet_balance",
+      "intents":["wallet balance","treasury monitor","ETH balance monitor","USDC balance monitor"],
+      "route":{"method":"GET","path":"/wallet-balance/cdp","priceUsd":0.001},
+      "input":{"address":"EVM address","chain":"optional CAIP-2 chain"},
+      "repeat":"poll the same address on the buyer's requested cadence while healthy"
+    }
+  ]
+}
