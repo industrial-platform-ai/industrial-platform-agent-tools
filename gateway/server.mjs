@@ -63,7 +63,8 @@ const funnelState = {
   distinctPayers:new Set(),
   distinctExternalPayers:new Set(),
   byRoute:{},
-  byUserAgent:{}
+  byUserAgent:{},
+  lastPaymentPayload:null
 };
 function routeFunnel(path) {
   return funnelState.byRoute[path] ||= {challenges:0,paymentRetries:0,paidCompletions:0};
@@ -274,6 +275,35 @@ function summarizePaymentRequiredHeader(value) {
         extraKeys:x.extra && typeof x.extra==='object' ? Object.keys(x.extra) : []
       })) : [],
       extensionKeys:decoded.extensions && typeof decoded.extensions==='object' ? Object.keys(decoded.extensions) : []
+    };
+  } catch (error) {
+    return {decodeError:String(error?.message||error)};
+  }
+}
+
+function summarizePaymentPayloadHeader(value) {
+  if (!value) return null;
+  try {
+    const raw=Array.isArray(value)?value[0]:String(value);
+    const normalized=raw.replace(/-/g,'+').replace(/_/g,'/');
+    const padded=normalized+'='.repeat((4-normalized.length%4)%4);
+    const decoded=JSON.parse(Buffer.from(padded,'base64').toString('utf8'));
+    const extensions=decoded?.extensions && typeof decoded.extensions==='object' ? decoded.extensions : {};
+    const bazaar=extensions?.bazaar;
+    return {
+      x402Version:decoded?.x402Version ?? decoded?.version ?? null,
+      resourceUrl:decoded?.resource?.url ?? decoded?.resource ?? null,
+      accepted:{
+        scheme:decoded?.accepted?.scheme ?? null,
+        network:decoded?.accepted?.network ?? null,
+        amount:decoded?.accepted?.amount ?? null,
+        asset:decoded?.accepted?.asset ?? null,
+        payTo:decoded?.accepted?.payTo ?? null
+      },
+      extensionKeys:Object.keys(extensions),
+      hasBazaar:Object.prototype.hasOwnProperty.call(extensions,'bazaar'),
+      bazaarInfoKeys:bazaar?.info && typeof bazaar.info==='object' ? Object.keys(bazaar.info) : [],
+      bazaarSchemaPresent:Boolean(bazaar?.schema)
     };
   } catch (error) {
     return {decodeError:String(error?.message||error)};
@@ -901,7 +931,15 @@ app.use(express.json({limit:'256kb'}));
 app.use((req,res,next)=>{
   const key=req.method.toUpperCase()+' '+req.path;
   if (Object.prototype.hasOwnProperty.call(routes,key)) {
-    const hasPayment=Boolean(req.get('PAYMENT-SIGNATURE') || req.get('X-PAYMENT'));
+    const paymentHeader=req.get('PAYMENT-SIGNATURE') || req.get('X-PAYMENT') || null;
+    const hasPayment=Boolean(paymentHeader);
+    const paymentPayload=hasPayment ? summarizePaymentPayloadHeader(paymentHeader) : null;
+    if (hasPayment) funnelState.lastPaymentPayload={
+      ...paymentPayload,
+      method:req.method,
+      path:req.path,
+      observedAt:new Date().toISOString()
+    };
     res.on('finish',()=>{
       const event={
         method:req.method,
@@ -933,7 +971,7 @@ app.use((req,res,next)=>{
         ua.paidCompletions += 1;
         ua.routes[req.path].paidCompletions += 1;
       }
-      console.log('X402_REQUEST_FLOW',JSON.stringify(event));
+      console.log('X402_REQUEST_FLOW',JSON.stringify({...event,paymentPayload}));
       if (res.statusCode===402) {
         console.log('X402_CHALLENGE',JSON.stringify({
           ...event,
@@ -1020,7 +1058,8 @@ app.get('/metrics/x402.json', (_req,res)=>res.json({
   distinctExternalPayerCount:INTERNAL_PAYER_ADDRESSES.size ? funnelState.distinctExternalPayers.size : null,
   internalPayerExclusionConfigured:INTERNAL_PAYER_ADDRESSES.size>0,
   byRoute:funnelState.byRoute,
-  byUserAgent:funnelState.byUserAgent
+  byUserAgent:funnelState.byUserAgent,
+  lastPaymentPayload:funnelState.lastPaymentPayload
 }));
 
 app.get('/metrics/x402-24h.json', async (_req,res)=>{
