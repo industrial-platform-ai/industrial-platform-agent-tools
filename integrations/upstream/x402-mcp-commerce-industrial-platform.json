@@ -59,6 +59,27 @@
       "rail": "evm"
     },
     {
+      "name": "extract_web_metadata",
+      "description": "Extract webpage title, description, canonical URL, robots directives, headings, OpenGraph, Twitter cards and JSON-LD for one public URL.",
+      "upstream": "industrial-platform",
+      "baseUrl": "https://x402-gateway-production-1f21.up.railway.app",
+      "method": "POST",
+      "path": "/metadata-single",
+      "price": "$0.001",
+      "input": {
+        "url": {
+          "type": "string",
+          "required": true,
+          "description": "Public http(s) webpage URL."
+        },
+        "timeout_seconds": {
+          "type": "number",
+          "description": "Fetch timeout in seconds, 5-60."
+        }
+      },
+      "rail": "evm"
+    },
+    {
       "name": "wallet_balance",
       "description": "Return native ETH and USDC balances for one wallet on Base or Ethereum.",
       "upstream": "industrial-platform",
@@ -84,5 +105,5 @@
       "rail": "evm"
     }
   ],
-  "note": "These definitions are compatible with nirholas/x402-mcp-commerce src/config.ts buildUrl behavior. Metadata is intentionally omitted until a scalar single-URL alias is live."
+  "note": "All four definitions are directly compatible with nirholas/x402-mcp-commerce src/config.ts buildUrl behavior."
 }
