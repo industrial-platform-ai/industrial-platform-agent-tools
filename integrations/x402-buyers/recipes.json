@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "origin": "https://x402-gateway-production-1f21.up.railway.app",
+  "network": "eip155:8453",
+  "currency": "USDC",
+  "recurringRecipes": [
+    {
+      "id": "wallet-balance-roundhouse",
+      "method": "GET",
+      "path": "/wallet-balance",
+      "priceUsd": 0.001,
+      "query": {
+        "address": "0xYOUR_ADDRESS",
+        "chain": "eip155:8453"
+      },
+      "cadenceExamples": [
+        "1m",
+        "5m",
+        "1h"
+      ]
+    },
+    {
+      "id": "wallet-balance-coinbase",
+      "method": "GET",
+      "path": "/wallet-balance/cdp",
+      "priceUsd": 0.001,
+      "query": {
+        "address": "0xYOUR_ADDRESS",
+        "chain": "eip155:8453"
+      },
+      "cadenceExamples": [
+        "1m",
+        "5m",
+        "1h"
+      ]
+    },
+    {
+      "id": "block-number",
+      "method": "GET",
+      "path": "/v1/block-number",
+      "priceUsd": 0.001,
+      "query": {
+        "network": "base"
+      },
+      "cadenceExamples": [
+        "15s",
+        "1m",
+        "5m"
+      ]
+    },
+    {
+      "id": "crypto-wallet-balance",
+      "method": "GET",
+      "path": "/crypto-wallet-balance",
+      "priceUsd": 0.001,
+      "query": {
+        "address": "0xYOUR_ADDRESS",
+        "network": "base"
+      },
+      "cadenceExamples": [
+        "1m",
+        "5m",
+        "1h"
+      ]
+    },
+    {
+      "id": "web-change",
+      "method": "POST",
+      "path": "/change",
+      "priceUsd": 0.001,
+      "body": {
+        "url": "https://example.com"
+      },
+      "cadenceExamples": [
+        "5m",
+        "1h",
+        "1d"
+      ]
+    },
+    {
+      "id": "web-markdown",
+      "method": "POST",
+      "path": "/web/markdown",
+      "priceUsd": 0.001,
+      "body": {
+        "url": "https://example.com"
+      },
+      "cadenceExamples": [
+        "per-crawl-url"
+      ]
+    }
+  ]
+}
