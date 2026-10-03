@@ -23,6 +23,39 @@ async function validatePublicUrl(raw){
   }
   return u;
 }
+
+const CHAIN_RPCS = {
+  base:'https://mainnet.base.org',
+  ethereum:'https://cloudflare-eth.com'
+};
+function chainInput(input){
+  const network=String(input?.network||'base').toLowerCase();
+  if(!Object.hasOwn(CHAIN_RPCS,network)) throw Object.assign(new Error('network must be base or ethereum.'),{statusCode:400});
+  return network;
+}
+function evmAddress(value,label='address'){
+  const address=String(value||'').trim();
+  if(!/^0x[a-fA-F0-9]{40}$/.test(address)) throw Object.assign(new Error(label+' must be a 20-byte EVM address.'),{statusCode:400});
+  return address;
+}
+async function rpcCall(network,method,params=[]){
+  const response=await fetch(CHAIN_RPCS[network],{
+    method:'POST',
+    headers:{'content-type':'application/json','accept':'application/json','user-agent':'IndustrialPlatform-ChainRead/1.0'},
+    body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}),
+    signal:AbortSignal.timeout(10000)
+  });
+  const body=await response.json().catch(()=>null);
+  if(!response.ok||body?.error||body?.result===undefined) throw Object.assign(new Error('RPC request failed.'),{statusCode:502,upstream:body?.error||null});
+  return body.result;
+}
+function balanceOfData(address){
+  return '0x70a08231'+address.slice(2).toLowerCase().padStart(64,'0');
+}
+function hexToDecimal(value){
+  try{return BigInt(value||'0x0').toString(10);}catch{return null;}
+}
+
 function hostInput(input){
   const host=String(input?.host||input?.name||'').trim().toLowerCase().replace(/\.$/,'');
   if(!host||host.length>253||blockedHost(host)||net.isIP(host)) throw Object.assign(new Error('host must be a public DNS hostname.'),{statusCode:400});
@@ -141,6 +174,63 @@ export const networkTools=[
       const groups=parseRobots(text,userAgent); const decision=response.status===404?{allowed:true,matched_rule:null}:robotsDecision(groups,path);
       const sitemaps=text.split(/\r?\n/).map(x=>x.trim()).filter(x=>/^sitemap\s*:/i.test(x)).map(x=>x.replace(/^sitemap\s*:/i,'').trim()).slice(0,100);
       return{origin:u.origin,robots_url:robotsUrl.href,http_status:response.status,user_agent:userAgent,path,...decision,rules:groups.flatMap(g=>g.rules).slice(0,500),sitemaps,fetched_at:new Date().toISOString()};
+    }
+  },
+  {
+    name:'chain-block-number',route:'/chain/block-number',price:'$0.001',priceUsd:0.001,
+    description:'Latest EVM block height for Base or Ethereum via eth_blockNumber. Use for chain-tip checks, block polling, synchronization, indexers, trading agents and recurring blockchain monitoring.',
+    tags:['blockchain','block-number','block-height','base','ethereum','rpc','evm','monitoring'],
+    inputSchema:{type:'object',properties:{network:{type:'string',enum:['base','ethereum'],default:'base'}},additionalProperties:false},
+    example:{network:'base'},
+    run:async input=>{
+      const network=chainInput(input);
+      const raw=await rpcCall(network,'eth_blockNumber',[]);
+      return{network,block_number:Number(BigInt(raw)),block_number_hex:raw,fetched_at:new Date().toISOString()};
+    }
+  },
+  {
+    name:'chain-native-balance',route:'/chain/native-balance',price:'$0.001',priceUsd:0.001,
+    description:'Live native ETH balance for any public EVM wallet on Base or Ethereum via eth_getBalance. Returns exact wei as a decimal string for agents, portfolio monitors and blockchain automation.',
+    tags:['blockchain','wallet','balance','eth','base','ethereum','rpc','evm'],
+    inputSchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['address'],additionalProperties:false},
+    example:{address:'0x0000000000000000000000000000000000000000',network:'base'},
+    run:async input=>{
+      const network=chainInput(input),address=evmAddress(input?.address);
+      const raw=await rpcCall(network,'eth_getBalance',[address,'latest']);
+      return{network,address,balance_wei:hexToDecimal(raw),balance_hex:raw,fetched_at:new Date().toISOString()};
+    }
+  },
+  {
+    name:'chain-erc20-balance',route:'/chain/erc20-balance',price:'$0.001',priceUsd:0.001,
+    description:'ERC-20 token balance for any EVM wallet and token contract on Base or Ethereum via balanceOf eth_call. Returns the exact raw integer balance for USDC, USDT, DAI and arbitrary ERC-20 tokens.',
+    tags:['blockchain','erc20','token','balance','wallet','usdc','base','ethereum','rpc'],
+    inputSchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},contract:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['address','contract'],additionalProperties:false},
+    example:{address:'0x0000000000000000000000000000000000000000',contract:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',network:'base'},
+    run:async input=>{
+      const network=chainInput(input),address=evmAddress(input?.address),contract=evmAddress(input?.contract,'contract');
+      const raw=await rpcCall(network,'eth_call',[{to:contract,data:balanceOfData(address)},'latest']);
+      return{network,address,contract,balance_raw:hexToDecimal(raw),balance_hex:raw,fetched_at:new Date().toISOString()};
+    }
+  },
+  {
+    name:'chain-live-balance',route:'/chain/live-balance',price:'$0.001',priceUsd:0.001,
+    description:'Live wallet balance in one call: native ETH plus up to 20 caller-supplied ERC-20 token balances on Base or Ethereum. Built for portfolio agents, treasury monitors, wallet intelligence and recurring balance polling.',
+    tags:['blockchain','wallet','balance','erc20','portfolio','treasury','base','ethereum','rpc'],
+    inputSchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'array',items:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},maxItems:20}},required:['address'],additionalProperties:false},
+    example:{address:'0x0000000000000000000000000000000000000000',network:'base',tokens:['0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913']},
+    run:async input=>{
+      const network=chainInput(input),address=evmAddress(input?.address);
+      const tokens=(Array.isArray(input?.tokens)?input.tokens:[]).map((x,i)=>evmAddress(x,'tokens['+i+']'));
+      const [native,...tokenRows]=await Promise.all([
+        rpcCall(network,'eth_getBalance',[address,'latest']),
+        ...tokens.map(contract=>rpcCall(network,'eth_call',[{to:contract,data:balanceOfData(address)},'latest']).then(raw=>({contract,raw})))
+      ]);
+      return{
+        network,address,
+        native:{balance_wei:hexToDecimal(native),balance_hex:native},
+        tokens:tokenRows.map(row=>({contract:row.contract,balance_raw:hexToDecimal(row.raw),balance_hex:row.raw})),
+        fetched_at:new Date().toISOString()
+      };
     }
   }
 ];
