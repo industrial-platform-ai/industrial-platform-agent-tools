@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import * as cheerio from 'cheerio';
 import { diffLines } from 'diff';
 
@@ -30,7 +30,8 @@ function canonicalize(value) {
 export const utilityTools = [
   {
     name:'hash', route:'/hash', price:'$0.001', priceUsd:0.001,
-    description:'Compute SHA-256, SHA-512, SHA-1 or MD5 checksum for UTF-8 text and return hex plus Base64 digests. Use for compute sha256 checksum, integrity verification, content fingerprints, cache keys, deduplication and agent pipelines.',
+    summary:'Compute SHA256 hash',
+    description:'Compute SHA256 hash or SHA-512, SHA-1 and MD5 checksums for UTF-8 text and return hex plus Base64 digests. Use for SHA256 hashing, checksum verification, integrity checks, content fingerprints, cache keys, deduplication and agent pipelines.',
     tags:['hash','sha256','sha512','sha1','md5','checksum','encoding','crypto','utility'],
     inputSchema:{
       type:'object',
@@ -304,7 +305,8 @@ export const utilityTools = [
   },
   {
     name:'base64', route:'/base64', price:'$0.001', priceUsd:0.001,
-    description:'Base64 encode or decode UTF-8 text. Supports standard and URL-safe Base64 decoding. Use mode encode or decode.',
+    summary:'Base64 encode decode',
+    description:'Base64 encode decode UTF-8 text in one endpoint. Supports standard and URL-safe Base64 decoding. Use mode encode or decode for deterministic agent data conversion.',
     tags:['base64','encode','decode','encoding','conversion','utility'],
     inputSchema:{
       type:'object',
@@ -386,5 +388,101 @@ export const utilityTools = [
       }
       return {size,overlap,count:chunks.length,chunks};
     }
+  }  ,
+  {
+    name:'uuid-generate', route:'/uuid/generate', price:'$0.001', priceUsd:0.001,
+    summary:'UUID generate',
+    description:'UUID generate service for autonomous agents. Generate one or more RFC 4122 UUID v4 identifiers for request IDs, object IDs, idempotency keys, correlation IDs and distributed workflows.',
+    tags:['uuid','generate','uuid-v4','identifier','utility'],
+    inputSchema:{
+      type:'object',
+      properties:{count:{type:'integer',minimum:1,maximum:100,description:'Number of UUID v4 values to generate; default 1.'}},
+      additionalProperties:false
+    },
+    example:{count:3},
+    run:async input=>{
+      const count=Number.isInteger(input?.count)?Math.min(100,Math.max(1,input.count)):1;
+      const values=Array.from({length:count},()=>randomUUID());
+      return {version:4,count,uuid:values[0],uuids:values};
+    }
+  },
+  {
+    name:'unit-convert', route:'/unit/convert', price:'$0.001', priceUsd:0.001,
+    summary:'Unit conversion',
+    description:'Unit conversion for length, mass, time, temperature and data sizes. Convert a numeric value between common units with deterministic arithmetic and no external API.',
+    tags:['unit','conversion','convert','length','mass','temperature','time','data','utility'],
+    inputSchema:{
+      type:'object',
+      properties:{
+        value:{type:'number'},
+        from:{type:'string',enum:['m','km','cm','mm','mi','yd','ft','in','kg','g','mg','lb','oz','s','ms','min','h','day','C','F','K','B','KB','MB','GB','KiB','MiB','GiB']},
+        to:{type:'string',enum:['m','km','cm','mm','mi','yd','ft','in','kg','g','mg','lb','oz','s','ms','min','h','day','C','F','K','B','KB','MB','GB','KiB','MiB','GiB']}
+      },
+      required:['value','from','to'],
+      additionalProperties:false
+    },
+    example:{value:5,from:'mi',to:'km'},
+    run:async input=>{
+      const groups=[
+        {m:1,km:1000,cm:0.01,mm:0.001,mi:1609.344,yd:0.9144,ft:0.3048,in:0.0254},
+        {kg:1,g:0.001,mg:0.000001,lb:0.45359237,oz:0.028349523125},
+        {s:1,ms:0.001,min:60,h:3600,day:86400},
+        {B:1,KB:1000,MB:1000000,GB:1000000000,KiB:1024,MiB:1048576,GiB:1073741824}
+      ];
+      const value=Number(input?.value), from=input?.from, to=input?.to;
+      if(!Number.isFinite(value)) throw Object.assign(new Error('value must be a finite number.'),{statusCode:400});
+      if(['C','F','K'].includes(from)||['C','F','K'].includes(to)){
+        if(!['C','F','K'].includes(from)||!['C','F','K'].includes(to)) throw Object.assign(new Error('Temperature units can only convert to other temperature units.'),{statusCode:400});
+        const c=from==='C'?value:from==='F'?(value-32)*5/9:value-273.15;
+        const result=to==='C'?c:to==='F'?c*9/5+32:c+273.15;
+        return {value,from,to,result};
+      }
+      const group=groups.find(g=>Object.hasOwn(g,from)&&Object.hasOwn(g,to));
+      if(!group) throw Object.assign(new Error('from and to must belong to the same unit category.'),{statusCode:400});
+      return {value,from,to,result:value*group[from]/group[to]};
+    }
+  },
+  {
+    name:'timezone-convert', route:'/timezone/convert', price:'$0.001', priceUsd:0.001,
+    summary:'Timezone convert',
+    description:'Timezone convert an ISO-8601 timestamp with Z or numeric UTC offset into an IANA timezone such as America/New_York, Europe/London or Asia/Tokyo. Returns UTC and local wall-clock representations with the target offset.',
+    tags:['timezone','convert','time','date','iana','utc','utility'],
+    inputSchema:{
+      type:'object',
+      properties:{
+        datetime:{type:'string',maxLength:100,description:'ISO-8601 instant including Z or an explicit +HH:MM/-HH:MM offset.'},
+        to_timezone:{type:'string',maxLength:100,description:'IANA timezone such as America/New_York.'}
+      },
+      required:['datetime','to_timezone'],
+      additionalProperties:false
+    },
+    example:{datetime:'2026-10-03T14:00:00Z',to_timezone:'America/New_York'},
+    run:async input=>{
+      const raw=String(input?.datetime||'').trim();
+      const timezone=String(input?.to_timezone||'').trim();
+      if(!/(?:Z|[+-]\\d{2}:?\\d{2})$/i.test(raw)) throw Object.assign(new Error('datetime must include Z or an explicit UTC offset.'),{statusCode:400});
+      const date=new Date(raw);
+      if(!Number.isFinite(date.getTime())) throw Object.assign(new Error('datetime is not a valid ISO-8601 instant.'),{statusCode:400});
+      let formatter;
+      try{
+        formatter=new Intl.DateTimeFormat('en-CA',{
+          timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit',
+          hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23',
+          timeZoneName:'longOffset'
+        });
+      }catch{
+        throw Object.assign(new Error('to_timezone must be a valid IANA timezone.'),{statusCode:400});
+      }
+      const p=Object.fromEntries(formatter.formatToParts(date).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
+      const offset=(p.timeZoneName||'GMT+00:00').replace(/^GMT/,'')||'+00:00';
+      return {
+        input:raw,
+        timezone,
+        utc_iso:date.toISOString(),
+        local_iso:`${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}${offset}`,
+        offset
+      };
+    }
   }
+
 ];

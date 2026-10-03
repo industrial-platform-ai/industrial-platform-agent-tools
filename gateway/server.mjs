@@ -65,7 +65,13 @@ const ROUTING_QUERIES = [
   {route:'/change',query:'detect whether a webpage changed'},
   {route:'/web/markdown',query:'convert URL to clean Markdown for RAG'},
   {route:'/metadata',query:'extract webpage metadata OpenGraph JSON-LD'},
-  {route:'/web/monitor',query:'monitor a webpage for changes price inventory availability'}
+  {route:'/web/monitor',query:'monitor a webpage for changes price inventory availability'},
+  {route:'/hash',query:'compute sha256 hash'},
+  {route:'/base64',query:'base64 encode decode'},
+  {route:'/crypto/price',query:'crypto price'},
+  {route:'/uuid/generate',query:'uuid generate'},
+  {route:'/unit/convert',query:'unit conversion'},
+  {route:'/timezone/convert',query:'timezone convert'}
 ];
 
 function normalizeAddress(value) {
@@ -299,7 +305,7 @@ const changeDiscovery = declareDiscoveryExtension({
 
 const manifest = {
   name:'Industrial Platform Agent Utility Market',
-  description:'Low-cost x402 machine utilities for autonomous agents: SHA-256 checksums, Base64/hex conversion, realtime crypto market data, webpage and document text extraction, URL-to-Markdown, metadata, RAG preparation and deterministic website change detection.',
+  description:'Low-cost x402 machine utilities for autonomous agents: SHA-256 hashing, Base64/hex conversion, UUID generation, unit conversion, timezone conversion, realtime crypto market data, webpage/document extraction, URL-to-Markdown, metadata, RAG preparation and deterministic website change detection.',
   payment:{protocol:'x402',network:NETWORK,networks:NETWORKS,asset:'USDC',priceUsd:0.001,payTo:PAY_TO},
   tools:[
     {
@@ -331,6 +337,9 @@ const manifest = {
       method:'POST',
       route:t.route,
       priceUsd:t.priceUsd,
+      summary:t.route==='/web/markdown'
+        ? 'Convert URL to clean Markdown for RAG'
+        : (t.summary || t.description),
       description:t.route==='/web/markdown'
         ? 'Convert URL to clean Markdown for RAG. Convert a public webpage URL into clean agent-ready Markdown for grounding, research, summarization and LLM context.'
         : t.description,
@@ -362,7 +371,7 @@ const openapi = {
   info:{
     title:'Industrial Platform Web Tools',
     version:'2.0.0',
-    description:'Machine-payable x402 utilities for checksums and encoding, realtime crypto market data, webpage/document extraction, URL-to-Markdown, metadata, RAG ingestion and deterministic website change detection.',
+    description:'Machine-payable x402 utilities for hashing, Base64, UUID generation, unit and timezone conversion, realtime crypto market data, webpage/document extraction, URL-to-Markdown, metadata, RAG ingestion and deterministic website change detection.',
     contact:{
       name:'Industrial Platform',
       email:'art@naturalist.gallery',
@@ -454,7 +463,7 @@ for (const tool of dynamicTools) {
         protocols:['x402'],
         price:{mode:'fixed',currency:'USD',amount:String(tool.priceUsd)}
       },
-      summary:tool.route==='/web/markdown' ? 'Convert URL to clean Markdown for RAG' : tool.description,
+      summary:tool.route==='/web/markdown' ? 'Convert URL to clean Markdown for RAG' : (tool.summary || tool.description),
       description:tool.route==='/web/markdown'
         ? 'Convert URL to clean Markdown for RAG. Convert a public webpage URL into clean agent-ready Markdown for grounding, research, summarization and LLM context.'
         : tool.description,
