@@ -317,7 +317,7 @@ const GET_CHAIN_ALIASES = [
     route:'/wallet-balance',
     sourceRoute:'/chain/live-balance',
     operationId:'wallet-balance',
-    description:'Wallet balances for one EVM address. Returns native ETH plus optional ERC-20 holdings in a canonical balances[] array for Roundhouse-style wallet-balance resolution, while preserving raw chain fields for direct agents.',
+    description:'List a wallet\'s token balances for one EVM address. Canonical wallet-balance contract for autonomous agents: address plus optional CAIP-2 chain, returning balances[] while preserving raw chain fields.',
     querySchema:{type:'object',properties:{
       address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}
   {
@@ -1211,7 +1211,7 @@ app.listen(PORT,'0.0.0.0',()=>{
   console.log('Industrial Platform Coinbase x402 gateway listening on',PORT);
 });
 },
-      chain:{type:'string',description:'Optional CAIP-2 chain id. Supports eip155:8453 (Base) and eip155:1 (Ethereum).'},
+      chain:{type:'string',description:'Optional CAIP-2 chain id: eip155:8453 for Base or eip155:1 for Ethereum.'},
       network:{type:'string',enum:['base','ethereum'],description:'Backward-compatible alias for chain.'},
       tokens:{type:'string',description:'Optional comma-separated ERC-20 contract addresses.'}
     },required:['address'],additionalProperties:false},
