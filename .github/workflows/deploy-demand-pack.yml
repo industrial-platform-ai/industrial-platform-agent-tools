@@ -236,18 +236,6 @@ jobs:
             isPublic:true,
             defaultRunOptions:{build:'latest',timeoutSecs:300,memoryMbytes:512,restartOnError:false,forcePermissionLevel:'LIMITED_PERMISSIONS'},
             actorStandby:{isEnabled:false},
-            pricingInfos:[{
-              pricingModel:'PAY_PER_EVENT',
-              pricingPerEvent:{actorChargeEvents:{
-                [process.env.EVENT]:{
-                  eventTitle:'Successful result',
-                  eventDescription:'Charged only when a requested item is successfully processed and emitted.',
-                  eventPriceUsd:Number(process.env.PRICE),
-                  isPrimaryEvent:true,
-                  isOneTimeEvent:false
-                }
-              }}
-            }]
           };
           process.stdout.write(JSON.stringify(body));
           NODE
