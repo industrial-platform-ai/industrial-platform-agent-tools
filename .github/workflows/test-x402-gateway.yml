@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '22'
       - name: Install gateway dependencies
-        run: npm ci --prefix gateway
+        run: npm install --prefix gateway --no-audit --no-fund
       - name: Boot gateway
         run: |
           cd gateway
