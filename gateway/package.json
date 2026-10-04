@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node --import ./roundhouse-preload.mjs server.mjs",
-    "check": "node --check roundhouse-preload.mjs && node --check server.mjs && node --check metadata.mjs && node --check change.mjs && node --check utilities.mjs && node --check market.mjs && node --check article.mjs && node --check network.mjs && node --check bundles.mjs && node --check agentic.mjs && node --check crypto-agent.mjs && node --check mcp-server.mjs"
+    "check": "node --check roundhouse-preload.mjs && node --check server.mjs && node --check metadata.mjs && node --check change.mjs && node --check utilities.mjs && node --check market.mjs && node --check article.mjs && node --check network.mjs && node --check bundles.mjs && node --check agentic.mjs && node --check crypto-agent.mjs && node --check mcp-server.mjs && node --check canonical.mjs"
   },
   "engines": {
     "node": ">=20"
