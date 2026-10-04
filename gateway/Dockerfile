@@ -14,6 +14,7 @@ COPY network.mjs ./
 COPY bundles.mjs ./
 COPY agentic.mjs ./
 COPY crypto-agent.mjs ./
+COPY canonical.mjs ./
 RUN npm run check
 ENV NODE_ENV=production
 EXPOSE 3000
