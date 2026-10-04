@@ -10,6 +10,9 @@ import {
 import { z } from "zod";
 
 const DEFAULT_BASE_URL = "https://x402-gateway-production-1f21.up.railway.app";
+const INDUSTRIAL_PLATFORM_PAY_TO = "0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E";
+const BASE_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const BASE_NETWORKS = new Set(["eip155:8453", "base-mainnet"]);
 
 const evmAddress = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
 const txHash = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
@@ -108,6 +111,7 @@ type JsonObject = Record<string, unknown>;
 export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvider> {
   private readonly baseUrl: string;
   private readonly rememberRecurringState: boolean;
+  private readonly maxPaymentUsdc: number;
   private readonly x402: X402ActionProvider;
   private readonly webpageHashes = new Map<string, string>();
   private readonly walletMonitorState = new Map<string, { cursor?: number; previous_state_hash?: string }>();
@@ -118,11 +122,8 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     super("industrial_platform", []);
     this.baseUrl = (config.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, "");
     this.rememberRecurringState = config.rememberRecurringState ?? true;
-    this.x402 = x402ActionProvider({
-      registeredServices: [this.baseUrl],
-      allowDynamicServiceRegistration: false,
-      maxPaymentUsdc: config.maxPaymentUsdc ?? 0.05,
-    });
+    this.maxPaymentUsdc = config.maxPaymentUsdc ?? 0.05;
+    this.x402 = x402ActionProvider();
   }
 
   supportsNetwork(networkInfo: Network): boolean {
@@ -137,12 +138,52 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     return `${selectedNetwork ?? "base"}:${hash.toLowerCase()}`;
   }
 
+  private paymentAmountUsdc(option: JsonObject): number | null {
+    const raw = option.amount ?? option.maxAmountRequired ?? option.price;
+    if (typeof raw === "number") return raw;
+    if (typeof raw !== "string") return null;
+    if (/^[0-9]+$/.test(raw)) return Number(raw) / 1_000_000;
+    const numeric = Number(raw.replace(/^\$/, ""));
+    return Number.isFinite(numeric) ? numeric : null;
+  }
+
+  private selectPaymentOption(options: unknown[], expectedPriceUsdc: number): JsonObject {
+    const matches = options.filter((value): value is JsonObject => {
+      if (!value || typeof value !== "object") return false;
+      const option = value as JsonObject;
+      const networkValue = String(option.network ?? "");
+      const asset = String(option.asset ?? "").toLowerCase();
+      const payTo = String(option.payTo ?? "").toLowerCase();
+      const amount = this.paymentAmountUsdc(option);
+      return BASE_NETWORKS.has(networkValue)
+        && asset === BASE_USDC.toLowerCase()
+        && payTo === INDUSTRIAL_PLATFORM_PAY_TO.toLowerCase()
+        && amount !== null
+        && amount <= expectedPriceUsdc + 1e-9
+        && amount <= this.maxPaymentUsdc + 1e-9;
+    });
+
+    if (matches.length !== 1) {
+      throw new Error(
+        `Industrial Platform payment preflight expected exactly one approved Base USDC option; found ${matches.length}.`,
+      );
+    }
+    return matches[0];
+  }
+
   private async paidRequest(
     walletProvider: WalletProvider,
     path: string,
     method: "GET" | "POST",
     args: JsonObject,
+    expectedPriceUsdc: number,
   ): Promise<JsonObject> {
+    if (expectedPriceUsdc > this.maxPaymentUsdc + 1e-9) {
+      throw new Error(
+        `Industrial Platform route price ${expectedPriceUsdc} exceeds configured maxPaymentUsdc ${this.maxPaymentUsdc}.`,
+      );
+    }
+
     const queryParams: Record<string, string> = {};
     let body: JsonObject | null = null;
 
@@ -156,19 +197,39 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
       );
     }
 
-    const raw = await this.x402.makeHttpRequestWithX402(walletProvider, {
+    const request = {
       url: `${this.baseUrl}${path}`,
       method,
       headers: { Accept: "application/json" },
       queryParams: method === "GET" ? queryParams : null,
       body,
-    });
+    };
 
-    const parsed = JSON.parse(raw) as JsonObject;
-    if (parsed.success === false || parsed.error === true) {
-      throw new Error(raw);
+    const preflightRaw = await this.x402.makeHttpRequest(walletProvider, request);
+    const preflight = JSON.parse(preflightRaw) as JsonObject;
+
+    if (preflight.success === true && preflight.status !== 402) {
+      return preflight;
     }
-    return parsed;
+
+    if (preflight.status !== "error_402_payment_required") {
+      throw new Error(preflightRaw);
+    }
+
+    const options = Array.isArray(preflight.acceptablePaymentOptions)
+      ? preflight.acceptablePaymentOptions
+      : [];
+    const selectedPaymentOption = this.selectPaymentOption(options, expectedPriceUsdc);
+
+    const paidRaw = await this.x402.retryWithX402(walletProvider, {
+      ...request,
+      selectedPaymentOption,
+    });
+    const paid = JSON.parse(paidRaw) as JsonObject;
+    if (paid.status !== "success" || paid.error === true) {
+      throw new Error(paidRaw);
+    }
+    return paid;
   }
 
   private data(result: JsonObject): JsonObject {
@@ -182,7 +243,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     schema: UrlMarkdownSchema,
   })
   async urlToMarkdown(walletProvider: WalletProvider, args: z.infer<typeof UrlMarkdownSchema>) {
-    return JSON.stringify(await this.paidRequest(walletProvider, "/web/markdown", "POST", args));
+    return JSON.stringify(await this.paidRequest(walletProvider, "/web/markdown", "POST", args, 0.001));
   }
 
   @CreateAction({
@@ -195,7 +256,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     if (this.rememberRecurringState && !body.previous_hash) {
       body.previous_hash = this.webpageHashes.get(body.url);
     }
-    const result = await this.paidRequest(walletProvider, "/change", "POST", body);
+    const result = await this.paidRequest(walletProvider, "/change", "POST", body, 0.001);
     const data = this.data(result);
     if (this.rememberRecurringState && typeof data.current_hash === "string") {
       this.webpageHashes.set(body.url, data.current_hash);
@@ -209,7 +270,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     schema: MetadataSchema,
   })
   async extractWebMetadata(walletProvider: WalletProvider, args: z.infer<typeof MetadataSchema>) {
-    return JSON.stringify(await this.paidRequest(walletProvider, "/metadata-single", "POST", args));
+    return JSON.stringify(await this.paidRequest(walletProvider, "/metadata-single", "POST", args, 0.001));
   }
 
   @CreateAction({
@@ -218,7 +279,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     schema: WalletBalanceSchema,
   })
   async walletBalance(walletProvider: WalletProvider, args: z.infer<typeof WalletBalanceSchema>) {
-    return JSON.stringify(await this.paidRequest(walletProvider, "/wallet-balance/cdp", "GET", args));
+    return JSON.stringify(await this.paidRequest(walletProvider, "/wallet-balance/cdp", "GET", args, 0.001));
   }
 
   @CreateAction({
@@ -227,7 +288,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     schema: TransactionStatusSchema,
   })
   async transactionStatus(walletProvider: WalletProvider, args: z.infer<typeof TransactionStatusSchema>) {
-    return JSON.stringify(await this.paidRequest(walletProvider, "/transaction-status", "GET", args));
+    return JSON.stringify(await this.paidRequest(walletProvider, "/transaction-status", "GET", args, 0.001));
   }
 
   @CreateAction({
@@ -236,7 +297,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     schema: GasStateSchema,
   })
   async gasState(walletProvider: WalletProvider, args: z.infer<typeof GasStateSchema>) {
-    return JSON.stringify(await this.paidRequest(walletProvider, "/gas-state", "GET", args));
+    return JSON.stringify(await this.paidRequest(walletProvider, "/gas-state", "GET", args, 0.001));
   }
 
   @CreateAction({
@@ -245,7 +306,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     schema: AllowanceSchema,
   })
   async erc20Allowance(walletProvider: WalletProvider, args: z.infer<typeof AllowanceSchema>) {
-    return JSON.stringify(await this.paidRequest(walletProvider, "/erc20-allowance", "GET", args));
+    return JSON.stringify(await this.paidRequest(walletProvider, "/erc20-allowance", "GET", args, 0.001));
   }
 
   @CreateAction({
@@ -254,7 +315,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     schema: WalletActivitySchema,
   })
   async walletActivity(walletProvider: WalletProvider, args: z.infer<typeof WalletActivitySchema>) {
-    return JSON.stringify(await this.paidRequest(walletProvider, "/wallet-activity", "GET", args));
+    return JSON.stringify(await this.paidRequest(walletProvider, "/wallet-activity", "GET", args, 0.001));
   }
 
   @CreateAction({
@@ -272,7 +333,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
         if (!body.previous_state_hash) body.previous_state_hash = remembered.previous_state_hash;
       }
     }
-    const result = await this.paidRequest(walletProvider, "/agent/wallet-monitor", "POST", body);
+    const result = await this.paidRequest(walletProvider, "/agent/wallet-monitor", "POST", body, 0.005);
     const data = this.data(result);
     const next = data.next_check as JsonObject | undefined;
     if (this.rememberRecurringState && next) {
@@ -299,7 +360,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
         if (!body.previous_state_hash) body.previous_state_hash = remembered.previous_state_hash;
       }
     }
-    const result = await this.paidRequest(walletProvider, "/agent/treasury-snapshot", "POST", body);
+    const result = await this.paidRequest(walletProvider, "/agent/treasury-snapshot", "POST", body, 0.01);
     const data = this.data(result);
     const next = data.next_check as JsonObject | undefined;
     if (this.rememberRecurringState && next) {
@@ -317,7 +378,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     schema: PretradeSchema,
   })
   async pretradeContext(walletProvider: WalletProvider, args: z.infer<typeof PretradeSchema>) {
-    return JSON.stringify(await this.paidRequest(walletProvider, "/agent/pretrade", "POST", args));
+    return JSON.stringify(await this.paidRequest(walletProvider, "/agent/pretrade", "POST", args, 0.01));
   }
 
   @CreateAction({
@@ -331,7 +392,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     if (this.rememberRecurringState && !body.previous_state_hash) {
       body.previous_state_hash = this.transactionState.get(key);
     }
-    const result = await this.paidRequest(walletProvider, "/agent/transaction-watch", "POST", body);
+    const result = await this.paidRequest(walletProvider, "/agent/transaction-watch", "POST", body, 0.003);
     const data = this.data(result);
     const monitoring = data.monitoring as JsonObject | undefined;
     const terminal = data.terminal === true;
