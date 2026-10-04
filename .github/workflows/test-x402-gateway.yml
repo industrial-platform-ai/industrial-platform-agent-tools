@@ -25,6 +25,9 @@ jobs:
       - name: Install gateway dependencies
         run: npm install --prefix gateway --no-audit --no-fund
       - name: Boot gateway
+        env:
+          CDP_API_KEY_ID: ci-placeholder
+          CDP_API_KEY_SECRET: ci-placeholder
         run: |
           cd gateway
           node --check server.mjs
