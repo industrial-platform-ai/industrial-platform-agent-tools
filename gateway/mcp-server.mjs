@@ -16,6 +16,7 @@ import { networkTools } from './network.mjs';
 import { bundleTools } from './bundles.mjs';
 import { agenticTools } from './agentic.mjs';
 import { cryptoAgentTools } from './crypto-agent.mjs';
+import { canonicalTools } from './canonical.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = process.env.MCP_PUBLIC_ORIGIN || 'https://x402-mcp-gateway-production.up.railway.app';
@@ -50,7 +51,7 @@ const changeInputSchema = {
   additionalProperties:false
 };
 
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools];
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools];
 
 const readResult = async (body) => {
   const result = await runChange({...body, include_current_text:true});
