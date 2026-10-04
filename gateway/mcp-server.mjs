@@ -116,7 +116,42 @@ const canonicalMcpAliases = [
     inputSchema:{
       type:'object',
       properties:{
-        address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}
+        address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},
+        chain:{type:'string',enum:['eip155:8453','eip155:1'],default:'eip155:8453'}
+      },
+      required:['address'],
+      additionalProperties:false
+    },
+    example:{address:'0x0000000000000000000000000000000000000000',chain:'eip155:8453'},
+    run:canonicalWalletBalance
+  },
+  {
+    name:'gas_price',
+    route:'/gas-price',
+    priceUsd:0.001,
+    price:'$0.001',
+    description:'Canonical current EVM base fee in gwei for Base or Ethereum, for recurring transaction timing and execution checks.',
+    inputSchema:{
+      type:'object',
+      properties:{chain:{type:'string',enum:['eip155:8453','eip155:1'],default:'eip155:8453'}},
+      additionalProperties:false
+    },
+    example:{chain:'eip155:8453'},
+    run:canonicalGasPrice
+  },
+  {
+    name:'monitor_webpage_change',
+    route:'/change',
+    priceUsd:0.001,
+    price:'$0.001',
+    description:'Recurring webpage change monitoring for prices, inventory, availability, documentation, policies and competitors. Reuse the returned previous_hash on the next check.',
+    inputSchema:changeInputSchema,
+    example:{url:'https://example.com/',include_current_text:false},
+    run:runChange
+  }
+];
+
+const tools = [
   {
     name:'detectWebpageChange',
     route:'/change',
