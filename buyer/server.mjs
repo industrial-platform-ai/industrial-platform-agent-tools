@@ -85,6 +85,7 @@ const marketQueries = [
 ];
 const requestMethod = (process.env.X402_METHOD || 'POST').toUpperCase();
 const requestBodyOverride = process.env.X402_REQUEST_BODY || '';
+const batchOverride = process.env.X402_BATCH || '';
 const payAsSeller = process.env.X402_PAY_AS_SELLER === '1';
 
 function deriveSellerAccount() {
@@ -119,55 +120,66 @@ function makeClient() {
   return { signer, fetch: wrapFetchWithPayment(globalThis.fetch, httpClient) };
 }
 
-async function payOnce() {
+async function paidRequest({target=TARGET,method=requestMethod,bodyOverride=requestBodyOverride}={}) {
   const { fetch: paidFetch } = makeClient();
-
-  state.status = 'paying';
   let requestBody;
-  if (requestBodyOverride) {
-    try {
-      requestBody = JSON.parse(requestBodyOverride);
-    } catch (error) {
-      throw new Error('X402_REQUEST_BODY must be valid JSON: ' + String(error?.message || error));
-    }
+  if (bodyOverride) {
+    requestBody=typeof bodyOverride==='string' ? JSON.parse(bodyOverride) : bodyOverride;
   } else {
-    requestBody = TARGET.endsWith('/change')
-      ? { url: 'https://example.com/', include_current_text: false }
-      : { urls: ['https://example.com/'] };
+    requestBody=target.endsWith('/change')
+      ? {url:'https://example.com/',include_current_text:false}
+      : {urls:['https://example.com/']};
   }
-
-  const requestInit = {
-    method: requestMethod,
-    headers: { 'content-type': 'application/json' },
+  const requestInit={method:String(method||'POST').toUpperCase(),headers:{'content-type':'application/json'}};
+  if(requestInit.method!=='GET'&&requestInit.method!=='HEAD') requestInit.body=JSON.stringify(requestBody);
+  const response=await paidFetch(target,requestInit);
+  const text=await response.text();
+  const result={
+    target,
+    method:requestInit.method,
+    httpStatus:response.status,
+    ok:response.ok,
+    paymentResponse:response.headers.get('payment-response')||response.headers.get('x-payment-response')||null,
+    paymentRequired:response.headers.get('payment-required')||response.headers.get('x-payment-required')||null,
+    extensionResponses:response.headers.get('extension-responses')||response.headers.get('x-extension-responses')||null,
+    body:text.slice(0,20000),
+    completedAt:new Date().toISOString()
   };
-  if (requestMethod !== 'GET' && requestMethod !== 'HEAD') {
-    requestInit.body = JSON.stringify(requestBody);
+  console.log('x402 payment result:',JSON.stringify(result));
+  if(!response.ok) throw Object.assign(new Error('Paid request returned HTTP '+response.status),{result});
+  return result;
+}
+
+async function payOnce() {
+  state.status='paying';
+  state.result=await paidRequest();
+  state.status='paid';
+}
+
+async function payBatch() {
+  let entries;
+  try{entries=JSON.parse(batchOverride);}catch(error){throw new Error('X402_BATCH must be valid JSON: '+String(error?.message||error));}
+  if(!Array.isArray(entries)||entries.length<1||entries.length>50) throw new Error('X402_BATCH must be a JSON array with 1-50 entries.');
+  state.status='paying-batch';
+  state.mode='payment-batch';
+  state.result={requested:entries.length,succeeded:0,failed:0,results:[],startedAt:new Date().toISOString()};
+  for(const [index,entry] of entries.entries()){
+    const target=String(entry?.target||'').trim();
+    if(!target.startsWith('https://')) throw new Error('X402_BATCH['+index+'].target must be https://');
+    try{
+      const result=await paidRequest({target,method:entry?.method||'POST',bodyOverride:entry?.body||{}});
+      state.result.results.push({index,status:'paid',...result});
+      state.result.succeeded+=1;
+    }catch(error){
+      state.result.results.push({index,status:'failed',target,error:String(error?.message||error),result:error?.result||null});
+      state.result.failed+=1;
+      console.error('x402 batch item failed:',index,target,String(error?.stack||error));
+    }
+    await new Promise(resolve=>setTimeout(resolve,500));
   }
-
-  const response = await paidFetch(TARGET, requestInit);
-
-  const text = await response.text();
-  state.result = {
-    httpStatus: response.status,
-    ok: response.ok,
-    paymentResponse:
-      response.headers.get('payment-response') ||
-      response.headers.get('x-payment-response') ||
-      null,
-    paymentRequired:
-      response.headers.get('payment-required') ||
-      response.headers.get('x-payment-required') ||
-      null,
-    extensionResponses:
-      response.headers.get('extension-responses') ||
-      response.headers.get('x-extension-responses') ||
-      null,
-    body: text.slice(0, 20000),
-    completedAt: new Date().toISOString(),
-  };
-  state.status = response.ok ? 'paid' : 'failed';
-  console.log('x402 payment result:', JSON.stringify(state.result));
-  if (!response.ok) throw new Error('Paid request returned HTTP ' + response.status);
+  state.result.completedAt=new Date().toISOString();
+  state.status=state.result.failed===0?'paid':'partial';
+  console.log('x402 payment batch result:',JSON.stringify(state.result));
 }
 
 
@@ -612,7 +624,8 @@ if (runRegistry) {
     console.error(state.error);
   });
 } else if (runPayment) {
-  payOnce().catch((error) => {
+  const paymentRun=batchOverride ? payBatch() : payOnce();
+  paymentRun.catch((error) => {
     state.status = 'failed';
     state.error = String(error?.stack || error);
     console.error(state.error);
