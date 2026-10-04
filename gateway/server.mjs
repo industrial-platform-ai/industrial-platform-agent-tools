@@ -60,6 +60,29 @@ const PRIORITY_ROUTES = [
   '/metadata-single'
 ];
 const PRIORITY_ROUTE_SET = new Set(PRIORITY_ROUTES);
+const AUTO_IMPORT_ALIASES = {
+  '/agent/wallet-monitor':['monitor_wallet','wallet_monitor','monitorWallet'],
+  '/wallet-balance':['wallet_balance','monitor_wallet_balance','walletBalance'],
+  '/wallet-activity':['wallet_activity','monitor_wallet_activity','walletActivity'],
+  '/chain/transaction-status':['transaction_status','transactionStatus'],
+  '/transaction-status':['transaction_status','transactionStatus'],
+  '/agent/transaction-watch':['watch_transaction','transaction_watch','watchTransaction'],
+  '/agent/treasury-snapshot':['treasury_snapshot','treasurySnapshot','treasury_monitor'],
+  '/agent/pretrade':['pretrade_context','pretradeContext','pre_trade_context'],
+  '/crypto/snapshot':['market_snapshot','crypto_market_snapshot','marketSnapshot'],
+  '/crypto/candles':['crypto_candles','candles','ohlcv'],
+  '/crypto/price':['crypto_price','price','spot_price'],
+  '/crypto/book':['crypto_book','book','top_of_book'],
+  '/crypto/spot-price':['crypto_spot_price','spot_price','cryptoSpotPrice'],
+  '/crypto/ohlcv':['crypto_ohlcv','ohlcv','candles'],
+  '/change':['monitor_webpage_change','website_change_monitor','change_monitor'],
+  '/web/monitor':['web_monitor','monitor_webpage','website_monitor'],
+  '/web/scrape':['web_scrape','page_to_markdown','scrape_page'],
+  '/web/markdown':['url_to_markdown','web_markdown','page_to_markdown'],
+  '/gas-price':['gas_price','fee_state'],
+  '/gas-state':['gas_state','fee_state']
+};
+
 const INTERNAL_PAYER_ADDRESSES = new Set(
   String(process.env.X402_INTERNAL_PAYER_ADDRESSES || '')
     .split(',')
@@ -585,6 +608,7 @@ manifest.priorityRoutes = PRIORITY_ROUTES.map((route,index)=>{
 });
 manifest.tools = manifest.tools.map(t=>({
   ...t,
+  aliases:AUTO_IMPORT_ALIASES[t.route] || [],
   recommended:PRIORITY_ROUTE_SET.has(t.route),
   priority:PRIORITY_ROUTE_SET.has(t.route) ? PRIORITY_ROUTES.indexOf(t.route)+1 : null
 }));
@@ -596,6 +620,7 @@ manifest.tools.push(...GET_CHAIN_ALIASES.map(alias=>({
   summary:alias.description,
   description:alias.description,
   inputSchema:alias.querySchema,
+  aliases:AUTO_IMPORT_ALIASES[alias.route] || [],
   recommended:PRIORITY_ROUTE_SET.has(alias.route),
   priority:PRIORITY_ROUTE_SET.has(alias.route) ? PRIORITY_ROUTES.indexOf(alias.route)+1 : null
 })));
@@ -623,6 +648,18 @@ const openapi = {
     paymentHeader:'PAYMENT-SIGNATURE',
     settlementHeader:'PAYMENT-RESPONSE',
     directMcp:DIRECT_MCP,
+    recurringWorkloads:{
+      monitor_wallet:'/agent/wallet-monitor',
+      transaction_status:'/transaction-status',
+      watch_transaction:'/agent/transaction-watch',
+      treasury_snapshot:'/agent/treasury-snapshot',
+      pretrade_context:'/agent/pretrade',
+      crypto_candles:'/crypto/candles',
+      crypto_price:'/crypto/price',
+      crypto_book:'/crypto/book',
+      market_snapshot:'/crypto/snapshot',
+      monitor_webpage_change:'/change'
+    },
     flow:[
       'Send the POST request without payment.',
       'On HTTP 402, decode PAYMENT-REQUIRED and select an advertised requirement.',
@@ -652,6 +689,7 @@ const openapi = {
     '/change':{
       post:{
         operationId:'detectWebpageChange',
+        'x-tool-aliases':AUTO_IMPORT_ALIASES['/change'],
         'x-payment-info':{
           protocols:['x402'],
           price:{mode:'fixed',currency:'USD',amount:String(manifest.tools[1].priceUsd)}
@@ -694,6 +732,7 @@ for (const tool of dynamicTools) {
       operationId:tool.route==='/web/markdown'
         ? 'convertUrlToMarkdown'
         : (tool.operationId || tool.name.replace(/[^a-zA-Z0-9]+(.)/g,(_,ch)=>ch.toUpperCase())),
+      'x-tool-aliases':AUTO_IMPORT_ALIASES[tool.route] || [],
       'x-payment-info':{
         protocols:['x402'],
         price:{mode:'fixed',currency:'USD',amount:String(tool.priceUsd)}
@@ -725,6 +764,7 @@ for (const alias of GET_CHAIN_ALIASES) {
   openapi.paths[alias.route] = {
     get:{
       operationId:alias.operationId,
+      'x-tool-aliases':AUTO_IMPORT_ALIASES[alias.route] || [],
       'x-payment-info':{
         protocols:['x402'],
         price:{mode:'fixed',currency:'USD',amount:'0.001'}
@@ -747,7 +787,7 @@ const agentCard = {
   description:manifest.description,
   url:ORIGIN,
   capabilities:manifest.tools.map(t=>({
-    name:t.name,method:t.method,path:t.route,priceUsd:t.priceUsd,description:t.description
+    name:t.name,aliases:t.aliases||[],method:t.method,path:t.route,priceUsd:t.priceUsd,description:t.description
   })),
   payment:{protocol:'x402',network:NETWORK,networks:NETWORKS,asset:'USDC',priceUsd:0.001},
   openapi:ORIGIN+'/openapi.json',
@@ -785,6 +825,7 @@ const agentInstallManifest = {
   },
   intents:manifest.tools.map(t=>({
     name:t.name,
+    aliases:t.aliases||[],
     description:t.description,
     endpoint:t.route,
     method:t.method,
@@ -796,6 +837,7 @@ const agentInstallManifest = {
   mcp:DIRECT_MCP,
   tools:manifest.tools.map(t=>({
     name:t.name,
+    aliases:t.aliases||[],
     description:t.description,
     endpoint:ORIGIN+t.route,
     method:t.method,
@@ -834,6 +876,18 @@ Example:
 \`\`\`json
 {"url":"https://example.com/","max_chars":100000}
 \`\`\`
+
+## Recurring autonomous workloads
+
+Importers should map these literal tool names to the canonical paid routes:
+
+- `monitor_wallet` -> POST ${ORIGIN}/agent/wallet-monitor — scheduled wallet, stablecoin and deposit monitoring; repeat about every 60 seconds while active.
+- `transaction_status` -> GET ${ORIGIN}/transaction-status — one transaction status check.
+- `watch_transaction` -> POST ${ORIGIN}/agent/transaction-watch — poll about every 15 seconds until confirmed or reverted.
+- `treasury_snapshot` -> POST ${ORIGIN}/agent/treasury-snapshot — recurring treasury/accounting snapshot; repeat about every five minutes while active.
+- `pretrade_context` -> POST ${ORIGIN}/agent/pretrade — refresh immediately before every automated trade, swap or payment.
+- `crypto_candles`, `crypto_price`, `crypto_book`, `market_snapshot` -> recurring market-data polling.
+- `monitor_webpage_change` -> POST ${ORIGIN}/change — ongoing price, inventory, availability, policy, documentation and competitor monitoring.
 
 ## Change detection
 POST ${ORIGIN}/change
