@@ -848,8 +848,42 @@ const alternateBazaarServers = ALTERNATE_BAZAARS.map(definition=>{
   const handlers=[];
   for (const tool of RECURRING_BAZAAR_TOOLS) {
     const aliasRoute='/'+definition.slug+tool.route;
+    const price=tool.price || ('$'+Number(tool.priceUsd).toFixed(3));
     routeMap['POST '+aliasRoute]={
-      accepts:acceptsFor(tool.price || ('
+      accepts:acceptsFor(price),
+      resource:ORIGIN+aliasRoute,
+      description:tool.description,
+      mimeType:'application/json',
+      serviceName:'Industrial Platform · '+definition.name,
+      tags:[...(tool.tags||[]),definition.slug,'recurring','autonomous-agents'],
+      extensions:{...utilityDiscovery(tool)}
+    };
+    handlers.push({aliasRoute,tool});
+  }
+  server
+    .onAfterSettle(async context=>{
+      console.log('ALT_BAZAAR_SETTLED',JSON.stringify({
+        bazaar:definition.slug,
+        facilitator:definition.facilitatorUrl,
+        payer:String(context.result?.payer||'').toLowerCase()||null,
+        transaction:context.result?.transaction??null,
+        amount:context.requirements?.amount??null,
+        network:context.requirements?.network??null,
+        payTo:context.requirements?.payTo??null,
+        at:new Date().toISOString()
+      }));
+    })
+    .onSettleFailure(async context=>{
+      console.log('ALT_BAZAAR_SETTLE_FAILURE',JSON.stringify({
+        bazaar:definition.slug,
+        facilitator:definition.facilitatorUrl,
+        error:String(context.error?.message||context.error||'unknown'),
+        at:new Date().toISOString()
+      }));
+    });
+  return {definition,server,routeMap,handlers};
+});
+
 resourceServer
   .registerExtension(bazaarResourceServerExtension)
   .onAfterVerify(async (context) => {
