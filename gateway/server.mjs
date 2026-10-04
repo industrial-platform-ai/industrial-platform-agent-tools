@@ -2,6 +2,8 @@ import express from 'express';
 import { paymentMiddleware } from '@x402/express';
 import { x402ResourceServer, HTTPFacilitatorClient } from '@x402/core/server';
 import { ExactEvmScheme } from '@x402/evm/exact/server';
+import { BatchSettlementEvmScheme } from '@x402/evm/batch-settlement/server';
+import { FileChannelStorage } from '@x402/evm/batch-settlement/server/file-storage';
 import { declareDiscoveryExtension, bazaarResourceServerExtension } from '@x402/extensions/bazaar';
 import { createCdpFacilitatorClient } from '@coinbase/cdp-sdk/x402';
 import { createPaywall } from '@x402/paywall';
@@ -29,13 +31,22 @@ const NETWORK_ASSETS = {
   'eip155:137':'0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
   'eip155:42161':'0xaf88d065e77c8cC2239327C5EDb3A432268e5831'
 };
-const acceptsFor = (price) => NETWORKS.map(network=>({
-  scheme:'exact',
-  price,
-  network,
-  payTo:PAY_TO,
-  maxTimeoutSeconds:90
-}));
+const acceptsFor = (price, batch=false) => NETWORKS.flatMap(network=>[
+  {
+    scheme:'exact',
+    price,
+    network,
+    payTo:PAY_TO,
+    maxTimeoutSeconds:90
+  },
+  ...(batch ? [{
+    scheme:'batch-settlement',
+    price,
+    network,
+    payTo:PAY_TO,
+    maxTimeoutSeconds:90
+  }] : [])
+]);
 const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools];
 const PRIORITY_ROUTES = [
   '/agent/wallet-monitor',
@@ -60,6 +71,29 @@ const PRIORITY_ROUTES = [
   '/metadata-single'
 ];
 const PRIORITY_ROUTE_SET = new Set(PRIORITY_ROUTES);
+const BATCH_ROUTE_SET = new Set([
+  '/agent/wallet-monitor',
+  '/wallet-balance',
+  '/wallet-activity',
+  '/chain/wallet-activity',
+  '/transaction-status',
+  '/chain/transaction-status',
+  '/agent/transaction-watch',
+  '/agent/treasury-snapshot',
+  '/agent/pretrade',
+  '/crypto/snapshot',
+  '/crypto/spot-price',
+  '/crypto/ohlcv',
+  '/crypto/candles',
+  '/crypto/price',
+  '/crypto/book',
+  '/gas-price',
+  '/gas-state',
+  '/chain/gas-state',
+  '/change',
+  '/web/monitor'
+]);
+const BATCH_STORAGE_DIR = process.env.X402_BATCH_STORAGE_DIR || '/data/batch-channels';
 const AUTO_IMPORT_ALIASES = {
   '/agent/wallet-monitor':['monitor_wallet','wallet_monitor','monitorWallet'],
   '/wallet-balance':['wallet_balance','monitor_wallet_balance','walletBalance'],
@@ -910,7 +944,21 @@ const browserPaywall = createPaywall()
   .withConfig({appName:'Industrial Platform',testnet:false})
   .build();
 const resourceServer = new x402ResourceServer(facilitator);
-for (const network of NETWORKS) resourceServer.register(network, new ExactEvmScheme());
+const batchScheme = new BatchSettlementEvmScheme(PAY_TO, {
+  storage:new FileChannelStorage({directory:BATCH_STORAGE_DIR}),
+  enforceMinDeposit:false
+});
+for (const network of NETWORKS) {
+  resourceServer.register(network, new ExactEvmScheme());
+  resourceServer.register(network, batchScheme);
+}
+const batchManager = batchScheme.createChannelManager(facilitator, NETWORK);
+batchManager.start({
+  claimIntervalSecs:60,
+  settleIntervalSecs:300,
+  refundIntervalSecs:3600,
+  maxClaimsPerBatch:100
+});
 
 const alternateBazaarServers = ALTERNATE_BAZAARS.map(definition=>{
   const facilitatorClient=new HTTPFacilitatorClient({url:definition.facilitatorUrl});
@@ -1026,7 +1074,7 @@ const routes = {
     extensions:{...metadataDiscovery}
   },
   'POST /change': {
-    accepts:acceptsFor(PRICE),
+    accepts:acceptsFor(PRICE, true),
     resource:ORIGIN+'/change',
     description:manifest.tools[1].description,
     mimeType:'application/json',
@@ -1047,7 +1095,7 @@ const routes = {
 
 for (const tool of dynamicTools) {
   routes[`POST ${tool.route}`] = {
-    accepts:acceptsFor(tool.price),
+    accepts:acceptsFor(tool.price, BATCH_ROUTE_SET.has(tool.route)),
     resource:ORIGIN+tool.route,
     description:tool.description,
     mimeType:'application/json',
@@ -1060,7 +1108,7 @@ for (const tool of dynamicTools) {
 
 for (const alias of GET_CHAIN_ALIASES) {
   routes[`GET ${alias.route}`] = {
-    accepts:acceptsFor('$0.001'),
+    accepts:acceptsFor('$0.001', BATCH_ROUTE_SET.has(alias.route)),
     resource:ORIGIN+alias.route,
     description:alias.description,
     mimeType:'application/json',
@@ -1212,7 +1260,7 @@ code{background:#f5f5f5;padding:2px 5px;border-radius:5px}
 <p class="small">Your wallet signs the payment in your browser. Industrial Platform does not receive your private key.</p>
 </body></html>`));
 
-app.get('/health', (_req,res)=>res.json({ok:true,version:'2.3.0',payment:'multi-bazaar-x402',network:NETWORK,priorityRoutes:PRIORITY_ROUTES,browserTest:'/try',alternateBazaars:ALTERNATE_BAZAARS.map(x=>x.slug)}));
+app.get('/health', (_req,res)=>res.json({ok:true,version:'2.3.0',payment:'multi-bazaar-x402',network:NETWORK,priorityRoutes:PRIORITY_ROUTES,browserTest:'/try',alternateBazaars:ALTERNATE_BAZAARS.map(x=>x.slug),batchSettlement:{enabled:true,network:NETWORK,storage:'durable-file',routes:[...BATCH_ROUTE_SET]}}));
 app.get('/metrics/x402.json', (_req,res)=>res.json({
   startedAt:funnelState.startedAt,
   network:NETWORK,
