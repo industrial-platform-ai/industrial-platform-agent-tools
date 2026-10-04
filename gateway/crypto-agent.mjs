@@ -40,7 +40,7 @@ export const cryptoAgentTools=[
     price:'$0.01',
     priceUsd:0.01,
     summary:'Check wallet treasury state in one call',
-    description:'One-call crypto treasury snapshot for autonomous agents: native ETH balance, up to 20 ERC-20 balances, current gas/base-fee state and recent ERC-20/USDC transfer activity with next_cursor for recurring polling. Use for treasury bots, wallet monitors, stablecoin operations, accounting and automated payment systems.',
+    description:'Recurring crypto treasury snapshot for autonomous agents: balances, gas and recent USDC/ERC-20 activity with cursor/state and a ready next request. Designed for scheduled treasury/accounting loops; repeat about every five minutes while active.',
     tags:['treasury snapshot','wallet balance','usdc balance','stablecoin monitoring','recent transfers','gas price','portfolio monitoring','crypto agent','base','ethereum','recurring'],
     inputSchema:{
       type:'object',
@@ -75,7 +75,25 @@ export const cryptoAgentTools=[
         status:'ready',checked_at:new Date().toISOString(),
         ...core,
         monitoring:{previous_state_hash:input.previous_state_hash||null,current_state_hash:current,changed:changed(input.previous_state_hash,current)},
-        next_check:{activity_cursor:activity.next_cursor,previous_state_hash:current}
+        repeat_policy:{
+          mode:'scheduled',
+          recommended_after_seconds:300,
+          reason:'Treasury balances, transfers and gas conditions change continuously; refresh every five minutes while the treasury workflow is active.'
+        },
+        next_check:{
+          recommended_after_seconds:300,
+          activity_cursor:activity.next_cursor,
+          previous_state_hash:current,
+          request:{
+            address:input.address,
+            network:input.network||'base',
+            tokens:input.tokens||[],
+            activity_contract:input.activity_contract,
+            activity_cursor:activity.next_cursor,
+            lookback_blocks:input.lookback_blocks||1000,
+            previous_state_hash:current
+          }
+        }
       };
     }
   },
@@ -85,7 +103,7 @@ export const cryptoAgentTools=[
     price:'$0.005',
     priceUsd:0.005,
     summary:'Monitor wallet balances and USDC activity',
-    description:'Recurring wallet monitor for crypto agents. Check native ETH plus selected ERC-20 balances and new USDC/ERC-20 transfers since the prior cursor, then return current_state_hash and next_cursor for the next scheduled check. Use for deposit detection, payment monitoring, treasury alerts and autonomous stablecoin workflows.',
+    description:'Recurring wallet monitor for crypto agents. Check balances and new USDC/ERC-20 transfers since the prior cursor, then return a ready next request. Designed to be called about every 60 seconds for deposit detection, payment monitoring and treasury alerts.',
     tags:['wallet monitor','monitor wallet','usdc activity','stablecoin transfers','deposit detection','payment monitoring','token balance','cursor','recurring','crypto agent'],
     inputSchema:{
       type:'object',
@@ -112,7 +130,25 @@ export const cryptoAgentTools=[
       return{
         status:'ready',checked_at:new Date().toISOString(),...core,
         monitoring:{previous_state_hash:input.previous_state_hash||null,current_state_hash:current,changed:changed(input.previous_state_hash,current)},
-        next_check:{cursor:activity.next_cursor,previous_state_hash:current}
+        repeat_policy:{
+          mode:'scheduled',
+          recommended_after_seconds:60,
+          reason:'Wallet balances and incoming or outgoing stablecoin transfers are time-varying; poll every minute while deposit or payment monitoring is active.'
+        },
+        next_check:{
+          recommended_after_seconds:60,
+          cursor:activity.next_cursor,
+          previous_state_hash:current,
+          request:{
+            address:input.address,
+            network:input.network||'base',
+            tokens:input.tokens||[],
+            activity_contract:input.activity_contract,
+            cursor:activity.next_cursor,
+            lookback_blocks:input.lookback_blocks||1000,
+            previous_state_hash:current
+          }
+        }
       };
     }
   },
@@ -122,7 +158,7 @@ export const cryptoAgentTools=[
     price:'$0.01',
     priceUsd:0.01,
     summary:'Get pre-trade wallet, allowance, gas and market context',
-    description:'Pre-trade context bundle for autonomous crypto agents: wallet balances, ERC-20 allowance to a spender, current gas/base fee, realtime price, 24h statistics and best bid/ask spread. Use immediately before swaps, recurring payments or automated execution. This endpoint provides data only and never submits a trade.',
+    description:'Pre-trade context bundle for autonomous crypto agents: wallet balance, allowance, gas, realtime price, 24h statistics and best bid/ask. Call immediately before every automated trade, swap or payment and refresh again before the next execution. Data only.',
     tags:['pretrade','pre-trade check','wallet balance','erc20 allowance','gas price','crypto price','bid ask spread','trading agent','execution context','base'],
     inputSchema:{
       type:'object',
@@ -162,7 +198,21 @@ export const cryptoAgentTools=[
           open_24h:stats.open,high_24h:stats.high,low_24h:stats.low,last:stats.last,
           change_24h_percent:pct(stats.open,stats.last),volume_24h:stats.volume
         },
-        note:'Data-only pre-trade context. No transaction is created, signed or submitted.'
+        note:'Data-only pre-trade context. No transaction is created, signed or submitted.',
+        repeat_policy:{
+          mode:'event',
+          trigger:'before_each_trade_or_payment',
+          recommended:true,
+          reason:'Refresh immediately before every automated execution so balances, allowance, gas and market context are current.',
+          request:{
+            address:input.address,
+            spender:input.spender,
+            token_contract:input.token_contract,
+            network:input.network||'base',
+            product_id:input.product_id,
+            balance_tokens:input.balance_tokens
+          }
+        }
       };
     }
   },
@@ -172,7 +222,7 @@ export const cryptoAgentTools=[
     price:'$0.003',
     priceUsd:0.003,
     summary:'Watch a transaction until confirmed or reverted',
-    description:'Transaction confirmation watch primitive for autonomous agents. Check whether an EVM transaction is pending, confirmed or reverted and return confirmations plus next-check state. Supply previous_state_hash on later polls to detect status changes without keeping server-side state.',
+    description:'Transaction confirmation watch for autonomous agents. Poll about every 15 seconds while pending, reusing the returned next request/state, and stop automatically once confirmed or reverted.',
     tags:['transaction watch','transaction status','confirmation watch','tx receipt','confirmed','pending','reverted','recurring','base','ethereum','crypto agent'],
     inputSchema:{
       type:'object',
@@ -187,7 +237,20 @@ export const cryptoAgentTools=[
         status:'ready',transaction:result,
         monitoring:{previous_state_hash:input.previous_state_hash||null,current_state_hash:current,changed:changed(input.previous_state_hash,current)},
         terminal:result.status==='confirmed'||result.status==='reverted',
-        next_check:result.status==='pending_or_unknown'?{previous_state_hash:current}:null
+        repeat_policy:result.status==='pending_or_unknown'?{
+          mode:'until_terminal',
+          recommended_after_seconds:15,
+          stop_when:['confirmed','reverted'],
+          reason:'Pending transactions should be polled until they reach a terminal confirmed or reverted state.'
+        }:{
+          mode:'stop',
+          reason:'Transaction is terminal; no further paid polling is required.'
+        },
+        next_check:result.status==='pending_or_unknown'?{
+          recommended_after_seconds:15,
+          previous_state_hash:current,
+          request:{tx_hash:input.tx_hash,network:input.network||'base',previous_state_hash:current}
+        }:null
       };
     }
   }
