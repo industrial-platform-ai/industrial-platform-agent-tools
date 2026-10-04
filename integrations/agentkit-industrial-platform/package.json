@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "reflect-metadata": "^0.2.2",
-    "zod": "^4.3.6"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@coinbase/agentkit": "^0.10.4",
