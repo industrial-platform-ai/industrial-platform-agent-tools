@@ -4,6 +4,8 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { z } from 'zod';
 import { createPaymentWrapper, x402ResourceServer } from '@x402/mcp';
 import { ExactEvmScheme } from '@x402/evm/exact/server';
+import { BatchSettlementEvmScheme } from '@x402/evm/batch-settlement/server';
+import { FileChannelStorage } from '@x402/evm/batch-settlement/server/file-storage';
 import { declareDiscoveryExtension } from '@x402/extensions/bazaar';
 import { createCdpFacilitatorClient } from '@coinbase/cdp-sdk/x402';
 
@@ -22,6 +24,29 @@ const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = process.env.MCP_PUBLIC_ORIGIN || 'https://x402-mcp-gateway-production.up.railway.app';
 const PAY_TO = process.env.X402_PAY_TO || '0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E';
 const NETWORK = 'eip155:8453';
+const BATCH_STORAGE_DIR = process.env.X402_BATCH_STORAGE_DIR || '/data/batch-channels';
+const BATCH_ROUTE_SET = new Set([
+  '/agent/wallet-monitor',
+  '/wallet-balance',
+  '/wallet-activity',
+  '/chain/wallet-activity',
+  '/transaction-status',
+  '/chain/transaction-status',
+  '/agent/transaction-watch',
+  '/agent/treasury-snapshot',
+  '/agent/pretrade',
+  '/crypto/snapshot',
+  '/crypto/spot-price',
+  '/crypto/ohlcv',
+  '/crypto/candles',
+  '/crypto/price',
+  '/crypto/book',
+  '/gas-price',
+  '/gas-state',
+  '/chain/gas-state',
+  '/change',
+  '/web/monitor'
+]);
 
 const metadataInputSchema = {
   type:'object',
@@ -258,17 +283,116 @@ function schemaToZod(schema = {}) {
 
 const facilitator = createCdpFacilitatorClient();
 const resourceServer = new x402ResourceServer(facilitator);
+const batchScheme = new BatchSettlementEvmScheme(PAY_TO, {
+  storage:new FileChannelStorage({directory:BATCH_STORAGE_DIR}),
+  enforceMinDeposit:false
+});
 resourceServer.register(NETWORK, new ExactEvmScheme());
+resourceServer.register(NETWORK, batchScheme);
 await resourceServer.initialize();
+
+const batchManager = batchScheme.createChannelManager(facilitator, NETWORK);
+batchManager.start({
+  claimIntervalSecs:60,
+  settleIntervalSecs:300,
+  refundIntervalSecs:3600,
+  maxClaimsPerBatch:100
+});
 
 const acceptsByTool = new Map();
 for (const tool of tools) {
-  acceptsByTool.set(tool.name, await resourceServer.buildPaymentRequirements({
+  const price=tool.price || ('
+
+function createServer() {
+  const server = new McpServer({
+    name:'industrial-platform-direct-x402',
+    version:'1.0.0'
+  });
+
+  for (const tool of tools) {
+    const discovery = declareDiscoveryExtension({
+      toolName:tool.name,
+      description:tool.description,
+      transport:'streamable-http',
+      inputSchema:tool.inputSchema,
+      example:tool.example || {}
+    });
+
+    const paid = createPaymentWrapper(resourceServer, {
+      accepts:acceptsByTool.get(tool.name),
+      resource:{
+        url:'mcp://tool/'+tool.name,
+        description:tool.description
+      },
+      extensions:discovery
+    });
+
+    server.tool(
+      tool.name,
+      tool.description+' Costs '+(tool.price || ('$'+Number(tool.priceUsd).toFixed(6).replace(/0+$/,'').replace(/\.$/,'')))+' USDC on Base via x402.',
+      schemaToZod(tool.inputSchema).shape,
+      paid(async (args) => {
+        const data = await tool.run(args);
+        return {
+          content:[{type:'text',text:JSON.stringify(data)}],
+          structuredContent:data && typeof data === 'object' ? data : {value:data}
+        };
+      })
+    );
+  }
+
+  return server;
+}
+
+const app = express();
+app.disable('x-powered-by');
+app.use(express.json({limit:'256kb'}));
+
+app.get('/', (_req,res)=>res.json({
+  name:'Industrial Platform Direct x402 MCP',
+  protocol:'MCP Streamable HTTP',
+  payment:{protocol:'x402',version:2,network:NETWORK,asset:'USDC',payTo:PAY_TO},
+  toolCount:tools.length,
+  endpoint:ORIGIN+'/mcp',
+  catalog:'https://x402-gateway-production-1f21.up.railway.app/.well-known/x402'
+}));
+
+app.get('/health', (_req,res)=>res.json({ok:true,toolCount:tools.length,network:NETWORK,batchSettlement:{enabled:true,storage:'durable-file',routes:[...BATCH_ROUTE_SET]}}));
+
+app.all('/mcp', async (req,res)=>{
+  const server = createServer();
+  const transport = new StreamableHTTPServerTransport({sessionIdGenerator:undefined});
+  res.on('close',()=>{ void server.close().catch(()=>{}); });
+  try {
+    await server.connect(transport);
+    await transport.handleRequest(req,res,req.body);
+  } catch (error) {
+    console.error('MCP_REQUEST_FAILED',error);
+    if (!res.headersSent) res.status(500).json({error:'MCP request failed'});
+  }
+});
+
+app.listen(PORT,'0.0.0.0',()=>{
+  console.log('Industrial Platform direct x402 MCP listening on',PORT,'tools',tools.length);
+});
++Number(tool.priceUsd).toFixed(6).replace(/0+$/,'').replace(/\.$/,''));
+  const exact=await resourceServer.buildPaymentRequirements({
     scheme:'exact',
     network:NETWORK,
     payTo:PAY_TO,
-    price:tool.price || ('$'+Number(tool.priceUsd).toFixed(6).replace(/0+$/,'').replace(/\.$/,''))
-  }));
+    price
+  });
+  const accepts=[...exact];
+  if (BATCH_ROUTE_SET.has(tool.route)) {
+    const batch=await resourceServer.buildPaymentRequirements({
+      scheme:'batch-settlement',
+      network:NETWORK,
+      payTo:PAY_TO,
+      price
+    });
+    accepts.push(...batch);
+  }
+  acceptsByTool.set(tool.name, accepts);
 }
 
 function createServer() {
