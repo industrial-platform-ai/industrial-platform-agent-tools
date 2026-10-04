@@ -107,6 +107,15 @@ export interface IndustrialPlatformActionProviderConfig {
 }
 
 type JsonObject = Record<string, unknown>;
+type AgentKitPaymentOption = {
+  scheme: string;
+  network: string;
+  asset: string;
+  maxAmountRequired?: string;
+  amount?: string;
+  price?: string;
+  payTo?: string;
+};
 
 export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvider> {
   private readonly baseUrl: string;
@@ -138,7 +147,7 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     return `${selectedNetwork ?? "base"}:${hash.toLowerCase()}`;
   }
 
-  private paymentAmountUsdc(option: JsonObject): number | null {
+  private paymentAmountUsdc(option: AgentKitPaymentOption): number | null {
     const raw = option.amount ?? option.maxAmountRequired ?? option.price;
     if (typeof raw === "number") return raw;
     if (typeof raw !== "string") return null;
@@ -147,10 +156,11 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
     return Number.isFinite(numeric) ? numeric : null;
   }
 
-  private selectPaymentOption(options: unknown[], expectedPriceUsdc: number): JsonObject {
-    const matches = options.filter((value): value is JsonObject => {
+  private selectPaymentOption(options: unknown[], expectedPriceUsdc: number): AgentKitPaymentOption {
+    const matches = options.filter((value): value is AgentKitPaymentOption => {
       if (!value || typeof value !== "object") return false;
-      const option = value as JsonObject;
+      const option = value as Partial<AgentKitPaymentOption>;
+      if (typeof option.scheme !== "string" || typeof option.network !== "string" || typeof option.asset !== "string") return false;
       const networkValue = String(option.network ?? "");
       const asset = String(option.asset ?? "").toLowerCase();
       const payTo = String(option.payTo ?? "").toLowerCase();
