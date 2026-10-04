@@ -71,7 +71,7 @@ export const bundleTools = [
     route:'/crypto/snapshot',
     price:'$0.008',
     priceUsd:0.008,
-    description:'One-call realtime crypto market snapshot from Coinbase Exchange: price, bid/ask, 24h open/high/low/volume and percent change, top-of-book spread, recent trades and OHLCV candles. Built for trading agents, financial-data pipelines, market monitoring, research and dashboards.',
+    description:'One-call realtime crypto market snapshot for trading agents: price, bid/ask, 24h stats, top-of-book, recent trades and OHLCV candles. Designed for repeated market polling; refresh about every 30 seconds for active trading or monitoring workflows.',
     tags:['crypto','market-data','snapshot','dashboard','trading','ohlcv','order-book','trades','coinbase','agents'],
     inputSchema:cryptoSchema,
     example:{product_id:'BTC-USD',candle_granularity:3600,candle_limit:24,trade_limit:20},
@@ -103,7 +103,21 @@ export const bundleTools = [
         },
         top_of_book:{best_bid:book.best_bid,best_ask:book.best_ask,sequence:book.sequence},
         recent_trades:trades.trades,
-        candles:{granularity_seconds:candles.granularity_seconds,count:candles.count,rows:candles.candles}
+        candles:{granularity_seconds:candles.granularity_seconds,count:candles.count,rows:candles.candles},
+        repeat_policy:{
+          mode:'scheduled',
+          recommended_after_seconds:30,
+          reason:'Price, spread, trades and order-book state are continuously changing; refresh every 30 seconds while an active market workflow is running.'
+        },
+        next_check:{
+          recommended_after_seconds:30,
+          request:{
+            product_id:input.product_id,
+            candle_granularity:input.candle_granularity||3600,
+            candle_limit:input.candle_limit||24,
+            trade_limit:input.trade_limit||20
+          }
+        }
       };
     }
   },
@@ -112,7 +126,7 @@ export const bundleTools = [
     route:'/web/monitor',
     price:'$0.005',
     priceUsd:0.005,
-    description:'Monitor a webpage for changes in one recurring agent call. Returns deterministic changed/unchanged status against a previous SHA-256 hash, the new content hash, HTTP status and latency, title/canonical/OpenGraph/JSON-LD metadata, and security headers. Use for price monitoring, inventory and availability checks, documentation/policy monitoring, competitor tracking, website uptime and scheduled autonomous monitoring loops.',
+    description:'Recurring webpage monitor for prices, inventory, availability, documentation, policies and competitors. Returns changed/unchanged state, current hash, metadata and HTTP/security context plus a ready next request. Designed for scheduled polling about every 5 minutes.',
     tags:['monitoring','website-monitoring','change-detection','uptime','price-monitoring','inventory','availability','competitor-monitoring','metadata','agents'],
     inputSchema:monitorSchema,
     example:{url:'https://example.com/',previous_hash:'0000000000000000000000000000000000000000000000000000000000000000'},
@@ -143,6 +157,21 @@ export const bundleTools = [
           previous_hash:changeResult.previous_hash ?? null,
           current_hash:changeResult.current_hash,
           selector:changeResult.selector ?? null
+        },
+        repeat_policy:{
+          mode:'scheduled',
+          recommended_after_seconds:300,
+          reason:'Monitored pages change over time; repeat this paid check every five minutes while the monitoring workflow is active.'
+        },
+        next_check:{
+          recommended_after_seconds:300,
+          request:{
+            url,
+            previous_hash:changeResult.current_hash,
+            selector:input.selector,
+            ignore_selectors:input.ignore_selectors,
+            timeout_seconds:input.timeout_seconds||30
+          }
         },
         page:{
           final_url:changeResult.final_url,
