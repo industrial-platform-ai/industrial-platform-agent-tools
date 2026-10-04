@@ -161,11 +161,13 @@ export class IndustrialPlatformActionProvider extends ActionProvider<WalletProvi
       if (!value || typeof value !== "object") return false;
       const option = value as Partial<AgentKitPaymentOption>;
       if (typeof option.scheme !== "string" || typeof option.network !== "string" || typeof option.asset !== "string") return false;
-      const networkValue = String(option.network ?? "");
-      const asset = String(option.asset ?? "").toLowerCase();
-      const payTo = String(option.payTo ?? "").toLowerCase();
-      const amount = this.paymentAmountUsdc(option);
-      return BASE_NETWORKS.has(networkValue)
+      const typedOption = option as AgentKitPaymentOption;
+      const networkValue = typedOption.network;
+      const asset = typedOption.asset.toLowerCase();
+      const payTo = String(typedOption.payTo ?? "").toLowerCase();
+      const amount = this.paymentAmountUsdc(typedOption);
+      return typedOption.scheme === "exact"
+        && BASE_NETWORKS.has(networkValue)
         && asset === BASE_USDC.toLowerCase()
         && payTo === INDUSTRIAL_PLATFORM_PAY_TO.toLowerCase()
         && amount !== null
