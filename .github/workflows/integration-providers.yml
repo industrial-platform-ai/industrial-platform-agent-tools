@@ -31,6 +31,58 @@ jobs:
       - run: node --check install.mjs
       - run: npm run check
       - run: npm run build
+      - name: Verify one-command AgentKit installer is idempotent
+        run: |
+          fixture="$(mktemp -d)"
+          mkdir -p "$fixture/src"
+          cat > "$fixture/package.json" <<'JSON'
+          {
+            "name": "agentkit-fixture",
+            "private": true,
+            "type": "module",
+            "dependencies": {
+              "@coinbase/agentkit": "0.10.4"
+            }
+          }
+          JSON
+          cat > "$fixture/tsconfig.json" <<'JSON'
+          {
+            "compilerOptions": {
+              "target": "ES2022",
+              "module": "NodeNext",
+              "moduleResolution": "NodeNext"
+            }
+          }
+          JSON
+          cat > "$fixture/src/agent.ts" <<'TS'
+          import { AgentKit, walletActionProvider } from "@coinbase/agentkit";
+
+          export async function build(walletProvider: unknown) {
+            return AgentKit.from({
+              walletProvider: walletProvider as any,
+              actionProviders: [
+                walletActionProvider(),
+              ],
+            });
+          }
+          TS
+          python3 -m http.server 8123 --directory "$GITHUB_WORKSPACE" >/tmp/ip-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          (
+            cd "$fixture"
+            INDUSTRIAL_PLATFORM_AGENTKIT_SOURCE_BASE="http://127.0.0.1:8123/integrations/agentkit-industrial-platform" \
+            INDUSTRIAL_PLATFORM_SKIP_NPM_INSTALL=1 \
+            node "$GITHUB_WORKSPACE/integrations/agentkit-industrial-platform/install.mjs"
+            INDUSTRIAL_PLATFORM_AGENTKIT_SOURCE_BASE="http://127.0.0.1:8123/integrations/agentkit-industrial-platform" \
+            INDUSTRIAL_PLATFORM_SKIP_NPM_INSTALL=1 \
+            node "$GITHUB_WORKSPACE/integrations/agentkit-industrial-platform/install.mjs"
+          )
+          grep -q '@industrial-platform/agentkit' "$fixture/package.json"
+          grep -q 'industrialPlatformActionProvider' "$fixture/src/agent.ts"
+          test "$(grep -c 'industrialPlatformActionProvider({ maxPaymentUsdc' "$fixture/src/agent.ts")" -eq 1
+          test -f "$fixture/src/agent.ts.before-industrial-platform"
 
   agentcore:
     runs-on: ubuntu-latest
@@ -39,7 +91,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m py_compile integrations/aws-agentcore-industrial-platform/install.py integrations/aws-agentcore-industrial-platform/payment_example.py
+      - run: python -m py_compile integrations/aws-agentcore-industrial-platform/install.py integrations/aws-agentcore-industrial-platform/payment_example.py integrations/aws-agentcore-industrial-platform/langgraph_payments.py
       - run: bash -n integrations/aws-agentcore-industrial-platform/bootstrap.sh
       - run: python -m pip install --quiet --disable-pip-version-check boto3 requests
       - name: Verify AgentCore control-plane operations
