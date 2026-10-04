@@ -15,5 +15,19 @@
     "mode": "direct-x402",
     "network": "Base",
     "asset": "USDC"
-  }
+  },
+  "direct_x402_mcp_url": "https://x402-mcp-gateway-production.up.railway.app/mcp",
+  "direct_x402_gateway_url": "https://x402-gateway-production-1f21.up.railway.app",
+  "recurring_tool_aliases": [
+    "monitor_wallet",
+    "transaction_status",
+    "watch_transaction",
+    "treasury_snapshot",
+    "pretrade_context",
+    "crypto_candles",
+    "crypto_price",
+    "crypto_book",
+    "market_snapshot",
+    "monitor_webpage_change"
+  ]
 }
