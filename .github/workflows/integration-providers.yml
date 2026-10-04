@@ -28,6 +28,7 @@ jobs:
         run: |
           node -e "const p=require('@coinbase/agentkit/package.json'); console.log('agentkit',p.version,'zod',p.dependencies?.zod)"
           grep -R "declare function x402ActionProvider\|class X402ActionProvider" node_modules/@coinbase/agentkit/dist -n | head -20 || true
+      - run: node --check install.mjs
       - run: npm run check
       - run: npm run build
 
@@ -39,3 +40,21 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m py_compile integrations/aws-agentcore-industrial-platform/install.py integrations/aws-agentcore-industrial-platform/payment_example.py
+      - run: bash -n integrations/aws-agentcore-industrial-platform/bootstrap.sh
+      - run: python -m pip install --quiet --disable-pip-version-check boto3 requests
+      - name: Verify AgentCore control-plane operations
+        run: |
+          python - <<'PY'
+          import botocore.session
+          model=botocore.session.get_session().get_service_model("bedrock-agentcore-control")
+          names=set(model.operation_names)
+          required={"CreateGatewayTarget","ListGatewayTargets","UpdateGatewayTarget"}
+          missing=required-names
+          if missing:
+              raise SystemExit(f"Missing AgentCore operations: {sorted(missing)}")
+          create=model.operation_model("CreateGatewayTarget").input_shape.members
+          for field in ("gatewayIdentifier","targetConfiguration"):
+              if field not in create:
+                  raise SystemExit(f"CreateGatewayTarget missing {field}")
+          print("AgentCore service model OK", sorted(required))
+          PY
