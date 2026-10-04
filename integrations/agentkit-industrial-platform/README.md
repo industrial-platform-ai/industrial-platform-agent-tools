@@ -6,9 +6,29 @@ Native Coinbase AgentKit actions backed by Industrial Platform x402 endpoints.
 
 After an operator adds this provider once, Industrial Platform is a first-class AgentKit Action Provider rather than a seller selected from a marketplace at execution time. AgentKit still owns the wallet, x402 client, USDC payment checks and payment proof handling.
 
-## Install
+## One-command install
 
-Until this package is published to npm, use the source from this repository in your AgentKit project. The package is located at `integrations/agentkit-industrial-platform`.
+Run this from the root of an existing TypeScript AgentKit project:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/industrial-platform-ai/industrial-platform-agent-tools/main/integrations/agentkit-industrial-platform/install.mjs | node
+```
+
+The installer is deliberately conservative. It:
+
+1. verifies the project already depends on `@coinbase/agentkit`;
+2. vendors this provider into `vendor/industrial-platform-agentkit`;
+3. adds it as a local package dependency, avoiding any npm publication dependency;
+4. enables `experimentalDecorators` and `emitDecoratorMetadata` when a `tsconfig.json` exists;
+5. finds exactly one `AgentKit.from(...)` initialization with an `actionProviders` array;
+6. adds `industrialPlatformActionProvider({ maxPaymentUsdc: 0.05, rememberRecurringState: true })`;
+7. runs `npm install`.
+
+If the project has zero or multiple plausible AgentKit initialization files, the installer refuses to guess.
+
+Files it edits receive a `.before-industrial-platform` backup on first install. Re-running the installer is idempotent.
+
+The vendored package is also available directly at `integrations/agentkit-industrial-platform`.
 
 ## Usage
 
@@ -47,11 +67,19 @@ AgentKit action names are prefixed by the provider class according to AgentKit's
 
 ## Payment behavior
 
-The provider delegates paid requests to AgentKit's own `X402ActionProvider`.
+The provider delegates payment signing to AgentKit's own published `X402ActionProvider`.
 
-Industrial Platform is pre-registered as the only service URL used by these native actions. Dynamic service registration is disabled inside this provider. The default maximum payment is $0.05 USDC per request and can be lowered by the operator.
+For AgentKit 0.10.4 it uses the safer two-step path internally:
 
-The provider does not receive or manage the buyer's private key.
+1. make the unpaid request;
+2. inspect the 402 requirements;
+3. require Base mainnet, Base USDC and Industrial Platform's canonical seller address;
+4. reject a quoted amount above the route's expected price or `maxPaymentUsdc`;
+5. ask AgentKit to perform the signed x402 retry.
+
+The default maximum is $0.05 USDC per request and can be lowered by the operator.
+
+The provider never receives or manages the buyer's private key.
 
 ## Recurrence
 
