@@ -38,13 +38,20 @@ const acceptsFor = (price) => NETWORKS.map(network=>({
 const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools];
 const PRIORITY_ROUTES = [
   '/agent/wallet-monitor',
+  '/transaction-status',
+  '/agent/transaction-watch',
   '/agent/treasury-snapshot',
   '/agent/pretrade',
-  '/agent/transaction-watch',
+  '/crypto/snapshot',
+  '/crypto/candles',
+  '/crypto/price',
+  '/crypto/book',
+  '/wallet-activity',
+  '/gas-state',
   '/change',
+  '/web/monitor',
   '/web/markdown',
-  '/metadata-single',
-  '/web/monitor'
+  '/metadata-single'
 ];
 const PRIORITY_ROUTE_SET = new Set(PRIORITY_ROUTES);
 const INTERNAL_PAYER_ADDRESSES = new Set(
@@ -92,10 +99,13 @@ const ROUTING_QUERIES = [
   {route:'/agent/treasury-snapshot',query:'check crypto treasury wallet USDC balance recent transfers gas'},
   {route:'/agent/pretrade',query:'pre-trade wallet allowance gas price bid ask crypto market context'},
   {route:'/agent/transaction-watch',query:'check whether transaction confirmed pending or reverted'},
-  {route:'/chain/transaction-status',query:'transaction receipt status confirmations'},
-  {route:'/chain/gas-state',query:'current gas price base fee'},
-  {route:'/chain/erc20-allowance',query:'ERC20 token allowance spender'},
-  {route:'/chain/wallet-activity',query:'recent USDC transfers wallet activity'}
+  {route:'/transaction-status',query:'check transaction status confirmations pending confirmed reverted'},
+  {route:'/gas-state',query:'current gas price base fee'},
+  {route:'/erc20-allowance',query:'ERC20 token allowance spender'},
+  {route:'/wallet-activity',query:'monitor wallet recent USDC transfers recurring activity'},
+  {route:'/crypto/snapshot',query:'realtime crypto market snapshot price order book candles trades'},
+  {route:'/crypto/candles',query:'crypto OHLCV candles historical market data'},
+  {route:'/crypto/book',query:'crypto best bid ask order book spread'}
 ];
 
 function normalizeAddress(value) {
@@ -532,8 +542,8 @@ manifest.tools.push(...GET_CHAIN_ALIASES.map(alias=>({
   summary:alias.description,
   description:alias.description,
   inputSchema:alias.querySchema,
-  recommended:false,
-  priority:null
+  recommended:PRIORITY_ROUTE_SET.has(alias.route),
+  priority:PRIORITY_ROUTE_SET.has(alias.route) ? PRIORITY_ROUTES.indexOf(alias.route)+1 : null
 })));
 manifest.resources = manifest.tools.map(t=>ORIGIN+t.route);
 
