@@ -301,7 +301,25 @@ batchManager.start({
 
 const acceptsByTool = new Map();
 for (const tool of tools) {
-  const price=tool.price || ('
+  const price=tool.price || tool.priceUsd;
+  const exact=await resourceServer.buildPaymentRequirements({
+    scheme:'exact',
+    network:NETWORK,
+    payTo:PAY_TO,
+    price
+  });
+  const accepts=[...exact];
+  if (BATCH_ROUTE_SET.has(tool.route)) {
+    const batch=await resourceServer.buildPaymentRequirements({
+      scheme:'batch-settlement',
+      network:NETWORK,
+      payTo:PAY_TO,
+      price
+    });
+    accepts.push(...batch);
+  }
+  acceptsByTool.set(tool.name, accepts);
+}
 
 function createServer() {
   const server = new McpServer({
