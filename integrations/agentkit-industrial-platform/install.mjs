@@ -12,7 +12,8 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 const ROOT=process.cwd();
-const RAW_BASE="https://raw.githubusercontent.com/industrial-platform-ai/industrial-platform-agent-tools/main/integrations/agentkit-industrial-platform";
+const RAW_BASE=process.env.INDUSTRIAL_PLATFORM_AGENTKIT_SOURCE_BASE || "https://raw.githubusercontent.com/industrial-platform-ai/industrial-platform-agent-tools/main/integrations/agentkit-industrial-platform";
+const SKIP_NPM_INSTALL=process.env.INDUSTRIAL_PLATFORM_SKIP_NPM_INSTALL==="1";
 const VENDOR_REL="vendor/industrial-platform-agentkit";
 const VENDOR=path.join(ROOT,VENDOR_REL);
 const PROVIDER_IMPORT='import { industrialPlatformActionProvider } from "@industrial-platform/agentkit";';
@@ -112,10 +113,12 @@ if(!source.includes("industrialPlatformActionProvider(")){
 }
 fs.writeFileSync(entryFile,source);
 
-try{
-  execFileSync(process.platform==="win32"?"npm.cmd":"npm",["install","--no-audit","--no-fund"],{cwd:ROOT,stdio:"inherit"});
-}catch(error){
-  fail("npm install failed. Backups ending in .before-industrial-platform were retained.");
+if(!SKIP_NPM_INSTALL){
+  try{
+    execFileSync(process.platform==="win32"?"npm.cmd":"npm",["install","--no-audit","--no-fund"],{cwd:ROOT,stdio:"inherit"});
+  }catch(error){
+    fail("npm install failed. Backups ending in .before-industrial-platform were retained.");
+  }
 }
 
 console.log(JSON.stringify({
