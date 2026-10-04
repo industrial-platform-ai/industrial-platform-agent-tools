@@ -254,7 +254,7 @@ export const networkTools=[
   {
     name:'chain-transaction-status',route:'/chain/transaction-status',price:'$0.001',priceUsd:0.001,
     summary:'Check whether an EVM transaction is confirmed',
-    description:'Check whether a transaction is pending, confirmed or reverted on Base or Ethereum. Returns receipt status, block number, confirmations, gas used and effective gas price. Use for transaction confirmation polling, payment settlement checks and autonomous execution monitoring.',
+    description:'Check whether a transaction is pending, confirmed or reverted on Base or Ethereum. Designed for polling: retry about every 15 seconds while pending and stop once confirmed or reverted.',
     tags:['transaction status','transaction receipt','transaction confirmation','confirmed','pending','reverted','base','ethereum','evm','monitoring','agents'],
     inputSchema:{type:'object',properties:{tx_hash:{type:'string'},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['tx_hash'],additionalProperties:false},
     example:{tx_hash:'0x0000000000000000000000000000000000000000000000000000000000000000',network:'base'},
@@ -263,9 +263,22 @@ export const networkTools=[
       if(!/^0x[a-fA-F0-9]{64}$/.test(txHash)) throw Object.assign(new Error('tx_hash must be a 32-byte EVM transaction hash.'),{statusCode:400});
       const [receipt,tipRaw]=await Promise.all([rpcCall(network,'eth_getTransactionReceipt',[txHash]),rpcCall(network,'eth_blockNumber',[])]);
       const tip=hexToNumber(tipRaw);
-      if(!receipt) return {network,tx_hash:txHash,status:'pending_or_unknown',confirmed:false,reverted:false,confirmations:0,chain_tip:tip,checked_at:new Date().toISOString()};
+      if(!receipt) return {
+        network,tx_hash:txHash,status:'pending_or_unknown',confirmed:false,reverted:false,confirmations:0,chain_tip:tip,
+        checked_at:new Date().toISOString(),
+        repeat_policy:{mode:'until_terminal',recommended_after_seconds:15,stop_when:['confirmed','reverted']},
+        next_check:{recommended_after_seconds:15,request:{tx_hash:txHash,network}}
+      };
       const block=hexToNumber(receipt.blockNumber),ok=receipt.status==='0x1';
-      return {network,tx_hash:txHash,status:ok?'confirmed':'reverted',confirmed:ok,reverted:!ok,block_number:block,chain_tip:tip,confirmations:Number.isFinite(block)&&Number.isFinite(tip)?Math.max(0,tip-block+1):null,transaction_index:hexToNumber(receipt.transactionIndex),gas_used:hexToDecimal(receipt.gasUsed),effective_gas_price_wei:hexToDecimal(receipt.effectiveGasPrice),contract_address:receipt.contractAddress||null,checked_at:new Date().toISOString()};
+      return {
+        network,tx_hash:txHash,status:ok?'confirmed':'reverted',confirmed:ok,reverted:!ok,block_number:block,chain_tip:tip,
+        confirmations:Number.isFinite(block)&&Number.isFinite(tip)?Math.max(0,tip-block+1):null,
+        transaction_index:hexToNumber(receipt.transactionIndex),gas_used:hexToDecimal(receipt.gasUsed),
+        effective_gas_price_wei:hexToDecimal(receipt.effectiveGasPrice),contract_address:receipt.contractAddress||null,
+        checked_at:new Date().toISOString(),
+        repeat_policy:{mode:'stop',reason:'Transaction has reached a terminal state.'},
+        next_check:null
+      };
     }
   },
   {
@@ -298,7 +311,7 @@ export const networkTools=[
   {
     name:'chain-wallet-activity',route:'/chain/wallet-activity',price:'$0.002',priceUsd:0.002,
     summary:'Monitor a wallet for recent USDC or ERC-20 transfers',
-    description:'Monitor recent ERC-20 transfer activity for one wallet on Base or Ethereum, defaulting to USDC. Returns incoming and outgoing transfers, latest block and next_cursor so an agent can poll repeatedly without rescanning old blocks. Use for stablecoin treasury monitoring, payment detection, wallet activity alerts and autonomous accounting.',
+    description:'Monitor recent ERC-20/USDC transfers for one wallet and return next_cursor for efficient recurring polling. Designed for stablecoin payment detection and treasury loops; repeat about every 60 seconds while monitoring is active.',
     tags:['wallet activity','recent transfers','usdc transfers','stablecoin monitoring','payment detection','wallet monitor','erc20','base','ethereum','cursor','agents'],
     inputSchema:{type:'object',properties:{address:{type:'string'},contract:{type:'string',description:'ERC-20 contract; defaults to USDC on the selected network.'},network:{type:'string',enum:['base','ethereum'],default:'base'},cursor:{type:'integer',minimum:0},lookback_blocks:{type:'integer',minimum:1,maximum:5000,default:1000}},required:['address'],additionalProperties:false},
     example:{address:'0x0000000000000000000000000000000000000000',network:'base',lookback_blocks:500},
@@ -307,7 +320,11 @@ export const networkTools=[
       const tipRaw=await rpcCall(network,'eth_blockNumber',[]),tip=hexToNumber(tipRaw);
       const lookback=Math.min(5000,Math.max(1,Number(input?.lookback_blocks||1000)));
       const cursor=Number.isInteger(input?.cursor)?input.cursor:null,from=Math.max(0,cursor!==null?cursor+1:tip-lookback+1);
-      if(from>tip) return {network,address,contract,from_block:from,to_block:tip,count:0,transfers:[],next_cursor:tip,checked_at:new Date().toISOString()};
+      if(from>tip) return {
+        network,address,contract,from_block:from,to_block:tip,count:0,transfers:[],next_cursor:tip,checked_at:new Date().toISOString(),
+        repeat_policy:{mode:'scheduled',recommended_after_seconds:60},
+        next_check:{recommended_after_seconds:60,request:{address,contract,network,cursor:tip,lookback_blocks:lookback}}
+      };
       const fromHex='0x'+BigInt(from).toString(16),toHex='0x'+BigInt(tip).toString(16),walletTopic=topicAddress(address);
       const [outgoing,incoming]=await Promise.all([rpcCall(network,'eth_getLogs',[{address:contract,fromBlock:fromHex,toBlock:toHex,topics:[TRANSFER_TOPIC,walletTopic]}]),rpcCall(network,'eth_getLogs',[{address:contract,fromBlock:fromHex,toBlock:toHex,topics:[TRANSFER_TOPIC,null,walletTopic]}])]);
       const seen=new Set(),rows=[];
@@ -319,7 +336,12 @@ export const networkTools=[
         rows.push({direction:String(fromAddr||'').toLowerCase()===address.toLowerCase()?'out':'in',from:fromAddr,to:toAddr,amount_raw:hexToDecimal(log.data),block_number:hexToNumber(log.blockNumber),transaction_hash:log.transactionHash||null,log_index:hexToNumber(log.logIndex)});
       }
       rows.sort((a,b)=>(a.block_number-b.block_number)||(a.log_index-b.log_index));
-      return {network,address,contract,from_block:from,to_block:tip,count:rows.length,transfers:rows.slice(-200),next_cursor:tip,checked_at:new Date().toISOString()};
+      return {
+        network,address,contract,from_block:from,to_block:tip,count:rows.length,transfers:rows.slice(-200),next_cursor:tip,
+        checked_at:new Date().toISOString(),
+        repeat_policy:{mode:'scheduled',recommended_after_seconds:60,reason:'New transfers may arrive continuously.'},
+        next_check:{recommended_after_seconds:60,request:{address,contract,network,cursor:tip,lookback_blocks:lookback}}
+      };
     }
   }
 ];
