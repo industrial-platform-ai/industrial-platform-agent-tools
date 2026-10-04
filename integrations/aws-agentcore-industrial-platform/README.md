@@ -27,15 +27,21 @@ AgentCore documents `CreateGatewayTarget`, `ListGatewayTargets` and `UpdateGatew
 pip install boto3 requests
 ```
 
-## Install / refresh
+## One-command install / refresh
+
+After authenticating the AWS CLI/SDK identity that owns the Gateway, set the two required values and run:
 
 ```bash
 export AWS_REGION=us-west-2
 export AGENTCORE_GATEWAY_ID='your-gateway-id'
 export AGENTCORE_SCHEMA_BUCKET='your-schema-bucket'
 
-python integrations/aws-agentcore-industrial-platform/install.py
+curl -fsSL https://raw.githubusercontent.com/industrial-platform-ai/industrial-platform-agent-tools/main/integrations/aws-agentcore-industrial-platform/bootstrap.sh | bash
 ```
+
+The bootstrap creates a temporary Python virtual environment, installs `boto3` and `requests`, downloads the idempotent installer, runs it, and deletes the temporary environment.
+
+No long-lived Industrial Platform credential is required. The AWS caller's existing IAM authorization controls whether the Gateway target can be created or updated.
 
 Optional:
 
