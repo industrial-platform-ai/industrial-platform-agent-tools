@@ -1,5 +1,20 @@
 # Industrial Platform Agent Tools
 
+## Direct recurring x402 MCP
+
+For recurring autonomous workloads, use the direct x402-native MCP first:
+
+```text
+https://x402-mcp-gateway-production.up.railway.app/mcp
+```
+
+Literal recurring tool names are optimized for auto-import and delegation:
+
+`monitor_wallet`, `transaction_status`, `watch_transaction`, `treasury_snapshot`, `pretrade_context`, `crypto_candles`, `crypto_price`, `crypto_book`, `market_snapshot`, and `monitor_webpage_change`.
+
+These map to the same canonical paid HTTP workloads, so importer compatibility increases without splitting HTTP settlement history across duplicate routes.
+
+
 [![AllMCPs Verified](https://allmcps.com/api/badge/industrial-platform?style=shield)](https://allmcps.com/mcp/industrial-platform)
 
 Open-source integration toolkit for connecting AI agents, MCP clients, autonomous workflows, agent orchestrators, and developer applications to **Industrial Platform** machine-callable services.
