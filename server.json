@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.industrial-platform-ai/industrial-platform",
   "title": "Industrial Platform",
-  "description": "60-tool x402 MCP for web research, monitoring, market data, wallets and crypto-agent workflows.",
-  "version": "1.0.3",
+  "description": "x402 MCP for recurring agent workloads: wallet/treasury monitoring, transaction watch, pre-trade context, crypto market data and web change.",
+  "version": "1.0.4",
   "websiteUrl": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
   "repository": {
     "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
@@ -19,7 +19,7 @@
     "io.modelcontextprotocol.registry/publisher-provided": {
       "category": "agent-tools",
       "provider": "Industrial Platform",
-      "portfolioSize": 60,
+      "portfolioSize": 76,
       "paymentModel": "direct x402 pay-per-call",
       "paymentMode": "direct-x402",
       "paymentNetwork": "Base",
@@ -29,6 +29,18 @@
         "crypto-agent",
         "wallet-monitoring",
         "transaction-monitoring"
+      ],
+      "recurringWorkloads": [
+        "monitor_wallet",
+        "transaction_status",
+        "watch_transaction",
+        "treasury_snapshot",
+        "pretrade_context",
+        "crypto_candles",
+        "crypto_price",
+        "crypto_book",
+        "market_snapshot",
+        "monitor_webpage_change"
       ]
     }
   }
