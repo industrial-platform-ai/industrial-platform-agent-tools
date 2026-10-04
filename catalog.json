@@ -195,6 +195,65 @@
       "name": "io.github.industrial-platform-ai/industrial-platform",
       "version": "1.0.2"
     },
-    "instructions": "AGENTS.md"
+    "instructions": "AGENTS.md",
+    "direct_recurring": {
+      "protocol": "MCP",
+      "payment": "x402",
+      "network": "Base",
+      "asset": "USDC",
+      "url": "https://x402-mcp-gateway-production.up.railway.app/mcp",
+      "tool_aliases": [
+        "monitor_wallet",
+        "transaction_status",
+        "watch_transaction",
+        "treasury_snapshot",
+        "pretrade_context",
+        "crypto_candles",
+        "crypto_price",
+        "crypto_book",
+        "market_snapshot",
+        "monitor_webpage_change"
+      ]
+    }
+  },
+  "direct_x402_mcp_url": "https://x402-mcp-gateway-production.up.railway.app/mcp",
+  "direct_x402_gateway_url": "https://x402-gateway-production-1f21.up.railway.app",
+  "recurring_workloads": {
+    "monitor_wallet": {
+      "endpoint": "/agent/wallet-monitor",
+      "cadence_seconds": 60
+    },
+    "transaction_status": {
+      "endpoint": "/transaction-status"
+    },
+    "watch_transaction": {
+      "endpoint": "/agent/transaction-watch",
+      "cadence_seconds": 15,
+      "until": "confirmed_or_reverted"
+    },
+    "treasury_snapshot": {
+      "endpoint": "/agent/treasury-snapshot",
+      "cadence_seconds": 300
+    },
+    "pretrade_context": {
+      "endpoint": "/agent/pretrade",
+      "trigger": "before_each_trade_or_payment"
+    },
+    "crypto_candles": {
+      "endpoint": "/crypto/candles"
+    },
+    "crypto_price": {
+      "endpoint": "/crypto/price"
+    },
+    "crypto_book": {
+      "endpoint": "/crypto/book"
+    },
+    "market_snapshot": {
+      "endpoint": "/crypto/snapshot"
+    },
+    "monitor_webpage_change": {
+      "endpoint": "/change",
+      "cadence_seconds": 300
+    }
   }
 }
