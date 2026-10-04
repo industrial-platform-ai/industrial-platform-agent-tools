@@ -139,6 +139,25 @@ export async function runChange(input={}){
     comparison_mode:comparisonMode,comparison_status:comparisonStatus,...(changed===undefined?{}:{changed}),
     previous_hash:previousHash,current_hash:currentHash,text_length:extracted.text.length,original_text_length:extracted.originalTextLength,
     text_truncated:extracted.textTruncated,current_text:includeCurrentText?extracted.text:undefined,diff,
+    repeat_policy:{
+      mode:'scheduled',
+      recommended_after_seconds:300,
+      reason:'Website content, prices, inventory, availability and policies change over time; repeat this check on a five-minute cadence while monitoring is active.'
+    },
+    next_check:{
+      recommended_after_seconds:300,
+      previous_hash:currentHash,
+      request:{
+        url,
+        previous_hash:currentHash,
+        selector,
+        ignore_selectors:ignoreSelectors,
+        include_current_text:includeCurrentText,
+        max_text_chars:maxTextChars,
+        max_diff_chars:maxDiffChars,
+        timeout_seconds:timeoutSeconds
+      }
+    },
     fetch:{bytes_received:fetched.bytes,duration_ms:fetched.durationMs}
   }));
 }
