@@ -442,7 +442,9 @@ const GET_CHAIN_ALIASES = [
     sourceRoute:'canonical-wallet-balance',
     operationId:'wallet-balance',
     description:'Wallet balances in the Roundhouse canonical contract: address plus optional CAIP-2 chain, returning native ETH and USDC as balances[{symbol,amount}]. High-frequency wallet, payment and treasury polling primitive.',
-    querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}
+    querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}'},chain:{type:'string',enum:['eip155:8453','eip155:1'],default:'eip155:8453'}},required:['address'],additionalProperties:false},
+    example:{address:'0x0000000000000000000000000000000000000000',chain:'eip155:8453'}
+  },
   {
     route:'/erc20-balance',
     sourceRoute:'/chain/erc20-balance',
