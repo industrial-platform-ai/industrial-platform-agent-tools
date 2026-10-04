@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.industrial-platform-ai/industrial-platform",
   "title": "Industrial Platform",
-  "description": "x402 MCP for recurring wallet, transaction, treasury, trading, market-data and web monitoring.",
-  "version": "1.0.5",
+  "description": "x402 MCP with exact and batched payments for recurring wallet, trading, market and web workflows.",
+  "version": "1.0.6",
   "websiteUrl": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
   "repository": {
     "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
@@ -42,7 +42,17 @@
         "market_snapshot",
         "monitor_webpage_change"
       ],
-      "activationModel": "persistent recurring machine workloads"
+      "activationModel": "persistent recurring machine workloads with batched micropayments",
+      "paymentSchemes": [
+        "exact",
+        "batch-settlement"
+      ],
+      "batchSettlement": {
+        "network": "Base",
+        "asset": "USDC",
+        "durable": true,
+        "highFrequency": true
+      }
     }
   }
 }
