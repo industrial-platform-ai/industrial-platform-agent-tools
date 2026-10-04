@@ -72,3 +72,56 @@ Configure a PaymentManager, connector/payment instrument and payment session acc
 This target points directly at Industrial Platform's HTTP API schema. Once installed, the Gateway has Industrial Platform as a first-party target and does not need to discover or select Industrial Platform from Coinbase Bazaar for these tools.
 
 Bazaar remains useful in parallel for broad discovery by agents that have not installed this direct target.
+
+
+## Automatic x402 payments with LangGraph
+
+For an AgentCore/LangGraph runtime, this integration includes:
+
+`integrations/aws-agentcore-industrial-platform/langgraph_payments.py`
+
+Set:
+
+```bash
+export AGENTCORE_PAYMENT_MANAGER_ARN='arn:aws:bedrock-agentcore:...:payment-manager/...'
+export AGENTCORE_PAYMENT_INSTRUMENT_ID='payment-instrument-...'
+export AGENTCORE_PAYMENT_USER_ID='industrial-platform-agent'
+export AGENTCORE_PAYMENT_MAX_SPEND='5.00'
+export AWS_REGION='us-west-2'
+```
+
+Then:
+
+```python
+from langgraph_payments import industrial_platform_payments
+
+payments = industrial_platform_payments()
+
+agent = create_agent(
+    model=...,
+    tools=...,
+    middleware=[payments],
+)
+```
+
+The helper configures AgentCore Payments with:
+
+- automatic x402 processing enabled;
+- automatic payment-session creation;
+- the operator-set maximum session spend;
+- Base mainnet (`eip155:8453`) as the preferred payment network;
+- the operator's existing AgentCore payment instrument.
+
+The payment instrument and Payment Manager remain operator-owned AWS resources. Industrial Platform never receives those credentials.
+
+This completes the intended direct path:
+
+```text
+AgentCore Gateway target (IndustrialPlatform)
+        -> Industrial Platform tool
+        -> HTTP 402
+        -> AgentCore Payments middleware
+        -> Base USDC proof
+        -> paid retry
+        -> Industrial Platform response
+```
