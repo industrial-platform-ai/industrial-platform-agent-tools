@@ -1433,6 +1433,20 @@ for (const alternate of alternateBazaarServers) {
         res.status(code).json({error:String(error?.message||error)});
       }
     });
+    const discovery={
+      status:'available',
+      method:'POST',
+      endpoint:ORIGIN+aliasRoute,
+      canonicalEndpoint:ORIGIN+tool.route,
+      priceUsd:tool.priceUsd,
+      network:NETWORK,
+      asset:'USDC',
+      description:tool.description,
+      inputSchema:tool.inputSchema,
+      example:tool.example
+    };
+    app.get(aliasRoute,(_req,res)=>res.set('Allow','GET, HEAD, POST').json(discovery));
+    app.head(aliasRoute,(_req,res)=>res.set('Allow','GET, HEAD, POST').status(200).end());
   }
 }
 
