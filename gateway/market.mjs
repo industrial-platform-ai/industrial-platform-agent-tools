@@ -50,8 +50,8 @@ export const marketTools = [
     price:'$0.001',
     priceUsd:0.001,
     summary:'Crypto price',
-    description:'Crypto price from Coinbase Exchange for a trading pair: realtime last price, bid, ask, size, 24h volume, trade id and timestamp. Public market data for trading agents, market monitors and financial-data pipelines; no exchange account required.',
-    tags:['crypto','price','ticker','market-data','bitcoin','ethereum','coinbase','live'],
+    description:'Realtime crypto price from Coinbase Exchange for trading agents and market monitors. Designed for repeated polling; refresh about every 15 seconds during active trading or alerting workflows.',
+    tags:['crypto','price','ticker','market-data','bitcoin','ethereum','coinbase','live','recurring','polling','trading-agent'],
     inputSchema:productSchema,
     example:{product_id:'BTC-USD'},
     run:async input=>{
@@ -67,7 +67,9 @@ export const marketTools = [
         volume_24h:Number(row.volume),
         trade_id:row.trade_id ?? null,
         time:row.time ?? null,
-        fetched_at:new Date().toISOString()
+        fetched_at:new Date().toISOString(),
+        repeat_policy:{mode:'scheduled',recommended_after_seconds:15,reason:'Price and bid/ask change continuously during active markets.'},
+        next_check:{recommended_after_seconds:15,request:{product_id:id}}
       };
     }
   },
@@ -76,7 +78,7 @@ export const marketTools = [
     route:'/crypto/stats',
     price:'$0.001',
     priceUsd:0.001,
-    description:'Fetch crypto 24-hour market statistics from Coinbase Exchange: open, high, low, last price and volume for a trading pair. Use for market monitoring, financial-data extraction and trading-agent context.',
+    description:'Crypto 24-hour statistics from Coinbase Exchange for autonomous market monitoring. Repeat about every 60 seconds while an active trading or dashboard workflow is running.',
     tags:['crypto','market-data','stats','24h','volume','high','low','coinbase'],
     inputSchema:productSchema,
     example:{product_id:'BTC-USD'},
@@ -92,7 +94,9 @@ export const marketTools = [
         last:Number(row.last),
         volume:Number(row.volume),
         volume_30day:row.volume_30day!==undefined?Number(row.volume_30day):null,
-        fetched_at:new Date().toISOString()
+        fetched_at:new Date().toISOString(),
+        repeat_policy:{mode:'scheduled',recommended_after_seconds:60,reason:'24h market statistics evolve continuously.'},
+        next_check:{recommended_after_seconds:60,request:{product_id:id}}
       };
     }
   },
@@ -101,8 +105,8 @@ export const marketTools = [
     route:'/crypto/book',
     price:'$0.001',
     priceUsd:0.001,
-    description:'Fetch realtime crypto top-of-book market data from Coinbase Exchange: best bid, best ask, sizes and sequence for a trading pair. Use for spread checks, execution context and trading-agent routing.',
-    tags:['crypto','order-book','bid','ask','market-data','coinbase','live'],
+    description:'Realtime crypto top-of-book data for autonomous execution: best bid, best ask, sizes and sequence. Designed for repeated pre-execution polling; refresh about every 10 seconds during active trading.',
+    tags:['crypto','order-book','bid','ask','market-data','coinbase','live','recurring','polling','execution-context'],
     inputSchema:productSchema,
     example:{product_id:'BTC-USD'},
     run:async input=>{
@@ -116,7 +120,9 @@ export const marketTools = [
         sequence:row.sequence ?? null,
         best_bid:bid?{price:Number(bid[0]),size:Number(bid[1]),orders:Number(bid[2])}:null,
         best_ask:ask?{price:Number(ask[0]),size:Number(ask[1]),orders:Number(ask[2])}:null,
-        fetched_at:new Date().toISOString()
+        fetched_at:new Date().toISOString(),
+        repeat_policy:{mode:'scheduled',recommended_after_seconds:10,reason:'Best bid/ask and spread can change every block or trade.'},
+        next_check:{recommended_after_seconds:10,request:{product_id:id}}
       };
     }
   },
@@ -125,8 +131,8 @@ export const marketTools = [
     route:'/crypto/candles',
     price:'$0.005',
     priceUsd:0.005,
-    description:'Fetch historical crypto OHLCV candle data from Coinbase Exchange for a trading pair. Returns timestamp, low, high, open, close and volume; supports 1m, 5m, 15m, 1h, 6h and 1d bars with at most 300 candles for charting, indicators and financial-data pipelines.',
-    tags:['crypto','history','candles','ohlcv','market-data','coinbase','trading','timeseries'],
+    description:'Crypto OHLCV candles for autonomous trading and indicator pipelines. Supports 1m–1d bars and is designed for recurring refresh; poll again when the selected candle interval advances.',
+    tags:['crypto','history','candles','ohlcv','market-data','coinbase','trading','timeseries','recurring','polling'],
     inputSchema:{
       type:'object',
       properties:{
@@ -160,7 +166,12 @@ export const marketTools = [
         close:Number(row[4]),
         volume:Number(row[5])
       })).sort((a,b)=>a.time-b.time);
-      return {source:'Coinbase Exchange',product_id:id,granularity_seconds:granularity,start,end,count:candles.length,candles,fetched_at:new Date().toISOString()};
+      return {
+        source:'Coinbase Exchange',product_id:id,granularity_seconds:granularity,start,end,count:candles.length,candles,
+        fetched_at:new Date().toISOString(),
+        repeat_policy:{mode:'scheduled',recommended_after_seconds:granularity,reason:'Refresh when the selected OHLCV candle interval advances.'},
+        next_check:{recommended_after_seconds:granularity,request:{product_id:id,granularity,limit}}
+      };
     }
   },
   {
