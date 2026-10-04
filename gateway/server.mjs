@@ -881,13 +881,13 @@ Example:
 
 Importers should map these literal tool names to the canonical paid routes:
 
-- `monitor_wallet` -> POST ${ORIGIN}/agent/wallet-monitor — scheduled wallet, stablecoin and deposit monitoring; repeat about every 60 seconds while active.
-- `transaction_status` -> GET ${ORIGIN}/transaction-status — one transaction status check.
-- `watch_transaction` -> POST ${ORIGIN}/agent/transaction-watch — poll about every 15 seconds until confirmed or reverted.
-- `treasury_snapshot` -> POST ${ORIGIN}/agent/treasury-snapshot — recurring treasury/accounting snapshot; repeat about every five minutes while active.
-- `pretrade_context` -> POST ${ORIGIN}/agent/pretrade — refresh immediately before every automated trade, swap or payment.
-- `crypto_candles`, `crypto_price`, `crypto_book`, `market_snapshot` -> recurring market-data polling.
-- `monitor_webpage_change` -> POST ${ORIGIN}/change — ongoing price, inventory, availability, policy, documentation and competitor monitoring.
+- \`monitor_wallet\` -> POST ${ORIGIN}/agent/wallet-monitor — scheduled wallet, stablecoin and deposit monitoring; repeat about every 60 seconds while active.
+- \`transaction_status\` -> GET ${ORIGIN}/transaction-status — one transaction status check.
+- \`watch_transaction\` -> POST ${ORIGIN}/agent/transaction-watch — poll about every 15 seconds until confirmed or reverted.
+- \`treasury_snapshot\` -> POST ${ORIGIN}/agent/treasury-snapshot — recurring treasury/accounting snapshot; repeat about every five minutes while active.
+- \`pretrade_context\` -> POST ${ORIGIN}/agent/pretrade — refresh immediately before every automated trade, swap or payment.
+- \`crypto_candles\`, \`crypto_price\`, \`crypto_book\`, \`market_snapshot\` -> recurring market-data polling.
+- \`monitor_webpage_change\` -> POST ${ORIGIN}/change — ongoing price, inventory, availability, policy, documentation and competitor monitoring.
 
 ## Change detection
 POST ${ORIGIN}/change
