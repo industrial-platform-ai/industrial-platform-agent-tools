@@ -7,6 +7,10 @@ on:
     paths:
       - 'gateway/**'
       - '.github/workflows/test-x402-gateway.yml'
+  pull_request:
+    paths:
+      - 'gateway/**'
+      - '.github/workflows/test-x402-gateway.yml'
 
 permissions:
   contents: read
@@ -50,6 +54,22 @@ jobs:
           if (!m.tools?.some(x=>x.route==='/change')) throw new Error('change missing');
           if (!o.paths?.['/metadata']?.post) throw new Error('metadata OpenAPI missing');
           if (!o.paths?.['/change']?.post) throw new Error('change OpenAPI missing');
+          NODE
+      - name: Verify alternate Bazaar discovery probes
+        run: |
+          set -euo pipefail
+          curl -fsS http://127.0.0.1:3000/payai/agent/wallet-monitor | tee /tmp/payai-probe.json
+          curl -fsSI http://127.0.0.1:3000/goplausible/agent/transaction-watch >/dev/null
+          node <<'NODE'
+          const fs=require('fs');
+          const probe=JSON.parse(fs.readFileSync('/tmp/payai-probe.json','utf8'));
+          if (probe.status!=='available') throw new Error('PayAI route probe is not marked available');
+          if (probe.method!=='POST') throw new Error('Probe must advertise POST as the paid method');
+          if (probe.canonicalEndpoint!=='https://x402-gateway-production-1f21.up.railway.app/agent/wallet-monitor') {
+            throw new Error('Canonical wallet-monitor endpoint missing');
+          }
+          if (probe.priceUsd!==0.005) throw new Error('Wallet-monitor price mismatch');
+          if (!probe.inputSchema?.properties?.address) throw new Error('Wallet-monitor schema missing');
           NODE
       - name: Show log
         if: always()
