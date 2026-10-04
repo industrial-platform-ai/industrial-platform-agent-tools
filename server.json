@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.industrial-platform-ai/industrial-platform",
   "title": "Industrial Platform",
-  "description": "x402-paid research, web change, metadata, article, PDF, and sitemap tools for AI agents.",
-  "version": "1.0.2",
+  "description": "60-tool x402-paid MCP for autonomous agents: web research, change monitoring, metadata, market data, wallet/treasury monitoring, transaction status, gas, allowances and pre-trade context.",
+  "version": "1.0.3",
   "websiteUrl": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
   "repository": {
     "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
@@ -12,18 +12,24 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://mcp.apify.com?tools=industrial_platform/research-brief-agent,industrial_platform/web-change-intelligence,industrial_platform/web-metadata-intelligence,industrial_platform/article-content-intelligence,industrial_platform/pdf-text-intelligence,industrial_platform/sitemap-intelligence&payment=x402"
+      "url": "https://x402-mcp-gateway-production.up.railway.app/mcp"
     }
   ],
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
       "category": "agent-tools",
       "provider": "Industrial Platform",
-      "portfolioSize": 6,
-      "paymentModel": "direct x402 pay-per-event",
+      "portfolioSize": 60,
+      "paymentModel": "direct x402 pay-per-call",
       "paymentMode": "direct-x402",
       "paymentNetwork": "Base",
-      "paymentAsset": "USDC"
+      "paymentAsset": "USDC",
+      "defaultProviderSurfaces": [
+        "web",
+        "crypto-agent",
+        "wallet-monitoring",
+        "transaction-monitoring"
+      ]
     }
   }
 }
