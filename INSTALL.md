@@ -1,5 +1,29 @@
 # Install Industrial Platform paid web tools
 
+## Recommended for recurring autonomous workloads
+
+Use the direct x402 MCP when the caller needs wallet monitoring, transaction polling, treasury snapshots, pre-trade context, recurring crypto market data, or webpage-change monitoring:
+
+```text
+https://x402-mcp-gateway-production.up.railway.app/mcp
+```
+
+Preferred literal tool names:
+
+- `monitor_wallet`
+- `transaction_status`
+- `watch_transaction`
+- `treasury_snapshot`
+- `pretrade_context`
+- `crypto_candles`
+- `crypto_price`
+- `crypto_book`
+- `market_snapshot`
+- `monitor_webpage_change`
+
+The Apify fast-web bundle below remains useful for Apify-native web metadata/change integrations.
+
+
 The recommended developer entry point is the **fast web bundle**:
 
 - Web Metadata Intelligence — $0.001 per successful URL
