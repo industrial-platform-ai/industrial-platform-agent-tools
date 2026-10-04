@@ -24,6 +24,10 @@ jobs:
         with:
           node-version: "22"
       - run: npm install --no-audit --no-fund
+      - name: Inspect published AgentKit compatibility
+        run: |
+          node -e "const p=require('@coinbase/agentkit/package.json'); console.log('agentkit',p.version,'zod',p.dependencies?.zod)"
+          grep -R "declare function x402ActionProvider\|class X402ActionProvider" node_modules/@coinbase/agentkit/dist -n | head -20 || true
       - run: npm run check
       - run: npm run build
 
