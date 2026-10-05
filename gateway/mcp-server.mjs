@@ -19,6 +19,7 @@ import { bundleTools } from './bundles.mjs';
 import { agenticTools } from './agentic.mjs';
 import { cryptoAgentTools } from './crypto-agent.mjs';
 import { canonicalTools, canonicalWalletBalance, canonicalGasPrice } from './canonical.mjs';
+import { adoptionTools } from './adoption-search.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = process.env.MCP_PUBLIC_ORIGIN || 'https://x402-mcp-gateway-production.up.railway.app';
@@ -45,7 +46,8 @@ const BATCH_ROUTE_SET = new Set([
   '/gas-state',
   '/chain/gas-state',
   '/change',
-  '/web/monitor'
+  '/web/monitor',
+  '/x402/adoption-search'
 ]);
 
 const metadataInputSchema = {
@@ -76,7 +78,7 @@ const changeInputSchema = {
   additionalProperties:false
 };
 
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools];
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools];
 
 const readResult = async (body) => {
   const result = await runChange({...body, include_current_text:true});
