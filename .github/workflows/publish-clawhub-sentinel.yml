@@ -1,0 +1,21 @@
+name: Publish Industrial Sentinel to ClawHub
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    uses: openclaw/clawhub/.github/workflows/package-publish.yml@d13410f07a6fb8eddb7ff8d2b11d493c46003f0f
+    with:
+      source: industrial-platform-ai/industrial-platform-agent-tools
+      source_path: industrial-sentinel
+      owner: industrial-platform
+      family: code-plugin
+      dry_run: false
+      wait_for_publication: true
+      changelog: "Autonomous Treasury & Payment Sentinel release"
+      topics: "treasury,payments,x402,monitoring,automation"
