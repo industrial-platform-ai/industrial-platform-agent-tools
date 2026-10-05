@@ -1,0 +1,56 @@
+name: Verify Sentinel Distribution
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "skills/industrial-sentinel/**"
+      - "plugins/industrial-sentinel/**"
+      - ".agents/plugins/marketplace.json"
+      - ".github/plugin/marketplace.json"
+      - ".cursor-plugin/marketplace.json"
+      - "aimarket-sentinel/**"
+      - ".github/workflows/verify-sentinel-distribution.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Validate JSON manifests
+        run: |
+          node -e "for (const p of ['plugins/industrial-sentinel/plugin.json','.agents/plugins/marketplace.json','.github/plugin/marketplace.json','.cursor-plugin/marketplace.json']) JSON.parse(require('fs').readFileSync(p,'utf8'))"
+      - name: Verify skills.sh-compatible install
+        run: |
+          npx -y skills add "https://github.com/industrial-platform-ai/industrial-platform-agent-tools" --skill industrial-sentinel -y
+
+  aimarket:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: aimarket-sentinel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Import hub and verify four offerable capabilities
+        env:
+          AIMARKET_SKIP_SEED: "1"
+          AIMARKET_DB_PATH: "/tmp/industrial-sentinel-hub.db"
+          AIMARKET_SIGNING_KEY_PATH: "/tmp/industrial-sentinel-hub-key"
+          AIMARKET_HUB_URL: "https://sentinel.example.invalid"
+        run: |
+          python - <<'PY'
+          import app
+          assert app.db.count_offerable("local") == 4, app.db.count_offerable("local")
+          print("offerable capabilities:", app.db.count_offerable("local"))
+          PY

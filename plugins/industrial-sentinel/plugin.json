@@ -1,0 +1,24 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "industrial-sentinel",
+  "version": "0.2.0",
+  "description": "Install-once autonomous treasury and payment monitoring for authorized funded agents, with bounded recurring x402/Base USDC execution.",
+  "author": {
+    "name": "Industrial Platform",
+    "url": "https://github.com/industrial-platform-ai"
+  },
+  "homepage": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools/tree/main/industrial-sentinel",
+  "repository": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+  "license": "MIT",
+  "keywords": [
+    "treasury",
+    "wallet",
+    "payments",
+    "monitoring",
+    "x402",
+    "base",
+    "usdc",
+    "autonomous-agents",
+    "always-on"
+  ]
+}
