@@ -1,0 +1,26 @@
+name: Announce Sentinel to AIMarket Federation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify local AIMarket peer and announce to ModelMarket
+        env:
+          HUB_URL: https://x402-gateway-production-1f21.up.railway.app
+          MODEL_MARKET_URL: https://modelmarket.dev
+        run: |
+          set -euo pipefail
+          wk="$(curl -fsS "$HUB_URL/.well-known/ai-market.json")"
+          manifest="$(curl -fsS "$HUB_URL/ai-market/v2/manifest")"
+          signer="$(printf '%s' "$wk" | jq -r '.signer_public_key')"
+          count="$(printf '%s' "$manifest" | jq -r '.capabilities_count')"
+          test "$count" -ge 4
+          jq -n             --arg hub_url "$HUB_URL"             --arg well_known_url "$HUB_URL/.well-known/ai-market.json"             --arg hub_name "Industrial Platform Sentinel"             --arg signer_public_key "$signer"             --argjson capabilities_count "$count"             '{hub_url:$hub_url,well_known_url:$well_known_url,hub_name:$hub_name,signer_public_key:$signer_public_key,capabilities_count:$capabilities_count}'             > /tmp/announce.json
+          curl -fsS -X POST "$MODEL_MARKET_URL/ai-market/v2/federation/announce"             -H 'Content-Type: application/json'             --data-binary @/tmp/announce.json | tee /tmp/announce-response.json
+          jq . /tmp/announce-response.json
