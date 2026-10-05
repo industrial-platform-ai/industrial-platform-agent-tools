@@ -18,7 +18,7 @@ const runRegistry = process.env.RUN_X402SCAN_REGISTRATION === '1';
 const registryTarget = process.env.X402SCAN_REGISTRY_TARGET || 'https://x402scan.com/api/x402/registry/register-origin';
 const sellerOrigin = process.env.SELLER_ORIGIN || 'https://x402-gateway-production-1f21.up.railway.app';
 const agent402IndexTarget = 'https://agent402.tools/api/index/register';
-const expectedAgent402ToolCount = 43;
+const expectedAgent402ToolCount = 74;
 const agent402MaxRegisterAttempts = 4;
 const agent402FallbackRetrySeconds = 905;
 const agent402FindTarget = 'https://agent402.tools/api/find';
@@ -30,6 +30,7 @@ const agentExchangeRegisterTarget = 'https://exchange.agentexchange.work/agents/
 const x402ArenaRegisterTarget = 'https://core.x402arena.gg/register';
 const taskBountyOpenTasksTarget = 'https://www.task-bounty.com/api/v1/tasks?state=open&limit=50';
 const externalRouteQueries = [
+  'search the web for x402 adoption',
   'URL to clean agent-ready Markdown web reading RAG content extraction',
   'SEC EDGAR recent filings ticker CIK 10-K 10-Q 8-K',
   'SEC XBRL company financial facts revenue assets liabilities',
@@ -47,6 +48,7 @@ const externalRouteQueries = [
   'repair malformed json llm output'
 ];
 const marketQueries = [
+  'search the web for x402 adoption',
   'cryptographic hash sha256 sha512 text',
   'hmac signature',
   'base64 encode text',
