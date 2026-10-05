@@ -18,7 +18,7 @@ import { bundleTools } from './bundles.mjs';
 import { agenticTools } from './agentic.mjs';
 import { cryptoAgentTools } from './crypto-agent.mjs';
 import { canonicalTools, canonicalWalletBalance, canonicalGasPrice } from './canonical.mjs';
-import { adoptionTools } from './adoption-search.mjs';
+import { adoptionTools } from './adoption.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
