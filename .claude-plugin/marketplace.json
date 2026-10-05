@@ -4,8 +4,8 @@
   "plugins": [
     {
       "name": "industrial-sentinel",
-      "version": "0.1.0",
-      "description": "Install-once recurring treasury, transaction, market, wallet and web monitoring powered by Industrial Platform x402 services.",
+      "version": "0.2.0",
+      "description": "24/7 autonomous treasury and payment monitoring for funded agents: wallet activity, treasury snapshots, transaction confirmation and payment-failure detection.",
       "source": {
         "kind": "path",
         "path": "./industrial-sentinel"
