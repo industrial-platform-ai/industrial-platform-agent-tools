@@ -177,6 +177,7 @@ const BASE_BLOCKSCOUT = 'https://base.blockscout.com/api/v2';
 const X402_SETTLEMENT_METHODS = new Set(['0xe3ee160e','0xcf092995','transferwithauthorization']);
 const AGENT402_ROUTE_API = 'https://agent402.tools/api/route';
 const ROUTING_QUERIES = [
+  {route:'/sentinel/procure',query:'procure deploy autonomous treasury payment sentinel continuous wallet monitoring funded agent'},
   {route:'/change',query:'detect whether a webpage changed'},
   {route:'/web/markdown',query:'convert URL to clean Markdown for RAG'},
   {route:'/metadata',query:'extract webpage metadata OpenGraph JSON-LD'},
