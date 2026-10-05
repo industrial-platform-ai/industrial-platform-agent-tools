@@ -1,0 +1,39 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "title": "Industrial Platform Web Monitor",
+  "websiteUrl": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+  "repository": {
+    "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+    "source": "github"
+  },
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "category": "agent-tools",
+      "provider": "Industrial Platform",
+      "paymentModel": "direct x402 pay-per-call",
+      "paymentMode": "direct-x402",
+      "paymentNetwork": "Base",
+      "paymentAsset": "USDC",
+      "paymentSchemes": [
+        "exact",
+        "batch-settlement"
+      ],
+      "activationModel": "persistent recurring machine workloads with batched micropayments",
+      "recurringWorkloads": [
+        "monitor_webpage_change",
+        "detectWebpageChange",
+        "extractWebpageMetadata"
+      ],
+      "portfolioSize": 3
+    }
+  },
+  "name": "io.github.industrial-platform-ai/web-monitor",
+  "description": "Recurring webpage change, price, inventory and metadata monitoring for autonomous agents.",
+  "version": "1.0.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://x402-mcp-gateway-production.up.railway.app/mcp/web-monitor"
+    }
+  ]
+}
