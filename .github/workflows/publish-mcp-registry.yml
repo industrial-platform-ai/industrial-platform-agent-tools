@@ -42,4 +42,17 @@ jobs:
         run: ./mcp-publisher login github-oidc --registry=https://registry.modelcontextprotocol.io
 
       - name: Publish registry entry
-        run: ./mcp-publisher publish ./${{ matrix.manifest }}
+        shell: bash
+        run: |
+          set +e
+          output=$(./mcp-publisher publish ./${{ matrix.manifest }} 2>&1)
+          code=$?
+          printf '%s\n' "$output"
+          if [ $code -eq 0 ]; then
+            exit 0
+          fi
+          if printf '%s' "$output" | grep -q "cannot publish duplicate version"; then
+            echo "Registry version already published; treating as idempotent success."
+            exit 0
+          fi
+          exit $code
