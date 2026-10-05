@@ -14,10 +14,9 @@ jobs:
   announce:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify local AIMarket peer and announce to ModelMarket
+      - name: Verify Sentinel peer and announce through federation ingress
         env:
           HUB_URL: https://x402-gateway-production-1f21.up.railway.app
-          MODEL_MARKET_URL: https://modelmarket.dev
         run: |
           set -euo pipefail
           wk="$(curl -fsS "$HUB_URL/.well-known/ai-market.json")"
@@ -25,16 +24,31 @@ jobs:
           signer="$(printf '%s' "$wk" | jq -r '.signer_public_key')"
           count="$(printf '%s' "$manifest" | jq -r '.capabilities_count')"
           test "$count" -ge 4
+
           invoke="$(curl -fsS -X POST "$HUB_URL/ai-market/v2/invoke" \
             -H 'Content-Type: application/json' \
             --data '{"product_id":"industrial-sentinel","capability_id":"industrial.sentinel.install@v1","input":{}}')"
           test "$(printf '%s' "$invoke" | jq -r '.success')" = "true"
           test "$(printf '%s' "$invoke" | jq -r '.receipt.signature.algorithm')" = "ed25519"
-          jq -n             --arg hub_url "$HUB_URL"             --arg well_known_url "$HUB_URL/.well-known/ai-market.json"             --arg hub_name "Industrial Platform Sentinel"             --arg signer_public_key "$signer"             --argjson capabilities_count "$count"             '{hub_url:$hub_url,well_known_url:$well_known_url,hub_name:$hub_name,signer_public_key:$signer_public_key,capabilities_count:$capabilities_count}'             > /tmp/announce.json
-          status="$(curl -sS -o /tmp/announce-response.json -w '%{http_code}' -X POST "$MODEL_MARKET_URL/ai-market/v2/federation/announce" -H 'Content-Type: application/json' --data-binary @/tmp/announce.json)"
-          echo "HTTP $status"
-          cat /tmp/announce-response.json
-          echo
-          jq . /tmp/announce-response.json || true
-          test "$status" -ge 200
-          test "$status" -lt 300
+
+          jq -n \
+            --arg hub_url "$HUB_URL" \
+            --arg well_known_url "$HUB_URL/.well-known/ai-market.json" \
+            --arg hub_name "Industrial Platform Sentinel" \
+            --arg signer_public_key "$signer" \
+            --argjson capabilities_count "$count" \
+            '{hub_url:$hub_url,well_known_url:$well_known_url,hub_name:$hub_name,signer_public_key:$signer_public_key,capabilities_count:$capabilities_count}' \
+            > /tmp/announce.json
+
+          accepted=0
+          for target in https://hub.modelmarket.dev https://hunt.modelmarket.dev https://modelmarket.dev; do
+            body="/tmp/announce-$(echo "$target" | sed 's#https://##;s#[^A-Za-z0-9]#-#g').json"
+            status="$(curl -sS -o "$body" -w '%{http_code}' -X POST "$target/ai-market/v2/federation/announce" \
+              -H 'Content-Type: application/json' --data-binary @/tmp/announce.json)"
+            echo "$target HTTP $status"
+            cat "$body"; echo
+            if [ "$status" -ge 200 ] && [ "$status" -lt 300 ]; then
+              accepted=$((accepted+1))
+            fi
+          done
+          test "$accepted" -ge 1
