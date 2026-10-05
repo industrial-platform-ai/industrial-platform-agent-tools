@@ -29,7 +29,8 @@ const MCP_PROFILE_ENDPOINTS = {
   treasury:'https://x402-mcp-gateway-production.up.railway.app/mcp/treasury',
   pretrade:'https://x402-mcp-gateway-production.up.railway.app/mcp/pretrade',
   marketData:'https://x402-mcp-gateway-production.up.railway.app/mcp/market-data',
-  webMonitor:'https://x402-mcp-gateway-production.up.railway.app/mcp/web-monitor'
+  webMonitor:'https://x402-mcp-gateway-production.up.railway.app/mcp/web-monitor',
+  x402Adoption:'https://x402-mcp-gateway-production.up.railway.app/mcp/x402-adoption'
 };
 const PAY_TO = process.env.X402_PAY_TO || '0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E';
 const PRICE = '$0.001';
@@ -1373,7 +1374,8 @@ app.get(['/.well-known/mcp/server.json','/.well-known/mcp.json'], (_req,res)=>re
     'io.github.industrial-platform-ai/treasury',
     'io.github.industrial-platform-ai/pretrade',
     'io.github.industrial-platform-ai/market-data',
-    'io.github.industrial-platform-ai/web-monitor'
+    'io.github.industrial-platform-ai/web-monitor',
+    'io.github.industrial-platform-ai/x402-adoption'
   ]
 }));
 app.get('/.well-known/agent.json', (_req,res)=>res.json(agentInstallManifest));
@@ -1393,6 +1395,7 @@ app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
   '- Pretrade MCP: '+MCP_PROFILE_ENDPOINTS.pretrade,
   '- Market Data MCP: '+MCP_PROFILE_ENDPOINTS.marketData,
   '- Web Monitor MCP: '+MCP_PROFILE_ENDPOINTS.webMonitor,
+  '- x402 Adoption MCP: '+MCP_PROFILE_ENDPOINTS.x402Adoption,
   '',
   'Payment protocol: x402 v2',
   'Network: Base (eip155:8453)',
