@@ -26,5 +26,5 @@ jobs:
           cache: "npm"
           cache-dependency-path: industrial-sentinel/package.json
       - run: npm install
-      - run: npm run plugin:validate
+      - run: npm run validate
       - run: npm pack --dry-run
