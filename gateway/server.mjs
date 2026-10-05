@@ -22,6 +22,14 @@ import { canonicalTools, canonicalWalletBalance, canonicalGasPrice } from './can
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
 const DIRECT_MCP = 'https://x402-mcp-gateway-production.up.railway.app/mcp';
+const MCP_PROFILE_ENDPOINTS = {
+  walletMonitor:'https://x402-mcp-gateway-production.up.railway.app/mcp/wallet-monitor',
+  transactionWatch:'https://x402-mcp-gateway-production.up.railway.app/mcp/transaction-watch',
+  treasury:'https://x402-mcp-gateway-production.up.railway.app/mcp/treasury',
+  pretrade:'https://x402-mcp-gateway-production.up.railway.app/mcp/pretrade',
+  marketData:'https://x402-mcp-gateway-production.up.railway.app/mcp/market-data',
+  webMonitor:'https://x402-mcp-gateway-production.up.railway.app/mcp/web-monitor'
+};
 const PAY_TO = process.env.X402_PAY_TO || '0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E';
 const PRICE = '$0.001';
 const NETWORK = 'eip155:8453';
@@ -826,6 +834,7 @@ const agentCard = {
   payment:{protocol:'x402',network:NETWORK,networks:NETWORKS,asset:'USDC',priceUsd:0.001},
   openapi:ORIGIN+'/openapi.json',
   mcp:DIRECT_MCP,
+  mcpProfiles:MCP_PROFILE_ENDPOINTS,
   skill:ORIGIN+'/skill.md'
 };
 
@@ -869,6 +878,7 @@ const agentInstallManifest = {
   openapi:ORIGIN+'/openapi.json',
   x402:ORIGIN+'/.well-known/x402',
   mcp:DIRECT_MCP,
+  mcpProfiles:MCP_PROFILE_ENDPOINTS,
   tools:manifest.tools.map(t=>({
     name:t.name,
     aliases:t.aliases||[],
@@ -1211,6 +1221,7 @@ app.get('/', (_req,res)=>res.json({
     openapi:'/openapi.json',
     agentCard:'/.well-known/agent-card.json',
     directMcp:DIRECT_MCP,
+    mcpProfiles:MCP_PROFILE_ENDPOINTS,
     pricing:'/pricing.json',
     skill:'/skill.md'
   }
@@ -1345,6 +1356,22 @@ app.get('/pricing.json', (_req,res)=>res.json({
   }))
 }));
 app.get('/.well-known/agent-card.json', (_req,res)=>res.json(agentCard));
+app.get(['/.well-known/mcp/server.json','/.well-known/mcp.json'], (_req,res)=>res.json({
+  name:'io.github.industrial-platform-ai/industrial-platform',
+  title:'Industrial Platform',
+  transport:'streamable-http',
+  canonical:DIRECT_MCP,
+  profiles:MCP_PROFILE_ENDPOINTS,
+  payment:{protocol:'x402',network:NETWORK,asset:'USDC',schemes:['exact','batch-settlement']},
+  registry:[
+    'io.github.industrial-platform-ai/monitor-wallet',
+    'io.github.industrial-platform-ai/transaction-watch',
+    'io.github.industrial-platform-ai/treasury',
+    'io.github.industrial-platform-ai/pretrade',
+    'io.github.industrial-platform-ai/market-data',
+    'io.github.industrial-platform-ai/web-monitor'
+  ]
+}));
 app.get('/.well-known/agent.json', (_req,res)=>res.json(agentInstallManifest));
 app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
   '# '+manifest.name,
@@ -1356,6 +1383,12 @@ app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
   '- '+ORIGIN+'/.well-known/agent.json',
   '- '+ORIGIN+'/.well-known/agent-card.json',
   '- Direct x402 MCP: '+DIRECT_MCP,
+  '- Wallet Monitor MCP: '+MCP_PROFILE_ENDPOINTS.walletMonitor,
+  '- Transaction Watch MCP: '+MCP_PROFILE_ENDPOINTS.transactionWatch,
+  '- Treasury MCP: '+MCP_PROFILE_ENDPOINTS.treasury,
+  '- Pretrade MCP: '+MCP_PROFILE_ENDPOINTS.pretrade,
+  '- Market Data MCP: '+MCP_PROFILE_ENDPOINTS.marketData,
+  '- Web Monitor MCP: '+MCP_PROFILE_ENDPOINTS.webMonitor,
   '',
   'Payment protocol: x402 v2',
   'Network: Base (eip155:8453)',
