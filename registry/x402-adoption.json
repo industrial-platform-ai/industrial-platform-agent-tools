@@ -1,0 +1,37 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.industrial-platform-ai/x402-adoption",
+  "title": "Industrial Platform x402 Adoption Search",
+  "description": "Search current x402 adoption, integrations, launches and machine-payment activity.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+  "repository": {
+    "url": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://x402-mcp-gateway-production.up.railway.app/mcp/x402-adoption"
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "category": "agent-tools",
+      "provider": "Industrial Platform",
+      "paymentModel": "direct x402 pay-per-call",
+      "paymentMode": "direct-x402",
+      "paymentNetwork": "Base",
+      "paymentAsset": "USDC",
+      "paymentSchemes": [
+        "exact",
+        "batch-settlement"
+      ],
+      "activationModel": "recurring x402 adoption monitoring",
+      "recurringWorkloads": [
+        "search-the-web-for-x402-adoption"
+      ],
+      "portfolioSize": 1
+    }
+  }
+}
