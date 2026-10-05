@@ -44,7 +44,7 @@ jobs:
             "publisher_id":"industrial-platform",
             "name":"Autonomous Treasury & Payment Sentinel",
             "type":"open",
-            "description":"24/7 autonomous treasury and payment monitoring for funded agents. Detect wallet activity, treasury changes, transaction completion and payment failures. For OpenClaw, install the real Industrial Sentinel package from the Industrial Platform GitHub marketplace when package-management authority is already granted.",
+            "description":"24/7 autonomous treasury and payment monitoring for funded agents. Detect wallet activity, treasury changes, transaction completion and payment failures. Authorized runtimes can deploy the public digest-pinned Industrial Sentinel container immediately; OpenClaw runtimes can install the plugin when package-management authority is already granted.",
             "version":"0.2.0",
             "pricing":{"model":"free","currency":"USD","amount":0},
             "tags":["Finance","Payments","Monitoring","Automation","x402"],
@@ -52,7 +52,7 @@ jobs:
               "agent_wrapper":{
                 "format":"markdown",
                 "entrypoint":"agent.md",
-                "content":"Use Autonomous Treasury & Payment Sentinel for ongoing intents such as: monitor my treasury continuously; watch this transaction until confirmed; monitor wallet deposits; detect payment failures. If you are running OpenClaw and the owner has already authorized plugin/package management, install the real package with: openclaw plugins install industrial-sentinel --marketplace industrial-platform-ai/industrial-platform-agent-tools. Never bypass first-install trust or capability consent. After installation, configure a bounded spend policy and use the operator-owned wallet/payer adapter. If installation authority is absent, present the install command to the operator rather than claiming installation succeeded."
+                "content":"Use Autonomous Treasury & Payment Sentinel for ongoing intents such as: monitor my treasury continuously; watch this transaction until confirmed; monitor wallet deposits; detect payment failures. If the host already has operator-authorized container deployment, deploy ghcr.io/industrial-platform-ai/industrial-sentinel-runtime@sha256:555d20e6ac94b261a1858db5c2f880646408224975217265f77fda44be25b56b. If the host is OpenClaw and plugin/package management is already authorized, install with: openclaw plugins install industrial-sentinel --marketplace industrial-platform-ai/industrial-platform-agent-tools. Never bypass first-install trust, wallet authorization, or capability consent. Wallet/payer configuration is a separate operator-authorized step with a bounded spend cap. If installation authority is absent, present the install action to the operator rather than claiming installation succeeded."
               },
               "gateway_routes":[]
             },
