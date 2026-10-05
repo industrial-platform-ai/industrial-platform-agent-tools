@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { Type } from "typebox";
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 
@@ -21,6 +22,8 @@ type JobConfig = {
 type SentinelConfig = {
   payerAdapterUrl: string;
   maxDailyUsd?: number;
+  alertWebhookUrl?: string;
+  alertOnEverySuccess?: boolean;
   jobs: JobConfig[];
 };
 
@@ -39,6 +42,9 @@ type JobState = {
   lastOkAt?: string;
   lastStatus?: number;
   lastError?: string;
+  lastResultHash?: string;
+  lastAlertAt?: string;
+  lastAlertEvent?: string;
   runCount: number;
   paidUsdEstimate: number;
 };
@@ -55,6 +61,16 @@ function validateAdapterUrl(raw: string): URL {
   return url;
 }
 
+function validateAlertUrl(raw?: string): URL | undefined {
+  if (!raw) return undefined;
+  const url = new URL(raw);
+  const loopback = ["127.0.0.1", "localhost", "::1"].includes(url.hostname);
+  if (url.protocol !== "https:" && !(url.protocol === "http:" && loopback)) {
+    throw new Error("alertWebhookUrl must be https, except loopback http is allowed");
+  }
+  return url;
+}
+
 export default definePluginEntry({
   id: "industrial-sentinel",
   name: "Industrial Sentinel",
@@ -66,6 +82,8 @@ export default definePluginEntry({
     const adapterUrl = validateAdapterUrl(cfg.payerAdapterUrl);
     const jobs = (cfg.jobs || []).filter((job) => job.enabled !== false);
     const maxDailyUsd = Number(cfg.maxDailyUsd ?? 5);
+    const alertWebhookUrl = validateAlertUrl(cfg.alertWebhookUrl);
+    const alertOnEverySuccess = cfg.alertOnEverySuccess === true;
 
     const states = new Map<string, JobState>();
     const timers = new Map<string, ReturnType<typeof setInterval>>();
@@ -88,6 +106,39 @@ export default definePluginEntry({
       if (current !== dayKey) {
         dayKey = current;
         dailyPaidUsdEstimate = 0;
+      }
+    };
+
+    const sendAlert = async (
+      event: string,
+      job: JobConfig,
+      state: JobState,
+      details: Record<string, unknown> = {},
+    ) => {
+      if (!alertWebhookUrl) return;
+      try {
+        const response = await fetch(alertWebhookUrl, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            source: "industrial-sentinel",
+            version: "0.3.0",
+            event,
+            observedAt: new Date().toISOString(),
+            job: { id: job.id, kind: job.kind, intervalSeconds: job.intervalSeconds },
+            spend: { dailyPaidUsdEstimate, maxDailyUsd, dayKey },
+            ...details,
+          }),
+          signal: AbortSignal.timeout(10_000),
+        });
+        if (!response.ok) {
+          api.logger.warn("Industrial Sentinel alert webhook HTTP " + response.status);
+          return;
+        }
+        state.lastAlertAt = new Date().toISOString();
+        state.lastAlertEvent = event;
+      } catch (error) {
+        api.logger.warn("Industrial Sentinel alert delivery failed: " + String((error as Error)?.message || error));
       }
     };
 
@@ -126,6 +177,9 @@ export default definePluginEntry({
         const state = getState(job.id);
         state.lastRunAt = new Date().toISOString();
         state.lastError = "Daily spend cap reached";
+        if (state.lastAlertEvent !== "daily_spend_cap") {
+          await sendAlert("daily_spend_cap", job, state, { message: state.lastError });
+        }
         return;
       }
 
@@ -154,13 +208,48 @@ export default definePluginEntry({
           throw new Error("payer adapter HTTP " + response.status + ": " + text.slice(0, 500));
         }
 
+        let adapterResult: any = null;
+        try { adapterResult = JSON.parse(text); } catch {}
+        const resultBody = typeof adapterResult?.body === "string" ? adapterResult.body : text;
+        const resultHash = createHash("sha256").update(resultBody).digest("hex");
+        const previousHash = state.lastResultHash;
+
         state.lastOkAt = new Date().toISOString();
         state.lastError = undefined;
+        state.lastResultHash = resultHash;
         state.paidUsdEstimate += spec.priceUsd;
         dailyPaidUsdEstimate += spec.priceUsd;
+
+        const changed = Boolean(previousHash && previousHash !== resultHash);
+        if (!previousHash) {
+          await sendAlert("first_success", job, state, {
+            changed: false,
+            httpStatus: adapterResult?.httpStatus ?? response.status,
+            result: resultBody.slice(0, 4000),
+          });
+        } else if (changed) {
+          await sendAlert("state_changed", job, state, {
+            changed: true,
+            previousHash,
+            currentHash: resultHash,
+            httpStatus: adapterResult?.httpStatus ?? response.status,
+            result: resultBody.slice(0, 4000),
+          });
+        } else if (alertOnEverySuccess) {
+          await sendAlert("success", job, state, {
+            changed: false,
+            currentHash: resultHash,
+            httpStatus: adapterResult?.httpStatus ?? response.status,
+            result: resultBody.slice(0, 4000),
+          });
+        }
       } catch (error) {
+        const previousError = state.lastError;
         state.lastError = String((error as Error)?.message || error);
         api.logger.warn("Industrial Sentinel job failed: " + job.id + " " + state.lastError);
+        if (previousError !== state.lastError) {
+          await sendAlert("job_error", job, state, { message: state.lastError });
+        }
       }
     };
 

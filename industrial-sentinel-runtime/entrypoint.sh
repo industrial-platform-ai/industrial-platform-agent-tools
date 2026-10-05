@@ -5,6 +5,8 @@ STATE_DIR="${OPENCLAW_STATE_DIR:-/home/node/.openclaw}"
 CONFIG_PATH="${OPENCLAW_CONFIG_PATH:-$STATE_DIR/openclaw.json}"
 PAYER_URL="http://127.0.0.1:${SENTINEL_PAYER_PORT:-8403}/x402-fetch"
 MAX_DAILY="${SENTINEL_MAX_DAILY_USD:-5}"
+ALERT_WEBHOOK="${SENTINEL_ALERT_WEBHOOK_URL:-}"
+ALERT_EVERY_SUCCESS="${SENTINEL_ALERT_ON_EVERY_SUCCESS:-false}"
 PORT_VALUE="${PORT:-18789}"
 
 mkdir -p "$STATE_DIR"
@@ -34,9 +36,9 @@ else
   ')"
 fi
 
-node - "$CONFIG_PATH" "$PAYER_URL" "$MAX_DAILY" "$JOBS_JSON" "$ENABLED" <<'NODE'
+node - "$CONFIG_PATH" "$PAYER_URL" "$MAX_DAILY" "$JOBS_JSON" "$ENABLED" "$ALERT_WEBHOOK" "$ALERT_EVERY_SUCCESS" <<'NODE'
 const fs=require('fs');
-const [configPath,payerAdapterUrl,maxDailyRaw,jobsRaw,enabledRaw]=process.argv.slice(2);
+const [configPath,payerAdapterUrl,maxDailyRaw,jobsRaw,enabledRaw,alertWebhookUrl,alertEverySuccessRaw]=process.argv.slice(2);
 const config={
   gateway:{mode:'local'},
   plugins:{
@@ -47,6 +49,8 @@ const config={
         config:{
           payerAdapterUrl,
           maxDailyUsd:Number(maxDailyRaw),
+          alertWebhookUrl:alertWebhookUrl||undefined,
+          alertOnEverySuccess:String(alertEverySuccessRaw).toLowerCase()==='true',
           jobs:JSON.parse(jobsRaw)
         }
       }

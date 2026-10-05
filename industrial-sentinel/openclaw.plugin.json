@@ -70,6 +70,15 @@
             }
           }
         }
+      },
+      "alertWebhookUrl": {
+        "type": "string",
+        "description": "Optional HTTPS webhook for first-success, meaningful state-change, error and spend-cap alerts. Loopback http is allowed for local relays."
+      },
+      "alertOnEverySuccess": {
+        "type": "boolean",
+        "default": false,
+        "description": "When true, also emit an alert after every successful monitoring cycle. Default false to avoid noisy polling alerts."
       }
     }
   }
