@@ -1,0 +1,33 @@
+name: Industrial Sentinel Runtime CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "industrial-sentinel/**"
+      - "industrial-sentinel-runtime/**"
+      - ".github/workflows/industrial-sentinel-runtime.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build runtime image
+        run: docker build -f industrial-sentinel-runtime/Dockerfile -t industrial-sentinel-runtime:test .
+      - name: Smoke runtime without wallet
+        run: |
+          docker run -d --name sentinel-smoke -p 18789:18789             -e SENTINEL_MAX_DAILY_USD=0             industrial-sentinel-runtime:test
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:18789/healthz >/dev/null; then
+              docker logs sentinel-smoke
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs sentinel-smoke
+          exit 1
+      - if: always()
+        run: docker rm -f sentinel-smoke || true
