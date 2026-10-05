@@ -1,0 +1,15 @@
+{
+  "name": "Industrial Platform Marketplace",
+  "version": "1.0.0",
+  "plugins": [
+    {
+      "name": "industrial-sentinel",
+      "version": "0.1.0",
+      "description": "Install-once recurring treasury, transaction, market, wallet and web monitoring powered by Industrial Platform x402 services.",
+      "source": {
+        "kind": "path",
+        "path": "./industrial-sentinel"
+      }
+    }
+  ]
+}
