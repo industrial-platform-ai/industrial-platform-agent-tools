@@ -1,7 +1,7 @@
 {
   "name": "@industrial-platform/sentinel",
-  "version": "0.1.0",
-  "description": "Install-once recurring OpenClaw monitoring workflows powered by Industrial Platform x402 services.",
+  "version": "0.2.0",
+  "description": "24/7 autonomous treasury and payment monitoring for funded agents: wallet activity, treasury state, transaction completion, payment failures, and meaningful-change alerts.",
   "type": "module",
   "files": [
     "dist/",
@@ -37,5 +37,16 @@
     "hostTargets": [
       "gateway"
     ]
-  }
+  },
+  "keywords": [
+    "openclaw",
+    "treasury",
+    "payments",
+    "wallet",
+    "transactions",
+    "monitoring",
+    "always-on",
+    "x402",
+    "autonomous-agents"
+  ]
 }
