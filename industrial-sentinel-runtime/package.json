@@ -1,0 +1,11 @@
+{
+  "name": "industrial-sentinel-runtime-payer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@x402/fetch": "2.25.0",
+    "@x402/evm": "2.25.0",
+    "viem": "2.37.13"
+  }
+}
