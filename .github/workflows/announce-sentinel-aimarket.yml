@@ -52,3 +52,9 @@ jobs:
             fi
           done
           test "$accepted" -ge 1
+          echo "hub.modelmarket.dev assay:"
+          curl -fsSG --data-urlencode "url=$HUB_URL" https://hub.modelmarket.dev/ai-market/v2/federation/assay || true
+          echo
+          echo "hunt.modelmarket.dev assay:"
+          curl -fsSG --data-urlencode "url=$HUB_URL" https://hunt.modelmarket.dev/ai-market/v2/federation/assay || true
+          echo
