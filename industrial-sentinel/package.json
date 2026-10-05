@@ -3,19 +3,16 @@
   "version": "0.1.0",
   "type": "module",
   "files": [
-    "index.ts",
+    "index.js",
     "openclaw.plugin.json",
     "README.md"
   ],
   "peerDependencies": {
     "openclaw": ">=2026.4.10"
   },
-  "dependencies": {
-    "typebox": "1.3.34"
-  },
   "openclaw": {
     "extensions": [
-      "./index.ts"
+      "./index.js"
     ]
   }
 }
