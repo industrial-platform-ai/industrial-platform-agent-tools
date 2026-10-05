@@ -47,8 +47,10 @@ function json(res,status,obj){
 }
 
 let paidFetch=null;
+let payerAddress=null;
 if(/^0x[0-9a-fA-F]{64}$/.test(key)){
   const signer=privateKeyToAccount(key);
+  payerAddress=signer.address;
   const client=new x402Client();
   registerExactEvmScheme(client,{signer});
   paidFetch=wrapFetchWithPayment(globalThis.fetch,new x402HTTPClient(client));
@@ -120,7 +122,7 @@ const server=http.createServer(async(req,res)=>{
   try{
     if(req.method==='GET'&&req.url==='/health'){
       const s=currentState();
-      return json(res,200,{ok:true,payerConfigured:Boolean(paidFetch),spentUsd:s.spentUsd,maxDailyUsd:dailyCap,allowedOrigin:ORIGIN});
+      return json(res,200,{ok:true,payerConfigured:Boolean(paidFetch),payerAddress,spentUsd:s.spentUsd,maxDailyUsd:dailyCap,allowedOrigin:ORIGIN});
     }
     if(req.method==='POST'&&req.url==='/x402-fetch') return await handlePaid(req,res);
     return json(res,404,{ok:false,error:'not_found'});
