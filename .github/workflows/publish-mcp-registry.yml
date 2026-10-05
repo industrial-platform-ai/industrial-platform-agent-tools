@@ -27,6 +27,7 @@ jobs:
           - registry/pretrade.json
           - registry/market-data.json
           - registry/web-monitor.json
+          - registry/x402-adoption.json
     steps:
       - uses: actions/checkout@v4
 
