@@ -237,7 +237,8 @@ const MCP_PROFILES = {
   'treasury':['treasury_snapshot','wallet_balance','wallet_activity','gas_price'],
   'pretrade':['pretrade_context','crypto_price','crypto_book','market_snapshot','wallet_balance','gas_price'],
   'market-data':['crypto_price','crypto_candles','crypto_book','market_snapshot'],
-  'web-monitor':['monitor_webpage_change','detectWebpageChange','extractWebpageMetadata']
+  'web-monitor':['monitor_webpage_change','detectWebpageChange','extractWebpageMetadata'],
+  'x402-adoption':['search-the-web-for-x402-adoption']
 };
 for (const [profile,names] of Object.entries(MCP_PROFILES)) {
   for (const name of names) {
