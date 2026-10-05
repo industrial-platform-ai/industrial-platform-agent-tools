@@ -5,8 +5,6 @@ STATE_DIR="${OPENCLAW_STATE_DIR:-/home/node/.openclaw}"
 CONFIG_PATH="${OPENCLAW_CONFIG_PATH:-$STATE_DIR/openclaw.json}"
 PAYER_URL="http://127.0.0.1:${SENTINEL_PAYER_PORT:-8403}/x402-fetch"
 MAX_DAILY="${SENTINEL_MAX_DAILY_USD:-5}"
-MARKET_INTERVAL="${SENTINEL_MARKET_INTERVAL_SECONDS:-60}"
-PRODUCT_ID="${SENTINEL_PRODUCT_ID:-BTC-USD}"
 PORT_VALUE="${PORT:-18789}"
 
 mkdir -p "$STATE_DIR"
@@ -28,26 +26,10 @@ if [ -n "${SENTINEL_JOBS_JSON:-}" ]; then
   JOBS_JSON="$SENTINEL_JOBS_JSON"
 else
   JOBS_JSON="$(node -e '
-    const jobs=[{
-      id:"market-btc",
-      kind:"market-snapshot",
-      intervalSeconds:Math.max(15,Number(process.env.SENTINEL_MARKET_INTERVAL_SECONDS||60)),
-      input:{product_id:process.env.SENTINEL_PRODUCT_ID||"BTC-USD"}
-    }];
-    const address=(process.env.SENTINEL_WALLET_ADDRESS||"").trim();
-    if(/^0x[0-9a-fA-F]{40}$/.test(address)) jobs.push({
-      id:"treasury",
-      kind:"treasury-snapshot",
-      intervalSeconds:Math.max(60,Number(process.env.SENTINEL_TREASURY_INTERVAL_SECONDS||300)),
-      input:{address}
-    });
-    const url=(process.env.SENTINEL_WEB_URL||"").trim();
-    if(/^https?:\/\//.test(url)) jobs.push({
-      id:"web-change",
-      kind:"web-change",
-      intervalSeconds:Math.max(60,Number(process.env.SENTINEL_WEB_INTERVAL_SECONDS||300)),
-      input:{url,include_current_text:false}
-    });
+    const jobs=[
+      {id:"wallet",kind:"wallet-monitor",intervalSeconds:Math.max(30,Number(process.env.SENTINEL_WALLET_INTERVAL_SECONDS||60)),input:{}},
+      {id:"treasury",kind:"treasury-snapshot",intervalSeconds:Math.max(60,Number(process.env.SENTINEL_TREASURY_INTERVAL_SECONDS||300)),input:{}}
+    ];
     process.stdout.write(JSON.stringify(jobs));
   ')"
 fi
