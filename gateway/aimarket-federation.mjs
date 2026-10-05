@@ -27,26 +27,47 @@ const INSTALL_BUNDLE = {
   provider:'Industrial Platform',
   artifact:'Industrial Sentinel',
   version:'0.2.0',
-  purpose:'Install-once recurring wallet, treasury, transaction, and payment monitoring for authorized funded agents.',
-  container:'ghcr.io/industrial-platform-ai/industrial-sentinel-runtime:latest',
+  purpose:'Immutable bootstrap metadata for authorized installation of recurring wallet, treasury, transaction, and payment monitoring.',
+  immutable_source:{
+    repository:'https://github.com/industrial-platform-ai/industrial-platform-agent-tools',
+    commit:'5a400bd4b2d82c495ccb54e0aea007a02cb9f60a',
+    skill_path:'skills/industrial-sentinel',
+    plugin_path:'industrial-sentinel',
+    portable_plugin_path:'plugins/industrial-sentinel'
+  },
+  container:{
+    image:'ghcr.io/industrial-platform-ai/industrial-sentinel-runtime',
+    digest:'sha256:555d20e6ac94b261a1858db5c2f880646408224975217265f77fda44be25b56b',
+    immutable_ref:'ghcr.io/industrial-platform-ai/industrial-sentinel-runtime@sha256:555d20e6ac94b261a1858db5c2f880646408224975217265f77fda44be25b56b'
+  },
   openclaw:{
-    command:'openclaw plugins install industrial-sentinel --marketplace industrial-platform-ai/industrial-platform-agent-tools'
+    plugin_id:'industrial-sentinel',
+    version:'0.2.0',
+    marketplace_repository:'industrial-platform-ai/industrial-platform-agent-tools',
+    source_commit:'5a400bd4b2d82c495ccb54e0aea007a02cb9f60a'
   },
   agent_skill:{
+    id:'industrial-platform-ai/industrial-platform-agent-tools/industrial-sentinel',
     repository:'https://github.com/industrial-platform-ai/industrial-platform-agent-tools',
     path:'skills/industrial-sentinel',
-    install_command:'npx skills add https://github.com/industrial-platform-ai/industrial-platform-agent-tools --skill industrial-sentinel -y'
+    source_commit:'5a400bd4b2d82c495ccb54e0aea007a02cb9f60a',
+    catalog:'https://www.skills.sh/industrial-platform-ai/industrial-platform-agent-tools/industrial-sentinel'
   },
   authorization:{
-    requires_operator_install_authority:true,
-    requires_operator_owned_funded_base_wallet_for_paid_cycles:true,
+    installation_requires_operator_authority:true,
+    wallet_configuration_is_separate:true,
+    payment_authorization_granted_by_this_capability:false,
     never_bypass_permission_controls:true
   },
   payment:{
     protocol:'x402',
     network:'Base',
     asset:'USDC',
-    daily_cap_env:'SENTINEL_MAX_DAILY_USD'
+    note:'The bootstrap never receives or authorizes a wallet. A separately authorized installed runtime may be configured by its operator for bounded paid cycles.'
+  },
+  supply_chain:{
+    immutable_refs_only:true,
+    unpinned_remote_install_commands:false
   },
   recurring_jobs:[
     {kind:'wallet-monitor',route:'/agent/wallet-monitor',max_usd:0.005},
@@ -58,17 +79,19 @@ const INSTALL_BUNDLE = {
 
 const OUTPUT_SCHEMA = {
   type:'object',
-  required:['provider','artifact','version','container','openclaw','agent_skill','authorization','payment','recurring_jobs'],
+  required:['provider','artifact','version','immutable_source','container','openclaw','agent_skill','authorization','payment','supply_chain','recurring_jobs'],
   properties:{
     provider:{type:'string'},
     artifact:{type:'string'},
     version:{type:'string'},
     purpose:{type:'string'},
-    container:{type:'string'},
+    immutable_source:{type:'object'},
+    container:{type:'object'},
     openclaw:{type:'object'},
     agent_skill:{type:'object'},
     authorization:{type:'object'},
     payment:{type:'object'},
+    supply_chain:{type:'object'},
     recurring_jobs:{type:'array'}
   },
   additionalProperties:true
