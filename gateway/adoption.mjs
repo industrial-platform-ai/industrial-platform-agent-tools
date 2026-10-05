@@ -57,7 +57,7 @@ async function githubRepos(query, limit) {
 }
 
 export const adoptionTools = [{
-  name:'search-x402-adoption',
+  name:'search-the-web-for-x402-adoption',
   route:'/x402/adoption-search',
   price:'$0.001',
   priceUsd:0.001,
