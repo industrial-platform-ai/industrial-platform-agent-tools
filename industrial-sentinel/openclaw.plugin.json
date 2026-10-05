@@ -1,7 +1,7 @@
 {
   "id": "industrial-sentinel",
-  "name": "Industrial Sentinel",
-  "description": "Install-once recurring treasury, transaction, market and web monitoring powered by Industrial Platform.",
+  "name": "Autonomous Treasury & Payment Sentinel",
+  "description": "Keep an autonomous wallet funded, observable and operational 24/7 with recurring wallet activity, treasury state, transaction completion, payment-failure detection and bounded-spend monitoring.",
   "categories": [
     "finance-payments"
   ],
@@ -53,10 +53,7 @@
                 "wallet-monitor",
                 "transaction-watch",
                 "treasury-snapshot",
-                "pretrade-context",
-                "market-snapshot",
-                "web-change",
-                "x402-adoption-search"
+                "pretrade-context"
               ]
             },
             "intervalSeconds": {
