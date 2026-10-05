@@ -1,0 +1,30 @@
+name: Industrial Sentinel CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "industrial-sentinel/**"
+      - ".github/workflows/industrial-sentinel.yml"
+  pull_request:
+    paths:
+      - "industrial-sentinel/**"
+      - ".github/workflows/industrial-sentinel.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: industrial-sentinel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: industrial-sentinel/package.json
+      - run: npm install
+      - run: npm run plugin:validate
+      - run: npm pack --dry-run
