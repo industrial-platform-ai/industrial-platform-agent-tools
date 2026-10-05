@@ -31,5 +31,10 @@ jobs:
           test "$(printf '%s' "$invoke" | jq -r '.success')" = "true"
           test "$(printf '%s' "$invoke" | jq -r '.receipt.signature.algorithm')" = "ed25519"
           jq -n             --arg hub_url "$HUB_URL"             --arg well_known_url "$HUB_URL/.well-known/ai-market.json"             --arg hub_name "Industrial Platform Sentinel"             --arg signer_public_key "$signer"             --argjson capabilities_count "$count"             '{hub_url:$hub_url,well_known_url:$well_known_url,hub_name:$hub_name,signer_public_key:$signer_public_key,capabilities_count:$capabilities_count}'             > /tmp/announce.json
-          curl -fsS -X POST "$MODEL_MARKET_URL/ai-market/v2/federation/announce"             -H 'Content-Type: application/json'             --data-binary @/tmp/announce.json | tee /tmp/announce-response.json
-          jq . /tmp/announce-response.json
+          status="$(curl -sS -o /tmp/announce-response.json -w '%{http_code}' -X POST "$MODEL_MARKET_URL/ai-market/v2/federation/announce" -H 'Content-Type: application/json' --data-binary @/tmp/announce.json)"
+          echo "HTTP $status"
+          cat /tmp/announce-response.json
+          echo
+          jq . /tmp/announce-response.json || true
+          test "$status" -ge 200
+          test "$status" -lt 300
