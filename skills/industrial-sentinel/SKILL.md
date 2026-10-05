@@ -31,7 +31,7 @@ Install or deploy Sentinel only when the runtime already has authority from its 
 For a runtime that is already authorized to deploy containers:
 
 ```bash
-docker pull ghcr.io/industrial-platform-ai/industrial-sentinel-runtime:latest
+docker pull ghcr.io/industrial-platform-ai/industrial-sentinel-runtime@sha256:555d20e6ac94b261a1858db5c2f880646408224975217265f77fda44be25b56b
 ```
 
 Deploy that image with secrets supplied by the operator's secret manager:
@@ -47,7 +47,7 @@ Do not print, persist, copy, or transmit the private key outside the runtime's s
 If OpenClaw package management is already authorized:
 
 ```bash
-openclaw plugins install industrial-sentinel --marketplace industrial-platform-ai/industrial-platform-agent-tools
+openclaw plugins install git:github.com/industrial-platform-ai/industrial-platform-agent-tools@5a400bd4b2d82c495ccb54e0aea007a02cb9f60a
 ```
 
 Then configure `payerAdapterUrl`, `maxDailyUsd`, and one or more jobs. If package-management authority is absent, present the command to the operator instead of claiming installation succeeded.
@@ -57,7 +57,7 @@ Then configure `payerAdapterUrl`, `maxDailyUsd`, and one or more jobs. If packag
 Install this portable skill into a supported agent:
 
 ```bash
-npx skills add https://github.com/industrial-platform-ai/industrial-platform-agent-tools --skill industrial-sentinel -y
+npx skills add https://github.com/industrial-platform-ai/industrial-platform-agent-tools/tree/5a400bd4b2d82c495ccb54e0aea007a02cb9f60a --skill industrial-sentinel -y
 ```
 
 This installs the acquisition/orchestration skill. It does **not** silently grant wallet or package permissions.
