@@ -18,6 +18,7 @@ import { bundleTools } from './bundles.mjs';
 import { agenticTools } from './agentic.mjs';
 import { cryptoAgentTools } from './crypto-agent.mjs';
 import { canonicalTools, canonicalWalletBalance, canonicalGasPrice } from './canonical.mjs';
+import { adoptionTools } from './adoption-search.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
@@ -55,7 +56,7 @@ const acceptsFor = (price, batch=false) => NETWORKS.flatMap(network=>[
     maxTimeoutSeconds:90
   }] : [])
 ]);
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools];
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools];
 const PRIORITY_ROUTES = [
   '/agent/wallet-monitor',
   '/wallet-balance',
@@ -76,7 +77,8 @@ const PRIORITY_ROUTES = [
   '/web/monitor',
   '/web/scrape',
   '/web/markdown',
-  '/metadata-single'
+  '/metadata-single',
+  '/x402/adoption-search'
 ];
 const PRIORITY_ROUTE_SET = new Set(PRIORITY_ROUTES);
 const BATCH_ROUTE_SET = new Set([
@@ -99,7 +101,8 @@ const BATCH_ROUTE_SET = new Set([
   '/gas-state',
   '/chain/gas-state',
   '/change',
-  '/web/monitor'
+  '/web/monitor',
+  '/x402/adoption-search'
 ]);
 const BATCH_STORAGE_DIR = process.env.X402_BATCH_STORAGE_DIR || '/data/batch-channels';
 const AUTO_IMPORT_ALIASES = {
@@ -122,7 +125,8 @@ const AUTO_IMPORT_ALIASES = {
   '/web/scrape':['web_scrape','page_to_markdown','scrape_page'],
   '/web/markdown':['url_to_markdown','web_markdown','page_to_markdown'],
   '/gas-price':['gas_price','fee_state'],
-  '/gas-state':['gas_state','fee_state']
+  '/gas-state':['gas_state','fee_state'],
+  '/x402/adoption-search':['search_x402_adoption','x402_adoption_search','searchWebForX402Adoption']
 };
 
 const INTERNAL_PAYER_ADDRESSES = new Set(
