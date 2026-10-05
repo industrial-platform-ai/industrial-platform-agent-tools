@@ -1,0 +1,79 @@
+{
+  "id": "industrial-sentinel",
+  "name": "Industrial Sentinel",
+  "description": "Install-once recurring treasury, transaction, market and web monitoring powered by Industrial Platform.",
+  "categories": [
+    "finance-payments"
+  ],
+  "activation": {
+    "onStartup": true
+  },
+  "contracts": {
+    "tools": [
+      "industrial_sentinel_status",
+      "industrial_sentinel_run_now"
+    ]
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "payerAdapterUrl",
+      "jobs"
+    ],
+    "properties": {
+      "payerAdapterUrl": {
+        "type": "string",
+        "description": "Runtime-owned local HTTP adapter that executes x402-paid requests. Recommended loopback URL."
+      },
+      "maxDailyUsd": {
+        "type": "number",
+        "minimum": 0,
+        "default": 5
+      },
+      "jobs": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "intervalSeconds"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "wallet-monitor",
+                "transaction-watch",
+                "treasury-snapshot",
+                "pretrade-context",
+                "market-snapshot",
+                "web-change",
+                "x402-adoption-search"
+              ]
+            },
+            "intervalSeconds": {
+              "type": "integer",
+              "minimum": 15
+            },
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "input": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    }
+  }
+}
