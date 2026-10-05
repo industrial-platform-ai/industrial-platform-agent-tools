@@ -18,7 +18,8 @@ import { bundleTools } from './bundles.mjs';
 import { agenticTools } from './agentic.mjs';
 import { cryptoAgentTools } from './crypto-agent.mjs';
 import { canonicalTools, canonicalWalletBalance, canonicalGasPrice } from './canonical.mjs';
-import { adoptionTools } from './adoption.mjs';\nimport { registerAIMarketFederation } from './aimarket-federation.mjs';
+import { adoptionTools } from './adoption.mjs';
+import { registerAIMarketFederation } from './aimarket-federation.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
@@ -1159,7 +1160,8 @@ const tryRoutes = {
 
 const app = express();
 app.disable('x-powered-by');
-app.use(express.json({limit:'256kb'}));\nregisterAIMarketFederation(app,{origin:ORIGIN});
+app.use(express.json({limit:'256kb'}));
+registerAIMarketFederation(app,{origin:ORIGIN});
 
 app.use((req,res,next)=>{
   const key=req.method.toUpperCase()+' '+req.path;
