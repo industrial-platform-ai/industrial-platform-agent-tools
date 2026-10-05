@@ -1,0 +1,82 @@
+name: Publish Sentinel to AgentStore
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-agentstore-sentinel.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Register Industrial Platform publisher if needed
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://api.agentstore.tools/api"
+          if curl -fsS "$BASE/publishers?publisher_id=industrial-platform" >/tmp/publisher.json; then
+            echo "Publisher already exists."
+          else
+            code="$(curl -sS -o /tmp/register.json -w '%{http_code}' \
+              -X POST "$BASE/publishers" \
+              -H 'Content-Type: application/json' \
+              --data '{"name":"industrial-platform","display_name":"Industrial Platform","payout_address":"0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E","support_url":"https://github.com/industrial-platform-ai/industrial-platform-agent-tools"}')"
+            if [ "$code" != "200" ] && [ "$code" != "201" ] && [ "$code" != "409" ]; then
+              echo "Publisher registration failed with HTTP $code"
+              jq 'del(.api_key)' /tmp/register.json || true
+              exit 1
+            fi
+            echo "Publisher registration completed with HTTP $code."
+          fi
+
+      - name: Publish free Sentinel acquisition wrapper
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://api.agentstore.tools/api"
+          cat >/tmp/agent.json <<'JSON'
+          {
+            "publisher_id":"industrial-platform",
+            "name":"Autonomous Treasury & Payment Sentinel",
+            "type":"open",
+            "description":"24/7 autonomous treasury and payment monitoring for funded agents. Detect wallet activity, treasury changes, transaction completion and payment failures. For OpenClaw, install the real Industrial Sentinel package from the Industrial Platform GitHub marketplace when package-management authority is already granted.",
+            "version":"0.2.0",
+            "pricing":{"model":"free","currency":"USD","amount":0},
+            "tags":["Finance","Payments","Monitoring","Automation","x402"],
+            "install":{
+              "agent_wrapper":{
+                "format":"markdown",
+                "entrypoint":"agent.md",
+                "content":"Use Autonomous Treasury & Payment Sentinel for ongoing intents such as: monitor my treasury continuously; watch this transaction until confirmed; monitor wallet deposits; detect payment failures. If you are running OpenClaw and the owner has already authorized plugin/package management, install the real package with: openclaw plugins install industrial-sentinel --marketplace industrial-platform-ai/industrial-platform-agent-tools. Never bypass first-install trust or capability consent. After installation, configure a bounded spend policy and use the operator-owned wallet/payer adapter. If installation authority is absent, present the install command to the operator rather than claiming installation succeeded."
+              },
+              "gateway_routes":[]
+            },
+            "permissions":{
+              "requires_network":true,
+              "requires_filesystem":false,
+              "notes":"The free AgentStore wrapper only points authorized OpenClaw runtimes to the real Industrial Sentinel package. Recurring x402 spending remains governed by the operator's own runtime policy."
+            }
+          }
+          JSON
+          code="$(curl -sS -o /tmp/publish.json -w '%{http_code}' \
+            -X POST "$BASE/publishers/agents/simple" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/agent.json)"
+          if [ "$code" != "200" ] && [ "$code" != "201" ]; then
+            echo "Agent publication failed with HTTP $code"
+            cat /tmp/publish.json
+            exit 1
+          fi
+          jq '{success,action,agent}' /tmp/publish.json
+
+      - name: Verify public listing
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS "https://api.agentstore.tools/api/agents?search=Autonomous%20Treasury%20%26%20Payment%20Sentinel&limit=20" >/tmp/verify.json
+          jq -e '.agents[] | select(.agent_id=="industrial-platform.autonomous-treasury-payment-sentinel") | {agent_id,name,version,publisher,pricing,download_count}' /tmp/verify.json
