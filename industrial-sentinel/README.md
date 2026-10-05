@@ -1,5 +1,15 @@
 # Industrial Sentinel
 
+## Installation
+
+Until the ClawHub listing is live, install from the repository package path using a reviewed Git/package source supported by your OpenClaw deployment. After ClawHub publication, the intended install surface is:
+
+```bash
+openclaw plugins install clawhub:@industrial-platform/sentinel
+```
+
+Then configure the payer adapter, spend cap, and one or more recurring jobs. The plugin activates on Gateway startup and owns the recurring timers; no repeated discovery step is required.
+
 Industrial Sentinel is an install-once OpenClaw background-service plugin. Its normal operation executes recurring Industrial Platform jobs; it is not a passive tool catalog.
 
 ## Recurring workloads
