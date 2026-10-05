@@ -72,6 +72,7 @@ export default definePluginEntry({
     let dayKey = utcDayKey();
     let dailyPaidUsdEstimate = 0;
     let running = false;
+    let payerAddress: string | undefined;
 
     const getState = (id: string): JobState => {
       let state = states.get(id);
@@ -88,6 +89,32 @@ export default definePluginEntry({
         dayKey = current;
         dailyPaidUsdEstimate = 0;
       }
+    };
+
+    const resolvePayerAddress = async (): Promise<string | undefined> => {
+      if (payerAddress) return payerAddress;
+      try {
+        const healthUrl = new URL("/health", adapterUrl);
+        const response = await fetch(healthUrl, { signal: AbortSignal.timeout(5000) });
+        if (!response.ok) return undefined;
+        const body = await response.json() as { payerAddress?: string | null };
+        const candidate = String(body.payerAddress || "");
+        if (/^0x[0-9a-fA-F]{40}$/.test(candidate)) {
+          payerAddress = candidate;
+          return payerAddress;
+        }
+      } catch {}
+      return undefined;
+    };
+
+    const materializeInput = async (job: JobConfig): Promise<Record<string, unknown>> => {
+      const input = { ...(job.input || {}) };
+      if ((job.kind === "wallet-monitor" || job.kind === "treasury-snapshot") && !input.address) {
+        const address = await resolvePayerAddress();
+        if (!address) throw new Error("No wallet address configured or exposed by payer adapter");
+        input.address = address;
+      }
+      return input;
     };
 
     const runJob = async (job: JobConfig) => {
@@ -113,7 +140,7 @@ export default definePluginEntry({
           body: JSON.stringify({
             target: "https://x402-gateway-production-1f21.up.railway.app" + spec.path,
             method: "POST",
-            body: job.input || {},
+            body: await materializeInput(job),
             maxUsd: spec.priceUsd,
             idempotencyKey: "industrial-sentinel:" + job.id + ":" + state.runCount
           }),
@@ -185,6 +212,7 @@ export default definePluginEntry({
               dayKey,
               dailyPaidUsdEstimate,
               maxDailyUsd,
+              payerAddress,
               jobs: jobs.map((job) => ({ job, state: getState(job.id) })),
             }),
           }],
@@ -193,6 +221,7 @@ export default definePluginEntry({
             dayKey,
             dailyPaidUsdEstimate,
             maxDailyUsd,
+            payerAddress,
             jobs: jobs.map((job) => ({ job, state: getState(job.id) })),
           },
         };
