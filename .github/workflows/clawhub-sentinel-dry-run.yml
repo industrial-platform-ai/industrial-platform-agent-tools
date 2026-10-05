@@ -1,0 +1,33 @@
+name: ClawHub Sentinel Dry Run
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "industrial-sentinel/**"
+      - ".github/workflows/clawhub-sentinel-dry-run.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install ClawHub CLI
+        run: npm install -g clawhub@0.23.3
+      - name: ClawHub package dry run
+        run: |
+          clawhub package publish ./industrial-sentinel \
+            --family code-plugin \
+            --owner industrial-platform \
+            --source-repo industrial-platform-ai/industrial-platform-agent-tools \
+            --source-commit "$GITHUB_SHA" \
+            --source-path industrial-sentinel \
+            --dry-run \
+            --json
