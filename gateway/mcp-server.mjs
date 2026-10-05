@@ -228,6 +228,21 @@ const tools = [
   ...canonicalMcpAliases
 ];
 
+const toolByName = new Map(tools.map(tool=>[tool.name,tool]));
+const MCP_PROFILES = {
+  'wallet-monitor':['monitor_wallet','wallet_balance','wallet_activity','gas_price'],
+  'transaction-watch':['watch_transaction','transaction_status','gas_price'],
+  'treasury':['treasury_snapshot','wallet_balance','wallet_activity','gas_price'],
+  'pretrade':['pretrade_context','crypto_price','crypto_book','market_snapshot','wallet_balance','gas_price'],
+  'market-data':['crypto_price','crypto_candles','crypto_book','market_snapshot'],
+  'web-monitor':['monitor_webpage_change','detectWebpageChange','extractWebpageMetadata']
+};
+for (const [profile,names] of Object.entries(MCP_PROFILES)) {
+  for (const name of names) {
+    if (!toolByName.has(name)) throw new Error('Missing MCP profile tool '+profile+': '+name);
+  }
+}
+
 function schemaToZod(schema = {}) {
   if (schema.enum) {
     const vals = schema.enum.map(String);
@@ -321,13 +336,13 @@ for (const tool of tools) {
   acceptsByTool.set(tool.name, accepts);
 }
 
-function createServer() {
+function createServer(selectedTools=tools, serverName='industrial-platform-direct-x402') {
   const server = new McpServer({
-    name:'industrial-platform-direct-x402',
+    name:serverName,
     version:'1.0.0'
   });
 
-  for (const tool of tools) {
+  for (const tool of selectedTools) {
     const discovery = declareDiscoveryExtension({
       toolName:tool.name,
       description:tool.description,
@@ -372,13 +387,32 @@ app.get('/', (_req,res)=>res.json({
   payment:{protocol:'x402',version:2,network:NETWORK,asset:'USDC',payTo:PAY_TO},
   toolCount:tools.length,
   endpoint:ORIGIN+'/mcp',
+  profiles:Object.fromEntries(Object.keys(MCP_PROFILES).map(profile=>[profile,ORIGIN+'/mcp/'+profile])),
   catalog:'https://x402-gateway-production-1f21.up.railway.app/.well-known/x402'
 }));
 
-app.get('/health', (_req,res)=>res.json({ok:true,toolCount:tools.length,network:NETWORK,batchSettlement:{enabled:true,storage:'durable-file',routes:[...BATCH_ROUTE_SET]}}));
+app.get('/health', (_req,res)=>res.json({
+  ok:true,
+  toolCount:tools.length,
+  network:NETWORK,
+  profiles:Object.fromEntries(Object.entries(MCP_PROFILES).map(([profile,names])=>[profile,{endpoint:ORIGIN+'/mcp/'+profile,toolCount:names.length,tools:names}])),
+  batchSettlement:{enabled:true,storage:'durable-file',routes:[...BATCH_ROUTE_SET]}
+}));
 
-app.all('/mcp', async (req,res)=>{
-  const server = createServer();
+app.get('/profiles', (_req,res)=>res.json({
+  profiles:Object.fromEntries(Object.entries(MCP_PROFILES).map(([profile,names])=>[
+    profile,
+    {endpoint:ORIGIN+'/mcp/'+profile,tools:names}
+  ]))
+}));
+
+app.all(['/mcp','/mcp/:profile'], async (req,res)=>{
+  const profile=req.params.profile;
+  if (profile && !MCP_PROFILES[profile]) {
+    return res.status(404).json({error:'Unknown MCP profile',profiles:Object.keys(MCP_PROFILES)});
+  }
+  const selectedTools=profile ? MCP_PROFILES[profile].map(name=>toolByName.get(name)) : tools;
+  const server = createServer(selectedTools, profile ? 'industrial-platform-'+profile : 'industrial-platform-direct-x402');
   const transport = new StreamableHTTPServerTransport({sessionIdGenerator:undefined});
   res.on('close',()=>{ void server.close().catch(()=>{}); });
   try {
