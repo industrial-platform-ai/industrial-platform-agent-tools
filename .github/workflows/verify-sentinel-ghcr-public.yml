@@ -1,0 +1,21 @@
+name: Verify Sentinel GHCR Public Access
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/verify-sentinel-ghcr-public.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  anonymous-pull:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull Sentinel runtime without GHCR login
+        run: |
+          set -euo pipefail
+          docker logout ghcr.io >/dev/null 2>&1 || true
+          docker pull ghcr.io/industrial-platform-ai/industrial-sentinel-runtime:latest
