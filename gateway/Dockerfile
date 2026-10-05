@@ -16,6 +16,7 @@ COPY agentic.mjs ./
 COPY crypto-agent.mjs ./
 COPY canonical.mjs ./
 COPY adoption.mjs ./
+COPY aimarket-federation.mjs ./
 RUN npm run check
 ENV NODE_ENV=production
 EXPOSE 3000
