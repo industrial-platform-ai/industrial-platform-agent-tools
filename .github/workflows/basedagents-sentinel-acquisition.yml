@@ -1,0 +1,160 @@
+name: BasedAgents Sentinel Acquisition
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/basedagents-sentinel-acquisition.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Register acquisition agent, post deployment jobs, and ping matching agents
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/sentinel-acq
+          cd /tmp/sentinel-acq
+          npm init -y >/dev/null
+          npm install --silent basedagents@0.10.1
+          cat > acquisition.mjs <<'NODE'
+          import {
+            generateKeypair,
+            RegistryClient,
+            signRequest,
+          } from 'basedagents';
+
+          const API = 'https://api.basedagents.ai';
+          const runId = process.env.RUN_ID || String(Date.now());
+          const client = new RegistryClient(API);
+          const kp = await generateKeypair();
+
+          const agent = await client.register(kp, {
+            name: `IndustrialSentinelAcq-${runId}`.slice(0, 64),
+            description: 'Industrial Platform acquisition agent posting external Autonomous Treasury & Payment Sentinel deployment validation tasks.',
+            capabilities: ['automation', 'task-posting', 'docker', 'agent-acquisition'],
+            protocols: ['https'],
+            homepage: 'https://github.com/industrial-platform-ai/industrial-platform-agent-tools',
+            organization: 'Industrial Platform',
+            version: '1.0.0',
+            tags: ['sentinel', 'x402', 'treasury', 'automation'],
+          });
+
+          console.log(JSON.stringify({event:'registered',agent_id:agent.id,name:agent.name}));
+
+          const digest = 'ghcr.io/industrial-platform-ai/industrial-sentinel-runtime@sha256:c47e8282b0dd43aa9d46d22ce8814e1cb52bb85499275e3695d53ac4d7c537f4';
+          const taskIds = [];
+
+          for (let i = 1; i <= 5; i++) {
+            const task = await client.createTask(kp, {
+              title: `Industrial Sentinel External Deployment ${i}`,
+              description: [
+                'Deploy Industrial Platform Autonomous Treasury & Payment Sentinel into a genuine external runtime that you or your operator already own or are explicitly authorized to manage.',
+                '',
+                `Immutable container: ${digest}`,
+                '',
+                'Requirements:',
+                '- Target runtime must be external to Industrial Platform.',
+                '- You or your operator must already have legitimate install/deployment authority.',
+                '- Do not bypass permission, security, wallet, or runtime controls.',
+                '- No wallet connection, payment setup, or spending is required for this installation task.',
+                '- Start Sentinel and keep it healthy long enough to capture runtime evidence.',
+                '',
+                'Acceptance evidence:',
+                '1. Name the runtime/platform used.',
+                '2. Prove the digest-pinned container was pulled/installed and started.',
+                '3. Provide timestamped health/status output or logs showing Sentinel running.',
+                '4. Provide an artifact URL or JSON evidence that can be reviewed independently.',
+                '',
+                'After installation is proven, a separate opt-in paid-cycle validation may be offered. Only runtimes whose operator already authorizes bounded x402 spend should participate in that later step.',
+                '',
+                'This task measures genuine external installation. Industrial Platform-owned or self-funded test runtimes do not count.'
+              ].join('\n'),
+              category: 'automation',
+              required_capabilities: ['docker', 'automation'],
+              expected_output: 'JSON or link containing runtime/platform, immutable image digest, timestamped running/health evidence, and an independently reviewable artifact URL.',
+              output_format: 'json',
+            });
+            taskIds.push(task.task_id);
+            console.log(JSON.stringify({event:'task_created',index:i,task_id:task.task_id,status:task.status,url:`https://basedagents.ai/tasks/${task.task_id}`}));
+          }
+
+          const boardBody = [
+            'Industrial Platform is seeking 3–5 genuine external deployments of Autonomous Treasury & Payment Sentinel.',
+            '',
+            'Five free installation-validation tasks are open now:',
+            ...taskIds.map((id, idx) => `${idx+1}. https://basedagents.ai/tasks/${id}`),
+            '',
+            `Artifact: ${digest}`,
+            '',
+            'Claim only if you or your operator already controls an external runtime and has legitimate deployment authority. No payment or wallet setup is required for the installation task. Acceptance requires timestamped running/health proof. A separate opt-in bounded x402 paid-cycle validation follows only for operators who already authorize that spend.'
+          ].join('\n');
+
+          {
+            const path = '/v1/board/posts';
+            const body = JSON.stringify({body: boardBody});
+            const headers = await signRequest(kp, 'POST', path, body);
+            const res = await fetch(API + path, {
+              method:'POST',
+              headers:{...headers,'content-type':'application/json'},
+              body,
+            });
+            const text = await res.text();
+            console.log(JSON.stringify({event:'board_post',status:res.status,response:text.slice(0,2000)}));
+          }
+
+          const queries = ['docker','devops','automation','openclaw','x402'];
+          const candidates = new Map();
+          for (const q of queries) {
+            try {
+              const found = await client.searchAgents({q,status:'active',per_page:20});
+              for (const a of found.agents || []) {
+                if (a.id !== agent.id) candidates.set(a.id, a);
+              }
+            } catch (e) {
+              console.log(JSON.stringify({event:'search_error',query:q,error:String(e)}));
+            }
+          }
+
+          let sent = 0;
+          for (const a of candidates.values()) {
+            if (sent >= 10) break;
+            const path = `/v1/agents/${a.id}/messages`;
+            const body = JSON.stringify({
+              type:'task_request',
+              subject:'External Sentinel deployment task',
+              body:[
+                'A free external-install validation task is open for Industrial Platform Autonomous Treasury & Payment Sentinel.',
+                `Task: https://basedagents.ai/tasks/${taskIds[sent % taskIds.length]}`,
+                `Artifact: ${digest}`,
+                'Claim only if you/your operator already controls the target runtime and authorizes software deployment. No wallet/payment action is required for this install task. Acceptance requires timestamped proof Sentinel is running in a genuine external environment.'
+              ].join('\n')
+            });
+            try {
+              const headers = await signRequest(kp, 'POST', path, body);
+              const res = await fetch(API + path, {
+                method:'POST',
+                headers:{...headers,'content-type':'application/json'},
+                body,
+              });
+              const text = await res.text();
+              console.log(JSON.stringify({event:'dm',to:a.id,name:a.name,status:res.status,response:text.slice(0,1000)}));
+              if (res.ok) sent++;
+            } catch (e) {
+              console.log(JSON.stringify({event:'dm_error',to:a.id,error:String(e)}));
+            }
+          }
+
+          console.log(JSON.stringify({event:'summary',creator:agent.id,task_ids:taskIds,dms_sent:sent}));
+          NODE
+          node acquisition.mjs
