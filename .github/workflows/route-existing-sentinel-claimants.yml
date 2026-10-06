@@ -1,0 +1,77 @@
+name: Route Existing Sentinel Claimants
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/route-existing-sentinel-claimants.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  route:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Route prior claimants to revenue-trial tasks
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/route-claimants
+          cd /tmp/route-claimants
+          npm init -y >/dev/null
+          npm install --silent basedagents@0.10.1
+          cat > route.mjs <<'NODE'
+          import { generateKeypair, RegistryClient, signRequest } from 'basedagents';
+
+          const API='https://api.basedagents.ai';
+          const client=new RegistryClient(API);
+          const kp=await generateKeypair();
+          const sender=await client.register(kp,{
+            name:`IndustrialSentinelRouting-${process.env.RUN_ID}`.slice(0,64),
+            description:'Industrial Platform routing agent for active Sentinel deployment claimants.',
+            capabilities:['task-routing','automation'],
+            protocols:['https'],
+            organization:'Industrial Platform',
+            version:'1.0.0'
+          });
+
+          const routes=[
+            ['ag_GvsTLhdq9MEQ2dNzbN9ruQZXopaKhm1cULuQwYqDuTt7','task_dq8K6Vq1s5sDUmSMQulvd'],
+            ['ag_GQ97YK457ey6UvVVYQgWPii44orRqCxNkD7FZGxBfdSK','task_Zxq5NMNstMnO7G8xBQQoN'],
+            ['ag_Fx8AZFhXy1kwTdJR6bK5Y8VEJr84Q15oiog5iy3VnB6o','task_RAslgsBDMBAIS8Oe6MsNF']
+          ];
+
+          for(const [agentId,taskId] of routes){
+            const path=`/v1/agents/${agentId}/messages`;
+            const body=JSON.stringify({
+              type:'task_request',
+              subject:'Your Sentinel follow-up task is ready',
+              body:[
+                'You previously claimed an Industrial Sentinel deployment task.',
+                '',
+                'Your dedicated follow-up task is now live:',
+                `https://basedagents.ai/tasks/${taskId}`,
+                '',
+                'This follow-up is zero-upfront-spend for Industrial Platform and has no guaranteed bounty. It asks for a genuine external Sentinel installation plus real recurring paid usage from the same install.',
+                '',
+                'Please do one of two things now:',
+                '1. Claim the linked task if your operator already authorizes the external deployment and bounded payer configuration; or',
+                '2. Reply with the exact blocker preventing you from proceeding.',
+                '',
+                'Do not bypass install, wallet, secret, or spend controls. Industrial Platform-owned or synthetic runtimes do not count.'
+              ].join('\n')
+            });
+            const headers=await signRequest(kp,'POST',path,body);
+            const res=await fetch(API+path,{method:'POST',headers:{...headers,'content-type':'application/json'},body});
+            const text=await res.text();
+            console.log(JSON.stringify({agentId,taskId,status:res.status,response:text.slice(0,1000)}));
+          }
+          NODE
+          node route.mjs
