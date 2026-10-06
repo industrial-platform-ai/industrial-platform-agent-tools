@@ -57,6 +57,8 @@ def solve_math(text):
 
     nums = vals
     if len(nums) >= 2:
+        if "left over" in raw or "remainder" in raw:
+            return nums[0] % nums[1]
         if " more than " in raw:
             return nums[0] + nums[1]
         if " fewer than " in raw or " less than " in raw:
