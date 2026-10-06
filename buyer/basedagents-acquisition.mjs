@@ -160,7 +160,7 @@ export async function startBasedAgentsAcquisition(){
           'Industrial Platform-owned, synthetic, simulated, friend-funded, or Industrial-Platform-funded payer calls do not qualify.'
         ].join('\n'),
         category:'automation',
-        required_capabilities:['docker','automation','x402'],
+        required_capabilities:[],
         expected_output:'JSON with five-gate qualification, external runtime/install evidence, seller wallet/endpoint, and two genuine 0.005 USDC Revenue Guard settlements from the same install on consecutive UTC dates.',
         bounty:{amount:'500000',token:'USDC',network:'eip155:8453'},
         escrow:false,
