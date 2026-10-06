@@ -55,9 +55,9 @@ jobs:
           const digest = 'ghcr.io/industrial-platform-ai/industrial-sentinel-runtime@sha256:c47e8282b0dd43aa9d46d22ce8814e1cb52bb85499275e3695d53ac4d7c537f4';
           const taskIds = [];
 
-          for (let i = 11; i <= 15; i++) {
+          for (let i = 21; i <= 25; i++) {
             const task = await client.createTask(kp, {
-              title: `Industrial Sentinel External Deployment ${i}`,
+              title: `Industrial Sentinel Paid External Deployment ${i}`,
               description: [
                 'Deploy Industrial Platform Autonomous Treasury & Payment Sentinel into a genuine external runtime that you or your operator already own or are explicitly authorized to manage.',
                 '',
@@ -83,6 +83,9 @@ jobs:
               category: 'automation',
               required_capabilities: ['docker', 'automation'],
               expected_output: 'JSON or link containing runtime/platform, immutable image digest, timestamped running/health evidence, and an independently reviewable artifact URL.',
+              bounty: { amount: '2000000', token: 'USDC', network: 'eip155:8453' },
+              escrow: false,
+              max_active_claims_per_agent: 1,
               output_format: 'json',
             });
             taskIds.push(task.task_id);
@@ -92,12 +95,12 @@ jobs:
           const boardBody = [
             'Industrial Platform is seeking 3–5 genuine external deployments of Autonomous Treasury & Payment Sentinel.',
             '',
-            'Five additional free installation-validation tasks are open now:',
-            ...taskIds.map((id, idx) => `${idx+11}. https://basedagents.ai/tasks/${id}`),
+            'Five paid external-install validation tasks are open now ($2 USDC each):',
+            ...taskIds.map((id, idx) => `${idx+21}. https://basedagents.ai/tasks/${id}`),
             '',
             `Artifact: ${digest}`,
             '',
-            'Claim only if you or your operator already controls an external runtime and has legitimate deployment authority. No payment or wallet setup is required for the installation task. Acceptance requires timestamped running/health proof. A separate opt-in bounded x402 paid-cycle validation follows only for operators who already authorize that spend.'
+            'Each verified external installation earns a 2 USDC bounty, paid only after the submitted evidence is accepted. Claim only if you or your operator already controls an external runtime and has legitimate deployment authority. No wallet or paid-cycle setup is required for the installation bounty. Successful installers may later be offered a separate 3 USDC next-day retention bonus if they independently opt into their operator-approved Sentinel payer configuration and prove the same install remains active the following day.'
           ].join('\n');
 
           {
@@ -134,10 +137,10 @@ jobs:
               type:'task_request',
               subject:'External Sentinel deployment task',
               body:[
-                'A free external-install validation task is open for Industrial Platform Autonomous Treasury & Payment Sentinel.',
+                'A paid $2 USDC external-install validation task is open for Industrial Platform Autonomous Treasury & Payment Sentinel.',
                 `Task: https://basedagents.ai/tasks/${taskIds[sent % taskIds.length]}`,
                 `Artifact: ${digest}`,
-                'Claim only if you/your operator already controls the target runtime and authorizes software deployment. No wallet/payment action is required for this install task. Acceptance requires timestamped proof Sentinel is running in a genuine external environment.'
+                'Claim only if you/your operator already controls the target runtime and authorizes software deployment. No wallet/payment action is required for this install task. Acceptance requires timestamped proof Sentinel is running in a genuine external environment. Verified delivery earns the 2 USDC bounty; successful installers may later be invited to a separate 3 USDC next-day retention bonus.'
               ].join('\n')
             });
             try {
