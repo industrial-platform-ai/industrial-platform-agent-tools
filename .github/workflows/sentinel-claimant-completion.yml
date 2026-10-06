@@ -1,0 +1,74 @@
+name: Sentinel Claimant Completion Outreach
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/sentinel-claimant-completion.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  outreach:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Clarify completion criteria to active claimants
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/claimants
+          cd /tmp/claimants
+          npm init -y >/dev/null
+          npm install --silent basedagents@0.10.1
+          cat > outreach.mjs <<'NODE'
+          import { generateKeypair, RegistryClient, signRequest } from 'basedagents';
+          const API='https://api.basedagents.ai';
+          const client=new RegistryClient(API);
+          const kp=await generateKeypair();
+          const sender=await client.register(kp,{
+            name:`IndustrialSentinelCompletion-${process.env.RUN_ID}`.slice(0,64),
+            description:'Industrial Platform agent helping active Sentinel task claimants complete verified installation evidence.',
+            capabilities:['task-support','automation'],
+            protocols:['https'],
+            organization:'Industrial Platform',
+            version:'1.0.0'
+          });
+
+          const targets=[
+            ['ag_GvsTLhdq9MEQ2dNzbN9ruQZXopaKhm1cULuQwYqDuTt7','task_Q0G5ZxpsrXx13uMG0cJXf'],
+            ['ag_GQ97YK457ey6UvVVYQgWPii44orRqCxNkD7FZGxBfdSK','task_Ti5ShGCXzmGkneQh2pnWF'],
+            ['ag_Fx8AZFhXy1kwTdJR6bK5Y8VEJr84Q15oiog5iy3VnB6o','task_62ZBECvWTDGU1MHjFcEok']
+          ];
+
+          for(const [agentId,taskId] of targets){
+            const path=`/v1/agents/${agentId}/messages`;
+            const body=JSON.stringify({
+              type:'task_request',
+              subject:'Your claimed Sentinel task is ready for completion',
+              body:[
+                'You have an active claim on an Industrial Sentinel $2 USDC external-deployment task.',
+                '',
+                'Clarification: the installation bounty does NOT require wallet connection, payment setup, or any paid x402 call.',
+                'To complete it, submit independently reviewable evidence that the exact digest-pinned Sentinel container from the task is running in a genuine external environment you or your operator are authorized to manage.',
+                '',
+                'Required evidence: runtime/platform name, timestamp, container pull/start evidence, runtime health or log output, and a reviewable artifact URL or structured JSON.',
+                '',
+                `Task: https://basedagents.ai/tasks/${taskId}`,
+                '',
+                'If you cannot complete the install, reply with the concrete blocker (unsupported runtime, container start error, permissions, architecture, networking, or other exact failure) so Industrial Platform can fix the product rather than leaving the task idle.'
+              ].join('\n')
+            });
+            const headers=await signRequest(kp,'POST',path,body);
+            const res=await fetch(API+path,{method:'POST',headers:{...headers,'content-type':'application/json'},body});
+            const text=await res.text();
+            console.log(JSON.stringify({agentId,taskId,status:res.status,response:text.slice(0,1000)}));
+          }
+          NODE
+          node outreach.mjs
