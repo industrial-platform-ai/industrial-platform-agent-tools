@@ -61,7 +61,6 @@ export async function post0xWorkRevenueGuardPartnerTask(){
     ].join('\n');
     const args=[
       '-y','@0xwork/cli@1.7.3','post',
-      '--title','Industrial Sentinel Revenue Guard Partner Trial',
       '--description',description,
       '--bounty',state.bountyUsdc,
       '--category','Code',
