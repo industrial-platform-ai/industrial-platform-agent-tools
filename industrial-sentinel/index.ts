@@ -17,6 +17,8 @@ type JobConfig = {
   intervalSeconds: number;
   enabled?: boolean;
   input?: Record<string, unknown>;
+  alertOnIncoming?: boolean;
+  staleAfterSeconds?: number;
 };
 
 type SentinelConfig = {
@@ -45,6 +47,9 @@ type JobState = {
   lastResultHash?: string;
   lastAlertAt?: string;
   lastAlertEvent?: string;
+  lastIncomingAt?: string;
+  incomingTransferCount: number;
+  incomingAmountRaw: bigint;
   runCount: number;
   paidUsdEstimate: number;
 };
@@ -95,7 +100,7 @@ export default definePluginEntry({
     const getState = (id: string): JobState => {
       let state = states.get(id);
       if (!state) {
-        state = { runCount: 0, paidUsdEstimate: 0 };
+        state = { runCount: 0, paidUsdEstimate: 0, incomingTransferCount: 0, incomingAmountRaw: 0n };
         states.set(id, state);
       }
       return state;
@@ -122,7 +127,7 @@ export default definePluginEntry({
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             source: "industrial-sentinel",
-            version: "0.3.0",
+            version: "0.4.0",
             event,
             observedAt: new Date().toISOString(),
             job: { id: job.id, kind: job.kind, intervalSeconds: job.intervalSeconds },
@@ -168,6 +173,52 @@ export default definePluginEntry({
       return input;
     };
 
+    const applyNextRequest = (job: JobConfig, parsedResult: any) => {
+      const request = parsedResult?.next_check?.request;
+      if (request && typeof request === "object" && !Array.isArray(request)) {
+        job.input = { ...(job.input || {}), ...request };
+      }
+    };
+
+    const revenueSignals = async (job: JobConfig, state: JobState, parsedResult: any) => {
+      if (job.kind !== "wallet-monitor") return;
+      const transfers = Array.isArray(parsedResult?.activity?.transfers)
+        ? parsedResult.activity.transfers
+        : [];
+      const incoming = transfers.filter((row: any) => String(row?.direction || "").toLowerCase() === "in");
+      if (incoming.length) {
+        const amountRaw = incoming.reduce((sum: bigint, row: any) => {
+          try { return sum + BigInt(String(row?.amount_raw || "0")); } catch { return sum; }
+        }, 0n);
+        state.lastIncomingAt = new Date().toISOString();
+        state.incomingTransferCount += incoming.length;
+        state.incomingAmountRaw += amountRaw;
+        if (job.alertOnIncoming !== false) {
+          await sendAlert("incoming_payment", job, state, {
+            incomingCount: incoming.length,
+            incomingAmountRaw: amountRaw.toString(),
+            transfers: incoming.slice(-20),
+          });
+        }
+      }
+
+      const staleAfter = Number(job.staleAfterSeconds || 0);
+      if (staleAfter > 0) {
+        const anchor = state.lastIncomingAt || state.lastOkAt;
+        if (anchor) {
+          const ageSeconds = Math.max(0, Math.floor((Date.now() - Date.parse(anchor)) / 1000));
+          if (Number.isFinite(ageSeconds) && ageSeconds >= staleAfter && state.lastAlertEvent !== "revenue_stale") {
+            await sendAlert("revenue_stale", job, state, {
+              ageSeconds,
+              staleAfterSeconds: staleAfter,
+              lastIncomingAt: state.lastIncomingAt || null,
+              message: "No incoming monitored payment observed within the configured revenue-staleness window.",
+            });
+          }
+        }
+      }
+    };
+
     const runJob = async (job: JobConfig) => {
       resetDailyBudgetIfNeeded();
       const spec = ROUTES[job.kind];
@@ -211,6 +262,9 @@ export default definePluginEntry({
         let adapterResult: any = null;
         try { adapterResult = JSON.parse(text); } catch {}
         const resultBody = typeof adapterResult?.body === "string" ? adapterResult.body : text;
+        let parsedResult: any = null;
+        try { parsedResult = JSON.parse(resultBody); } catch {}
+        applyNextRequest(job, parsedResult);
         const resultHash = createHash("sha256").update(resultBody).digest("hex");
         const previousHash = state.lastResultHash;
 
@@ -219,6 +273,7 @@ export default definePluginEntry({
         state.lastResultHash = resultHash;
         state.paidUsdEstimate += spec.priceUsd;
         dailyPaidUsdEstimate += spec.priceUsd;
+        await revenueSignals(job, state, parsedResult);
 
         const changed = Boolean(previousHash && previousHash !== resultHash);
         if (!previousHash) {
@@ -302,7 +357,10 @@ export default definePluginEntry({
               dailyPaidUsdEstimate,
               maxDailyUsd,
               payerAddress,
-              jobs: jobs.map((job) => ({ job, state: getState(job.id) })),
+              jobs: jobs.map((job) => {
+                const state = getState(job.id);
+                return { job, state: { ...state, incomingAmountRaw: state.incomingAmountRaw.toString() } };
+              }),
             }),
           }],
           details: {
@@ -311,7 +369,10 @@ export default definePluginEntry({
             dailyPaidUsdEstimate,
             maxDailyUsd,
             payerAddress,
-            jobs: jobs.map((job) => ({ job, state: getState(job.id) })),
+            jobs: jobs.map((job) => {
+              const state = getState(job.id);
+              return { job, state: { ...state, incomingAmountRaw: state.incomingAmountRaw.toString() } };
+            }),
           },
         };
       },
@@ -327,8 +388,8 @@ export default definePluginEntry({
         await runJob(job);
         const state = getState(job.id);
         return {
-          content: [{ type: "text", text: JSON.stringify({ jobId: job.id, state }) }],
-          details: { jobId: job.id, state },
+          content: [{ type: "text", text: JSON.stringify({ jobId: job.id, state: { ...state, incomingAmountRaw: state.incomingAmountRaw.toString() } }) }],
+          details: { jobId: job.id, state: { ...state, incomingAmountRaw: state.incomingAmountRaw.toString() } },
         };
       },
     });

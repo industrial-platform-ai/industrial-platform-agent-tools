@@ -43,3 +43,25 @@ docker build -f industrial-sentinel-runtime/Dockerfile -t industrial-sentinel-ru
 Deploying the runtime with no wallet is a zero-spend software smoke test.
 
 A genuine Industrial Platform revenue event begins only when an external operator deploys the runtime with their own funded Base wallet and the recurring jobs successfully settle x402 requests.
+
+
+## x402 Revenue Guard
+
+For an operator who sells x402 services, Revenue Guard monitors the seller wallet incrementally and alerts on new incoming monitored payments or when expected revenue goes stale.
+
+```
+SENTINEL_REVENUE_GUARD_MODE=1
+SENTINEL_MONITOR_ADDRESS=<operator seller wallet>
+SENTINEL_REVENUE_STALE_SECONDS=3600
+SENTINEL_ALERT_WEBHOOK_URL=https://operator.example/alerts
+SENTINEL_EVM_PRIVATE_KEY=<operator-owned payer secret>
+```
+
+Defaults:
+- wallet-monitor every 15 minutes;
+- hard spend cap of $0.50/day;
+- incremental cursor/state carried forward automatically;
+- incoming-payment alerts;
+- revenue-stale alert after 1 hour by default (configurable).
+
+At the current $0.005 wallet-monitor price, 96 checks/day cost about $0.48/day. This mode is intended for operators whose payment flow is valuable enough that detecting a settlement outage or missed deposits is worth more than the monitoring cost.
