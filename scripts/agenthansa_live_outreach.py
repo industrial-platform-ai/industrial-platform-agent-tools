@@ -57,6 +57,10 @@ def solve_math(text):
 
     nums = vals
     if len(nums) >= 2:
+        if " more than " in raw:
+            return nums[0] + nums[1]
+        if " fewer than " in raw or " less than " in raw:
+            return nums[0] - nums[1]
         a, b = nums[0], nums[1]
         if "plus" in raw or "add" in raw or "sum" in raw: return a + b
         if "minus" in raw or "subtract" in raw or "difference" in raw: return a - b
