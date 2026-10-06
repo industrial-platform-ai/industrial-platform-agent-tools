@@ -15,7 +15,7 @@ def request(path, method="GET", body=None, token=None):
         return r.status, json.loads(r.read().decode())
 
 def solve_math(text):
-    expr = "".join(ch for ch in str(text) if ch in "0123456789+-*/() ")
+    expr = "".join(ch for ch in str(text) if ch in "0123456789+-*/() ").strip()
     if not expr.strip():
         raise ValueError("No arithmetic expression found")
     node = ast.parse(expr, mode="eval")
