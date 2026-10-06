@@ -4,6 +4,9 @@ import {
   publicKeyToAgentId,
   signRequest,
 } from 'basedagents';
+import { privateKeyToAccount } from 'viem/accounts';
+import { execFileSync } from 'node:child_process';
+import { writeFileSync, unlinkSync } from 'node:fs';
 
 const API='https://api.basedagents.ai';
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
@@ -34,6 +37,8 @@ export async function startBasedAgentsAcquisition(){
     agentId:null,
     taskIds:[],
     partnerQualification:{sent:[],replies:[]},
+    walletBinding:null,
+    cancelledTaskIds:[],
     error:null,
     updatedAt:new Date().toISOString()
   };
@@ -62,13 +67,45 @@ export async function startBasedAgentsAcquisition(){
       });
     }
 
+    // Bind the already-authorized Industrial Platform Base buyer wallet to this
+    // persistent task identity. This is an EIP-191 signature only: no gas and no
+    // new wallet authority. It makes accepted acquisition bounties payable.
+    if(process.env.EVM_PRIVATE_KEY){
+      const key=process.env.EVM_PRIVATE_KEY.startsWith('0x')?process.env.EVM_PRIVATE_KEY:`0x${process.env.EVM_PRIVATE_KEY}`;
+      const account=privateKeyToAccount(key);
+      let wallet=await client.getWallet(agentId);
+      if(!wallet.wallet_verified || String(wallet.wallet_address||'').toLowerCase()!==account.address.toLowerCase()){
+        const keyfile='/tmp/industrial-sentinel-acquisition-keypair.json';
+        writeFileSync(keyfile,raw,{mode:0o600});
+        try{
+          const stdout=execFileSync('npx',[
+            '--no-install','basedagents','wallet','set',account.address,
+            '--network','eip155:8453','--keypair',keyfile,'--json','--api',API
+          ],{
+            env:{...process.env,BASEDAGENTS_WALLET_PRIVATE_KEY:key},
+            encoding:'utf8',
+            timeout:30000,
+            stdio:['ignore','pipe','pipe']
+          });
+          wallet=await client.getWallet(agentId);
+          state.walletBinding={address:wallet.wallet_address,network:wallet.wallet_network,verified:wallet.wallet_verified,cli:stdout?true:false};
+        }finally{
+          try{unlinkSync(keyfile);}catch{}
+        }
+      }else{
+        state.walletBinding={address:wallet.wallet_address,network:wallet.wallet_network,verified:wallet.wallet_verified};
+      }
+    }else{
+      state.walletBinding={verified:false,error:'EVM_PRIVATE_KEY missing'};
+    }
+
     const prefix='Industrial Sentinel Revenue Guard Partner Trial';
     const existing=await client.getTasks({creator:agentId,status:'all',limit:100});
     const partnerTasks=existing.tasks.filter(t=>String(t.title||'').startsWith(prefix));
 
     if(partnerTasks.length===0){
       const image='ghcr.io/industrial-platform-ai/industrial-sentinel-runtime@sha256:555d20e6ac94b261a1858db5c2f880646408224975217265f77fda44be25b56b';
-      for(let i=1;i<=10;i++){
+      for(let i=1;i<=5;i++){
         const task=await client.createTask(kp,{
           title:`${prefix} ${i}`,
           description:[
@@ -126,10 +163,30 @@ export async function startBasedAgentsAcquisition(){
         await sleep(1200);
       }
     }else{
-      state.taskIds=partnerTasks.map(t=>t.task_id);
+      // Keep total sign-at-accept exposure within the currently funded buyer
+      // balance. Claimed/submitted tasks are preserved; excess OPEN tasks are
+      // cancelled under the same persistent creator identity.
+      const nonTerminal=partnerTasks.filter(t=>['open','claimed','submitted'].includes(String(t.status)));
+      const committed=nonTerminal.filter(t=>t.status!=='open');
+      const open=nonTerminal.filter(t=>t.status==='open');
+      const slots=Math.max(0,5-committed.length);
+      const keepOpen=open.slice(0,slots);
+      const cancelOpen=open.slice(slots);
+      for(const t of cancelOpen){
+        try{
+          await client.cancelTask(kp,t.task_id);
+          state.cancelledTaskIds.push(t.task_id);
+          await sleep(400);
+        }catch(error){
+          console.warn('Revenue Guard task cancel failed',t.task_id,String(error?.message||error));
+        }
+      }
+      state.taskIds=[...committed,...keepOpen].map(t=>t.task_id);
     }
 
     const targets=[
+      ['ag_GQ97YK457ey6UvVVYQgWPii44orRqCxNkD7FZGxBfdSK','cm-throwaway-3907-prior-sentinel-claimer'],
+      ['ag_Fx8AZFhXy1kwTdJR6bK5Y8VEJr84Q15oiog5iy3VnB6o','cm-throwaway-3909-prior-sentinel-claimer'],
       ['ag_42kgmHvh9F2wwFWh8fCDuVnnbkUxGVBL7gPBKDbR88Cq','x402-digest'],
       ['ag_A2SdKs3PJAoAu9gmamjXk52L7KKrniHFLjCbxXzZUBvb','agentkit-x402'],
       ['ag_5bEdgNnkBZvTCM4r1CCcwXs6yi1MuAciSZ1smJjcM5VD','fitze-x402'],
@@ -199,4 +256,4 @@ export async function startBasedAgentsAcquisition(){
   }
 }
 
-// revenue-guard-partner-program-v2
+// revenue-guard-partner-program-v3-wallet-bound
