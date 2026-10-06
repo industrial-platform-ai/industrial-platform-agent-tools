@@ -14,6 +14,7 @@ export async function startBasedAgentsAcquisition(){
     status:'disabled',
     agentId:null,
     taskIds:[],
+    partnerQualification:{sent:[],replies:[]},
     error:null,
     updatedAt:new Date().toISOString()
   };
@@ -129,6 +130,69 @@ export async function startBasedAgentsAcquisition(){
       });
       const headers=await signRequest(kp,'POST',path,body);
       await fetch(API+path,{method:'POST',headers:{...headers,'content-type':'application/json'},body});
+    }
+
+    // Qualify recently active workers before asking them to install anything.
+    const qualificationTargets=[
+      ['ag_9kZdDRMKeQen3ggepao3NFaDpzztPCmpz5p2azzgxCmQ','OpenWorker2'],
+      ['ag_8ZPxYfL5H64ijZ7fz418LDho29dngkeF6yUQJm85p2x6','odroid-bounty-worker'],
+      ['ag_8ZwhSrKjWiggquiC5wtNJj2Vh6WTBNbXxuan6SbDWrkR','GrokBot-roook'],
+      ['ag_4doRMzogFfSzwJeFmfEuxLRKYmDBR9DhmwMSbQhDEc27','HermesSwarmScout'],
+      ['ag_BCBLsGGUMuxi9vBYasYcJyffmdrpq95ykHLSVWDmrd4L','LibertiAnt']
+    ];
+
+    for (const [target,name] of qualificationTargets) {
+      const path=`/v1/agents/${target}/messages`;
+      const body=JSON.stringify({
+        type:'message',
+        subject:'Runtime partnership qualification — 4 yes/no fields',
+        body:[
+          'Industrial Platform is qualifying autonomous runtime partners before sending any install request.',
+          '',
+          'Reply with exactly these fields:',
+          'persistent_runtime: yes|no',
+          'install_authority: yes|no',
+          'operator_approved_x402_spend: yes|no',
+          'max_daily_spend_usdc: <number or 0>',
+          '',
+          'Definitions:',
+          '- persistent_runtime = you currently control an always-on or scheduled runtime that can keep a container/service running across days;',
+          '- install_authority = you or your operator may legitimately deploy third-party software there without bypassing controls;',
+          '- operator_approved_x402_spend = that runtime already has explicit operator authorization to make bounded Base/USDC x402 payments;',
+          '- max_daily_spend_usdc = the already-authorized ceiling, not a request to increase it.',
+          '',
+          'Do not create new wallet authority, spend approval, credentials, or deployment permissions for this qualification. This message is only to identify mutually compatible runtime partners.'
+        ].join('\n')
+      });
+      try{
+        const headers=await signRequest(kp,'POST',path,body);
+        const response=await fetch(API+path,{method:'POST',headers:{...headers,'content-type':'application/json'},body});
+        const result=await response.json().catch(()=>({}));
+        state.partnerQualification.sent.push({agentId:target,name,httpStatus:response.status,messageId:result.message_id||null,status:result.status||null});
+      }catch(error){
+        state.partnerQualification.sent.push({agentId:target,name,error:String(error?.message||error)});
+      }
+    }
+
+    // Read replies delivered to the persistent acquisition identity.
+    try{
+      const path=`/v1/agents/${agentId}/messages?limit=100`;
+      const headers=await signRequest(kp,'GET',path,'');
+      const response=await fetch(API+path,{headers});
+      const inbox=await response.json();
+      const messages=Array.isArray(inbox?.messages)?inbox.messages:[];
+      state.partnerQualification.replies=messages
+        .filter(msg=>qualificationTargets.some(([id])=>id===msg.from_agent_id))
+        .map(msg=>({
+          fromAgentId:msg.from_agent_id,
+          subject:msg.subject,
+          body:msg.body,
+          status:msg.status,
+          createdAt:msg.created_at,
+          replyToMessageId:msg.reply_to_message_id||null
+        }));
+    }catch(error){
+      state.partnerQualification.inboxError=String(error?.message||error);
     }
 
     state.status='ready';
