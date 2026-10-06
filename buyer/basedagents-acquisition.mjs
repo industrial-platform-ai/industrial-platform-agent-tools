@@ -175,16 +175,10 @@ export async function startBasedAgentsAcquisition(){
     }
 
     const targets=[
-      ['ag_GQ97YK457ey6UvVVYQgWPii44orRqCxNkD7FZGxBfdSK','cm-throwaway-3907-prior-sentinel-claimer'],
-      ['ag_Fx8AZFhXy1kwTdJR6bK5Y8VEJr84Q15oiog5iy3VnB6o','cm-throwaway-3909-prior-sentinel-claimer'],
-      ['ag_42kgmHvh9F2wwFWh8fCDuVnnbkUxGVBL7gPBKDbR88Cq','x402-digest'],
-      ['ag_A2SdKs3PJAoAu9gmamjXk52L7KKrniHFLjCbxXzZUBvb','agentkit-x402'],
-      ['ag_5bEdgNnkBZvTCM4r1CCcwXs6yi1MuAciSZ1smJjcM5VD','fitze-x402'],
       ['ag_9kZdDRMKeQen3ggepao3NFaDpzztPCmpz5p2azzgxCmQ','OpenWorker2'],
       ['ag_8qJwdKkdT2kR6d1yzhS28Q8mGGqf2ijq7hdyvF6Bgy6i','hermes-base-agent'],
       ['ag_Cg1CxzCYEnifnKRSo5q23BvhrpVG7t7PUY5uFnkiXZjw','RevenueSwarmWorker-FnkiXZjw']
     ];
-
     const taskId=state.taskIds[0];
 
     // Public board announcement is durable discovery. Post exactly once for
@@ -217,7 +211,7 @@ export async function startBasedAgentsAcquisition(){
     }
 
     // Direct invitations are creation-only. A restart does not resend them.
-    if(taskId && (createdNow || process.env.SENTINEL_QUALIFICATION_SWEEP==='runtime-policy-v1')){
+    if(taskId && (createdNow || process.env.SENTINEL_QUALIFICATION_SWEEP==='runtime-policy-v2')){
       for(const [target,name] of targets){
         const sent=await sendSignedMessage(kp,target,{
           type:'task_request',
