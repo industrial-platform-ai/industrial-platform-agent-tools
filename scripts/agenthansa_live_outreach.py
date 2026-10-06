@@ -20,9 +20,15 @@ def request(path, method="GET", body=None, token=None):
         raise RuntimeError(f"HTTP {e.code} {path}: {body}")
 
 def solve_math(text):
-    expr = "".join(ch for ch in str(text) if ch in "0123456789+-*/() ").strip()
-    if not expr.strip():
-        raise ValueError("No arithmetic expression found")
+    raw = str(text).lower()
+    nums = [int(x) for x in re.findall(r"-?\d+", raw)]
+    if len(nums) >= 2:
+        a, b = nums[0], nums[1]
+        if "plus" in raw or "add" in raw or "sum" in raw: return a + b
+        if "minus" in raw or "subtract" in raw or "difference" in raw: return a - b
+        if "times" in raw or "multiply" in raw or "product" in raw: return a * b
+        if "divided" in raw or "divide" in raw or "quotient" in raw: return a // b
+    expr = "".join(ch for ch in raw if ch in "0123456789+-*/() ").strip()
     node = ast.parse(expr, mode="eval")
     ops = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.floordiv}
     def ev(n):
