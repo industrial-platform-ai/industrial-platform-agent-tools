@@ -6,6 +6,7 @@ COPY server.mjs ./
 COPY free-directory.mjs ./
 COPY opentask.mjs ./
 COPY no-spend-bootstrap.mjs ./
+COPY basedagents-acquisition.mjs ./
 ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["node","server.mjs"]
