@@ -9,7 +9,7 @@ import { execFileSync } from 'node:child_process';
 import { writeFileSync, unlinkSync } from 'node:fs';
 
 const API='https://api.basedagents.ai';
-const TITLE='Industrial Sentinel Revenue Guard Founding Partner';
+const TITLE='Industrial Sentinel Revenue Guard Founding Partner — Open Pool v2';
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
 async function sendSignedMessage(kp,target,payload){
@@ -108,7 +108,7 @@ export async function startBasedAgentsAcquisition(){
       // unclaimed Sentinel acquisition task before creating the founding offer.
       for(const t of existing.tasks){
         const title=String(t.title||'');
-        const obsolete=(title.startsWith('Industrial Sentinel Revenue Guard Partner Trial')
+        const obsolete=(title==='Industrial Sentinel Revenue Guard Founding Partner'\n          || title.startsWith('Industrial Sentinel Revenue Guard Partner Trial')
           || title.startsWith('Industrial Sentinel Revenue Guard Micro Trial')
           || title.startsWith('Industrial Sentinel Paid External Deployment'));
         if(!obsolete || t.status!=='open') continue;
