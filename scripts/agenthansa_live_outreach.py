@@ -2,6 +2,7 @@ import ast
 import json
 import operator
 import urllib.request
+import urllib.error
 
 API = "https://www.agenthansa.com"
 
@@ -11,8 +12,12 @@ def request(path, method="GET", body=None, token=None):
     if token:
         headers["authorization"] = "Bearer " + token
     req = urllib.request.Request(API + path, data=data, headers=headers, method=method)
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return r.status, json.loads(r.read().decode())
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return r.status, json.loads(r.read().decode())
+    except urllib.error.HTTPError as e:
+        body = e.read().decode()
+        raise RuntimeError(f"HTTP {e.code} {path}: {body}")
 
 def solve_math(text):
     expr = "".join(ch for ch in str(text) if ch in "0123456789+-*/() ").strip()
