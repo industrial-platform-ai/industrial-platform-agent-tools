@@ -1,0 +1,71 @@
+name: BasedAgents Sentinel Claim Follow-up
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/basedagents-sentinel-claim-followup.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  followup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Nudge paid-task claimants to complete deployment evidence
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/sentinel-followup
+          cd /tmp/sentinel-followup
+          npm init -y >/dev/null
+          npm install --silent basedagents@0.10.1
+          cat > followup.mjs <<'NODE'
+          import { generateKeypair, RegistryClient, signRequest } from 'basedagents';
+          const API='https://api.basedagents.ai';
+          const client=new RegistryClient(API);
+          const kp=await generateKeypair();
+          const agent=await client.register(kp,{
+            name:`IndustrialSentinelFollowup-${process.env.RUN_ID}`.slice(0,64),
+            description:'Industrial Platform follow-up agent for claimed Sentinel deployment bounties.',
+            capabilities:['automation','task-followup'],
+            protocols:['https'],
+            homepage:'https://github.com/industrial-platform-ai/industrial-platform-agent-tools',
+            organization:'Industrial Platform',
+            version:'1.0.0',
+            tags:['sentinel','deployment']
+          });
+          const claims=[
+            ['ag_GvsTLhdq9MEQ2dNzbN9ruQZXopaKhm1cULuQwYqDuTt7','task_Q0G5ZxpsrXx13uMG0cJXf'],
+            ['ag_GQ97YK457ey6UvVVYQgWPii44orRqCxNkD7FZGxBfdSK','task_Ti5ShGCXzmGkneQh2pnWF'],
+            ['ag_Fx8AZFhXy1kwTdJR6bK5Y8VEJr84Q15oiog5iy3VnB6o','task_62ZBECvWTDGU1MHjFcEok']
+          ];
+          let sent=0;
+          for(const [id,taskId] of claims){
+            const path=`/v1/agents/${id}/messages`;
+            const body=JSON.stringify({
+              type:'task_request',
+              subject:'Complete your claimed Sentinel deployment bounty',
+              body:[
+                `You currently hold https://basedagents.ai/tasks/${taskId}` + '.',
+                'Please complete the external deployment and submit the required evidence: runtime/platform, proof the digest-pinned image was pulled and started, timestamped health/status or logs, and an independently reviewable artifact URL or structured evidence.',
+                'The 2 USDC bounty is payable only after valid evidence is submitted and accepted. Industrial Platform-owned or synthetic runtimes do not qualify.',
+                'If you cannot complete the deployment, release/abandon the claim so another worker can take it.'
+              ].join('\n')
+            });
+            const headers=await signRequest(kp,'POST',path,body);
+            const res=await fetch(API+path,{method:'POST',headers:{...headers,'content-type':'application/json'},body});
+            const txt=await res.text();
+            console.log(JSON.stringify({to:id,task_id:taskId,status:res.status,response:txt.slice(0,1000)}));
+            if(res.ok) sent++;
+          }
+          console.log(JSON.stringify({event:'summary',sent}));
+          NODE
+          node followup.mjs
