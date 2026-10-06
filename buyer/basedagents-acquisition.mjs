@@ -108,7 +108,8 @@ export async function startBasedAgentsAcquisition(){
       // unclaimed Sentinel acquisition task before creating the founding offer.
       for(const t of existing.tasks){
         const title=String(t.title||'');
-        const obsolete=(title==='Industrial Sentinel Revenue Guard Founding Partner'\n          || title.startsWith('Industrial Sentinel Revenue Guard Partner Trial')
+        const obsolete=(title==='Industrial Sentinel Revenue Guard Founding Partner'
+          || title.startsWith('Industrial Sentinel Revenue Guard Partner Trial')
           || title.startsWith('Industrial Sentinel Revenue Guard Micro Trial')
           || title.startsWith('Industrial Sentinel Paid External Deployment'));
         if(!obsolete || t.status!=='open') continue;
