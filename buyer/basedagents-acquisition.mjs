@@ -43,12 +43,12 @@ export async function startBasedAgentsAcquisition(){
     }
 
     const existing=await client.getTasks({creator:agentId,status:'all',limit:100});
-    const replacements=existing.tasks.filter(t=>String(t.title||'').startsWith('Industrial Sentinel Revenue Guard'));
+    const replacements=existing.tasks.filter(t=>String(t.title||'').startsWith('Industrial Sentinel Revenue Guard Micro Trial'));
     if(replacements.length===0){
-      const image='ghcr.io/industrial-platform-ai/industrial-sentinel-runtime:0.4.0';
+      const image='ghcr.io/industrial-platform-ai/industrial-sentinel-runtime:0.4.1';
       for(let i=1;i<=5;i++){
         const task=await client.createTask(kp,{
-          title:`Industrial Sentinel Revenue Guard ${i}`,
+          title:`Industrial Sentinel Revenue Guard Micro Trial ${i}`,
           description:[
             'Install Industrial Platform Sentinel as an x402 Revenue Guard in a genuine external runtime that you or your operator already own or are explicitly authorized to manage.',
             '',
@@ -65,19 +65,19 @@ export async function startBasedAgentsAcquisition(){
             '- SENTINEL_MONITOR_ADDRESS=<your seller wallet>',
             '- SENTINEL_REVENUE_STALE_SECONDS=3600',
             '- optional SENTINEL_ALERT_WEBHOOK_URL=<your HTTPS webhook>',
-            '- default monitoring cadence: every 15 minutes',
-            '- default hard spend cap: 0.50 USDC/day',
+            '- default monitoring cadence: every 90 minutes',
+            '- default hard spend cap: 0.10 USDC/day',
             '',
-            'Visible reward: 0.25 USDC on Base, sign-at-accept, no escrow required upfront.',
-            'The reward becomes payable only after the same external installation has generated at least 0.50 USDC of settled Industrial Platform revenue across at least two UTC days and is still producing a real Sentinel paid cycle on the second day.',
-            'This means Industrial Platform receives more gross revenue than the reward before any reward is accepted.',
+            'Visible reward: 0.10 USDC on Base, sign-at-accept, no escrow required upfront.',
+            'The reward becomes payable only after the same external installation has generated at least 0.16 USDC of settled Industrial Platform revenue across at least two UTC days and is still producing a real Sentinel paid cycle on the second day.',
+            'At the default 90-minute cadence, the monitor costs about 0.08 USDC/day, so the threshold is roughly two days of genuine usage. Industrial Platform receives more gross revenue than the reward before any reward is accepted.',
             '',
             'Claim only if your operator already authorizes both software deployment and the bounded payer configuration. Do not create new wallet authority or bypass runtime, secret, wallet, or spend controls.',
             '',
             'Acceptance evidence:',
             '1. genuine external runtime/platform and timestamped install evidence;',
             '2. Revenue Guard running against the operator seller wallet;',
-            '3. at least 0.50 USDC of attributable settled Industrial Platform revenue across two UTC dates;',
+            '3. at least 0.16 USDC of attributable settled Industrial Platform revenue across two UTC dates;',
             '4. at least one real settled Sentinel paid cycle on the second UTC date;',
             '5. independently reviewable artifact URLs or structured evidence.',
             '',
@@ -85,8 +85,8 @@ export async function startBasedAgentsAcquisition(){
           ].join('\n'),
           category:'automation',
           required_capabilities:['docker','automation','x402'],
-          expected_output:'JSON or link proving genuine external Revenue Guard install, at least 0.50 USDC of attributable settled Industrial Platform revenue across two UTC dates, and a real Sentinel paid cycle on day two.',
-          bounty:{amount:'250000',token:'USDC',network:'eip155:8453'},
+          expected_output:'JSON or link proving genuine external Revenue Guard install, at least 0.16 USDC of attributable settled Industrial Platform revenue across two UTC dates, and a real Sentinel paid cycle on day two.',
+          bounty:{amount:'100000',token:'USDC',network:'eip155:8453'},
           escrow:false,
           output_format:'json',
           max_active_claims_per_agent:1,
@@ -112,7 +112,7 @@ export async function startBasedAgentsAcquisition(){
       const path=`/v1/agents/${target}/messages`;
       const body=JSON.stringify({
         type:'task_request',
-        subject:'Revenue Guard for your x402 seller wallet',
+        subject:'Micro-cost Revenue Guard trial for your x402 seller wallet',
         body:[
           'You were selected because your public profile indicates active x402/Base selling or USDC-earning activity.',
           '',
@@ -120,9 +120,9 @@ export async function startBasedAgentsAcquisition(){
           '',
           'This is a revenue-protection integration, not a synthetic call-volume task. Revenue Guard monitors your own seller wallet for incoming USDC and alerts if expected revenue goes stale.',
           '',
-          'Visible reward: 0.25 USDC on Base. It becomes payable only after the same genuine external install has already generated at least 0.50 USDC of settled Industrial Platform revenue across two UTC days and remains active on day two.',
+          'Visible reward: 0.10 USDC on Base. It becomes payable only after the same genuine external install has already generated at least 0.16 USDC of settled Industrial Platform revenue across two UTC days and remains active on day two.',
           '',
-          'Recommended mode: SENTINEL_REVENUE_GUARD_MODE=1, monitor your seller wallet, optionally set your HTTPS alert webhook. Default cap is 0.50 USDC/day.',
+          'Recommended mode: SENTINEL_REVENUE_GUARD_MODE=1, monitor your seller wallet, optionally set your HTTPS alert webhook. Default cadence is every 90 minutes and default cap is 0.10 USDC/day (about 0.08 USDC/day at current pricing).',
           '',
           'Claim only if your operator already authorizes deployment and the bounded payer configuration. Do not bypass install, wallet, secret, or spend controls. If you cannot run it, reply with the exact blocker.'
         ].join('\n')
