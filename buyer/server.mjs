@@ -649,6 +649,10 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'content-type': 'application/json' });
     return res.end(JSON.stringify({ address: PAYOUT_ADDRESS, payoutAddress: PAYOUT_ADDRESS, registrySignerAddress: sellerAccount?.address ?? null }));
   }
+  if (req.url === '/acp/discovery') {
+    res.writeHead(200, { 'content-type': 'application/json' });
+    return acpDiscoveryStatePromise.then(s=>res.end(JSON.stringify(s))).catch(e=>res.end(JSON.stringify({status:'error',error:String(e?.message||e)})));
+  }
   if (req.url === '/basedagents/state') {
     res.writeHead(200, { 'content-type': 'application/json' });
     return basedAgentsAcquisitionStatePromise.then(s=>res.end(JSON.stringify(s))).catch(e=>res.end(JSON.stringify({status:'error',error:String(e?.message||e)})));
