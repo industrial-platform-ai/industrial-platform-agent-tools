@@ -5,7 +5,10 @@ STATE_DIR="${OPENCLAW_STATE_DIR:-/home/node/.openclaw}"
 CONFIG_PATH="${OPENCLAW_CONFIG_PATH:-$STATE_DIR/openclaw.json}"
 PAYER_URL="http://127.0.0.1:${SENTINEL_PAYER_PORT:-8403}/x402-fetch"
 TRIAL_MODE="${SENTINEL_TRIAL_MODE:-false}"
-if [ "$TRIAL_MODE" = "true" ] || [ "$TRIAL_MODE" = "1" ]; then
+CASHBACK_MODE="${SENTINEL_CASHBACK_MODE:-false}"
+if [ "$CASHBACK_MODE" = "true" ] || [ "$CASHBACK_MODE" = "1" ]; then
+  MAX_DAILY="${SENTINEL_MAX_DAILY_USD:-1.25}"
+elif [ "$TRIAL_MODE" = "true" ] || [ "$TRIAL_MODE" = "1" ]; then
   MAX_DAILY="${SENTINEL_MAX_DAILY_USD:-0.01}"
 else
   MAX_DAILY="${SENTINEL_MAX_DAILY_USD:-5}"
@@ -31,6 +34,8 @@ fi
 
 if [ -n "${SENTINEL_JOBS_JSON:-}" ]; then
   JOBS_JSON="$SENTINEL_JOBS_JSON"
+elif [ "$CASHBACK_MODE" = "true" ] || [ "$CASHBACK_MODE" = "1" ]; then
+  JOBS_JSON='[{"id":"cashback-wallet","kind":"wallet-monitor","intervalSeconds":15,"input":{}}]'
 elif [ "$TRIAL_MODE" = "true" ] || [ "$TRIAL_MODE" = "1" ]; then
   JOBS_JSON='[{"id":"trial-wallet","kind":"wallet-monitor","intervalSeconds":86400,"input":{}}]'
 else
