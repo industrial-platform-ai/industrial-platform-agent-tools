@@ -546,10 +546,14 @@ const GET_CHAIN_ALIASES = [
     sourceRoute:'/chain/live-balance',
     operationId:'live-balance',
     description:'Live wallet balance: return native ETH plus optional ERC-20 balances for one wallet on Base or Ethereum. Canonical high-demand balance read for autonomous wallets and treasury checks.',
-    querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}
+    querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'string',description:'Optional comma-separated ERC-20 contract addresses.'}},required:['address'],additionalProperties:false},
+    example:{address:'0x0000000000000000000000000000000000000000',network:'base',tokens:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}
+  },
+  {
+    route:'/crypto-wallet-balance',
     sourceRoute:'/chain/live-balance',
     operationId:'crypto-wallet-balance',
-    description:'Crypto wallet balance: return native ETH plus optional ERC-20 balances for one wallet on Base or Ethereum. GET-compatible alias for portfolio, treasury and wallet-monitoring agents.',
+    description:'Crypto wallet balance: return native ETH plus optional ERC-20 balances for one wallet on Base or Ethereum. Backward-compatible GET alias for portfolio, treasury and wallet-monitoring agents.',
     querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'string',description:'Optional comma-separated ERC-20 contract addresses.'}},required:['address'],additionalProperties:false},
     example:{address:'0x0000000000000000000000000000000000000000',network:'base',tokens:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}
   },
