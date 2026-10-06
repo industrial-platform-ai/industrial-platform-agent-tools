@@ -8,6 +8,7 @@ COPY opentask.mjs ./
 COPY no-spend-bootstrap.mjs ./
 COPY basedagents-acquisition.mjs ./
 COPY zeroxwork-acquisition.mjs ./
+COPY acp-discovery.mjs ./
 ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["node","server.mjs"]
