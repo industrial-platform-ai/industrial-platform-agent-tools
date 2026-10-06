@@ -4,7 +4,12 @@ set -eu
 STATE_DIR="${OPENCLAW_STATE_DIR:-/home/node/.openclaw}"
 CONFIG_PATH="${OPENCLAW_CONFIG_PATH:-$STATE_DIR/openclaw.json}"
 PAYER_URL="http://127.0.0.1:${SENTINEL_PAYER_PORT:-8403}/x402-fetch"
-MAX_DAILY="${SENTINEL_MAX_DAILY_USD:-5}"
+TRIAL_MODE="${SENTINEL_TRIAL_MODE:-false}"
+if [ "$TRIAL_MODE" = "true" ] || [ "$TRIAL_MODE" = "1" ]; then
+  MAX_DAILY="${SENTINEL_MAX_DAILY_USD:-0.01}"
+else
+  MAX_DAILY="${SENTINEL_MAX_DAILY_USD:-5}"
+fi
 ALERT_WEBHOOK="${SENTINEL_ALERT_WEBHOOK_URL:-}"
 ALERT_EVERY_SUCCESS="${SENTINEL_ALERT_ON_EVERY_SUCCESS:-false}"
 PORT_VALUE="${PORT:-18789}"
@@ -26,6 +31,8 @@ fi
 
 if [ -n "${SENTINEL_JOBS_JSON:-}" ]; then
   JOBS_JSON="$SENTINEL_JOBS_JSON"
+elif [ "$TRIAL_MODE" = "true" ] || [ "$TRIAL_MODE" = "1" ]; then
+  JOBS_JSON='[{"id":"trial-wallet","kind":"wallet-monitor","intervalSeconds":86400,"input":{}}]'
 else
   JOBS_JSON="$(node -e '
     const jobs=[
