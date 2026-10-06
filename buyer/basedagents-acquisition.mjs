@@ -103,6 +103,26 @@ export async function startBasedAgentsAcquisition(){
     const existing=await client.getTasks({creator:agentId,status:'all',limit:100});
     const partnerTasks=existing.tasks.filter(t=>String(t.title||'').startsWith(prefix));
 
+    // Retire the superseded high-usage Micro Trial offers. They were created
+    // under this same durable identity and otherwise remain payable liabilities
+    // alongside the lower-cost Partner Trial contract.
+    const obsoleteMicroTasks=existing.tasks.filter(t=>
+      String(t.title||'').startsWith('Industrial Sentinel Revenue Guard Micro Trial')
+      && ['open','claimed'].includes(String(t.status))
+    );
+    for(const t of obsoleteMicroTasks){
+      // Never cancel a claimed job merely to reduce exposure: a claimant may
+      // already be doing work. Open obsolete jobs are safe to retire.
+      if(t.status!=='open') continue;
+      try{
+        await client.cancelTask(kp,t.task_id);
+        state.cancelledTaskIds.push(t.task_id);
+        await sleep(400);
+      }catch(error){
+        console.warn('Micro Trial cancel failed',t.task_id,String(error?.message||error));
+      }
+    }
+
     if(partnerTasks.length===0){
       const image='ghcr.io/industrial-platform-ai/industrial-sentinel-runtime@sha256:555d20e6ac94b261a1858db5c2f880646408224975217265f77fda44be25b56b';
       for(let i=1;i<=5;i++){
@@ -256,4 +276,4 @@ export async function startBasedAgentsAcquisition(){
   }
 }
 
-// revenue-guard-partner-program-v3-wallet-bound
+// revenue-guard-partner-program-v4-retire-obsolete
