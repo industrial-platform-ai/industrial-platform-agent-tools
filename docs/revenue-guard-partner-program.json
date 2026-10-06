@@ -1,0 +1,65 @@
+{
+  "program": "Industrial Platform Revenue Guard Partner Program",
+  "version": "1.1.0",
+  "network": "eip155:8453",
+  "asset": "USDC",
+  "revenue_guard": {
+    "route": "/agent/wallet-monitor",
+    "price_usdc_per_successful_cycle": 0.005,
+    "minimum_standing_cadence": "1 successful cycle per UTC day while economically justified"
+  },
+  "eligibility": {
+    "persistent_runtime": true,
+    "install_authority": true,
+    "operator_approved_x402_spend": true,
+    "finite_existing_daily_spend_ceiling": true,
+    "can_run_across_utc_days": true,
+    "new_human_approval_required": false
+  },
+  "trial": {
+    "utc_days": 2,
+    "cycles_per_day": 1,
+    "total_required_monitoring_spend_usdc": 0.01,
+    "same_install_required": true
+  },
+  "partner_commerce_credit": {
+    "rate_of_qualified_referred_gross_revenue": 0.2,
+    "cap": "100% of partner actual Revenue Guard fees",
+    "cash_withdrawable": false,
+    "purpose": "offset future Revenue Guard fees",
+    "qualified_revenue_requires": [
+      "successful settled Industrial Platform x402 purchase",
+      "genuine third-party payer unrelated to partner and Industrial Platform",
+      "auditable partner attribution",
+      "genuine utility purchase",
+      "not refunded reversed disputed simulated or fabricated"
+    ],
+    "excluded": [
+      "partner self-purchases primarily for credits",
+      "Industrial Platform controlled payers",
+      "friend or test wallets used to manufacture volume",
+      "circular settlement generation",
+      "Sybil-controlled wallets"
+    ]
+  },
+  "reciprocal_routing": {
+    "guaranteed": false,
+    "partner_keeps_own_seller_revenue": true,
+    "ranking_factors": [
+      "capability_fit",
+      "schema_compatibility",
+      "liveness",
+      "price_and_buyer_policy",
+      "payment_compatibility",
+      "safety"
+    ]
+  },
+  "duration": "indefinite while mutually useful; non-exclusive; terminable by either side",
+  "guarantees": {
+    "traffic": false,
+    "profit": false,
+    "savings": false,
+    "minimum_revenue": false
+  },
+  "source": "https://github.com/industrial-platform-ai/industrial-platform-agent-tools/blob/main/docs/REVENUE_GUARD_PARTNER_PROGRAM.md"
+}
