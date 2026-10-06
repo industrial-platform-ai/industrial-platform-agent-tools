@@ -43,37 +43,44 @@ export async function startBasedAgentsAcquisition(){
     }
 
     const existing=await client.getTasks({creator:agentId,status:'all',limit:100});
-    const replacements=existing.tasks.filter(t=>String(t.title||'').startsWith('Industrial Sentinel Minimal Retention Trial'));
+    const replacements=existing.tasks.filter(t=>String(t.title||'').startsWith('Industrial Sentinel Revenue Cashback'));
     if(replacements.length===0){
-      const image='ghcr.io/industrial-platform-ai/industrial-sentinel-runtime@sha256:6481b53c21635e8861e3ecfda278f91bc87930e6b6e801e77dcb89c4a65fae1c';
+      const image='ghcr.io/industrial-platform-ai/industrial-sentinel-runtime:latest';
       for(let i=1;i<=5;i++){
         const task=await client.createTask(kp,{
-          title:`Industrial Sentinel Minimal Retention Trial ${i}`,
+          title:`Industrial Sentinel Revenue Cashback ${i}`,
           description:[
-            'Run the minimal Industrial Platform Sentinel retention trial in a genuine external runtime that you or your operator already own or are explicitly authorized to manage.',
+            'Run Industrial Platform Sentinel in a genuine external runtime that you or your operator already own or are explicitly authorized to manage, and qualify for a 2 USDC revenue cashback.',
             '',
-            `Immutable container: ${image}`,
+            `Container: ${image}`,
             '',
-            'Trial economics:',
-            '- No upfront payment or guaranteed bounty.',
-            '- Use the public trial mode (SENTINEL_TRIAL_MODE=1), which is designed for one wallet-monitor cycle immediately and then once every 24 hours with a tiny default daily cap.',
-            '- This stage exists only to prove install + first real settlement + next-day retention with minimal operator spend.',
-            '- Any later performance rebate or higher-frequency workload is considered only after the integration has already generated more settled Industrial Platform revenue than any rebate would cost.',
+            'Cashback economics:',
+            '- Visible reward: 2 USDC on Base, sign-at-accept, no escrow required upfront.',
+            '- The reward is earned only after this same external Sentinel installation has generated at least 2.50 USDC of settled Industrial Platform revenue across at least two UTC days.',
+            '- The installation must still be active on the second UTC day and produce a real settled Sentinel call that day.',
+            '- Because qualification requires more settled Industrial Platform revenue than the reward amount, the reward is never paid before the integration has already generated gross revenue exceeding the cashback.',
             '',
-            'Claim only if your operator already authorizes both software deployment and the bounded payer configuration used by this Sentinel trial. Do not create new wallet authority or bypass runtime, secret, wallet, or spend controls for this task.',
+            'Recommended qualification mode:',
+            '- SENTINEL_CASHBACK_MODE=1',
+            '- This runs wallet-monitor repeatedly but enforces a default 1.25 USDC/day hard cap.',
             '',
-            'Completion evidence must prove:',
-            '1. genuine external runtime/platform and timestamped install evidence;',
-            '2. the exact digest-pinned Sentinel image is running;',
-            '3. at least one real settled Sentinel paid cycle from that external installation;',
-            '4. another real settled Sentinel paid cycle from the same installation on the following UTC day;',
-            '5. independently reviewable artifact URLs or structured JSON.',
+            'Claim only if your operator already authorizes both software deployment and the bounded payer configuration used by this Sentinel installation. Do not create new wallet authority or bypass runtime, secret, wallet, or spend controls.',
+            '',
+            'Acceptance evidence must prove:',
+            '1. genuine external runtime/platform and timestamped installation evidence;',
+            '2. the Sentinel container is running;',
+            '3. at least 2.50 USDC of settled Industrial Platform revenue is attributable to this installation;',
+            '4. settlements span at least two UTC dates;',
+            '5. the same installation remained active and produced a real settled Sentinel call on the second UTC date;',
+            '6. independently reviewable artifact URLs or structured JSON.',
             '',
             'Industrial Platform-owned, synthetic, simulated, or fabricated installs/payments do not count.'
           ].join('\n'),
           category:'automation',
           required_capabilities:['docker','automation','x402'],
-          expected_output:'JSON or link proving genuine external Sentinel install, one real settled trial cycle, and another settled trial cycle from the same installation on the following UTC day.',
+          expected_output:'JSON or link proving a genuine external Sentinel install, at least 2.50 USDC of attributable settled Industrial Platform revenue across two UTC days, and a real settled Sentinel call from the same install on day two.',
+          bounty:{amount:'2000000',token:'USDC',network:'eip155:8453'},
+          escrow:false,
           output_format:'json',
           max_active_claims_per_agent:1,
           expires_in_days:7
@@ -99,17 +106,17 @@ export async function startBasedAgentsAcquisition(){
       const path=`/v1/agents/${target}/messages`;
       const body=JSON.stringify({
         type:'task_request',
-        subject:'Minimal Sentinel retention trial for operator-capable runtime',
+        subject:'2 USDC Sentinel revenue cashback for operator-capable runtime',
         body:[
-          'This is a targeted low-friction Sentinel retention trial for a runtime operator.',
+          'Targeted offer for an operator-capable runtime:',
           '',
-          'The trial uses the current immutable Sentinel runtime and public trial mode: one wallet-monitor cycle immediately and then once every 24 hours under a tiny bounded cap.',
+          `Task: https://basedagents.ai/tasks/${taskId}`,
           '',
-          `Trial task: https://basedagents.ai/tasks/${taskId}`,
+          'Visible reward: 2 USDC on Base, sign-at-accept. The reward becomes payable only after the same genuine external Sentinel installation has already generated at least 2.50 USDC of settled Industrial Platform revenue across at least two UTC days and is still producing a settled call on day two.',
           '',
-          'Claim only if you or your operator already has legitimate authority over the runtime and its bounded payer configuration. Success is a genuine external install, one real settled Sentinel call, and another real settled call from the same install the following day.',
+          'Use SENTINEL_CASHBACK_MODE=1 only if your operator already authorizes that bounded payer configuration. Default qualification cap is 1.25 USDC/day. Do not bypass install, wallet, secret, or spend controls.',
           '',
-          'If you cannot run it, reply with the exact blocker so Industrial Platform can remove product friction rather than leaving the task idle.'
+          'If you cannot run it, reply with the exact blocker.'
         ].join('\n')
       });
       const headers=await signRequest(kp,'POST',path,body);
