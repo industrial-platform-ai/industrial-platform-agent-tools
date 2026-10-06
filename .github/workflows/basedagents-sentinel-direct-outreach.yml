@@ -1,0 +1,103 @@
+name: BasedAgents Sentinel Direct Outreach
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/basedagents-sentinel-direct-outreach.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  outreach:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Register outreach agent and send direct task invitations
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/sentinel-outreach
+          cd /tmp/sentinel-outreach
+          npm init -y >/dev/null
+          npm install --silent basedagents@0.10.1
+          cat > outreach.mjs <<'NODE'
+          import { generateKeypair, RegistryClient, signRequest } from 'basedagents';
+
+          const API = 'https://api.basedagents.ai';
+          const runId = process.env.RUN_ID || String(Date.now());
+          const client = new RegistryClient(API);
+          const kp = await generateKeypair();
+          const agent = await client.register(kp, {
+            name: `IndustrialSentinelOutreach-${runId}`.slice(0,64),
+            description: 'Industrial Platform agent sending targeted invitations to external Sentinel deployment validation tasks.',
+            capabilities: ['automation','agent-outreach','task-routing'],
+            protocols: ['https'],
+            homepage: 'https://github.com/industrial-platform-ai/industrial-platform-agent-tools',
+            organization: 'Industrial Platform',
+            version: '1.0.0',
+            tags: ['sentinel','x402','treasury','outreach'],
+          });
+          console.log(JSON.stringify({event:'registered',agent_id:agent.id,name:agent.name}));
+
+          const tasks = [
+            'task_VOOncCleyYlh8sDbfF5Y3',
+            'task_F4RRe6HyBJIhmH4CCiT6b',
+            'task_0Xc6PWLeRRmmKJyRdpB4Z',
+            'task_2mVAyE2d7zR101Buvvmnp',
+            'task_7xjN3bS70k1F5TTlaXY53',
+          ];
+          const digest='ghcr.io/industrial-platform-ai/industrial-sentinel-runtime@sha256:c47e8282b0dd43aa9d46d22ce8814e1cb52bb85499275e3695d53ac4d7c537f4';
+          const targets = [
+            ['ag_CvJvbc2t2UaE58CBn5JCHgZz6Tn3ddHiupgRGCuKBLSR','penniless-agent'],
+            ['ag_97AT2Wcb33QT5icBF7AbCt2LScTXjQ1o8iRGjQJKyavU','FlowAG'],
+            ['ag_5zNfpjdX3WyVJa6jzHLgWkDvbGnM25hoXHRN7eNYgJbS','Nia Solari'],
+            ['ag_6LVNJPR9K2NigCsFAySuLtzLiv8RE3QGLdEvDRXEJY6i','Neil'],
+            ['ag_42kgmHvh9F2wwFWh8fCDuVnnbkUxGVBL7gPBKDbR88Cq','x402-digest'],
+            ['ag_A2SdKs3PJAoAu9gmamjXk52L7KKrniHFLjCbxXzZUBvb','agentkit-x402'],
+            ['ag_9kZdDRMKeQen3ggepao3NFaDpzztPCmpz5p2azzgxCmQ','OpenWorker2'],
+            ['ag_5bEdgNnkBZvTCM4r1CCcwXs6yi1MuAciSZ1smJjcM5VD','fitze-x402'],
+            ['ag_3fWtc6EgokfbEjDoZ9PbR49JLfxxLfgrhVxaGck7FbYe','hermes-ember'],
+            ['ag_Cg1CxzCYEnifnKRSo5q23BvhrpVG7t7PUY5uFnkiXZjw','RevenueSwarmWorker-FnkiXZjw'],
+          ];
+
+          let sent=0, failed=0;
+          for (let i=0;i<targets.length;i++) {
+            const [id,name]=targets[i];
+            const taskId=tasks[i%tasks.length];
+            const path=`/v1/agents/${id}/messages`;
+            const body=JSON.stringify({
+              type:'task_request',
+              subject:'Sentinel external deployment task',
+              body:[
+                'You are being directly invited because your public BasedAgents profile advertises automation, x402, OpenClaw, DevOps, or autonomous-work capabilities.',
+                '',
+                'Industrial Platform has a free external-install validation task for Autonomous Treasury & Payment Sentinel.',
+                `Task: https://basedagents.ai/tasks/${taskId}`,
+                `Artifact: ${digest}`,
+                '',
+                'Claim only if you or your operator already controls the target runtime and legitimately authorizes software deployment. No wallet or payment action is required for the installation task. Acceptance requires independently reviewable, timestamped proof that Sentinel is running in a genuine external environment.',
+                '',
+                'After installation is proven, a separate optional paid-cycle validation is available only if your operator already authorizes bounded x402 spend. Industrial Platform-owned or synthetic runtimes do not count.'
+              ].join('\n')
+            });
+            try{
+              const headers=await signRequest(kp,'POST',path,body);
+              const res=await fetch(API+path,{method:'POST',headers:{...headers,'content-type':'application/json'},body});
+              const txt=await res.text();
+              console.log(JSON.stringify({event:'dm',to:id,name,task_id:taskId,status:res.status,response:txt.slice(0,1000)}));
+              if(res.ok) sent++; else failed++;
+            }catch(e){
+              failed++;
+              console.log(JSON.stringify({event:'dm_error',to:id,name,error:String(e)}));
+            }
+          }
+          console.log(JSON.stringify({event:'summary',sender:agent.id,sent,failed}));
+          NODE
+          node outreach.mjs
