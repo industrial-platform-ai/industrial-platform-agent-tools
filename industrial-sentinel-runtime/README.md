@@ -53,15 +53,16 @@ For an operator who sells x402 services, Revenue Guard monitors the seller walle
 SENTINEL_REVENUE_GUARD_MODE=1
 SENTINEL_MONITOR_ADDRESS=<operator seller wallet>
 SENTINEL_REVENUE_STALE_SECONDS=3600
+SENTINEL_REVENUE_GUARD_INTERVAL_SECONDS=5400
 SENTINEL_ALERT_WEBHOOK_URL=https://operator.example/alerts
 SENTINEL_EVM_PRIVATE_KEY=<operator-owned payer secret>
 ```
 
 Defaults:
-- wallet-monitor every 15 minutes;
-- hard spend cap of $0.50/day;
+- wallet-monitor every 90 minutes by default;
+- hard spend cap of $0.10/day;
 - incremental cursor/state carried forward automatically;
 - incoming-payment alerts;
 - revenue-stale alert after 1 hour by default (configurable).
 
-At the current $0.005 wallet-monitor price, 96 checks/day cost about $0.48/day. This mode is intended for operators whose payment flow is valuable enough that detecting a settlement outage or missed deposits is worth more than the monitoring cost.
+At the current $0.005 wallet-monitor price, 16 checks/day cost about $0.08/day. This mode is intended for operators whose payment flow is valuable enough that detecting a settlement outage or missed deposits is worth more than the monitoring cost.

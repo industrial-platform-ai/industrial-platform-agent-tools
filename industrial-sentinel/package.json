@@ -1,6 +1,6 @@
 {
   "name": "@industrial-platform/sentinel",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "24/7 autonomous treasury and payment monitoring for funded agents with bounded x402 spend and meaningful webhook alerts for wallet, treasury, transaction and payment events.",
   "type": "module",
   "files": [

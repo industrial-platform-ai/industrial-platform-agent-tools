@@ -8,7 +8,7 @@ TRIAL_MODE="${SENTINEL_TRIAL_MODE:-false}"
 CASHBACK_MODE="${SENTINEL_CASHBACK_MODE:-false}"
 REVENUE_GUARD_MODE="${SENTINEL_REVENUE_GUARD_MODE:-false}"
 if [ "$REVENUE_GUARD_MODE" = "true" ] || [ "$REVENUE_GUARD_MODE" = "1" ]; then
-  MAX_DAILY="${SENTINEL_MAX_DAILY_USD:-0.50}"
+  MAX_DAILY="${SENTINEL_MAX_DAILY_USD:-0.10}"
 elif [ "$CASHBACK_MODE" = "true" ] || [ "$CASHBACK_MODE" = "1" ]; then
   MAX_DAILY="${SENTINEL_MAX_DAILY_USD:-1.25}"
 elif [ "$TRIAL_MODE" = "true" ] || [ "$TRIAL_MODE" = "1" ]; then
@@ -41,9 +41,11 @@ elif [ "$REVENUE_GUARD_MODE" = "true" ] || [ "$REVENUE_GUARD_MODE" = "1" ]; then
   MONITOR_ADDRESS="${SENTINEL_MONITOR_ADDRESS:-}"
   STALE_SECONDS="${SENTINEL_REVENUE_STALE_SECONDS:-3600}"
   if [ -n "$MONITOR_ADDRESS" ]; then
-    JOBS_JSON="$(node -e 'const address=process.argv[1],stale=Number(process.argv[2]||3600);process.stdout.write(JSON.stringify([{id:"revenue-guard",kind:"wallet-monitor",intervalSeconds:900,input:{address},alertOnIncoming:true,staleAfterSeconds:stale}]))' "$MONITOR_ADDRESS" "$STALE_SECONDS")"
+    INTERVAL_SECONDS="${SENTINEL_REVENUE_GUARD_INTERVAL_SECONDS:-5400}"
+    JOBS_JSON="$(node -e 'const address=process.argv[1],stale=Number(process.argv[2]||3600),interval=Math.max(900,Number(process.argv[3]||5400));process.stdout.write(JSON.stringify([{id:"revenue-guard",kind:"wallet-monitor",intervalSeconds:interval,input:{address},alertOnIncoming:true,staleAfterSeconds:stale}]))' "$MONITOR_ADDRESS" "$STALE_SECONDS" "$INTERVAL_SECONDS")"
   else
-    JOBS_JSON="$(node -e 'const stale=Number(process.argv[1]||3600);process.stdout.write(JSON.stringify([{id:"revenue-guard",kind:"wallet-monitor",intervalSeconds:900,input:{},alertOnIncoming:true,staleAfterSeconds:stale}]))' "$STALE_SECONDS")"
+    INTERVAL_SECONDS="${SENTINEL_REVENUE_GUARD_INTERVAL_SECONDS:-5400}"
+    JOBS_JSON="$(node -e 'const stale=Number(process.argv[1]||3600),interval=Math.max(900,Number(process.argv[2]||5400));process.stdout.write(JSON.stringify([{id:"revenue-guard",kind:"wallet-monitor",intervalSeconds:interval,input:{},alertOnIncoming:true,staleAfterSeconds:stale}]))' "$STALE_SECONDS" "$INTERVAL_SECONDS")"
   fi
 elif [ "$CASHBACK_MODE" = "true" ] || [ "$CASHBACK_MODE" = "1" ]; then
   JOBS_JSON='[{"id":"cashback-wallet","kind":"wallet-monitor","intervalSeconds":15,"input":{}}]'
