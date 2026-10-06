@@ -45,6 +45,7 @@ registration = {
     "source": "direct-api",
 }
 _, first = request("/api/agents/register", "POST", registration)
+print("FIRST_RESPONSE_KEYS=" + json.dumps({k:first.get(k) for k in first.keys() if k not in ("api_key","token")}, default=str))
 if first.get("api_key") or first.get("token"):
     reg = first
 else:
