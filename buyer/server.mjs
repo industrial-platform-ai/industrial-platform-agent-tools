@@ -7,6 +7,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { submitFreeDirectoryListing } from './free-directory.mjs';
 import { registerOpenTaskAutonomousAgent } from './opentask.mjs';
 import { verifyVet402PayeeNoSpend, submitX402ListNoSpend } from './no-spend-bootstrap.mjs';
+import { startBasedAgentsAcquisition } from './basedagents-acquisition.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const TARGET = process.env.X402_TARGET || 'https://x402-gateway-production-1f21.up.railway.app/metadata';
@@ -615,6 +616,7 @@ registerAgentExchangePassport();
 registerX402ArenaNoSpend();
 registerOpenTaskAutonomousAgent().catch(error => console.error('OpenTask autonomous registration failed:', String(error?.message || error)));
 registerX402scanFree();
+const basedAgentsAcquisitionStatePromise=startBasedAgentsAcquisition();
 registerAgent402OriginOnce().catch((error) => {
   console.error('Agent402 index registration failed:', String(error?.stack || error));
 });
@@ -642,6 +644,10 @@ http.createServer((req, res) => {
   if (req.url === '/seller-address') {
     res.writeHead(200, { 'content-type': 'application/json' });
     return res.end(JSON.stringify({ address: PAYOUT_ADDRESS, payoutAddress: PAYOUT_ADDRESS, registrySignerAddress: sellerAccount?.address ?? null }));
+  }
+  if (req.url === '/basedagents/state') {
+    res.writeHead(200, { 'content-type': 'application/json' });
+    return basedAgentsAcquisitionStatePromise.then(s=>res.end(JSON.stringify(s))).catch(e=>res.end(JSON.stringify({status:'error',error:String(e?.message||e)})));
   }
   if (req.url === '/state') {
     res.writeHead(200, { 'content-type': 'application/json' });
