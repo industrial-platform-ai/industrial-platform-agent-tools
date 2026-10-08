@@ -114,7 +114,7 @@ const BATCH_ROUTE_SET = new Set([
 ]);
 const BATCH_STORAGE_DIR = process.env.X402_BATCH_STORAGE_DIR || '/data/batch-channels';
 const AUTO_IMPORT_ALIASES = {
-  '/ai/inference':['ai_inference','text_completion','chat_completion'],
+  '/ai/agent-analysis':['agent_analysis','summarize_event','triage_event','extract_action_items'],
   '/agent/wallet-monitor':['monitor_wallet','wallet_monitor','monitorWallet'],
   '/block-number':['block_number','latest_block_number','latestBlockNumber'],
   '/erc20-balance':['erc20_balance','token_balance','erc20Balance'],
@@ -1247,12 +1247,12 @@ app.use((req,res,next)=>{
   next();
 });
 
-app.get('/ai/inference/status', (_req,res)=>res.json({
+app.get('/ai/agent-analysis/status', (_req,res)=>res.json({
   enabled:inferenceEnabled,
-  route:inferenceEnabled?'/ai/inference':null,
+  route:inferenceEnabled?'/ai/agent-analysis':null,
   model:inferenceEnabled?'google/gemini-3.1-flash-lite':null,
   price_usdc:inferenceEnabled?0.003:null,
-  note:inferenceEnabled?'Paid text inference available via x402 on Base.':'Upstream inference has not been configured and enabled.'
+  note:inferenceEnabled?'Task-specific agent analysis is available via x402 on Base.':'Agent analysis upstream has not been configured and enabled.'
 }));
 
 app.get('/', (_req,res)=>res.json({
