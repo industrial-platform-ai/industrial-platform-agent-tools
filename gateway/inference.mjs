@@ -4,7 +4,7 @@
 const MODEL='google/gemini-3.1-flash-lite-preview';
 const MODEL_INPUT_USD_PER_M=0.25;
 const MODEL_OUTPUT_USD_PER_M=1.50;
-const PRICE_USD=0.005;
+const PRICE_USD=0.003;
 const MAX_INPUT_BYTES=4000;
 const MAX_OUTPUT_TOKENS=512;
 const MAX_REPLY_BYTES=1000000;
@@ -94,10 +94,10 @@ async function runInference(input){
 export const inferenceTools=[{
   name:'ai-inference-lite',
   route:'/ai/inference',
-  price:'$0.005',
+  price:'$0.003',
   priceUsd:PRICE_USD,
   summary:'Low-cost text AI completion paid via x402 USDC',
-  description:'Text-only inference from Gemini 3.1 Flash-Lite through OpenRouter. Fixed $0.005 USDC per request on Base, up to 4000 UTF-8 input bytes and 512 completion tokens. Stateless assistant completion; no signup, buyer API key, tools or streaming. Available only while upstream is funded and explicitly enabled.',
+  description:'Text-only inference from Gemini 3.1 Flash-Lite through OpenRouter. Fixed $0.003 USDC per request on Base, up to 4000 UTF-8 input bytes and 512 completion tokens. Stateless assistant completion; no signup, buyer API key, tools or streaming. Available only while upstream is funded and explicitly enabled.',
   tags:['ai','inference','llm','text generation','chat completion','agent','x402','usdc','base'],
   inputSchema:{
     type:'object',
