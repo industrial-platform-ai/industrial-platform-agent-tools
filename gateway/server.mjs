@@ -1251,7 +1251,7 @@ app.get('/ai/inference/status', (_req,res)=>res.json({
   enabled:inferenceEnabled,
   route:inferenceEnabled?'/ai/inference':null,
   model:inferenceEnabled?'google/gemini-3.1-flash-lite-preview':null,
-  price_usdc:inferenceEnabled?0.005:null,
+  price_usdc:inferenceEnabled?0.003:null,
   note:inferenceEnabled?'Paid text inference available via x402 on Base.':'Upstream inference has not been configured and enabled.'
 }));
 
