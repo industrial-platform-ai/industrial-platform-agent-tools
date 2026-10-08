@@ -599,59 +599,6 @@ const GET_CHAIN_ALIASES = [
   }
 ];
 
-},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'string',description:'Optional comma-separated ERC-20 contract addresses.'}},required:['address'],additionalProperties:false},
-    example:{address:'0x0000000000000000000000000000000000000000',network:'base',tokens:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}
-  },
-  {
-    route:'/crypto-wallet-balance',
-    sourceRoute:'/chain/live-balance',
-    operationId:'crypto-wallet-balance',
-    description:'Crypto wallet balance: return native ETH plus optional ERC-20 balances for one wallet on Base or Ethereum. GET-compatible alias for portfolio, treasury and wallet-monitoring agents.',
-    querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'string',description:'Optional comma-separated ERC-20 contract addresses.'}},required:['address'],additionalProperties:false},
-    example:{address:'0x0000000000000000000000000000000000000000',network:'base',tokens:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}
-  },
-  {
-    route:'/transaction-status',
-    sourceRoute:'/chain/transaction-status',
-    operationId:'transaction-status',
-    description:'Check whether an EVM transaction is pending, confirmed or reverted. Returns receipt status, confirmations, gas used and effective gas price for autonomous transaction monitoring.',
-    querySchema:{type:'object',properties:{tx_hash:{type:'string',pattern:'^0x[a-fA-F0-9]{64}$'},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['tx_hash'],additionalProperties:false},
-    example:{tx_hash:'0x0000000000000000000000000000000000000000000000000000000000000000',network:'base'}
-  },
-  {
-    route:'/gas-price',
-    sourceRoute:'canonical-gas-price',
-    operationId:'gas-price',
-    description:'Gas price in the Roundhouse canonical contract: CAIP-2 chain to current base_fee_gwei and as_of. Recurring fee-state primitive for transaction timing and autonomous execution.',
-    querySchema:{type:'object',properties:{chain:{type:'string',enum:['eip155:8453','eip155:1'],default:'eip155:8453'}},required:['chain'],additionalProperties:false},
-    example:{chain:'eip155:8453'}
-  },
-  {
-    route:'/gas-state',
-    sourceRoute:'/chain/gas-state',
-    operationId:'gas-state',
-    description:'Current EVM gas price, latest block base fee and gas utilization on Base or Ethereum for transaction timing and automated execution.',
-    querySchema:{type:'object',properties:{network:{type:'string',enum:['base','ethereum'],default:'base'}},additionalProperties:false},
-    example:{network:'base'}
-  },
-  {
-    route:'/erc20-allowance',
-    sourceRoute:'/chain/erc20-allowance',
-    operationId:'erc20-allowance',
-    description:'Check ERC-20 token allowance from an owner wallet to a spender contract on Base or Ethereum before swaps, recurring payments or autonomous contract execution.',
-    querySchema:{type:'object',properties:{owner:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},spender:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},contract:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['owner','spender','contract'],additionalProperties:false},
-    example:{owner:'0x0000000000000000000000000000000000000000',spender:'0x0000000000000000000000000000000000000000',contract:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',network:'base'}
-  },
-  {
-    route:'/wallet-activity',
-    sourceRoute:'/chain/wallet-activity',
-    operationId:'wallet-activity',
-    description:'Monitor recent USDC or ERC-20 transfers for one wallet. Returns incoming/outgoing activity and next_cursor for recurring stablecoin payment detection and treasury monitoring.',
-    querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},contract:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'},cursor:{type:'integer',minimum:0},lookback_blocks:{type:'integer',minimum:1,maximum:5000,default:1000}},required:['address'],additionalProperties:false},
-    example:{address:'0x0000000000000000000000000000000000000000',network:'base',lookback_blocks:500}
-  }
-];
-
 const getAliasDiscovery = (alias) => declareDiscoveryExtension({
   input:alias.example,
   inputSchema:alias.querySchema,
