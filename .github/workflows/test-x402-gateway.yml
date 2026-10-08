@@ -24,6 +24,9 @@ jobs:
           node-version: '22'
       - name: Install gateway dependencies
         run: npm install --prefix gateway --no-audit --no-fund
+      - name: Generate ephemeral CI-only signing identity
+        run: |
+          node -e "const {generateKeyPairSync}=require('node:crypto'); const {privateKey}=generateKeyPairSync('ed25519'); process.stdout.write('AIMARKET_ED25519_PRIVATE_KEY_PEM_B64='+Buffer.from(privateKey.export({type:'pkcs8',format:'pem'})).toString('base64')+'\\n')" >> "$GITHUB_ENV"
       - name: Boot gateway
         env:
           CDP_API_KEY_ID: ci-placeholder
