@@ -20,6 +20,7 @@ import { cryptoAgentTools } from './crypto-agent.mjs';
 import { canonicalTools, canonicalWalletBalance, canonicalGasPrice } from './canonical.mjs';
 import { adoptionTools } from './adoption.mjs';
 import { registerAIMarketFederation } from './aimarket-federation.mjs';
+import { inferenceTools } from './inference.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
@@ -58,7 +59,9 @@ const acceptsFor = (price, batch=false) => NETWORKS.flatMap(network=>[
     maxTimeoutSeconds:90
   }] : [])
 ]);
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools];
+// Never advertise a payable inference route without an explicitly enabled funded upstream.
+const inferenceEnabled = process.env.INDUSTRIAL_INFERENCE_ENABLED==='true' && Boolean(process.env.OPENROUTER_API_KEY);
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...(inferenceEnabled?inferenceTools:[])];
 const PRIORITY_ROUTES = [
   '/block-number',
   '/erc20-balance',
@@ -111,6 +114,7 @@ const BATCH_ROUTE_SET = new Set([
 ]);
 const BATCH_STORAGE_DIR = process.env.X402_BATCH_STORAGE_DIR || '/data/batch-channels';
 const AUTO_IMPORT_ALIASES = {
+  '/ai/inference':['ai_inference','text_completion','chat_completion'],
   '/agent/wallet-monitor':['monitor_wallet','wallet_monitor','monitorWallet'],
   '/block-number':['block_number','latest_block_number','latestBlockNumber'],
   '/erc20-balance':['erc20_balance','token_balance','erc20Balance'],
@@ -1242,6 +1246,14 @@ app.use((req,res,next)=>{
   }
   next();
 });
+
+app.get('/ai/inference/status', (_req,res)=>res.json({
+  enabled:inferenceEnabled,
+  route:inferenceEnabled?'/ai/inference':null,
+  model:inferenceEnabled?'google/gemini-3.1-flash-lite-preview':null,
+  price_usdc:inferenceEnabled?0.005:null,
+  note:inferenceEnabled?'Paid text inference available via x402 on Base.':'Upstream inference has not been configured and enabled.'
+}));
 
 app.get('/', (_req,res)=>res.json({
   name:manifest.name,
