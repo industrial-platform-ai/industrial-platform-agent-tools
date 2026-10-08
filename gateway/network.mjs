@@ -25,8 +25,9 @@ async function validatePublicUrl(raw){
 }
 
 const CHAIN_RPCS = {
-  base:'https://mainnet.base.org',
-  ethereum:'https://cloudflare-eth.com'
+  // Prefer a dedicated provider when configured. Public providers may throttle eth_getLogs.
+  base:[process.env.X402_BASE_RPC_URL,'https://base-rpc.publicnode.com','https://mainnet.base.org'].filter(Boolean),
+  ethereum:[process.env.X402_ETHEREUM_RPC_URL,'https://cloudflare-eth.com'].filter(Boolean)
 };
 function chainInput(input){
   const network=String(input?.network||'base').toLowerCase();
@@ -39,15 +40,23 @@ function evmAddress(value,label='address'){
   return address;
 }
 async function rpcCall(network,method,params=[]){
-  const response=await fetch(CHAIN_RPCS[network],{
-    method:'POST',
-    headers:{'content-type':'application/json','accept':'application/json','user-agent':'IndustrialPlatform-ChainRead/1.0'},
-    body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}),
-    signal:AbortSignal.timeout(10000)
-  });
-  const body=await response.json().catch(()=>null);
-  if(!response.ok||body?.error||body?.result===undefined) throw Object.assign(new Error('RPC request failed.'),{statusCode:502,upstream:body?.error||null});
-  return body.result;
+  let lastError=null;
+  for(const url of CHAIN_RPCS[network]){
+    try{
+      const response=await fetch(url,{
+        method:'POST',
+        headers:{'content-type':'application/json','accept':'application/json','user-agent':'IndustrialPlatform-ChainRead/1.0'},
+        body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}),
+        signal:AbortSignal.timeout(8000)
+      });
+      const body=await response.json().catch(()=>null);
+      // A null result is valid for a pending transaction receipt.
+      if(response.ok&&body&&!body.error&&Object.hasOwn(body,'result')) return body.result;
+      lastError=new Error('HTTP '+response.status+', RPC code '+String(body?.error?.code??'unknown'));
+      if(body?.error?.code===-32602) break; // invalid arguments: a fallback cannot fix them
+    }catch(error){ lastError=error; }
+  }
+  throw Object.assign(new Error('RPC request failed on all configured providers: '+String(lastError?.message||'unavailable')),{statusCode:502});
 }
 function balanceOfData(address){
   return '0x70a08231'+address.slice(2).toLowerCase().padStart(64,'0');

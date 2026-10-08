@@ -20,6 +20,7 @@ import { cryptoAgentTools } from './crypto-agent.mjs';
 import { canonicalTools, canonicalWalletBalance, canonicalGasPrice } from './canonical.mjs';
 import { adoptionTools } from './adoption.mjs';
 import { registerAIMarketFederation } from './aimarket-federation.mjs';
+import { inferenceTools } from './inference.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
@@ -58,7 +59,9 @@ const acceptsFor = (price, batch=false) => NETWORKS.flatMap(network=>[
     maxTimeoutSeconds:90
   }] : [])
 ]);
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools];
+// Never advertise a payable inference route without an explicitly enabled funded upstream.
+const inferenceEnabled = process.env.INDUSTRIAL_INFERENCE_ENABLED==='true' && Boolean(process.env.OPENROUTER_API_KEY);
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...(inferenceEnabled?inferenceTools:[])];
 const PRIORITY_ROUTES = [
   '/block-number',
   '/erc20-balance',
@@ -111,6 +114,7 @@ const BATCH_ROUTE_SET = new Set([
 ]);
 const BATCH_STORAGE_DIR = process.env.X402_BATCH_STORAGE_DIR || '/data/batch-channels';
 const AUTO_IMPORT_ALIASES = {
+  '/ai/inference':['ai_inference','text_completion','chat_completion'],
   '/agent/wallet-monitor':['monitor_wallet','wallet_monitor','monitorWallet'],
   '/block-number':['block_number','latest_block_number','latestBlockNumber'],
   '/erc20-balance':['erc20_balance','token_balance','erc20Balance'],
@@ -554,59 +558,6 @@ const GET_CHAIN_ALIASES = [
     sourceRoute:'/chain/live-balance',
     operationId:'crypto-wallet-balance',
     description:'Crypto wallet balance: return native ETH plus optional ERC-20 balances for one wallet on Base or Ethereum. Backward-compatible GET alias for portfolio, treasury and wallet-monitoring agents.',
-    querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'string',description:'Optional comma-separated ERC-20 contract addresses.'}},required:['address'],additionalProperties:false},
-    example:{address:'0x0000000000000000000000000000000000000000',network:'base',tokens:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}
-  },
-  {
-    route:'/transaction-status',
-    sourceRoute:'/chain/transaction-status',
-    operationId:'transaction-status',
-    description:'Check whether an EVM transaction is pending, confirmed or reverted. Returns receipt status, confirmations, gas used and effective gas price for autonomous transaction monitoring.',
-    querySchema:{type:'object',properties:{tx_hash:{type:'string',pattern:'^0x[a-fA-F0-9]{64}$'},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['tx_hash'],additionalProperties:false},
-    example:{tx_hash:'0x0000000000000000000000000000000000000000000000000000000000000000',network:'base'}
-  },
-  {
-    route:'/gas-price',
-    sourceRoute:'canonical-gas-price',
-    operationId:'gas-price',
-    description:'Gas price in the Roundhouse canonical contract: CAIP-2 chain to current base_fee_gwei and as_of. Recurring fee-state primitive for transaction timing and autonomous execution.',
-    querySchema:{type:'object',properties:{chain:{type:'string',enum:['eip155:8453','eip155:1'],default:'eip155:8453'}},required:['chain'],additionalProperties:false},
-    example:{chain:'eip155:8453'}
-  },
-  {
-    route:'/gas-state',
-    sourceRoute:'/chain/gas-state',
-    operationId:'gas-state',
-    description:'Current EVM gas price, latest block base fee and gas utilization on Base or Ethereum for transaction timing and automated execution.',
-    querySchema:{type:'object',properties:{network:{type:'string',enum:['base','ethereum'],default:'base'}},additionalProperties:false},
-    example:{network:'base'}
-  },
-  {
-    route:'/erc20-allowance',
-    sourceRoute:'/chain/erc20-allowance',
-    operationId:'erc20-allowance',
-    description:'Check ERC-20 token allowance from an owner wallet to a spender contract on Base or Ethereum before swaps, recurring payments or autonomous contract execution.',
-    querySchema:{type:'object',properties:{owner:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},spender:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},contract:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'}},required:['owner','spender','contract'],additionalProperties:false},
-    example:{owner:'0x0000000000000000000000000000000000000000',spender:'0x0000000000000000000000000000000000000000',contract:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',network:'base'}
-  },
-  {
-    route:'/wallet-activity',
-    sourceRoute:'/chain/wallet-activity',
-    operationId:'wallet-activity',
-    description:'Monitor recent USDC or ERC-20 transfers for one wallet. Returns incoming/outgoing activity and next_cursor for recurring stablecoin payment detection and treasury monitoring.',
-    querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},contract:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'},cursor:{type:'integer',minimum:0},lookback_blocks:{type:'integer',minimum:1,maximum:5000,default:1000}},required:['address'],additionalProperties:false},
-    example:{address:'0x0000000000000000000000000000000000000000',network:'base',lookback_blocks:500}
-  }
-];
-
-},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'string',description:'Optional comma-separated ERC-20 contract addresses.'}},required:['address'],additionalProperties:false},
-    example:{address:'0x0000000000000000000000000000000000000000',network:'base',tokens:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}
-  },
-  {
-    route:'/crypto-wallet-balance',
-    sourceRoute:'/chain/live-balance',
-    operationId:'crypto-wallet-balance',
-    description:'Crypto wallet balance: return native ETH plus optional ERC-20 balances for one wallet on Base or Ethereum. GET-compatible alias for portfolio, treasury and wallet-monitoring agents.',
     querySchema:{type:'object',properties:{address:{type:'string',pattern:'^0x[a-fA-F0-9]{40}$'},network:{type:'string',enum:['base','ethereum'],default:'base'},tokens:{type:'string',description:'Optional comma-separated ERC-20 contract addresses.'}},required:['address'],additionalProperties:false},
     example:{address:'0x0000000000000000000000000000000000000000',network:'base',tokens:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}
   },
@@ -1295,6 +1246,14 @@ app.use((req,res,next)=>{
   }
   next();
 });
+
+app.get('/ai/inference/status', (_req,res)=>res.json({
+  enabled:inferenceEnabled,
+  route:inferenceEnabled?'/ai/inference':null,
+  model:inferenceEnabled?'google/gemini-3.1-flash-lite-preview':null,
+  price_usdc:inferenceEnabled?0.003:null,
+  note:inferenceEnabled?'Paid text inference available via x402 on Base.':'Upstream inference has not been configured and enabled.'
+}));
 
 app.get('/', (_req,res)=>res.json({
   name:manifest.name,
