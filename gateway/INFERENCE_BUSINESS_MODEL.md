@@ -8,7 +8,7 @@ proxy. This is an unproven acquisition experiment, not evidence of demand.
 
 ## Pilot product
 - Canonical route: POST /ai/inference, fixed **$0.003 USDC** per successful result.
-- Model: `google/gemini-3.1-flash-lite-preview` through OpenRouter.
+- Model: `google/gemini-3.1-flash-lite` through OpenRouter.
 - Text-only chat messages (up to six), 4000 UTF-8 combined content bytes,
   16–512 completion tokens (default 256), no streaming, tools, images or files.
 - No Industrial Platform account or buyer API key; x402 signing wallet required.
