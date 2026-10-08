@@ -42,9 +42,10 @@ test('valid inference uses allowlisted model and bounded provider price', async(
   };
   const response=await tool.run(example);
   assert.equal(sent.url,'https://openrouter.ai/api/v1/chat/completions');
-  assert.equal(sent.body.model,'google/gemini-3.1-flash-lite-preview');
+  assert.equal(sent.body.model,'google/gemini-3.1-flash-lite');
   assert.deepEqual(sent.body.provider.max_price,{prompt:0.25,completion:1.5});
-  assert.equal(sent.body.max_completion_tokens,256);
+  assert.equal(sent.body.max_tokens,256);
+  assert.equal(sent.body.reasoning.effort,'minimal');
   assert.equal(sent.body.stream,false);
   assert.equal(response.output,'Hello');
   assert.equal(response.price_usdc,0.003);
