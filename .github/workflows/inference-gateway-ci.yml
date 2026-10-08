@@ -1,0 +1,23 @@
+name: Verify x402 Inference Gateway
+on:
+  push:
+    branches:
+      - feature/x402-paid-inference
+  pull_request:
+    paths:
+      - 'gateway/**'
+      - '.github/workflows/inference-gateway-ci.yml'
+  workflow_dispatch:
+jobs:
+  syntax-and-inference:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate gateway syntax and inference mock tests
+        run: npm run check
+        working-directory: gateway
