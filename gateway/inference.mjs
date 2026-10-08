@@ -1,7 +1,7 @@
 // Optional, margin-guarded x402 inference resale.
 // This tool is only registered by server.mjs when the operator enables it and
 // configures a funded OpenRouter key. No buyer secrets are required.
-const MODEL='google/gemini-3.1-flash-lite-preview';
+const MODEL='google/gemini-3.1-flash-lite';
 const MODEL_INPUT_USD_PER_M=0.25;
 const MODEL_OUTPUT_USD_PER_M=1.50;
 const PRICE_USD=0.003;
@@ -55,7 +55,8 @@ async function runInference(input){
         model:MODEL,
         messages,
         temperature,
-        max_completion_tokens:maxTokens,
+        max_tokens:maxTokens,
+        reasoning:{effort:'minimal'},
         stream:false,
         modalities:['text'],
         provider:{max_price:{prompt:MODEL_INPUT_USD_PER_M,completion:MODEL_OUTPUT_USD_PER_M}}
