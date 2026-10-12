@@ -1,0 +1,11 @@
+const assert=require("node:assert/strict");
+const {VARIANTS,definition,page}=require("./generative-registry.cjs");
+assert.equal(VARIANTS,80);
+assert.equal(page(0,20).length,20);
+assert.equal(new Set(page(0,80).map(x=>x.id)).size,80);
+assert.equal(page(79,20).length,1);
+assert.equal(page(80,20).length,0);
+assert.equal(page(0,1)[0].live,false);
+assert.throws(()=>definition(80),RangeError);
+assert.throws(()=>page(0,1000000),RangeError);
+console.log("registry prototype tests passed");
