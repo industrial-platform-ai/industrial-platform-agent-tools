@@ -1,0 +1,14 @@
+const assert=require("node:assert/strict");
+const r=require("./catalog-adapter.cjs");
+const c=r.defaultCatalog();assert.equal(r.validateCatalog(c),true);
+assert.equal(r.manifest(c).services.length,0);
+assert.throws(()=>r.route(c,"markdown",{url:"https://example.org"}),/not verified/);
+const updated=r.revise(c,[{id:"markdown",field:"priceMicrousd",value:1500}]);
+assert.equal(updated.version,2);assert.equal(updated.services[0].priceMicrousd,1500);
+assert.equal(c.services[0].priceMicrousd,1000);
+assert.throws(()=>r.revise(c,[{id:"markdown",field:"verified",value:true}]),/not editable/);
+assert.throws(()=>r.revise(c,[{id:"metadata",field:"priceMicrousd",value:-1}]),/invalid service/);
+const verified=structuredClone(c);verified.services[0].verified=true;
+assert.equal(r.manifest(verified).services.length,1);
+assert.equal(r.route(verified,"markdown",{url:"https://example.org"}).url,r.BASE+"/web/markdown");
+console.log("catalog adapter tests passed");
