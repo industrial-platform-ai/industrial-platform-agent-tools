@@ -8,7 +8,7 @@ const TIMEOUT_MS = 12_000;
 const MAX_HISTORY = 288; // 24 hours at one check per five minutes.
 const PATHS = [
   '/health', '/.well-known/x402', '/pricing.json', '/openapi.json',
-  '/agent.json', '/llms.txt', '/metrics/x402-24h.json'
+  '/.well-known/agent.json', '/llms.txt', '/metrics/x402-24h.json'
 ];
 const startedAt = new Date().toISOString();
 const state = { startedAt, lastRun: null, runs: 0, results: [], history: [], running: false };
@@ -28,11 +28,13 @@ async function check() {
         const body = await response.text();
         const item = { path, status: response.status, bytes: body.length,
           latencyMs: Date.now() - start };
-        if (path === '/metrics/x402-24h.json' && response.ok) {
+        if (response.ok && path !== '/llms.txt') {
           try {
             const data = JSON.parse(body);
-            item.metricFields = data && typeof data === 'object' && !Array.isArray(data)
-              ? Object.keys(data).slice(0, 30) : [];
+            if (path === '/metrics/x402-24h.json') {
+              item.metricFields = data && typeof data === 'object' && !Array.isArray(data)
+                ? Object.keys(data).slice(0, 30) : [];
+            }
           } catch { item.metricParseError = true; }
         }
         results.push(item);
@@ -71,7 +73,7 @@ const server = http.createServer((req, res) => {
     lastRun: state.lastRun, running: state.running, results: state.results,
     historySize: state.history.length,
     last24hChecks: state.history.length,
-    last24hFailures: state.history.reduce((n, h) => n + h.results.filter(x => x.error || x.status >= 400).length, 0)
+    last24hFailures: state.history.reduce((n, h) => n + h.results.filter(x => x.error || x.status >= 400 || x.metricParseError).length, 0)
   });
   return json(res, 404, { error: 'not_found' });
 });
