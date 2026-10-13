@@ -64,7 +64,7 @@ export function buildFactoryProducts({commerceTools, runChange, activeIds=[]}={}
       example:{checks:[{url:'https://example.com/',previous_hash:'0'.repeat(64)},{url:'https://example.org/',previous_hash:'0'.repeat(64)}]},
       run:async input=>{
         if(!Array.isArray(input?.checks) || input.checks.length<2 || input.checks.length>3 ||
-          input.checks.some(c=>!c||typeof c.url!=='string'||!/^https?:\\/\\//.test(c.url)||
+          input.checks.some(c=>!c||typeof c.url!=='string'||!(c.url.startsWith('https://')||c.url.startsWith('http://'))||
             !/^[a-fA-F0-9]{64}$/.test(c.previous_hash))) throw bad('Two or three public URLs with valid previous hashes are required.');
         const outcomes=await Promise.allSettled(input.checks.map(c=>runChange({url:c.url,previous_hash:c.previous_hash,include_current_text:false})));
         const results=outcomes.map((o,i)=>o.status==='fulfilled'
