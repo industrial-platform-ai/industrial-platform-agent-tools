@@ -1,28 +1,36 @@
-# Industrial Platform x402 task gateway
+# Industrial Platform x402 gateway
 
-This gateway gives machine routers two explicit task-specific routes while preserving Apify as the actual x402 settlement and execution layer.
+Industrial Platform sells independently authorized agent tasks through a direct Base USDC x402 gateway and a Streamable HTTP MCP gateway. This is a live paid-service origin, not an Apify payment-header proxy. The routes and pricing are defined by the running gateway; do not infer eligibility or pricing from older marketing documents.
 
-## Public routes
+## Canonical entrypoints
 
-- `POST /metadata` → `industrial_platform/web-metadata-intelligence`
-- `POST /change` → `industrial_platform/web-change-intelligence`
-- `GET /.well-known/x402`
-- `GET /openapi.json`
-- `GET /health`
+- Gateway: https://x402-gateway-production-1f21.up.railway.app
+- MCP: https://x402-mcp-gateway-production.up.railway.app/mcp
+- HTTP discovery: `/.well-known/x402`, `/openapi.json`, `/pricing.json`, `/.well-known/agent.json`, `/llms.txt`
+- Public liveness: `GET /health`
+- AIMarket federation adapter: `/.well-known/ai-market.json`, `/ai-market/v2/health`, `/ai-market/v2/manifest`, `/ai-market/v2/search`, and `POST /ai-market/v2/invoke` (the federation invoke currently returns only its published free Sentinel install bundle, **not** a paid agent-service router)
 
-The proxy forwards the buyer's `PAYMENT-SIGNATURE` header to Apify and relays Apify's `402 Payment Required` response and payment headers unchanged. The gateway does not hold buyer funds, seller funds, or an Apify API token.
+## Useful paid task families
 
-## Why this exists
+- Web intelligence: `POST /metadata`, `POST /web/markdown`, `POST /change`
+- Agent operations: `POST /agent/pretrade`, `POST /agent/treasury-snapshot`, `POST /agent/transaction-watch`
+- Chain data: `/chain/*`, `/crypto/*`
+- Payment diagnostics / procurement / verification: `/commerce/*`; the commerce family currently contains read-only, non-signing tools. See [commerce program](./docs/commerce-program.md).
 
-Apify's native x402 route is payable and Bazaar-discoverable, but its discovery metadata describes the generic `/:actorId/run-sync-get-dataset-items` template. Routers therefore cannot reliably rank Industrial Platform's Metadata and Change Actors as distinct tasks.
+Use the **live** OpenAPI document for the exact method, schema, route availability and price. x402 clients receive payment terms from the gateway's HTTP 402 response. A separate, funded buyer wallet must authorize each paid invocation subject to its operator's spending policy. No runtime may bypass that authorization.
 
-This gateway provides those distinct task identities without changing the underlying paid Actors.
+## Payee and provenance
 
-## Run
+The current production seller is configured for Base USDC. The canonical payee is supplied by the live payment challenge, not historic README snippets or old deployment notes. The seller must independently confirm that the payee is the correct Base USDC receiving address in Coinbase. Do not send tokens over other networks to an unverified Coinbase address.
+
+An HTTP 402 challenge is **not** a sale. A log settlement is not automatically independent production revenue. Qualify a sale using the matching authorized payment, USDC receipt, paid HTTP 2xx, unrelated buyer, real production purpose, and cost records. Exclude verifier, testing, self-funded and circular purchases from customer-revenue milestones.
+
+## Running and checking
 
 ```bash
 cd gateway
+npm run check
 npm start
 ```
 
-Set `PORT` if required by the host.
+Keep AI inference disabled unless commercial model-provider permissions, pre-funded upstream capacity and positive per-request contribution are proven. Avoid exposing payment-signing credentials in code, public docs or observability logs.
