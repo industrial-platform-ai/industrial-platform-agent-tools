@@ -1,0 +1,67 @@
+name: Industrial Platform Bounded Hourly Factory
+on:
+  pull_request:
+    paths:
+      - 'factory/**'
+      - 'gateway/factory-*.mjs'
+      - 'gateway/tests/factory-products.test.mjs'
+      - '.github/workflows/bounded-hourly-factory.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+permissions:
+  contents: read
+jobs:
+  factory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate generator and factory test gates
+        run: |
+          node --check gateway/factory-products.mjs
+          node --check gateway/factory-active.mjs
+          node --test gateway/tests/factory-products.test.mjs
+          node --test experiments/generative-registry.test.cjs experiments/catalog-adapter.test.cjs
+      - name: Validate deterministic parent-child replication
+        run: node --test gateway/tests/replication.test.mjs
+      - name: Audit existing paid demand without generating paid calls
+        run: node factory/hourly-audit.mjs
+      - name: Save auditable hourly result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-hourly-report
+          path: factory/out/hourly-report.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  replication:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify deterministic replication rules
+        run: node --test gateway/tests/replication.test.mjs
+      - name: Run independent bounded child-worker
+        env:
+          REPLICA_SHARD: ${{ matrix.shard }}
+          REPLICA_SHARDS: '4'
+          REPLICA_SAMPLE_CAP: '16'
+        run: node factory/replication-shard.mjs
+      - name: Archive the virtual service generation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: virtual-replication-shard-${{ matrix.shard }}
+          path: factory/out/replication-shard-${{ matrix.shard }}.json
+          retention-days: 14

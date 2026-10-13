@@ -22,6 +22,8 @@ import { adoptionTools } from './adoption.mjs';
 import { registerAIMarketFederation } from './aimarket-federation.mjs';
 import { inferenceTools } from './inference.mjs';
 import { buildCommerceTools } from './commerce.mjs';
+import { buildFactoryProducts } from './factory-products.mjs';
+import { activeFactoryIds } from './factory-active.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = 'https://x402-gateway-production-1f21.up.railway.app';
@@ -64,7 +66,8 @@ const acceptsFor = (price, batch=false) => NETWORKS.flatMap(network=>[
 // Never advertise a payable inference route without an explicitly enabled funded upstream.
 const inferenceEnabled = process.env.INDUSTRIAL_INFERENCE_ENABLED==='true' && Boolean(process.env.OPENROUTER_API_KEY);
 const commerceTools = buildCommerceTools({networkTools,runChange});
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...(inferenceEnabled?inferenceTools:[])];
+const factoryTools = buildFactoryProducts({commerceTools,runChange,activeIds:activeFactoryIds});
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...factoryTools, ...(inferenceEnabled?inferenceTools:[])];
 const PRIORITY_ROUTES = [
   '/block-number',
   '/erc20-balance',

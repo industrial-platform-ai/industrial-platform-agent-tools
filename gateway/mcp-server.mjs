@@ -21,6 +21,8 @@ import { cryptoAgentTools } from './crypto-agent.mjs';
 import { canonicalTools, canonicalWalletBalance, canonicalGasPrice } from './canonical.mjs';
 import { adoptionTools } from './adoption.mjs';
 import { buildCommerceTools } from './commerce.mjs';
+import { buildFactoryProducts } from './factory-products.mjs';
+import { activeFactoryIds } from './factory-active.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = process.env.MCP_PUBLIC_ORIGIN || 'https://x402-mcp-gateway-production.up.railway.app';
@@ -80,7 +82,8 @@ const changeInputSchema = {
 };
 
 const commerceTools = buildCommerceTools({networkTools,runChange});
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools];
+const factoryTools = buildFactoryProducts({commerceTools,runChange,activeIds:activeFactoryIds});
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...factoryTools];
 
 const readResult = async (body) => {
   const result = await runChange({...body, include_current_text:true});
