@@ -18,7 +18,9 @@ COPY canonical.mjs ./
 COPY adoption.mjs ./
 COPY aimarket-federation.mjs ./
 COPY inference.mjs ./
+COPY commerce.mjs ./
 COPY tests/inference.test.mjs ./tests/inference.test.mjs
+COPY tests/commerce.test.mjs ./tests/commerce.test.mjs
 RUN npm run check
 ENV NODE_ENV=production
 EXPOSE 3000
