@@ -1,0 +1,32 @@
+name: Industrial Platform Bounded Hourly Factory
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+permissions:
+  contents: read
+jobs:
+  factory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate generator and factory test gates
+        run: |
+          node --check gateway/factory-products.mjs
+          node --check gateway/factory-active.mjs
+          node --test gateway/tests/factory-products.test.mjs
+          node --test experiments/generative-registry.test.cjs experiments/catalog-adapter.test.cjs
+      - name: Audit existing paid demand without generating paid calls
+        run: node factory/hourly-audit.mjs
+      - name: Save auditable hourly result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-hourly-report
+          path: factory/out/hourly-report.json
+          if-no-files-found: warn
+          retention-days: 14
