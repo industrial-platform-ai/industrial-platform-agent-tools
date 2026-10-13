@@ -33,7 +33,8 @@ const MCP_PROFILE_ENDPOINTS = {
   pretrade:'https://x402-mcp-gateway-production.up.railway.app/mcp/pretrade',
   marketData:'https://x402-mcp-gateway-production.up.railway.app/mcp/market-data',
   webMonitor:'https://x402-mcp-gateway-production.up.railway.app/mcp/web-monitor',
-  x402Adoption:'https://x402-mcp-gateway-production.up.railway.app/mcp/x402-adoption'
+  x402Adoption:'https://x402-mcp-gateway-production.up.railway.app/mcp/x402-adoption',
+  commerce:'https://x402-mcp-gateway-production.up.railway.app/mcp/commerce'
 };
 const PAY_TO = process.env.X402_PAY_TO || '0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E';
 const PRICE = '$0.001';
@@ -140,7 +141,15 @@ const AUTO_IMPORT_ALIASES = {
   '/web/markdown':['url_to_markdown','web_markdown','page_to_markdown'],
   '/gas-price':['gas_price','fee_state'],
   '/gas-state':['gas_state','fee_state'],
-  '/x402/adoption-search':['search_x402_adoption','x402_adoption_search','searchWebForX402Adoption']
+  '/x402/adoption-search':['search_x402_adoption','x402_adoption_search','searchWebForX402Adoption'],
+  '/commerce/payment-diagnostic':['diagnose_x402_payment','payment_preflight'],
+  '/commerce/procurement-quote':['compare_agent_supplier_quotes'],
+  '/commerce/tx-outcome':['transaction_outcome','tx_finality'],
+  '/commerce/allowance-delta':['erc20_approval_delta'],
+  '/commerce/material-web-change':['material_web_change'],
+  '/commerce/endpoint-health':['authorized_endpoint_health'],
+  '/commerce/usdc-receipt':['base_usdc_receipt_proof'],
+  '/commerce/evidence-fingerprint':['agent_evidence_fingerprint']
 };
 
 const INTERNAL_PAYER_ADDRESSES = new Set(
@@ -1437,6 +1446,7 @@ app.get('/llms.txt', (_req,res)=>res.type('text/plain').send([
   '- Market Data MCP: '+MCP_PROFILE_ENDPOINTS.marketData,
   '- Web Monitor MCP: '+MCP_PROFILE_ENDPOINTS.webMonitor,
   '- x402 Adoption MCP: '+MCP_PROFILE_ENDPOINTS.x402Adoption,
+  '- Agent Commerce MCP: '+MCP_PROFILE_ENDPOINTS.commerce,
   '',
   'Payment protocol: x402 v2',
   'Network: Base (eip155:8453)',
