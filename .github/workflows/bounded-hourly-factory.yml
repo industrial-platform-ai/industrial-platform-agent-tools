@@ -1,5 +1,11 @@
 name: Industrial Platform Bounded Hourly Factory
 on:
+  pull_request:
+    paths:
+      - 'factory/**'
+      - 'gateway/factory-*.mjs'
+      - 'gateway/tests/factory-products.test.mjs'
+      - '.github/workflows/bounded-hourly-factory.yml'
   workflow_dispatch:
   schedule:
     - cron: '17 * * * *'
