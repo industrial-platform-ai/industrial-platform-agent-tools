@@ -2,8 +2,8 @@
 // It cannot spend money, cause audits, scrape arbitrary targets, or deploy.
 // A paid completion is only a signal; it is not independent-production proof.
 import {writeFile, mkdir} from 'node:fs/promises';
-import {activeFactoryIds} from '../../gateway/factory-active.mjs';
-import {KNOWN_FACTORY_PRODUCTS} from '../../gateway/factory-products.mjs';
+import {activeFactoryIds} from '../gateway/factory-active.mjs';
+import {KNOWN_FACTORY_PRODUCTS} from '../gateway/factory-products.mjs';
 
 const ORIGIN='https://x402-gateway-production-1f21.up.railway.app';
 const CANDIDATES=[
