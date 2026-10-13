@@ -20,6 +20,7 @@ import { agenticTools } from './agentic.mjs';
 import { cryptoAgentTools } from './crypto-agent.mjs';
 import { canonicalTools, canonicalWalletBalance, canonicalGasPrice } from './canonical.mjs';
 import { adoptionTools } from './adoption.mjs';
+import { buildCommerceTools } from './commerce.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN = process.env.MCP_PUBLIC_ORIGIN || 'https://x402-mcp-gateway-production.up.railway.app';
@@ -78,7 +79,8 @@ const changeInputSchema = {
   additionalProperties:false
 };
 
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools];
+const commerceTools = buildCommerceTools({networkTools,runChange});
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools];
 
 const readResult = async (body) => {
   const result = await runChange({...body, include_current_text:true});
@@ -238,7 +240,8 @@ const MCP_PROFILES = {
   'pretrade':['pretrade_context','crypto_price','crypto_book','market_snapshot','wallet_balance','gas_price'],
   'market-data':['crypto_price','crypto_candles','crypto_book','market_snapshot'],
   'web-monitor':['monitor_webpage_change','detectWebpageChange','extractWebpageMetadata'],
-  'x402-adoption':['search-the-web-for-x402-adoption']
+  'x402-adoption':['search-the-web-for-x402-adoption'],
+  'commerce':['x402-payment-diagnostic','agent-procurement-quote','transaction-terminal-outcome','erc20-allowance-delta','material-web-change','authorized-endpoint-health','base-usdc-receipt-proof','agent-evidence-fingerprint']
 };
 for (const [profile,names] of Object.entries(MCP_PROFILES)) {
   for (const name of names) {
