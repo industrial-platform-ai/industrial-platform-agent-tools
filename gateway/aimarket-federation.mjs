@@ -241,6 +241,21 @@ export function registerAIMarketFederation(app,{origin}) {
     res.set('Cache-Control','no-store').json(wellKnown(origin,identity));
   });
 
+  // A read-only liveness endpoint required by current AIMarket Hub discovery clients.
+  // This only confirms this federation adapter is online; it does not assert
+  // payment-channel, custody, reputation or upstream-service readiness.
+  app.get('/ai-market/v2/health',(_req,res)=>{
+    res.set('Cache-Control','no-store').json({
+      status:'ok',
+      healthy:true,
+      protocol_version:'v2',
+      service:'industrial-platform-federation-adapter',
+      federation:'provider',
+      capabilities:{manifest:true,search:true,invoke_free_install:true},
+      x402_payment_readiness:'independent_gateway'
+    });
+  });
+
   app.get(['/ai-market/v2/manifest','/ai-market/manifest'],(_req,res)=>{
     res.set('Cache-Control','no-store').json(signedManifest(origin,identity));
   });
