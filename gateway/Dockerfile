@@ -19,6 +19,9 @@ COPY adoption.mjs ./
 COPY aimarket-federation.mjs ./
 COPY inference.mjs ./
 COPY commerce.mjs ./
+COPY factory-products.mjs ./
+COPY factory-active.mjs ./
+COPY tests/factory-products.test.mjs ./tests/factory-products.test.mjs
 COPY tests/inference.test.mjs ./tests/inference.test.mjs
 COPY tests/commerce.test.mjs ./tests/commerce.test.mjs
 RUN npm run check
