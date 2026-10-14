@@ -1,0 +1,58 @@
+name: Verify Live x402 Commerce Portfolio
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-live-commerce.yml'
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify live MCP discovery, HTTP catalog, and unpaid gas 402 challenge
+        run: |
+          python3 - <<'PY'
+          import json, time, urllib.request, urllib.error
+          from datetime import datetime, timezone
+          gw='https://x402-gateway-production-1f21.up.railway.app'
+          mcp='https://x402-mcp-gateway-production.up.railway.app'
+          route='/commerce/base-gas-fee-preflight'
+          ua='IndustrialPlatform-CI-UnpaidSmoke/1.0'
+          def get(path):
+              req=urllib.request.Request(path,headers={'User-Agent':ua,'Cache-Control':'no-cache'})
+              with urllib.request.urlopen(req,timeout=20) as res:
+                  return json.load(res)
+          for attempt in range(1,19):
+              try:
+                  profiles=get(mcp+'/profiles')
+                  commerce=profiles['profiles']['commerce']['tools']
+                  assert 'x402-payment-intent-assurance' in commerce, 'assurance missing MCP commerce'
+                  assert 'base-gas-execution-fee-preflight' in commerce, 'gas missing MCP commerce'
+                  openapi=get(gw+'/openapi.json')
+                  prices=openapi['paths']
+                  assert prices['/commerce/payment-intent-assurance']['post']['x-payment-info']['price']['amount']=='0.003'
+                  assert prices[route]['post']['x-payment-info']['price']['amount']=='0.001'
+                  manifest=get(gw+'/.well-known/x402')
+                  discovered={x.get('route') for x in manifest.get('tools',[])}
+                  assert route in discovered and '/commerce/payment-intent-assurance' in discovered, 'not in x402 manifest'
+                  post=urllib.request.Request(gw+route,method='POST',
+                     data=b'{"network":"base","gas_limit":21000,"max_execution_fee_wei":"100000000000000"}',
+                     headers={'Content-Type':'application/json','User-Agent':ua})
+                  try:
+                      with urllib.request.urlopen(post,timeout=20) as response:
+                          raise AssertionError('unpaid POST unexpectedly served '+str(response.status))
+                  except urllib.error.HTTPError as e:
+                      assert e.code==402, 'expected 402, got '+str(e.code)
+                      assert e.headers.get('PAYMENT-REQUIRED'), 'missing x402 PAYMENT-REQUIRED header'
+                  print('VERIFIED_UTC='+datetime.now(timezone.utc).isoformat())
+                  print('VERIFIED BOTH_TOOLS_MCP AND BOTH_TOOLS_OPENAPI AND BOTH_TOOLS_X402_MANIFEST AND UNPAID_GAS_402')
+                  print('NO PAYMENT SIGNED; NO SETTLEMENT CLAIMED')
+                  break
+              except Exception as error:
+                  print('Attempt '+str(attempt)+' not yet verified: '+repr(error),flush=True)
+                  if attempt==18: raise
+                  time.sleep(12)
+          PY
