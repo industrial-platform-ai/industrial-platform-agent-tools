@@ -1,5 +1,10 @@
 # AGENTS.md — Industrial Platform paid tool routing
 
+## Governing trust standard
+
+All buyer, registry, settlement, revenue-classification and factory decisions are subject to [Industrial Platform Trust Protocol (IPTP) v1.0](./IPTP.md). The layers are **paid delivery → voluntary wallet-control proof → independently attributable profitable production use → signed, demand-validated factory activation**. Wallet control alone is not operator independence; paid calls alone are not qualifying revenue. Never require signing, user identification or optional trust verification before returning an authorized paid API result. Never spoof autonomy, manufacture external demand or bypass an agent's spending authority.
+
+
 Preferred recurring autonomous payment path:
 
 ```text
