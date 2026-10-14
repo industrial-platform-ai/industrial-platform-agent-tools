@@ -1,5 +1,10 @@
 # Industrial Platform Agent Tools
 
+## Network trust governance
+
+Industrial Platform uses the [Industrial Platform Trust Protocol (IPTP)](./IPTP.md) to separate **Base USDC settlement**, **optional wallet-control verification**, **independent commercial attribution**, and **demand-gated factory activation**. Identity verification is never a prerequisite to an ordinary x402 purchase. Current implementation is partial; see the protocol for evidence and enforcement boundaries.
+
+
 ## Direct recurring x402 MCP
 
 For recurring autonomous workloads, use the direct x402-native MCP first:
