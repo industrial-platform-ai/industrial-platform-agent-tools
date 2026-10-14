@@ -21,6 +21,7 @@ import { cryptoAgentTools } from './crypto-agent.mjs';
 import { canonicalTools, canonicalWalletBalance, canonicalGasPrice } from './canonical.mjs';
 import { adoptionTools } from './adoption.mjs';
 import { buildCommerceTools } from './commerce.mjs';
+import {assuranceTools} from './payment-assurance.mjs';
 import { buildFactoryProducts } from './factory-products.mjs';
 import { activeFactoryIds } from './factory-active.mjs';
 
@@ -83,7 +84,7 @@ const changeInputSchema = {
 
 const commerceTools = buildCommerceTools({networkTools,runChange});
 const factoryTools = buildFactoryProducts({commerceTools,runChange,activeIds:activeFactoryIds});
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...factoryTools];
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...assuranceTools, ...factoryTools];
 
 const readResult = async (body) => {
   const result = await runChange({...body, include_current_text:true});
@@ -244,7 +245,7 @@ const MCP_PROFILES = {
   'market-data':['crypto_price','crypto_candles','crypto_book','market_snapshot'],
   'web-monitor':['monitor_webpage_change','detectWebpageChange','extractWebpageMetadata'],
   'x402-adoption':['search-the-web-for-x402-adoption'],
-  'commerce':['x402-payment-diagnostic','agent-procurement-quote','transaction-terminal-outcome','erc20-allowance-delta','material-web-change','authorized-endpoint-health','base-usdc-receipt-proof','agent-evidence-fingerprint']
+  'commerce':['x402-payment-intent-assurance','x402-payment-diagnostic','agent-procurement-quote','transaction-terminal-outcome','erc20-allowance-delta','material-web-change','authorized-endpoint-health','base-usdc-receipt-proof','agent-evidence-fingerprint']
 };
 for (const [profile,names] of Object.entries(MCP_PROFILES)) {
   for (const name of names) {
