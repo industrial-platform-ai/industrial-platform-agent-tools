@@ -31,7 +31,7 @@ INDUSTRIAL_PLATFORM_ALLOW_PAYMENT=false
 Calling `industrialHash("hello")` will:
 
 1. read Industrial Platform `/pricing.json`;
-2. require `/hash` to be at most 1 atomic USDC unit;
+2. require `/hash` to be at most **1000 atomic USDC units ($0.001)**;
 3. issue the unpaid POST;
 4. return the live `PAYMENT-REQUIRED` header without signing anything.
 
@@ -43,7 +43,7 @@ For autonomous spending, also configure conservative x402 limits, for example:
 
 ```bash
 X402_SUPPORTED_NETWORKS=base:8453
-X402_PER_REQUEST_MAX=0.000001
+X402_PER_REQUEST_MAX=0.001
 X402_GLOBAL_DAILY_LIMIT=0.001
 INDUSTRIAL_PLATFORM_ALLOW_PAYMENT=true
 ```
