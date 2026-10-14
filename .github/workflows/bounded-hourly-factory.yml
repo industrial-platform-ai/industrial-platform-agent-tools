@@ -7,6 +7,17 @@ on:
       - 'gateway/tests/factory-products.test.mjs'
       - '.github/workflows/bounded-hourly-factory.yml'
   workflow_dispatch:
+    inputs:
+      virtual_slots:
+        description: 'Virtual candidate slots to examine, NOT live deployments (max 1073741824)'
+        required: false
+        type: string
+        default: '1000000'
+      sample_limit:
+        description: 'Maximum candidate sample materialized (max 10000)'
+        required: false
+        type: string
+        default: '4096'
   schedule:
     - cron: '17 * * * *'
 permissions:
@@ -28,6 +39,11 @@ jobs:
           node --test experiments/generative-registry.test.cjs experiments/catalog-adapter.test.cjs
       - name: Validate deterministic parent-child replication
         run: node --test gateway/tests/replication.test.mjs
+      - name: Plan million-slot batch with zero automatic activations
+        env:
+          FACTORY_VIRTUAL_SLOTS: ${{ inputs.virtual_slots || '1000000' }}
+          FACTORY_SAMPLE_LIMIT: ${{ inputs.sample_limit || '4096' }}
+        run: node factory/batch-run.mjs --virtual-slots="$FACTORY_VIRTUAL_SLOTS" --sample="$FACTORY_SAMPLE_LIMIT"
       - name: Audit existing paid demand without generating paid calls
         run: node factory/hourly-audit.mjs
       - name: Save auditable hourly result
@@ -35,7 +51,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: factory-hourly-report
-          path: factory/out/hourly-report.json
+          path: |
+            factory/out/hourly-report.json
+            factory/out/batch-plan.json
           if-no-files-found: warn
           retention-days: 14
 
