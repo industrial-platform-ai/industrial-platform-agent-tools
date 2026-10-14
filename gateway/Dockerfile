@@ -24,6 +24,9 @@ COPY gas-fee-preflight.mjs ./
 COPY tests/gas-fee-preflight.test.mjs ./tests/gas-fee-preflight.test.mjs
 COPY tests/payment-assurance.test.mjs ./tests/payment-assurance.test.mjs
 COPY factory-products.mjs ./
+COPY factory-batch-engine.mjs ./
+COPY factory-batch-active.json ./
+COPY tests/factory-batch-engine.test.mjs ./tests/factory-batch-engine.test.mjs
 COPY factory-active.mjs ./
 COPY tests/factory-products.test.mjs ./tests/factory-products.test.mjs
 COPY tests/inference.test.mjs ./tests/inference.test.mjs
