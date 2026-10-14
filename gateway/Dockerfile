@@ -25,6 +25,8 @@ COPY tests/gas-fee-preflight.test.mjs ./tests/gas-fee-preflight.test.mjs
 COPY tests/payment-assurance.test.mjs ./tests/payment-assurance.test.mjs
 COPY factory-products.mjs ./
 COPY factory-batch-engine.mjs ./
+COPY delivery-ledger.mjs ./
+COPY tests/delivery-ledger.test.mjs ./tests/delivery-ledger.test.mjs
 COPY factory-batch-active.json ./
 COPY tests/factory-batch-engine.test.mjs ./tests/factory-batch-engine.test.mjs
 COPY factory-active.mjs ./
