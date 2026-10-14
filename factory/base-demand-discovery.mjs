@@ -75,10 +75,12 @@ export function summarizeReceipts(wallets,receipts){
    qualifying_independent_revenue_usdc:0,
    factory_promotion_allowed:false
   };
- }).sort((a,b)=>b.sampled_failed_receipts-a.sampled_failed_receipts||
-  BigInt(b.observed_failed_execution_gas_wei)>BigInt(a.observed_failed_execution_gas_wei)?1:
-  BigInt(b.observed_failed_execution_gas_wei)<BigInt(a.observed_failed_execution_gas_wei)?-1:
-  b.observed_transactions-a.observed_transactions);
+ }).sort((a,b)=>{
+  if(a.sampled_failed_receipts!==b.sampled_failed_receipts)return b.sampled_failed_receipts-a.sampled_failed_receipts;
+  const aGas=BigInt(a.observed_failed_execution_gas_wei),bGas=BigInt(b.observed_failed_execution_gas_wei);
+  if(aGas!==bGas)return aGas>bGas?-1:1;
+  return b.observed_transactions-a.observed_transactions;
+ });
 }
 
 export function selectReceiptChecks(wallets,limit=MAX_RECEIPTS){
