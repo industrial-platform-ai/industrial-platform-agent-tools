@@ -20,6 +20,8 @@ COPY aimarket-federation.mjs ./
 COPY inference.mjs ./
 COPY commerce.mjs ./
 COPY payment-assurance.mjs ./
+COPY gas-fee-preflight.mjs ./
+COPY tests/gas-fee-preflight.test.mjs ./tests/gas-fee-preflight.test.mjs
 COPY tests/payment-assurance.test.mjs ./tests/payment-assurance.test.mjs
 COPY factory-products.mjs ./
 COPY factory-active.mjs ./
