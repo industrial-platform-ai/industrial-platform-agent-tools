@@ -36,6 +36,8 @@ jobs:
           node --check gateway/factory-products.mjs
           node --check gateway/factory-active.mjs
           node --test gateway/tests/factory-products.test.mjs
+          node --check factory/base-demand-discovery.mjs
+          node --test factory/tests/base-demand-discovery.test.mjs
           node --test experiments/generative-registry.test.cjs experiments/catalog-adapter.test.cjs
       - name: Validate deterministic parent-child replication
         run: node --test gateway/tests/replication.test.mjs
@@ -44,6 +46,10 @@ jobs:
           FACTORY_VIRTUAL_SLOTS: ${{ inputs.virtual_slots || '1000000' }}
           FACTORY_SAMPLE_LIMIT: ${{ inputs.sample_limit || '4096' }}
         run: node factory/batch-run.mjs --virtual-slots="$FACTORY_VIRTUAL_SLOTS" --sample="$FACTORY_SAMPLE_LIMIT"
+      - name: Read-only Base economic-friction discovery matrix
+        if: github.event_name != 'pull_request'
+        timeout-minutes: 3
+        run: node factory/base-demand-discovery.mjs
       - name: Audit existing paid demand without generating paid calls
         run: node factory/hourly-audit.mjs
       - name: Save auditable hourly result
@@ -54,6 +60,7 @@ jobs:
           path: |
             factory/out/hourly-report.json
             factory/out/batch-plan.json
+            factory/out/base-demand-matrix.json
           if-no-files-found: warn
           retention-days: 14
 
