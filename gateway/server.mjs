@@ -23,6 +23,7 @@ import { registerAIMarketFederation } from './aimarket-federation.mjs';
 import { inferenceTools } from './inference.mjs';
 import { buildCommerceTools } from './commerce.mjs';
 import {assuranceTools} from './payment-assurance.mjs';
+import {buildGasPreflightTools} from './gas-fee-preflight.mjs';
 import { buildFactoryProducts } from './factory-products.mjs';
 import { activeFactoryIds } from './factory-active.mjs';
 
@@ -67,8 +68,9 @@ const acceptsFor = (price, batch=false) => NETWORKS.flatMap(network=>[
 // Never advertise a payable inference route without an explicitly enabled funded upstream.
 const inferenceEnabled = process.env.INDUSTRIAL_INFERENCE_ENABLED==='true' && Boolean(process.env.OPENROUTER_API_KEY);
 const commerceTools = buildCommerceTools({networkTools,runChange});
+const gasPreflightTools = buildGasPreflightTools({networkTools});
 const factoryTools = buildFactoryProducts({commerceTools,runChange,activeIds:activeFactoryIds});
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...assuranceTools, ...factoryTools, ...(inferenceEnabled?inferenceTools:[])];
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...assuranceTools, ...gasPreflightTools, ...factoryTools, ...(inferenceEnabled?inferenceTools:[])];
 const PRIORITY_ROUTES = [
   '/block-number',
   '/erc20-balance',
