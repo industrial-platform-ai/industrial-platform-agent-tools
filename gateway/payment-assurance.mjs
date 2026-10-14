@@ -94,7 +94,7 @@ const assuranceTools=[{
   name:'x402-payment-intent-assurance',
   route:'/commerce/payment-intent-assurance',
   price:'$0.003',priceUsd:0.003,
-  description:'Read-only x402 v2 Base USDC EIP-3009 payment-intent safety preflight. Compare offered requirements and payment envelope against buyer-approved payees, request resource and max amount, plus nonce format and time window. Not signature verification, signed URL binding, or settlement proof.',
+  description:'PRE-SIGNING ONLY: read-only x402 v2 Base USDC payment-intent preview check ($0.003). Supply unsigned authorization parameters, caller-approved payee allowlist, resource URL and max spend. NEVER send private keys, signed PAYMENT-SIGNATURE headers or raw signatures. Compares untrusted envelope metadata; not cryptographic URI binding, signature verification, nonce-state verification, settlement or delivery proof. Guide: https://github.com/industrial-platform-ai/industrial-platform-agent-tools/blob/main/gateway/docs/payment-intent-assurance.md',
   tags:['x402','payment-intent','preflight','resource-binding','payee-allowlist','security'],
   inputSchema:{type:'object',properties:{
     intent:{type:'object',properties:{
