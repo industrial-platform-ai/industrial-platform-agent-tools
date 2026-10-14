@@ -22,6 +22,7 @@ import { adoptionTools } from './adoption.mjs';
 import { registerAIMarketFederation } from './aimarket-federation.mjs';
 import { inferenceTools } from './inference.mjs';
 import { buildCommerceTools } from './commerce.mjs';
+import {assuranceTools} from './payment-assurance.mjs';
 import { buildFactoryProducts } from './factory-products.mjs';
 import { activeFactoryIds } from './factory-active.mjs';
 
@@ -67,7 +68,7 @@ const acceptsFor = (price, batch=false) => NETWORKS.flatMap(network=>[
 const inferenceEnabled = process.env.INDUSTRIAL_INFERENCE_ENABLED==='true' && Boolean(process.env.OPENROUTER_API_KEY);
 const commerceTools = buildCommerceTools({networkTools,runChange});
 const factoryTools = buildFactoryProducts({commerceTools,runChange,activeIds:activeFactoryIds});
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...factoryTools, ...(inferenceEnabled?inferenceTools:[])];
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...assuranceTools, ...factoryTools, ...(inferenceEnabled?inferenceTools:[])];
 const PRIORITY_ROUTES = [
   '/block-number',
   '/erc20-balance',
