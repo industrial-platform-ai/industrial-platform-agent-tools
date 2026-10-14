@@ -29,9 +29,9 @@ export async function industrialHash(text: string) {
   if (!row) throw new Error("/hash is missing from pricing.json");
 
   const atomic = BigInt(row.amountAtomic);
-  if (atomic > 1n) {
+  if (atomic > 1000n) {
     throw new Error(
-      `Refusing Industrial Platform canary above 1 atomic USDC; live price=${atomic}`,
+      `Refusing Industrial Platform canary above 1000 atomic USDC ($0.001); live price=${atomic}`,
     );
   }
 
