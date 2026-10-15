@@ -30,8 +30,9 @@ function products(documents) {
 const objs=v=>(Array.isArray(v)?v:[v]).filter(x=>x&&typeof x==='object').slice(0,25);
 function extract(metadata) {
   const choices=[];
+  let aggregateOfferPresent=false;
   for(const {node,path} of products(metadata.json_ld||[]))for(const offer of objs(node.offers)) {
-    if(types(offer['@type']).includes('aggregateoffer'))continue;
+    if(types(offer['@type']).includes('aggregateoffer')){aggregateOfferPresent=true;continue;}
     const specs=objs(offer.priceSpecification);
     const price=money(offer.price)??specs.map(s=>money(s.price)).find(x=>x!==null)??null;
     if(price===null)continue;
@@ -39,6 +40,10 @@ function extract(metadata) {
       availability:availability(offer.availability),product_name:typeof node.name==='string'?node.name.slice(0,250):null,
       source:path+'.offers',evidence_field:'price'});
   }
+  if(aggregateOfferPresent)return {status:'ambiguous',price:null,currency:null,
+    availability:'unknown',product_name:null,source:null,evidence_field:null,
+    candidates_found:choices.length,
+    reason:'AggregateOffer or mixed aggregate/single offers: no unambiguous product-level price.'};
   if(!choices.length) {
     const p=metadata.product_metadata||{},og=metadata.open_graph||{};
     const price=money(p['price:amount']??p.price??og['price:amount']);
