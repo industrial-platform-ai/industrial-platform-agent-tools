@@ -28,6 +28,25 @@ test('does not choose a single offer when another Product offer is aggregate',()
     {'@type':'AggregateOffer',lowPrice:'19.00',highPrice:'39.00',priceCurrency:'USD'}]}]),{url});
   assert.equal(p.status,'ambiguous');assert.equal(p.price,null);
 });
+test('fails closed when one Offer declares conflicting priceSpecification values',()=>{
+  const p=interpretPriceMetadata(metadata([{'@type':'Product',offers:{'@type':'Offer',priceSpecification:[
+    {price:'100.00',priceCurrency:'USD'},{price:'80.00',priceCurrency:'USD'}]}}]),{url});
+  assert.equal(p.status,'ambiguous');assert.equal(p.price,null);
+  assert.match(p.reason,/Conflicting price/);
+});
+test('fails closed when explicit Offer price contradicts its priceSpecification',()=>{
+  const p=interpretPriceMetadata(metadata([{'@type':'Product',offers:{'@type':'Offer',price:'99.00',priceCurrency:'USD',
+    priceSpecification:{price:'79.00',priceCurrency:'USD'}}}]),{url});
+  assert.equal(p.status,'ambiguous');assert.equal(p.price,null);
+});
+test('fails closed on conflicting currencies but accepts equivalent numeric representations',()=>{
+  const bad=interpretPriceMetadata(metadata([{'@type':'Product',offers:{'@type':'Offer',price:'10',priceCurrency:'USD',
+    priceSpecification:{price:'10.00',priceCurrency:'EUR'}}}]),{url});
+  assert.equal(bad.status,'ambiguous');assert.equal(bad.currency,null);
+  const good=interpretPriceMetadata(metadata([{'@type':'Product',offers:{'@type':'Offer',price:'10',priceCurrency:'USD',
+    priceSpecification:{price:'10.00',priceCurrency:'USD'}}}]),{url});
+  assert.equal(good.status,'ready');assert.equal(good.currency,'USD');assert.equal(good.price,'10');
+});
 test('uses price meta if JSON-LD missing',()=>{
   const p=interpretPriceMetadata(metadata([],{product_metadata:{'price:amount':'59.00','price:currency':'USD',availability:'InStock'}}),{url});
   assert.equal(p.price,'59.00');assert.equal(p.source,'product_meta');
