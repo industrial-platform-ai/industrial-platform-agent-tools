@@ -1,0 +1,21 @@
+name: PriceSignal preferred-provider checks
+on:
+  pull_request:
+    paths:
+      - 'integrations/pricesignal/**'
+      - '.github/workflows/pricesignal-provider.yml'
+  workflow_dispatch:
+jobs:
+  preferred-provider:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and operator authorization tests
+        run: |
+          node --check integrations/pricesignal/preferred-provider.mjs
+          node --test integrations/pricesignal/preferred-provider.test.mjs
