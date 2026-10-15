@@ -10,6 +10,7 @@ import { createPaywall } from '@x402/paywall';
 import { evmPaywall } from '@x402/paywall/evm';
 import { runMetadata } from './metadata.mjs';
 import { runChange } from './change.mjs';
+import { buildPriceIntelligenceTools } from './price-intelligence.mjs';
 import { utilityTools } from './utilities.mjs';
 import { marketTools } from './market.mjs';
 import { documentTools } from './article.mjs';
@@ -69,9 +70,10 @@ const acceptsFor = (price, batch=false) => NETWORKS.flatMap(network=>[
 // Never advertise a payable inference route without an explicitly enabled funded upstream.
 const inferenceEnabled = process.env.INDUSTRIAL_INFERENCE_ENABLED==='true' && Boolean(process.env.OPENROUTER_API_KEY);
 const commerceTools = buildCommerceTools({networkTools,runChange});
+const priceIntelligenceTools = buildPriceIntelligenceTools({runMetadata});
 const gasPreflightTools = buildGasPreflightTools({networkTools});
 const factoryTools = buildFactoryProducts({commerceTools,runChange,activeIds:activeFactoryIds});
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...assuranceTools, ...gasPreflightTools, ...factoryTools, ...(inferenceEnabled?inferenceTools:[])];
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...priceIntelligenceTools, ...assuranceTools, ...gasPreflightTools, ...factoryTools, ...(inferenceEnabled?inferenceTools:[])];
 const PRIORITY_ROUTES = [
   '/block-number',
   '/erc20-balance',
@@ -93,6 +95,7 @@ const PRIORITY_ROUTES = [
   '/gas-state',
   '/change',
   '/web/monitor',
+  '/commerce/price-snapshot',
   '/web/scrape',
   '/web/markdown',
   '/metadata-single',
@@ -154,6 +157,7 @@ const AUTO_IMPORT_ALIASES = {
   '/commerce/tx-outcome':['transaction_outcome','tx_finality'],
   '/commerce/allowance-delta':['erc20_approval_delta'],
   '/commerce/material-web-change':['material_web_change'],
+  '/commerce/price-snapshot':['competitor_product_price','extract_product_price','product_price_snapshot'],
   '/commerce/endpoint-health':['authorized_endpoint_health'],
   '/commerce/usdc-receipt':['base_usdc_receipt_proof'],
   '/commerce/evidence-fingerprint':['agent_evidence_fingerprint']
@@ -194,6 +198,7 @@ const ROUTING_QUERIES = [
   {route:'/web/markdown',query:'convert URL to clean Markdown for RAG'},
   {route:'/metadata',query:'extract webpage metadata OpenGraph JSON-LD'},
   {route:'/web/monitor',query:'monitor a webpage for changes price inventory availability'},
+  {route:'/commerce/price-snapshot',query:'extract product prices stock availability from ecommerce product page'},
   {route:'/hash',query:'compute sha256 hash'},
   {route:'/base64',query:'base64 encode decode'},
   {route:'/crypto/price',query:'crypto price'},

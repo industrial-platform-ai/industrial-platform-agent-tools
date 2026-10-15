@@ -61,6 +61,8 @@ jobs:
           if (!o.paths?.['/change']?.post) throw new Error('change OpenAPI missing');
           if (!o.paths?.['/commerce/payment-intent-assurance']?.post) throw new Error('payment-intent-assurance OpenAPI missing');
           if (!m.tools?.some(x=>x.route==='/commerce/payment-intent-assurance')) throw new Error('payment assurance x402 discovery missing');
+          if (!m.tools?.some(x=>x.route==='/commerce/price-snapshot' && x.priceUsd===0.005)) throw new Error('PriceSignal route price/discovery missing');
+          if (!o.paths?.['/commerce/price-snapshot']?.post) throw new Error('PriceSignal OpenAPI missing');
           NODE
       - name: Show log
         if: always()
