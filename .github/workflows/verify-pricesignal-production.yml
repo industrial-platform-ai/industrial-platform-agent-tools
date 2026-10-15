@@ -1,0 +1,68 @@
+name: Verify PriceSignal Production (Unpaid)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-pricesignal-production.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Verify x402 catalog, pricing, payment-required boundary without funds
+        run: |
+          python3 - <<'PY'
+          import base64, json, time, urllib.request, urllib.error
+          from datetime import datetime, timezone
+
+          base = 'https://x402-gateway-production-1f21.up.railway.app'
+          route = '/commerce/price-snapshot'
+          expected_payee='0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E'.lower()
+          headers={'User-Agent':'PriceSignal-CI-UnpaidPreflight/1.0',
+                   'Cache-Control':'no-cache'}
+          def fetch(url):
+              req=urllib.request.Request(url,headers=headers)
+              with urllib.request.urlopen(req,timeout=18) as resp:
+                  return json.load(resp)
+          def validate():
+              health=fetch(base+'/health')
+              assert health.get('ok') is True, 'gateway unhealthy'
+              manifest=fetch(base+'/.well-known/x402')
+              entry=next((x for x in manifest.get('tools',[]) if x.get('route')==route),None)
+              assert entry, 'PriceSignal route not in x402 discovery'
+              assert float(entry.get('priceUsd',-1))==0.005,'incorrect manifest price'
+              openapi=fetch(base+'/openapi.json')
+              post_spec=openapi['paths'][route]['post']
+              amount=post_spec.get('x-payment-info',{}).get('price',{}).get('amount')
+              assert str(amount)=='0.005', 'wrong OpenAPI declared price'
+              req=urllib.request.Request(base+route,method='POST',
+                       data=json.dumps({'url':'https://example.com/'}).encode(),
+                       headers={**headers,'Content-Type':'application/json'})
+              try:
+                  with urllib.request.urlopen(req,timeout=18) as resp:
+                      raise AssertionError('Unpaid endpoint unexpectedly returned '+str(resp.status))
+              except urllib.error.HTTPError as e:
+                  assert e.code==402, 'unpaid HTTP status '+str(e.code)
+                  encoded=e.headers.get('PAYMENT-REQUIRED')
+                  assert encoded,'missing PAYMENT-REQUIRED'
+                  info=json.loads(base64.b64decode(encoded+'='*((-len(encoded))%4)))
+                  requirements=info.get('accepts',[])
+                  assert any(str(r.get('network'))=='eip155:8453'
+                            and str(r.get('amount'))=='5000'
+                            and str(r.get('payTo','')).lower()==expected_payee
+                            for r in requirements), 'payee/network/price mismatch'
+              print('VERIFIED UTC',datetime.now(timezone.utc).isoformat())
+              print('VERIFIED PriceSignal route, price $0.005, Base payee, HTTP 402')
+              print('NO PAYMENT SIGNED OR SUBMITTED')
+          for attempt in range(1,39):
+              try:
+                  validate()
+                  break
+              except Exception as e:
+                  print('attempt',attempt,'not verified:',repr(e),flush=True)
+                  if attempt==38: raise
+                  time.sleep(10)
+          PY
