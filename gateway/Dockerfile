@@ -6,6 +6,7 @@ COPY server.mjs ./
 COPY roundhouse-preload.mjs ./
 COPY mcp-server.mjs ./
 COPY metadata.mjs ./
+COPY price-intelligence.mjs ./
 COPY change.mjs ./
 COPY utilities.mjs ./
 COPY market.mjs ./
@@ -33,6 +34,7 @@ COPY factory-active.mjs ./
 COPY tests/factory-products.test.mjs ./tests/factory-products.test.mjs
 COPY tests/inference.test.mjs ./tests/inference.test.mjs
 COPY tests/commerce.test.mjs ./tests/commerce.test.mjs
+COPY tests/price-intelligence.test.mjs ./tests/price-intelligence.test.mjs
 RUN npm run check
 ENV NODE_ENV=production
 EXPOSE 3000
