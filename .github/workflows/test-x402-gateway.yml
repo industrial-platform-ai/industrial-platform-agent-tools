@@ -61,7 +61,16 @@ jobs:
           if (!o.paths?.['/change']?.post) throw new Error('change OpenAPI missing');
           if (!o.paths?.['/commerce/payment-intent-assurance']?.post) throw new Error('payment-intent-assurance OpenAPI missing');
           if (!m.tools?.some(x=>x.route==='/commerce/payment-intent-assurance')) throw new Error('payment assurance x402 discovery missing');
+          if (!m.tools?.some(x=>x.route==='/commerce/price-snapshot' && x.priceUsd===0.005)) throw new Error('PriceSignal route price/discovery missing');
+          if (!o.paths?.['/commerce/price-snapshot']?.post) throw new Error('PriceSignal OpenAPI missing');
           NODE
+      - name: Verify unpaid PriceSignal request is gated (no settlement)
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/pricesignal-response -D /tmp/pricesignal-headers -w '%{http_code}' -X POST 'http://127.0.0.1:3000/commerce/price-snapshot' -H 'Content-Type: application/json' --data '{"url":"https://example.com/"}')
+          test "$code" = 402
+          grep -qi '^payment-required:' /tmp/pricesignal-headers
+          echo 'VERIFIED: PriceSignal unpaid POST requires x402; no USDC signed or spent'
       - name: Show log
         if: always()
         run: cat /tmp/gateway.log || true
