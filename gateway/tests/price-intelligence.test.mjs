@@ -15,7 +15,18 @@ test('reads graph Product with priceSpecification',()=>{
 test('refuses missing and ambiguous prices and AggregateOffer ranges',()=>{
   assert.equal(interpretPriceMetadata(metadata(),{url}).status,'unavailable');
   assert.equal(interpretPriceMetadata(metadata([{'@type':'Product',offers:[{'@type':'Offer',price:19,priceCurrency:'USD'},{'@type':'Offer',price:29,priceCurrency:'USD'}]}]),{url}).status,'ambiguous');
-  assert.equal(interpretPriceMetadata(metadata([{'@type':'Product',offers:{'@type':'AggregateOffer',lowPrice:9,highPrice:19}}]),{url}).status,'unavailable');
+  assert.equal(interpretPriceMetadata(metadata([{'@type':'Product',offers:{'@type':'AggregateOffer',lowPrice:9,highPrice:19}}]),{url}).status,'ambiguous');
+});
+test('does not convert an AggregateOffer lowPrice meta fallback into an exact price',()=>{
+  const p=interpretPriceMetadata(metadata([{'@type':'Product',offers:{'@type':'AggregateOffer',lowPrice:'19.00',highPrice:'39.00',priceCurrency:'USD'}}],
+    {product_metadata:{'price:amount':'19.00','price:currency':'USD',availability:'InStock'}}),{url});
+  assert.equal(p.status,'ambiguous');assert.equal(p.price,null);assert.equal(p.currency,null);
+  assert.equal(p.comparison.alert_recommended,false);
+});
+test('does not choose a single offer when another Product offer is aggregate',()=>{
+  const p=interpretPriceMetadata(metadata([{'@type':'Product',offers:[{'@type':'Offer',price:'24.00',priceCurrency:'USD'},
+    {'@type':'AggregateOffer',lowPrice:'19.00',highPrice:'39.00',priceCurrency:'USD'}]}]),{url});
+  assert.equal(p.status,'ambiguous');assert.equal(p.price,null);
 });
 test('uses price meta if JSON-LD missing',()=>{
   const p=interpretPriceMetadata(metadata([],{product_metadata:{'price:amount':'59.00','price:currency':'USD',availability:'InStock'}}),{url});
