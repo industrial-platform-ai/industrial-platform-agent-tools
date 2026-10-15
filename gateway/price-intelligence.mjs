@@ -31,19 +31,24 @@ const objs=v=>(Array.isArray(v)?v:[v]).filter(x=>x&&typeof x==='object').slice(0
 function extract(metadata) {
   const choices=[];
   let aggregateOfferPresent=false;
+  let contradictoryOfferPresent=false;
   for(const {node,path} of products(metadata.json_ld||[]))for(const offer of objs(node.offers)) {
     if(types(offer['@type']).includes('aggregateoffer')){aggregateOfferPresent=true;continue;}
     const specs=objs(offer.priceSpecification);
-    const price=money(offer.price)??specs.map(s=>money(s.price)).find(x=>x!==null)??null;
+    const declaredPrices=[money(offer.price),...specs.map(s=>money(s.price))].filter(x=>x!==null);
+    const declaredCurrencies=[currency(offer.priceCurrency),...specs.map(s=>currency(s.priceCurrency))].filter(Boolean);
+    // Multiple contradictory structured prices or currencies cannot identify a single current offer.
+    if(new Set(declaredPrices.map(Number)).size>1||new Set(declaredCurrencies).size>1){contradictoryOfferPresent=true;continue;}
+    const price=declaredPrices[0]??null;
     if(price===null)continue;
-    choices.push({price,currency:currency(offer.priceCurrency)||specs.map(s=>currency(s.priceCurrency)).find(Boolean)||null,
+    choices.push({price,currency:declaredCurrencies[0]||null,
       availability:availability(offer.availability),product_name:typeof node.name==='string'?node.name.slice(0,250):null,
       source:path+'.offers',evidence_field:'price'});
   }
-  if(aggregateOfferPresent)return {status:'ambiguous',price:null,currency:null,
+  if(aggregateOfferPresent||contradictoryOfferPresent)return {status:'ambiguous',price:null,currency:null,
     availability:'unknown',product_name:null,source:null,evidence_field:null,
     candidates_found:choices.length,
-    reason:'AggregateOffer or mixed aggregate/single offers: no unambiguous product-level price.'};
+    reason:contradictoryOfferPresent?'Conflicting price or currency declarations in one structured Offer.':'AggregateOffer or mixed aggregate/single offers: no unambiguous product-level price.'};
   if(!choices.length) {
     const p=metadata.product_metadata||{},og=metadata.open_graph||{};
     const price=money(p['price:amount']??p.price??og['price:amount']);
