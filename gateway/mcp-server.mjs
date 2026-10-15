@@ -11,6 +11,7 @@ import { createCdpFacilitatorClient } from '@coinbase/cdp-sdk/x402';
 
 import { runMetadata } from './metadata.mjs';
 import { runChange } from './change.mjs';
+import { buildPriceIntelligenceTools } from './price-intelligence.mjs';
 import { utilityTools } from './utilities.mjs';
 import { marketTools } from './market.mjs';
 import { documentTools } from './article.mjs';
@@ -84,9 +85,10 @@ const changeInputSchema = {
 };
 
 const commerceTools = buildCommerceTools({networkTools,runChange});
+const priceIntelligenceTools = buildPriceIntelligenceTools({runMetadata});
 const gasPreflightTools = buildGasPreflightTools({networkTools});
 const factoryTools = buildFactoryProducts({commerceTools,runChange,activeIds:activeFactoryIds});
-const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...assuranceTools, ...gasPreflightTools, ...factoryTools];
+const dynamicTools = [...utilityTools, ...marketTools, ...documentTools, ...networkTools, ...bundleTools, ...agenticTools, ...cryptoAgentTools, ...canonicalTools, ...adoptionTools, ...commerceTools, ...priceIntelligenceTools, ...assuranceTools, ...gasPreflightTools, ...factoryTools];
 
 const readResult = async (body) => {
   const result = await runChange({...body, include_current_text:true});
@@ -247,7 +249,7 @@ const MCP_PROFILES = {
   'market-data':['crypto_price','crypto_candles','crypto_book','market_snapshot'],
   'web-monitor':['monitor_webpage_change','detectWebpageChange','extractWebpageMetadata'],
   'x402-adoption':['search-the-web-for-x402-adoption'],
-  'commerce':['base-gas-execution-fee-preflight','x402-payment-intent-assurance','x402-payment-diagnostic','agent-procurement-quote','transaction-terminal-outcome','erc20-allowance-delta','material-web-change','authorized-endpoint-health','base-usdc-receipt-proof','agent-evidence-fingerprint',...factoryTools.map(t=>t.name)]
+  'commerce':['base-gas-execution-fee-preflight','x402-payment-intent-assurance','x402-payment-diagnostic','agent-procurement-quote','transaction-terminal-outcome','erc20-allowance-delta','material-web-change','authorized-endpoint-health','base-usdc-receipt-proof','agent-evidence-fingerprint','product-price-intelligence',...factoryTools.map(t=>t.name)]
 };
 for (const [profile,names] of Object.entries(MCP_PROFILES)) {
   for (const name of names) {
