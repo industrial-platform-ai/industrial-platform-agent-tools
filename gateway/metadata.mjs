@@ -185,6 +185,7 @@ function extractMetadata(html, finalUrl) {
       h2: $('h2').slice(0, 20).map((_, el) => clean($(el).text())).get().filter(Boolean)
     },
     open_graph: collectMeta($, 'og'),
+    product_metadata: collectMeta($, 'product'),
     twitter: collectMeta($, 'twitter'),
     json_ld: jsonLd
   };
