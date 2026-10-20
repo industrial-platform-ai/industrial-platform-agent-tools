@@ -4,7 +4,7 @@ const fail = (message, statusCode=400) => Object.assign(new Error(message), {sta
 const types = v => (Array.isArray(v)?v:[v]).filter(Boolean).map(x=>String(x).split(/[\/#]/).pop().toLowerCase());
 const availability = v => {
   const s=String(v||'').toLowerCase().replace(/[^a-z]/g,'');
-  if(s.endsWith('outofstock')||s==='soldout'||s==='unavailable')return 'out_of_stock';
+  if(s.endsWith('outofstock')||s.endsWith('notinstock')||s==='soldout'||s==='unavailable')return 'out_of_stock';
   if(s.endsWith('instock')||s==='available')return 'in_stock';
   for(const [name,state] of [['preorder','preorder'],['backorder','backorder'],['discontinued','discontinued']])if(s.endsWith(name))return state;
   return 'unknown';
