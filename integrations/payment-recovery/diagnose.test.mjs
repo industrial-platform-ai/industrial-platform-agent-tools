@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {diagnoseX402Failure,recoveryOutcome} from './diagnose.mjs';
+const offer={network:'eip155:8453',amount:'3000',payTo:'0x1234',asset:'0x5678'};
+const base={httpStatus:402,paymentRequired:{accepts:[offer]},allowedNetworks:['eip155:8453'],maxAtomicAmount:3000,settlementStatus:'not_submitted'};
+test('valid challenge is diagnostic only',()=>{const x=diagnoseX402Failure(base);assert.equal(x.code,'challenge_compatible');assert.equal(x.paymentAuthorized,false);assert.equal(x.canRetry,false)});
+test('unknown settlement blocks retry',()=>assert.equal(diagnoseX402Failure({...base,settlementStatus:'unknown'}).code,'settlement_uncertain'));
+test('submitted transaction blocks retry',()=>assert.equal(diagnoseX402Failure({...base,alreadySubmitted:true}).code,'settlement_uncertain'));
+test('payment response blocks retry',()=>assert.equal(diagnoseX402Failure({...base,paymentResponse:'receipt'}).code,'settlement_uncertain'));
+test('network policy blocks challenge',()=>assert.equal(diagnoseX402Failure({...base,allowedNetworks:[]}).code,'no_authorized_payment_option'));
+test('budget cap blocks challenge',()=>assert.equal(diagnoseX402Failure({...base,maxAtomicAmount:2999}).code,'no_authorized_payment_option'));
+test('missing challenge blocks payment',()=>assert.equal(diagnoseX402Failure({...base,paymentRequired:null}).code,'missing_challenge'));
+test('unpaid delivery is not billable',()=>assert.equal(recoveryOutcome({diagnosis:diagnoseX402Failure(base),authorizedRecoveryFee:true}).billable,false));
+test('fee requires both verification and authorization',()=>assert.equal(recoveryOutcome({diagnosis:diagnoseX402Failure(base),independentlyVerifiedPaidDelivery:true,authorizedRecoveryFee:true}).billable,true));
