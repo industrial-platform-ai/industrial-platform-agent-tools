@@ -1,18 +1,20 @@
 # Industrial Platform Revenue State
 
-Updated: 2026-09-30 18:53 America/New_York
+Updated: 2026-10-04 10:31 America/New_York
 
 ## Objective
 
-Get the first independently generated paid x402 call without spending money to manufacture the transaction, then replicate the winning route and distribution source.
+Turn verified independent purchases into recurring machine workloads and repeat paid settlements. Exclude internal seed-buyer transactions from revenue milestones.
 
 ## Production
 
 Origin:
 https://x402-gateway-production-1f21.up.railway.app
 
-Seller wallet:
-0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744
+Current production payTo:
+0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E
+
+The live gateway has used this address in its x402 challenges and settlement receipts since the current deployment. Earlier records list the legacy address 0x1FfD0FE3D4E0e4bA6337231b9a81B6672aED9744; retain it only as historical transaction context.
 
 Network:
 Base / eip155:8453
@@ -170,9 +172,7 @@ The direct x402 gateway now covers substantially more than the requested product
 
 ## What is not yet proven
 
-There is still no confirmed unsolicited / independently task-generated settlement after the external validation transaction.
-
-No claim of organic revenue should be made until a new X402_SETTLED event appears from an independent payer.
+A second verified settlement from the same independent buyer occurred on October 4. This establishes repeat purchasing by one external payer, but not a second distinct payer or a buyer-side scheduled workload. Continue reporting unique external payers and repeated calls separately.
 
 ## First-sale constraint
 
@@ -241,4 +241,19 @@ This is distinct from:
 
 This satisfies the project's definition of a first real external paid call: an independent third-party machine buyer discovered the seller, paid a live x402 route, and received a successful result.
 
-Next objective: convert one independent buyer into 10+ independent settlements and clear external router settlement floors using genuine third-party demand, not self-funded loops.
+## Repeat buyer settlement — October 4, 2026
+
+vet402 repeated its independent purchase on `POST /crypto/candles`; the unpaid request received HTTP 402 and the paid retry received HTTP 200.
+
+- payer: `0xc9c7b38c0942914fc8ea12063bc92dcd3b581670` (same external wallet as October 1)
+- transaction: `0x64baec12adc45d5c8446bb2b96481045ad6c79786373c11140ccd1397703a8f0`
+- amount: $0.005 USDC
+- current payTo: `0xF7Eb4b12D673dF433d76B2DBD9CA41Db3fE1836E`
+- settledAt: `2026-10-04T09:32:33.390Z` (05:32:33 America/New_York)
+- user agent: `vet402-observatory-l1/1.0 (+https://vet402.com/observatory/methodology)`
+
+This is the second confirmed independent settlement from vet402, on a naturally repeatable market-data route. It is not a second distinct buyer. Gateway logs for the trailing 24 hours also show 10 successful seed-buyer transactions totaling $0.034; those internal calls are excluded from external revenue.
+
+## Next objective
+
+Reach 10 genuine external settlements across at least 3 distinct external payer wallets, then establish buyer-originated repeated use over 24 hours. Do not count seed/self-funded transactions toward either target.
